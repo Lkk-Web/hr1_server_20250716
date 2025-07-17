@@ -13,7 +13,6 @@ import { AbnormalFilter } from './core/filter/abnormalFilter'
 import { INestApplication } from '@nestjs/common'
 import { SwaggerDocumentOptions } from '@nestjs/swagger/dist/interfaces'
 import * as os from 'os'
-import initApiLogger from 'api-stack-log'
 import express = require('express')
 // 微信支付回调配置
 // const bodyParser = require('body-parser')
@@ -62,13 +61,6 @@ async function bootstrap() {
   app.useGlobalPipes(iocContext.get(DtoPipe))
   // 异常捕捉格式化
   app.useGlobalFilters(iocContext.get(ExceptionCatchFilter), iocContext.get(AbnormalFilter))
-  if (configs.ApiLoggerConfig.enabled) {
-    const expressApp = app.getHttpAdapter().getInstance()
-    await initApiLogger(expressApp, configs.ApiLoggerConfig)
-    setTimeout(() => {
-      console.log(`[api_log_UI]`, `http://127.0.0.1:${configs.info.port}${configs.ApiLoggerConfig.routePrefix}/ui/#`)
-    }, 300)
-  }
 
   // 创建接口文档
   if (configs.info.isDebug) {

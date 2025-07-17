@@ -1,6 +1,5 @@
 import { APP_ENV } from './enum'
 import { AliOssAccount, BusinessInfo, Configs, IoRedisOptions, ReMailbox, SequlizeOptions, WeChat } from '@common/interface'
-import { ApiLoggerOptions } from 'api-stack-log'
 import { join } from 'path'
 import { pathConstant } from '@common/constant'
 import YAML = require('yaml')
@@ -78,15 +77,6 @@ export const OSS_ACCOUNT: AliOssAccount = {
   endpoint: 'HOME_PATH',
   // cname: 'HOME_PATH'?true:false,
   timeout: 120 * 1000, // 设置上传超时时间为 120 秒
-}
-
-export const ApiLoggerConfig: ApiLoggerOptions = {
-  whitelistPaths: [/^\/doc/, '/favicon.ico'],
-  filterStackBasePath: pathConstant.root,
-  maxDays: 15, // 设置日志最大保存天数
-  ...envs.apiLogger,
-  dbPath: join(pathConstant.root, 'doc/logs.sqlite'),
-  filterRequestMethods: ['OPTIONS', 'HEAD'],
 }
 
 export const MicroserviceConfig: MicroserviceOptions = {
