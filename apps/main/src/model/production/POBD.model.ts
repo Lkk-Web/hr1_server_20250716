@@ -2,14 +2,14 @@ import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Table 
 import { BaseDate } from '@model/shared/baseDate'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { Material } from '@model/base/material.model'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 import { ProcessRouteList } from '@model/process/processRouteList.model'
 import { Process } from '@model/process/process.model'
 import { BOM } from '@model/base/bom.model'
-import { POB } from '@model/pe/POB.model'
+import { POB } from '@model/production/POB.model'
 import { Warehouse } from '@model/wm/warehouse.model'
 
-@Table({ tableName: `pe_POBD`, freezeTableName: true, timestamps: true, comment: '生产工单用料清单子项明细表' })
+@Table({ tableName: `production_POBD`, freezeTableName: true, timestamps: true, comment: '生产工单用料清单子项明细表' })
 export class POBD extends BaseDate<POBD> {
   @ForeignKey(() => POB)
   @Column({

@@ -4,11 +4,11 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { CSalesOrderDto, FindPaginationDto, USalesOrderDto } from './salesOrder.dto'
-import { SalesOrder } from '@model/ps/salesOrder.model'
+import { SalesOrder } from '@model/plan/salesOrder.model'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { SalesOrderDetail } from '@model/ps/salesOrderDetail.model'
+import { SalesOrderDetail } from '@model/plan/salesOrderDetail.model'
 import { WarehouseMaterial } from '@model/wm/warehouseMaterial.model'
 import { deleteIdsDto } from '@common/dto'
 import { OutboundOrder } from '@model/wm/outboundOrder.model'
@@ -24,7 +24,7 @@ export class SalesOrderService {
     @InjectModel(SalesOrder)
     private salesOrderModel: typeof SalesOrder,
     private sequelize: Sequelize
-  ) { }
+  ) {}
 
   public async create(dto: CSalesOrderDto, user, loadModel) {
     if (dto.code) {
@@ -140,7 +140,7 @@ export class SalesOrderService {
       where: {},
       pagination,
       order: [['id', 'DESC']],
-      attributes: ['id', 'code', 'orderDate', 'customerId', 'dataStatus', 'types', 'status', 'createdAt', 'updatedAt','approveDate'],
+      attributes: ['id', 'code', 'orderDate', 'customerId', 'dataStatus', 'types', 'status', 'createdAt', 'updatedAt', 'approveDate'],
       include: [
         {
           association: 'customer',

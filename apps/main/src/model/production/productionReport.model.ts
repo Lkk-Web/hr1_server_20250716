@@ -1,16 +1,16 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Process } from '@model/process/process.model'
 import { User } from '@model/sys/user.model'
-import { PRI } from '@model/pe/PRI.model'
+import { PRI } from '@model/production/PRI.model'
 import { PerformanceConfig } from '@model/pp/performanceConfig.model'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { Team } from '@model/sm/team.model'
-import { ReportUser } from '@model/pe/reportUser.model'
+import { ReportUser } from '@model/production/reportUser.model'
 
-@Table({ tableName: `pe_production_report`, timestamps: true, comment: '生产报工表' })
+@Table({ tableName: `production_report`, timestamps: true, comment: '生产报工表' })
 export class ProductionReport extends BaseDate<ProductionReport> {
   //工单ID
   @ForeignKey(() => ProductionOrder)

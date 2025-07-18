@@ -1,6 +1,6 @@
 import { Pagination } from '@common/interface'
 import { Injectable } from '@nestjs/common'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 import { FindPaginationDto } from './productionOrder.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
@@ -9,8 +9,7 @@ import { PerformanceConfig } from '@model/index'
 
 @Injectable()
 export class ProductionOrderService {
-  constructor(
-  ) {}
+  constructor() {}
 
   public async find(id: number) {
     const options: FindOptions = {
@@ -57,12 +56,12 @@ export class ProductionOrderService {
             'actualEndTime',
             'processTaskId',
           ],
-          required:false,
+          required: false,
           include: [
             {
               association: 'process',
               attributes: ['id', 'processName'],
-              required:false,
+              required: false,
             },
 
             {
@@ -71,8 +70,8 @@ export class ProductionOrderService {
               through: {
                 attributes: [], // 隐藏中间表的数据
               },
-              where:{},
-              required:false,
+              where: {},
+              required: false,
             },
             {
               association: 'items',
@@ -80,7 +79,7 @@ export class ProductionOrderService {
               through: {
                 attributes: [], // 隐藏中间表的数据
               },
-              required:false,
+              required: false,
             },
             {
               association: 'file',
@@ -151,8 +150,8 @@ export class ProductionOrderService {
         },
         {
           association: 'processes',
-          required:false,
-          where:{},
+          required: false,
+          where: {},
           attributes: [
             'id',
             'productionOrderId',
@@ -174,8 +173,8 @@ export class ProductionOrderService {
             {
               association: 'process',
               attributes: ['id', 'processName'],
-              where:{},
-              required:false,
+              where: {},
+              required: false,
             },
             {
               association: 'depts',
@@ -183,8 +182,8 @@ export class ProductionOrderService {
               through: {
                 attributes: [], // 隐藏中间表的数据
               },
-              required:false,
-              where:{}
+              required: false,
+              where: {},
             },
             {
               association: 'items',
@@ -192,7 +191,7 @@ export class ProductionOrderService {
               through: {
                 attributes: [], // 隐藏中间表的数据
               },
-              required:false,
+              required: false,
             },
             {
               association: 'file',
@@ -246,7 +245,7 @@ export class ProductionOrderService {
       }
     }
 
-    if (dto.category){
+    if (dto.category) {
       options.include[0].include[0].where['category'] = {
         [Op.eq]: dto.category,
       }
@@ -277,7 +276,7 @@ export class ProductionOrderService {
           include: [
             {
               association: 'parentMaterial',
-              attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status','category'],
+              attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status', 'category'],
               where: {},
               required: false,
             },
@@ -316,8 +315,7 @@ export class ProductionOrderService {
       }
     }
 
-
-    if (dto.category){
+    if (dto.category) {
       options1.include[0].include[0].where['category'] = {
         [Op.eq]: dto.category,
       }
@@ -332,13 +330,13 @@ export class ProductionOrderService {
           association: 'bom',
           attributes: ['id', 'materialId', 'parentId', 'remark', 'version', 'quantity', 'formData'],
           where: {},
-          required:false,
+          required: false,
           include: [
             {
               association: 'parentMaterial',
-              attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status','category'],
+              attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status', 'category'],
               where: {},
-              required:false,
+              required: false,
             },
           ],
         },
@@ -375,8 +373,7 @@ export class ProductionOrderService {
       }
     }
 
-
-    if (dto.category){
+    if (dto.category) {
       options2.include[0].include[0].where['category'] = {
         [Op.eq]: dto.category,
       }
@@ -387,5 +384,4 @@ export class ProductionOrderService {
     result['done'] = done.length
     return result
   }
-
 }

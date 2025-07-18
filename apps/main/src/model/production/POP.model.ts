@@ -1,18 +1,18 @@
 import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Process } from '@model/process/process.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
-import { POD } from '@model/pe/PODmodel'
-import { POI } from '@model/pe/POI.model'
+import { POD } from '@model/production/PODmodel'
+import { POI } from '@model/production/POI.model'
 import { PerformanceConfig } from '@model/pp/performanceConfig.model'
-import { ProcessTask } from '@model/pe/processTask.model'
-import { FileList } from '@model/dm/FileList.model'
+import { ProcessTask } from '@model/production/processTask.model'
+import { FileList } from '@model/document/FileList.model'
 import { WorkCenterOfPOP } from '@model/base/workCenterOfPOP.model'
 import { WorkCenter } from '@model/base/workCenter.model'
 
-@Table({ tableName: `pe_POP`, freezeTableName: true, timestamps: true, comment: '生产工单工序关联表' })
+@Table({ tableName: `production_POP`, freezeTableName: true, timestamps: true, comment: '生产工单工序关联表' })
 export class POP extends BaseDate<POP> {
   //工单ID
   @ForeignKey(() => ProductionOrder)

@@ -1,10 +1,10 @@
 import { Table, Column, Model, DataType, ForeignKey } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Process } from '@model/process/process.model'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 
-@Table({ tableName: `pe_process_task_dept`, timestamps: true, freezeTableName: true, comment: '工序任务单关联部门表' })
+@Table({ tableName: `production_process_task_dept`, timestamps: true, freezeTableName: true, comment: '工序任务单关联部门表' })
 export class ProcessTaskDept extends BaseDate<ProcessTaskDept> {
   @ForeignKey(() => ProcessTask)
   // 工单编号

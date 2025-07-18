@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { RedisProvider } from '@library/redis'
 import { Redis } from 'ioredis'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { materialListDto } from './bom.dto'
 import { BOM } from '@model/base/bom.model'
 import { BomSubItem } from '@model/base/bomSubItem.model'

@@ -4,7 +4,7 @@ import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req }
 import { AdminAuth } from '@core/decorator/controller'
 import { FileListService } from '../services/FileList.service'
 import { CFileListDto, EFileListDto, findDto, FindPaginationDto } from '../dtos/FileList.dto'
-import { FileList } from '@model/dm/FileList.model'
+import { FileList } from '@model/document/FileList.model'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
 import { Permissions } from '@core/decorator/metaData'

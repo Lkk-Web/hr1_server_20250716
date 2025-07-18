@@ -1,16 +1,16 @@
 import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Process } from '@model/process/process.model'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
-import { ProcessTaskDept } from '@model/pe/processTaskDept.model'
+import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { User } from '@model/sys/user.model'
-import { ProcessTaskUser } from '@model/pe/processTaskUser.model'
+import { ProcessTaskUser } from '@model/production/processTaskUser.model'
 import { PerformanceConfig } from '@model/pp/performanceConfig.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
-import { ProcessTaskLog } from '@model/pe/processTaskLog.model'
+import { ProcessTaskLog } from '@model/production/processTaskLog.model'
 
-@Table({ tableName: `pe_process_task`, timestamps: true, freezeTableName: true, comment: '工序任务单表' })
+@Table({ tableName: `production_process_task`, timestamps: true, freezeTableName: true, comment: '工序任务单表' })
 export class ProcessTask extends BaseDate<ProcessTask> {
   //工单ID
   @ForeignKey(() => ProductionOrder)

@@ -1,11 +1,11 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { FileMenu } from '@model/dm/FileMenu.model'
+import { FileMenu } from '@model/document/FileMenu.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { User } from '@model/sys/user.model'
-import { FileVersion } from '@model/dm/FileVersion.model'
+import { FileVersion } from '@model/document/FileVersion.model'
 
-@Table({ tableName: `dm_file_list`, timestamps: true, paranoid: true })
+@Table({ tableName: `document_file_list`, timestamps: true, paranoid: true })
 export class FileList extends BaseDate<FileList> {
   @Column({ type: DataType.STRING, comment: '文件名称' })
   declare name: string

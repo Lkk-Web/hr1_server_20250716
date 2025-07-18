@@ -1,18 +1,17 @@
 import { Pagination } from '@common/interface'
 import { Injectable } from '@nestjs/common'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { FindPaginationDto } from './processTask.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { User } from '@model/sys/user.model'
-import { ProcessTaskUser } from '@model/pe/processTaskUser.model'
+import { ProcessTaskUser } from '@model/production/processTaskUser.model'
 import { PerformanceConfig } from '@model/index'
 import moment = require('moment')
 
 @Injectable()
 export class ProcessTaskService {
-  constructor(
-  ) {}
+  constructor() {}
 
   public async find(id: number) {
     const options: FindOptions = {

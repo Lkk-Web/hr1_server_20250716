@@ -2,11 +2,11 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequeli
 import { BaseDate } from '@model/shared/baseDate'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { Material } from '@model/base/material.model'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 import { BOM } from '@model/base/bom.model'
-import { POBD } from '@model/pe/POBD.model'
+import { POBD } from '@model/production/POBD.model'
 
-@Table({ tableName: `pe_POB`, freezeTableName: true, timestamps: true, comment: '生产工单关联用料清单表' })
+@Table({ tableName: `production_POB`, freezeTableName: true, timestamps: true, comment: '生产工单关联用料清单表' })
 export class POB extends BaseDate<POB> {
   //工单ID
   @ForeignKey(() => ProductionOrder)

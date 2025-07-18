@@ -4,7 +4,7 @@ import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req }
 import { AdminAuth } from '@core/decorator/controller'
 import { FileMenuService } from '../services/FileMenu.service'
 import { CFileMenuDto, EFileMenuDto, FindPaginationDto } from '../dtos/FileMenu.dto'
-import { FileMenu } from '@model/dm/FileMenu.model'
+import { FileMenu } from '@model/document/FileMenu.model'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
 import { Permissions } from '@core/decorator/metaData'

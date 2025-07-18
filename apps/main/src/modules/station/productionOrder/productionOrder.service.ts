@@ -5,21 +5,19 @@ import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { PerformanceConfig } from '@model/pp/performanceConfig.model'
 import { ProductionOrderPageDto } from './productionOrder.dto'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 
 @Injectable()
 export class ProductionOrderService {
   constructor(
     @Inject(RedisProvider.local)
-    private readonly redis: Redis,
-  ) {
-  }
+    private readonly redis: Redis
+  ) {}
 
   public async findPagination(dto: ProductionOrderPageDto, pagination: Pagination, processId: number) {
-
     const options: FindPaginationOptions = {
       pagination,
       order: [['id', 'ASC']],
@@ -38,7 +36,7 @@ export class ProductionOrderService {
           ],
         },
       ],
-      attributes: ['id', 'code', 'plannedOutput', 'startTime', 'endTime', 'actualStartTime', 'actualEndTime', 'kingdeeCode', 'status','salesOrderCode'],
+      attributes: ['id', 'code', 'plannedOutput', 'startTime', 'endTime', 'actualStartTime', 'actualEndTime', 'kingdeeCode', 'status', 'salesOrderCode'],
     }
     if (dto.orderCode) {
       options.where = {
@@ -60,35 +58,54 @@ export class ProductionOrderService {
       const [perList, tasks] = await Promise.all([
         PerformanceConfig.findAll({
           where: {
-            materialId: result.data.map((item) => item.bom.materialId),
+            materialId: result.data.map(item => item.bom.materialId),
             processId,
           },
         }),
         ProcessTask.findAll({
           where: {
-            productionOrderId: result.data.map((item) => item.id),
+            productionOrderId: result.data.map(item => item.id),
             processId,
-            ...(dto.currentProcess == 1 ? {
-              planCount: {
-                [Op.gt]: Sequelize.col('goodCount'), // 比较两列值
-              },
-            } : {}),
+            ...(dto.currentProcess == 1
+              ? {
+                  planCount: {
+                    [Op.gt]: Sequelize.col('goodCount'), // 比较两列值
+                  },
+                }
+              : {}),
           },
-          attributes: ['id', 'productionOrderId', 'processId', 'reportRatio', 'planCount', 'goodCount', 'badCount', 'unit', 'status', 'isOutsource', 'isInspection', 'priority', 'startTime', 'endTime', 'actualStartTime', 'actualStartTime'],
+          attributes: [
+            'id',
+            'productionOrderId',
+            'processId',
+            'reportRatio',
+            'planCount',
+            'goodCount',
+            'badCount',
+            'unit',
+            'status',
+            'isOutsource',
+            'isInspection',
+            'priority',
+            'startTime',
+            'endTime',
+            'actualStartTime',
+            'actualStartTime',
+          ],
           include: [
-            { association: 'process', attributes: ['id', 'processName'], where: {}, },
-            { association: 'operateLogs',attributes:['pauseTime','resumeTime']},
+            { association: 'process', attributes: ['id', 'processName'], where: {} },
+            { association: 'operateLogs', attributes: ['pauseTime', 'resumeTime'] },
           ],
         }),
       ])
 
-      result.data = result.data.map((item) => {
+      result.data = result.data.map(item => {
         item = item.toJSON()
 
-        item.tasks = tasks.filter((task) => task.productionOrderId == item.id)
-        item.tasks = item.tasks.map((task) => {
+        item.tasks = tasks.filter(task => task.productionOrderId == item.id)
+        item.tasks = item.tasks.map(task => {
           task = task.toJSON()
-          task.process.performanceConfig = perList.find((per) => per.processId == task.processId)
+          task.process.performanceConfig = perList.find(per => per.processId == task.processId)
           return task
         })
         return item
@@ -96,5 +113,4 @@ export class ProductionOrderService {
     }
     return result
   }
-
 }

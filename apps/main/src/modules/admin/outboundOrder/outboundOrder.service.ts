@@ -19,7 +19,7 @@ import { Flow } from '@model/wm/flow.model'
 import moment = require('moment')
 import { deleteIdsDto } from '@common/dto'
 import { AdjustOrder } from '@model/wm/adjustOrder.model'
-import { SalesOrder } from '@model/ps/salesOrder.model'
+import { SalesOrder } from '@model/plan/salesOrder.model'
 import { Paging } from '@library/utils/paging'
 import { BatchLogService } from '../batchLog/batchLog.service'
 import { auditDto } from '../productionReport/productionReport.dto'

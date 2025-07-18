@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { ProductionReportController } from './productionReport.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { ProductionReport } from '@model/pe/productionReport.model'
+import { ProductionReport } from '@model/production/productionReport.model'
 import { sign } from 'crypto'
 import { ProductionReportService } from './productionReport.service'
 import { RedisModule } from '@library/redis'

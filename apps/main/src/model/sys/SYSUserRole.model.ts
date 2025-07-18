@@ -1,7 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript'
 import { SYSRole } from './SYSRole.model'
 import { SYSMenu } from './SYSMenu.model'
-import { DATA_SCOPE_TYPE } from '@common/constant'
 import { User } from '..'
 
 @Table({ tableName: `sys_user_role`, timestamps: false, freezeTableName: true, paranoid: true })

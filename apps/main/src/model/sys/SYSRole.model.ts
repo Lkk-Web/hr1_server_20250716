@@ -1,7 +1,6 @@
 import { BelongsToMany, Column, DataType, Table } from 'sequelize-typescript'
 import { SYSMenu } from './SYSMenu.model'
 import { SYSRoleMenu } from './SYSRoleMenu.model'
-import { DATA_SCOPE_TYPE } from '@common/constant'
 import { SYSOrg } from './SYSOrg.model'
 import { SYSRoleOrg } from './SYSRoleOrg.model'
 import { BaseDate } from '@model/shared/baseDate'

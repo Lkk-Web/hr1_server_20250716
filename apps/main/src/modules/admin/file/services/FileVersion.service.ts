@@ -7,8 +7,8 @@ import { CFileVersionDto, EFileVersionDto, FindPaginationDto } from '../dtos/Fil
 import { User } from '@model/sys/user.model'
 import { FindOptions } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { FileVersion } from '@model/dm/FileVersion.model'
-import { FileList } from '@model/dm/FileList.model'
+import { FileVersion } from '@model/document/FileVersion.model'
+import { FileList } from '@model/document/FileList.model'
 import { Paging } from '@library/utils/paging'
 
 @Injectable()
@@ -16,7 +16,7 @@ export class FileVersionService {
   constructor(
     @InjectModel(FileVersion)
     private FileVersionModel: typeof FileVersion
-  ) { }
+  ) {}
 
   public async create(dto: CFileVersionDto, user: User, loadModel) {
     // dto['createUserId'] = user.id
@@ -75,7 +75,7 @@ export class FileVersionService {
       ],
       pagination,
     }
-    const result = await Paging.diyPaging(FileVersion, pagination, options);
+    const result = await Paging.diyPaging(FileVersion, pagination, options)
     return result
   }
 }

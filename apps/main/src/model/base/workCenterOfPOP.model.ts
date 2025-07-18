@@ -1,6 +1,6 @@
 import { Table, Column, DataType, ForeignKey, HasMany, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { POP } from '@model/pe/POP.model'
+import { POP } from '@model/production/POP.model'
 import { WorkCenter } from './workCenter.model'
 /** 车间 */
 @Table({ tableName: `base_workcenter_POP`, freezeTableName: true, timestamps: true, comment: '工作中心表' })

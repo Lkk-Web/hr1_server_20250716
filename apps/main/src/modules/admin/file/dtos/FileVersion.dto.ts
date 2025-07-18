@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { FileVersion } from '@model/dm/FileVersion.model'
+import { FileVersion } from '@model/document/FileVersion.model'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })

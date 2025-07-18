@@ -1,9 +1,9 @@
 import { Table, Column, Model, PrimaryKey, AutoIncrement, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { FileList } from '@model/dm/FileList.model'
+import { FileList } from '@model/document/FileList.model'
 
-@Table({ tableName: `dm_file_version`, timestamps: true, paranoid: true })
+@Table({ tableName: `document_file_version`, timestamps: true, paranoid: true })
 export class FileVersion extends BaseDate<FileVersion> {
   @ForeignKey(() => FileList)
   @Column({ type: DataType.INTEGER, comment: '文件ID' })

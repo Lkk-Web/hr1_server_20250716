@@ -2,9 +2,8 @@ import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, Table } from 'seque
 import { User } from '@model/sys/user.model'
 import { BaseModel } from '@model/shared/base.model'
 
-@Table({ tableName: `pe_report_user_duration`, timestamps: true,updatedAt:false, comment: '生产报工员工时长' })
+@Table({ tableName: `production_report_user_duration`, timestamps: true, updatedAt: false, comment: '生产报工员工时长' })
 export class ReportUserDuration extends BaseModel<ReportUserDuration> {
-
   @ForeignKey(() => User)
   @Column({
     comment: '用户id',
@@ -22,8 +21,8 @@ export class ReportUserDuration extends BaseModel<ReportUserDuration> {
 
   @CreatedAt
   @Column
-  declare createdAt?: Date;
+  declare createdAt?: Date
 
-  @BelongsTo(()=>User)
+  @BelongsTo(() => User)
   declare user: User
 }

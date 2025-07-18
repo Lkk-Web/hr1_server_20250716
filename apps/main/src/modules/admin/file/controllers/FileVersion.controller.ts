@@ -4,7 +4,7 @@ import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req }
 import { AdminAuth } from '@core/decorator/controller'
 import { FileVersionService } from '../services/FileVersion.service'
 import { CFileVersionDto, EFileVersionDto, FindPaginationDto } from '../dtos/FileVersion.dto'
-import { FileVersion } from '@model/dm/FileVersion.model'
+import { FileVersion } from '@model/document/FileVersion.model'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
 import { Permissions } from '@core/decorator/metaData'

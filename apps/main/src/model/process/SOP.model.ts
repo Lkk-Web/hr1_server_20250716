@@ -2,7 +2,7 @@ import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Table 
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { User } from '@model/sys/user.model'
-import { FileList } from '@model/dm/FileList.model'
+import { FileList } from '@model/document/FileList.model'
 import { Process } from '@model/process/process.model'
 import { SOPMaterial } from '@model/process/SOPMaterial.model'
 import { SOPFile } from '@model/process/SOPFile.model'

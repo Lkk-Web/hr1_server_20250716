@@ -1,11 +1,10 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseModel } from '@model/shared/base.model'
-import { ReportUserDuration } from '@model/pe/reportUserDuration.model'
-import { ProductionReport } from '@model/pe/productionReport.model'
+import { ReportUserDuration } from '@model/production/reportUserDuration.model'
+import { ProductionReport } from '@model/production/productionReport.model'
 
-@Table({ tableName: `pe_report_user`, timestamps: false, comment: '生产报工与员工时长' })
+@Table({ tableName: `production_report_user`, timestamps: false, comment: '生产报工与员工时长' })
 export class ReportUser extends BaseModel<ReportUser> {
-
   @ForeignKey(() => ReportUserDuration)
   @Column({
     comment: '员工时长id',
@@ -28,12 +27,9 @@ export class ReportUser extends BaseModel<ReportUser> {
   })
   declare duration: number
 
-
   @BelongsTo(() => ReportUserDuration)
   declare userDuration: ReportUserDuration
 
-
   @BelongsTo(() => ProductionReport)
   declare productionReport: ProductionReport
-
 }

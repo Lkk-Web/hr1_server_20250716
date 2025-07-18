@@ -6,7 +6,7 @@ import { Warehouse } from '@model/wm/warehouse.model'
 import { User } from '@model/sys/user.model'
 import { InboundOrderDetail } from '@model/wm/inboundOrderDetail.model'
 import { OutboundOrderDetail } from '@model/wm/outboundOrderDetail.model'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 import { MaterialRequisitionDetail } from '@model/wm/materialRequisitionDetail.model'
 
 @Table({ tableName: `wm_material_requisition`, freezeTableName: true, timestamps: true, comment: '生产领料单' })

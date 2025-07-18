@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -54,7 +54,7 @@ export class FindPaginationDto {
     required: true,
     description: '时间类型(本月,本周)',
   })
-  timeType: string;
+  timeType: string
 }
 
 export class priorityDto {
@@ -108,7 +108,6 @@ export class CProcessTaskDto {
     required: false,
   })
   goodCount: number
-
 
   @ApiProperty({
     description: '不良品数',

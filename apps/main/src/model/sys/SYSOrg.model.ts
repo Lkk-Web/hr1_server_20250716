@@ -2,8 +2,8 @@ import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Primar
 import { DATA_STATUS } from '@common/constant'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { ProcessTaskDept } from '@model/pe/processTaskDept.model'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTaskDept } from '@model/production/processTaskDept.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { Process, ProcessDept } from '..'
 // import { UserDepartment } from '@model/userDepartment.model'
 

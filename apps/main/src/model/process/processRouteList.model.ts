@@ -5,7 +5,7 @@ import { User } from '@model/sys/user.model'
 import { ProcessRoute } from '@model/process/processRoute.model'
 import { Process } from '@model/process/process.model'
 import { ProcessRouteListItem } from '@model/process/processRouteListItem.model'
-import { FileList } from '@model/dm/FileList.model'
+import { FileList } from '@model/document/FileList.model'
 
 /** 工艺路线关联工序子表 */
 @Table({ tableName: `process_route_list`, freezeTableName: true, timestamps: true, comment: '工艺路线关联工序子表' })

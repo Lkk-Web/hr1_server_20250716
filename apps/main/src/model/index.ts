@@ -51,34 +51,30 @@ export * from './process/SOPMaterial.model'
 export * from './process/SOPFile.model'
 
 //文件管理 document
-export * from './dm/FileMenu.model'
-export * from './dm/FileList.model'
-export * from './dm/FileVersion.model'
+export * from './document/FileMenu.model'
+export * from './document/FileList.model'
+export * from './document/FileVersion.model'
 
 //生产计划 plan
-export * from './ps/salesOrder.model'
-export * from './ps/salesOrderDetail.model'
+export * from './plan/salesOrder.model'
+export * from './plan/salesOrderDetail.model'
 
 //生产执行 production
-export * from './pe/productionOrder.model'
-export * from './pe/POP.model'
-export * from './pe/PODmodel'
-export * from './pe/POI.model'
-export * from './pe/POB.model'
-export * from './pe/POBD.model'
-
-export * from './pe/processTask.model'
-export * from './pe/processTaskDept.model'
-export * from './pe/processTaskUser.model'
-
-export * from './pe/productionReport.model'
-export * from './pe/PRI.model'
-
-export * from './pe/productionOutsourcing.model' //工序委外
-export * from './pe/processTaskLog.model'
-
-export * from './pe/reportUser.model'
-export * from './pe/reportUserDuration.model'
+export * from './production/productionOrder.model'
+export * from './production/POP.model'
+export * from './production/PODmodel'
+export * from './production/POI.model'
+export * from './production/POB.model'
+export * from './production/POBD.model'
+export * from './production/processTask.model'
+export * from './production/processTaskDept.model'
+export * from './production/processTaskUser.model'
+export * from './production/productionReport.model'
+export * from './production/PRI.model'
+export * from './production/productionOutsourcing.model' //工序委外
+export * from './production/processTaskLog.model'
+export * from './production/reportUser.model'
+export * from './production/reportUserDuration.model'
 
 //绩效管理 performance
 export * from './pp/performance.model'

@@ -3,7 +3,7 @@ import { Pagination } from '@common/interface'
 import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { BatchStartWorkDto, FindPaginationDto, MaterialUrgingOrderDto, StartWorkDto } from './processTask.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
@@ -18,14 +18,29 @@ export class ProcessTaskService {
     @Inject(RedisProvider.local)
     private readonly redis: Redis,
     @InjectModel(ProcessTask)
-    private processTaskModel: typeof ProcessTask,
-  ) {
-  }
-
+    private processTaskModel: typeof ProcessTask
+  ) {}
 
   public async find(id: number) {
     const options: FindOptions = {
-      attributes: ['id', 'productionOrderId', 'processId', 'reportRatio', 'planCount', 'goodCount', 'badCount', 'unit', 'status', 'isOutsource', 'isInspection', 'priority', 'startTime', 'endTime', 'actualStartTime', 'actualStartTime'],
+      attributes: [
+        'id',
+        'productionOrderId',
+        'processId',
+        'reportRatio',
+        'planCount',
+        'goodCount',
+        'badCount',
+        'unit',
+        'status',
+        'isOutsource',
+        'isInspection',
+        'priority',
+        'startTime',
+        'endTime',
+        'actualStartTime',
+        'actualStartTime',
+      ],
       where: { id },
       include: [
         {
@@ -43,7 +58,8 @@ export class ProcessTaskService {
                   where: {},
                 },
               ],
-            }, {
+            },
+            {
               association: 'boms',
               attributes: ['id', 'materialId', 'count', 'unit'],
               include: [
@@ -54,12 +70,11 @@ export class ProcessTaskService {
                     {
                       association: 'material',
                       attributes: ['id', 'name', 'code'],
-                    }
+                    },
                   ],
-                }
-              ]
-            }
-
+                },
+              ],
+            },
           ],
         },
         {
@@ -92,7 +107,8 @@ export class ProcessTaskService {
       result.setDataValue('sop', sop)
     } else {
       const processSop = await SOP.findOne({
-        where: { processId: result.processId }, include: [
+        where: { processId: result.processId },
+        include: [
           {
             association: 'fileList',
             attributes: ['id', 'name', 'url'],
@@ -127,20 +143,39 @@ export class ProcessTaskService {
   }
 
   public async findPagination(dto: FindPaginationDto, pagination: Pagination, processId) {
-
     const options: FindPaginationOptions = {
       where: {
         processId: {
           [Op.eq]: processId,
         },
       },
-      attributes: ['id','updatedAt', 'productionOrderId', 'processId', 'reportRatio', 'planCount', 'goodCount', 'badCount', 'unit', 'status', 'isOutsource', 'isInspection', 'priority', 'startTime', 'endTime', 'actualStartTime', 'actualStartTime','receptionCount','reportQuantity'],
+      attributes: [
+        'id',
+        'updatedAt',
+        'productionOrderId',
+        'processId',
+        'reportRatio',
+        'planCount',
+        'goodCount',
+        'badCount',
+        'unit',
+        'status',
+        'isOutsource',
+        'isInspection',
+        'priority',
+        'startTime',
+        'endTime',
+        'actualStartTime',
+        'actualStartTime',
+        'receptionCount',
+        'reportQuantity',
+      ],
       pagination,
       // order: [['id', 'ASC']],
       include: [
         {
           association: 'order',
-          attributes: ['id', 'code', 'plannedOutput', 'startTime', 'endTime', 'actualStartTime', 'actualEndTime', 'kingdeeCode','salesOrderCode'],
+          attributes: ['id', 'code', 'plannedOutput', 'startTime', 'endTime', 'actualStartTime', 'actualEndTime', 'kingdeeCode', 'salesOrderCode'],
           where: {},
           include: [
             {
@@ -162,7 +197,7 @@ export class ProcessTaskService {
           attributes: ['id', 'processName'],
           where: {},
         },
-        { association: 'operateLogs',attributes:['pauseTime','resumeTime']},
+        { association: 'operateLogs', attributes: ['pauseTime', 'resumeTime'] },
       ],
     }
     if (dto.orderCode) {
@@ -170,12 +205,12 @@ export class ProcessTaskService {
         [Op.like]: `%${dto.orderCode}%`,
       }
     }
-    if(dto.filterStatus){
-      options.where['status'] = {[Op.not]:dto.filterStatus}
+    if (dto.filterStatus) {
+      options.where['status'] = { [Op.not]: dto.filterStatus }
     }
-    if(dto.status){
-      options.where['status'] = options.where['status']||{}
-      options.where['status'] = {[Op.eq]:dto.status}
+    if (dto.status) {
+      options.where['status'] = options.where['status'] || {}
+      options.where['status'] = { [Op.eq]: dto.status }
     }
 
     if (dto.currentProcess) {
@@ -210,99 +245,109 @@ export class ProcessTaskService {
   }
 
   public async startWork(dto: StartWorkDto) {
-    const task = await ProcessTask.findByPk(dto.id,{attributes:['id','receptionCount']})
+    const task = await ProcessTask.findByPk(dto.id, { attributes: ['id', 'receptionCount'] })
     if (!task) {
       throw new HttpException('任务不存在', 400)
     }
-    if(task.receptionCount<=0){
+    if (task.receptionCount <= 0) {
       Aide.throwException(400011, '任务未接收，无法开始工作')
     }
     task.actualStartTime = new Date()
     task.status = PROCESS_TASK_STATUS.running
     await task.save()
     return task
-
   }
-
 
   public async batchStartWork(dto: BatchStartWorkDto) {
     const tasksCount = await ProcessTask.count({
-      where:{id:dto.ids,status:PROCESS_TASK_STATUS.notStart},
-    });
-    if(tasksCount!=dto.ids.length)Aide.throwException(400011)
-    let tasks = await ProcessTask.update({
-      actualStartTime: new Date(),
-      status: PROCESS_TASK_STATUS.running,
-    }, {
-      where: {
-        id: dto.ids,
-        receptionCount:{
-          [Op.gt]:0
-        }
-      }
+      where: { id: dto.ids, status: PROCESS_TASK_STATUS.notStart },
     })
+    if (tasksCount != dto.ids.length) Aide.throwException(400011)
+    let tasks = await ProcessTask.update(
+      {
+        actualStartTime: new Date(),
+        status: PROCESS_TASK_STATUS.running,
+      },
+      {
+        where: {
+          id: dto.ids,
+          receptionCount: {
+            [Op.gt]: 0,
+          },
+        },
+      }
+    )
     return tasks
   }
 
   //工序暂停
   public async batchBatchPauseWork(dto: BatchStartWorkDto) {
     const tasksCount = await ProcessTask.count({
-      where:{id:dto.ids,status:PROCESS_TASK_STATUS.running},
-    });
+      where: { id: dto.ids, status: PROCESS_TASK_STATUS.running },
+    })
 
-    if(tasksCount!=dto.ids.length)Aide.throwException(400011)
+    if (tasksCount != dto.ids.length) Aide.throwException(400011)
 
-    await ProcessTask.update({
-      status: PROCESS_TASK_STATUS.pause,
-    },{where:{id:dto.ids}})
+    await ProcessTask.update(
+      {
+        status: PROCESS_TASK_STATUS.pause,
+      },
+      { where: { id: dto.ids } }
+    )
 
-    await ProcessTaskLog.bulkCreate(dto.ids.map((id)=>{
-      return {
-        processTaskID:id,
-        pauseTime:new Date(),
-      }
-    }))
+    await ProcessTaskLog.bulkCreate(
+      dto.ids.map(id => {
+        return {
+          processTaskID: id,
+          pauseTime: new Date(),
+        }
+      })
+    )
 
-    return true;
+    return true
   }
 
   //恢复
   public async batchResumeWork(dto: BatchStartWorkDto) {
     const tasksCount = await ProcessTask.count({
-      where:{id:dto.ids,status:PROCESS_TASK_STATUS.pause},
-    });
-    if(tasksCount!=dto.ids.length)Aide.throwException(400011)
+      where: { id: dto.ids, status: PROCESS_TASK_STATUS.pause },
+    })
+    if (tasksCount != dto.ids.length) Aide.throwException(400011)
 
-    await ProcessTaskLog.update({
-      resumeTime:new Date(),
-    },{where:{processTaskID:dto.ids,resumeTime:null}})
+    await ProcessTaskLog.update(
+      {
+        resumeTime: new Date(),
+      },
+      { where: { processTaskID: dto.ids, resumeTime: null } }
+    )
 
-    await ProcessTask.update({
-      status: PROCESS_TASK_STATUS.running,
-    },{where:{id:dto.ids}})
+    await ProcessTask.update(
+      {
+        status: PROCESS_TASK_STATUS.running,
+      },
+      { where: { id: dto.ids } }
+    )
 
-    return true;
+    return true
   }
 
   //物料催单
-  public async materialUrgingOrder(dto: MaterialUrgingOrderDto,req) {
+  public async materialUrgingOrder(dto: MaterialUrgingOrderDto, req) {
     const task = await ProcessTask.findOne({
-      where:{id:dto.id},
-      attributes:['id'],
-      include:[
-        {association:"order",attributes:['code']}
-      ]
+      where: { id: dto.id },
+      attributes: ['id'],
+      include: [{ association: 'order', attributes: ['code'] }],
     })
-    if(!task)Aide.throwException(400011)
+    if (!task) Aide.throwException(400011)
     await Notify.create({
-      processTaskId:dto.id,
-      content:dto.content,
-      scene:dto.scene,
-      teamId:dto.teamId,
-      topic:`${task.order.code}生产工单${dto.scene==NOTIFY_SCENE.PAD_M_O?"缺料":"申请领料"}，请及时处理，谢谢！`,
-      name:`${req.team.name}/${req.process.processName}`,
+      processTaskId: dto.id,
+      content: dto.content,
+      scene: dto.scene,
+      teamId: dto.teamId,
+      topic: `${task.order.code}生产工单${dto.scene == NOTIFY_SCENE.PAD_M_O ? '缺料' : '申请领料'}，请及时处理，谢谢！`,
+      name: `${req.team.name}/${req.process.processName}`,
     })
-    return true;
+    return true
   }
 
   public async processFind(id: number) {
@@ -325,17 +370,13 @@ export class ProcessTaskService {
   }
 
   //通过物料查询工艺路线
-  public async getProcessRouteList(materialId:number){
+  public async getProcessRouteList(materialId: number) {
     const process = await ProcessRoute.findOne({
-      include:[
-        {association:'material',attributes:[],where:{id:materialId}},
-        {association:'processRouteList',attributes:['isOutsource','processId'],include:[
-            {association:'process',attributes:['id','processName']}
-          ]}
-      ]
+      include: [
+        { association: 'material', attributes: [], where: { id: materialId } },
+        { association: 'processRouteList', attributes: ['isOutsource', 'processId'], include: [{ association: 'process', attributes: ['id', 'processName'] }] },
+      ],
     })
-    return process?process.processRouteList:[]
+    return process ? process.processRouteList : []
   }
-
-
 }

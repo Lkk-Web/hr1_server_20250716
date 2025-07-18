@@ -1,13 +1,13 @@
 import { Pagination } from '@common/interface'
 import { HttpException, Injectable } from '@nestjs/common'
-import { ProductionReport } from '@model/pe/productionReport.model'
+import { ProductionReport } from '@model/production/productionReport.model'
 import { batchDto, CProductionReportDto, FindPaginationDto, UProductionReportDto } from './productionReport.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
-import { POP } from '@model/pe/POP.model'
-import { ProcessTask } from '@model/pe/processTask.model'
-import { PRI } from '@model/pe/PRI.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
+import { POP } from '@model/production/POP.model'
+import { ProcessTask } from '@model/production/processTask.model'
+import { PRI } from '@model/production/PRI.model'
 import { User } from '@model/sys/user.model'
 import { Performance } from '@model/pp/performance.model'
 import { deleteIdsDto } from '@common/dto'
@@ -16,8 +16,7 @@ import moment = require('moment')
 
 @Injectable()
 export class ProductionReportService {
-  constructor(
-  ) {}
+  constructor() {}
 
   public async create(dto: CProductionReportDto, user: User) {
     if (!user.id) {
@@ -57,11 +56,14 @@ export class ProductionReportService {
         try {
           const date: Date = new Date()
           const formattedDate = moment(date, 'YYYY-MM-DD HH:mm:ss').toDate()
-          const result = await ProductionReport.create({
-            ...dto,
-            createdUserId: user.id,
-            updatedUserId: user.id,
-          }, { transaction })
+          const result = await ProductionReport.create(
+            {
+              ...dto,
+              createdUserId: user.id,
+              updatedUserId: user.id,
+            },
+            { transaction }
+          )
           const pop = await POP.findOne({ where: { processTaskId: dto.taskId }, transaction })
           if (pop.planCount >= pop.goodCount + dto.goodCount) {
             if (pop.status === '未开始') {
@@ -72,7 +74,7 @@ export class ProductionReportService {
                     processTaskId: dto.taskId,
                   },
                   transaction,
-                },
+                }
               )
             }
             if (pop.planCount == pop.goodCount + dto.goodCount) {
@@ -85,7 +87,7 @@ export class ProductionReportService {
                     actualEndTime: formattedDate,
                     status: '已结束',
                   },
-                  { where: { processTaskId: dto.taskId }, transaction },
+                  { where: { processTaskId: dto.taskId }, transaction }
                 )
                 //工序完成开启下一道工序
 
@@ -99,15 +101,18 @@ export class ProductionReportService {
                 if (popTemp) {
                   await popTemp.update({ status: '执行中' }, { transaction })
                   popTemp = await POP.findOne({
-                    where: { productionOrderId:dto.orderId,status:'执行中' },
+                    where: { productionOrderId: dto.orderId, status: '执行中' },
                     order: [['id', 'ASC']],
                     include: [{ association: 'process', attributes: ['id', 'processName'] }],
                     transaction,
                   })
-                  await ProductionOrder.update({ currentProcess: popTemp.dataValues.process.processName }, {
-                    where: { id: dto.orderId },
-                    transaction,
-                  })
+                  await ProductionOrder.update(
+                    { currentProcess: popTemp.dataValues.process.processName },
+                    {
+                      where: { id: dto.orderId },
+                      transaction,
+                    }
+                  )
                 }
               } else {
                 await POP.update(
@@ -118,7 +123,7 @@ export class ProductionReportService {
                     actualStartTime: formattedDate,
                     status: '已结束',
                   },
-                  { where: { processTaskId: dto.taskId }, transaction },
+                  { where: { processTaskId: dto.taskId }, transaction }
                 )
 
                 let popTemp = await POP.findOne({
@@ -131,15 +136,18 @@ export class ProductionReportService {
                 if (popTemp) {
                   await popTemp.update({ status: '执行中' }, { transaction })
                   popTemp = await POP.findOne({
-                    where: { productionOrderId:dto.orderId,status:'执行中' },
+                    where: { productionOrderId: dto.orderId, status: '执行中' },
                     order: [['id', 'ASC']],
                     include: [{ association: 'process', attributes: ['id', 'processName'] }],
                     transaction,
                   })
-                  await ProductionOrder.update({ currentProcess: popTemp.dataValues.process.processName }, {
-                    where: { id: dto.orderId },
-                    transaction,
-                  })
+                  await ProductionOrder.update(
+                    { currentProcess: popTemp.dataValues.process.processName },
+                    {
+                      where: { id: dto.orderId },
+                      transaction,
+                    }
+                  )
                 }
               }
               //如果报完所有工序将order转为已结束
@@ -148,21 +156,24 @@ export class ProductionReportService {
                 order: [['id', 'ASC']],
                 transaction,
               })
-              if (pops[pops.length-1].dataValues.processId === dto.processId) {
-                await order.update({ status: '已结束',actualOutput: order.actualOutput + dto.goodCount,actualEndTime:formattedDate,currentProcess:null }, { transaction })
+              if (pops[pops.length - 1].dataValues.processId === dto.processId) {
+                await order.update({ status: '已结束', actualOutput: order.actualOutput + dto.goodCount, actualEndTime: formattedDate, currentProcess: null }, { transaction })
 
                 const popTemp = await POP.findOne({
-                  where: { productionOrderId:dto.orderId,status:'执行中' },
+                  where: { productionOrderId: dto.orderId, status: '执行中' },
                   order: [['id', 'ASC']],
                   include: [{ association: 'process', attributes: ['id', 'processName'] }],
                   transaction,
                 })
                 //如果存在工序就更新
                 if (popTemp) {
-                  await ProductionOrder.update({ currentProcess: popTemp.dataValues.process.processName }, {
-                    where: { id: dto.orderId },
-                    transaction,
-                  })
+                  await ProductionOrder.update(
+                    { currentProcess: popTemp.dataValues.process.processName },
+                    {
+                      where: { id: dto.orderId },
+                      transaction,
+                    }
+                  )
                 }
               }
             } else {
@@ -172,7 +183,7 @@ export class ProductionReportService {
                   badCount: pop.badCount + dto.badCount,
                   actualStartTime: formattedDate,
                 },
-                { where: { processTaskId: dto.taskId }, transaction: transaction },
+                { where: { processTaskId: dto.taskId }, transaction: transaction }
               )
               //如果报完所有工序将order转为已结束
               const pops = await POP.findAll({
@@ -180,7 +191,7 @@ export class ProductionReportService {
                 order: [['id', 'ASC']],
                 transaction,
               })
-              if (pops[pops.length-1].dataValues.processId === dto.processId) {
+              if (pops[pops.length - 1].dataValues.processId === dto.processId) {
                 await order.update({ actualOutput: order.actualOutput + dto.goodCount }, { transaction })
               }
             }
@@ -196,7 +207,7 @@ export class ProductionReportService {
                     id: dto.taskId,
                   },
                   transaction,
-                },
+                }
               )
             }
             if (task.planCount == task.goodCount + dto.goodCount) {
@@ -208,7 +219,7 @@ export class ProductionReportService {
                     actualEndTime: formattedDate,
                     status: '已结束',
                   },
-                  { where: { id: dto.taskId }, transaction },
+                  { where: { id: dto.taskId }, transaction }
                 )
               } else {
                 await ProcessTask.update(
@@ -219,7 +230,7 @@ export class ProductionReportService {
                     actualEndTime: formattedDate,
                     status: '已结束',
                   },
-                  { where: { id: dto.taskId }, transaction },
+                  { where: { id: dto.taskId }, transaction }
                 )
               }
 
@@ -237,7 +248,7 @@ export class ProductionReportService {
                     goodCount: task.goodCount + dto.goodCount,
                     badCount: task.badCount + dto.badCount,
                   },
-                  { where: { id: dto.taskId }, transaction },
+                  { where: { id: dto.taskId }, transaction }
                 )
               } else {
                 await ProcessTask.update(
@@ -246,7 +257,7 @@ export class ProductionReportService {
                     badCount: task.badCount + dto.badCount,
                     actualStartTime: formattedDate,
                   },
-                  { where: { id: dto.taskId }, transaction },
+                  { where: { id: dto.taskId }, transaction }
                 )
               }
             }
@@ -259,12 +270,15 @@ export class ProductionReportService {
                   defectiveItemId: item.defectiveItemId,
                   count: item.count,
                 },
-                { transaction },
+                { transaction }
               )
             }
           }
-          order = await ProductionOrder.findByPk(dto.orderId,{transaction})
-          await order.update({totalWorkingHours:order.totalWorkingHours + Number(dto.reportDurationHours) + Number(Number(Number(dto.reportDurationMinutes)/60).toFixed(2))},{transaction})
+          order = await ProductionOrder.findByPk(dto.orderId, { transaction })
+          await order.update(
+            { totalWorkingHours: order.totalWorkingHours + Number(dto.reportDurationHours) + Number(Number(Number(dto.reportDurationMinutes) / 60).toFixed(2)) },
+            { transaction }
+          )
           return result.id
         } catch (error) {
           // 如果出现错误，Sequelize 将自动回滚事务
@@ -311,7 +325,8 @@ export class ProductionReportService {
           let pop = await POP.findOne({
             where: {
               processTaskId: dto.taskId,
-            }, transaction,
+            },
+            transaction,
           })
           if (pop) {
             await POP.update(
@@ -319,13 +334,14 @@ export class ProductionReportService {
                 goodCount: pop.goodCount - productionReport.goodCount,
                 badCount: pop.badCount - productionReport.badCount,
               },
-              { where: { processTaskId: dto.taskId }, transaction },
+              { where: { processTaskId: dto.taskId }, transaction }
             )
           }
           let task = await ProcessTask.findOne({
             where: {
               id: dto.taskId,
-            }, transaction,
+            },
+            transaction,
           })
           if (task) {
             await ProcessTask.update(
@@ -333,7 +349,7 @@ export class ProductionReportService {
                 goodCount: task.goodCount - productionReport.goodCount,
                 badCount: task.badCount - productionReport.badCount,
               },
-              { where: { id: dto.taskId }, transaction },
+              { where: { id: dto.taskId }, transaction }
             )
           }
 
@@ -348,7 +364,13 @@ export class ProductionReportService {
           //删除相关不良品项
           await PRI.destroy({ where: { productionReportId: id }, transaction })
 
-          await order.update({totalWorkingHours:order.totalWorkingHours - Number(productionReport.reportDurationHours) - Number(Number(Number(productionReport.reportDurationMinutes)/60).toFixed(2))},{transaction})
+          await order.update(
+            {
+              totalWorkingHours:
+                order.totalWorkingHours - Number(productionReport.reportDurationHours) - Number(Number(Number(productionReport.reportDurationMinutes) / 60).toFixed(2)),
+            },
+            { transaction }
+          )
 
           const date: Date = new Date()
           const formattedDate = moment(date, 'YYYY-MM-DD HH:mm:ss').toDate()
@@ -356,16 +378,20 @@ export class ProductionReportService {
             where: {
               productionOrderId: dto.orderId,
               processId: dto.processId,
-            }, transaction,
+            },
+            transaction,
           })
           if (sum + dto.goodCount - productionReport.goodCount > task.dataValues.planCount) {
             throw new HttpException('此次报工已超过该工单可报工上限', 400)
           }
 
-          await productionReport.update({
-            ...dto,
-            // updatedUserId: user.id,
-          }, { transaction })
+          await productionReport.update(
+            {
+              ...dto,
+              // updatedUserId: user.id,
+            },
+            { transaction }
+          )
 
           pop = await POP.findOne({ where: { processTaskId: dto.taskId }, transaction })
           if (pop.planCount >= pop.goodCount + dto.goodCount) {
@@ -378,7 +404,7 @@ export class ProductionReportService {
                     processId: dto.processId,
                   },
                   transaction,
-                },
+                }
               )
             }
             if (pop.planCount == pop.goodCount + dto.goodCount) {
@@ -391,7 +417,7 @@ export class ProductionReportService {
                     actualEndTime: formattedDate,
                     status: '已结束',
                   },
-                  { where: { processTaskId: dto.taskId }, transaction },
+                  { where: { processTaskId: dto.taskId }, transaction }
                 )
                 //工序完成开启下一道工序
 
@@ -405,15 +431,18 @@ export class ProductionReportService {
                 if (popTemp) {
                   await popTemp.update({ status: '执行中' }, { transaction })
                   popTemp = await POP.findOne({
-                    where: { productionOrderId:dto.orderId,status:'执行中' },
+                    where: { productionOrderId: dto.orderId, status: '执行中' },
                     order: [['id', 'ASC']],
                     include: [{ association: 'process', attributes: ['id', 'processName'] }],
                     transaction,
                   })
-                  await ProductionOrder.update({ currentProcess: popTemp.dataValues.process.processName }, {
-                    where: { id: dto.orderId },
-                    transaction,
-                  })
+                  await ProductionOrder.update(
+                    { currentProcess: popTemp.dataValues.process.processName },
+                    {
+                      where: { id: dto.orderId },
+                      transaction,
+                    }
+                  )
                 }
               } else {
                 await POP.update(
@@ -424,7 +453,7 @@ export class ProductionReportService {
                     actualStartTime: formattedDate,
                     status: '已结束',
                   },
-                  { where: { processTaskId: dto.taskId }, transaction },
+                  { where: { processTaskId: dto.taskId }, transaction }
                 )
 
                 let popTemp = await POP.findOne({
@@ -437,15 +466,18 @@ export class ProductionReportService {
                 if (popTemp) {
                   await popTemp.update({ status: '执行中' }, { transaction })
                   popTemp = await POP.findOne({
-                    where: { productionOrderId:dto.orderId,status:'执行中' },
+                    where: { productionOrderId: dto.orderId, status: '执行中' },
                     order: [['id', 'ASC']],
                     include: [{ association: 'process', attributes: ['id', 'processName'] }],
                     transaction,
                   })
-                  await ProductionOrder.update({ currentProcess: popTemp.dataValues.process.processName }, {
-                    where: { id: dto.orderId },
-                    transaction,
-                  })
+                  await ProductionOrder.update(
+                    { currentProcess: popTemp.dataValues.process.processName },
+                    {
+                      where: { id: dto.orderId },
+                      transaction,
+                    }
+                  )
                 }
               }
               //如果报完所有工序将order转为已结束
@@ -454,21 +486,24 @@ export class ProductionReportService {
                 order: [['id', 'ASC']],
                 transaction,
               })
-              if (pops[pops.length-1].dataValues.processId === dto.processId) {
-                await order.update({ status: '已结束',actualOutput: order.actualOutput + dto.goodCount,actualEndTime:formattedDate ,currentProcess : null}, { transaction })
+              if (pops[pops.length - 1].dataValues.processId === dto.processId) {
+                await order.update({ status: '已结束', actualOutput: order.actualOutput + dto.goodCount, actualEndTime: formattedDate, currentProcess: null }, { transaction })
 
                 const popTemp = await POP.findOne({
-                  where: { productionOrderId:dto.orderId,status:'执行中' },
+                  where: { productionOrderId: dto.orderId, status: '执行中' },
                   order: [['id', 'ASC']],
                   include: [{ association: 'process', attributes: ['id', 'processName'] }],
                   transaction,
                 })
                 //如果存在工序就更新
                 if (popTemp) {
-                  await ProductionOrder.update({ currentProcess: popTemp.dataValues.process.processName }, {
-                    where: { id: dto.orderId },
-                    transaction,
-                  })
+                  await ProductionOrder.update(
+                    { currentProcess: popTemp.dataValues.process.processName },
+                    {
+                      where: { id: dto.orderId },
+                      transaction,
+                    }
+                  )
                 }
               }
             } else {
@@ -477,7 +512,7 @@ export class ProductionReportService {
                   goodCount: pop.goodCount + dto.goodCount,
                   badCount: pop.badCount + dto.badCount,
                 },
-                { where: { processTaskId: dto.taskId }, transaction: transaction },
+                { where: { processTaskId: dto.taskId }, transaction: transaction }
               )
               //产出
               const pops = await POP.findAll({
@@ -500,7 +535,7 @@ export class ProductionReportService {
                     id: dto.taskId,
                   },
                   transaction,
-                },
+                }
               )
             }
             if (task.planCount == task.goodCount + dto.goodCount) {
@@ -511,9 +546,9 @@ export class ProductionReportService {
                   actualEndTime: formattedDate,
                   status: '已结束',
                 },
-                { where: { id: dto.taskId }, transaction },
+                { where: { id: dto.taskId }, transaction }
               )
-              const temp = await ProcessTask.findByPk(task.id + 1,{transaction})
+              const temp = await ProcessTask.findByPk(task.id + 1, { transaction })
               //如果存在下一道工序才能开始
               if (temp && temp.status === '未开始') {
                 await temp.update({ status: '执行中' }, { transaction })
@@ -527,7 +562,7 @@ export class ProductionReportService {
                     goodCount: task.goodCount + dto.goodCount,
                     badCount: task.badCount + dto.badCount,
                   },
-                  { where: { id: dto.taskId }, transaction },
+                  { where: { id: dto.taskId }, transaction }
                 )
               } else {
                 await ProcessTask.update(
@@ -536,7 +571,7 @@ export class ProductionReportService {
                     badCount: task.badCount + dto.badCount,
                     actualStartTime: formattedDate,
                   },
-                  { where: { id: dto.taskId }, transaction },
+                  { where: { id: dto.taskId }, transaction }
                 )
               }
             }
@@ -544,15 +579,21 @@ export class ProductionReportService {
 
           if (dto.items) {
             for (const item of dto.items) {
-              await PRI.create({
-                productionReportId: id,
-                defectiveItemId: item.defectiveItemId,
-                count: item.count,
-              }, { transaction })
+              await PRI.create(
+                {
+                  productionReportId: id,
+                  defectiveItemId: item.defectiveItemId,
+                  count: item.count,
+                },
+                { transaction }
+              )
             }
           }
-          order = await ProductionOrder.findByPk(dto.orderId,{transaction})
-          await order.update({totalWorkingHours:order.totalWorkingHours + Number(dto.reportDurationHours) + Number(Number(Number(dto.reportDurationMinutes)/60).toFixed(2))},{transaction})
+          order = await ProductionOrder.findByPk(dto.orderId, { transaction })
+          await order.update(
+            { totalWorkingHours: order.totalWorkingHours + Number(dto.reportDurationHours) + Number(Number(Number(dto.reportDurationMinutes) / 60).toFixed(2)) },
+            { transaction }
+          )
           return id
         } catch (error) {
           // 如果出现错误，Sequelize 将自动回滚事务
@@ -697,19 +738,19 @@ export class ProductionReportService {
         {
           association: 'order',
           attributes: ['id', 'code', 'plannedOutput', 'plannedOutput'],
-          where:{},
-          required:false,
+          where: {},
+          required: false,
           include: [
             {
               association: 'bom',
               attributes: ['id', 'materialId', 'parentId', 'remark', 'version', 'quantity', 'formData'],
-              required:false,
+              required: false,
               where: {},
               include: [
                 {
                   association: 'parentMaterial',
                   attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
-                  required:false,
+                  required: false,
                   where: {},
                 },
               ],
@@ -786,7 +827,7 @@ export class ProductionReportService {
       }
     }
 
-    const result = await ProductionReport.findPagination<ProductionReport>(options);
+    const result = await ProductionReport.findPagination<ProductionReport>(options)
     return result
   }
 

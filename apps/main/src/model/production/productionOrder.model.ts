@@ -1,14 +1,14 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { Material } from '@model/base/material.model'
-import { POP } from '@model/pe/POP.model'
-import { POB } from '@model/pe/POB.model'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { POP } from '@model/production/POP.model'
+import { POB } from '@model/production/POB.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { BOM } from '@model/base/bom.model'
-import { SalesOrder } from '@model/ps/salesOrder.model'
+import { SalesOrder } from '@model/plan/salesOrder.model'
 import { StrBaseModel } from '@model/shared/strBase.model'
 import { STORAGE_TYPE } from '@common/enum'
 
-@Table({ tableName: `pe_production_order`, freezeTableName: true, timestamps: true, comment: '生产工单表' })
+@Table({ tableName: `production_order`, freezeTableName: true, timestamps: true, comment: '生产工单表' })
 export class ProductionOrder extends StrBaseModel<ProductionOrder> {
   @Column({
     comment: '金蝶编号',

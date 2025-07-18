@@ -2,25 +2,16 @@ import { PLATFORM } from '@common/enum'
 import { CryptoUtil, jwtEncodeInExpire } from '@library/utils/crypt.util'
 import { User } from '@model/sys/user.model'
 import { HttpException, Injectable } from '@nestjs/common'
-import {
-  changeFactoryDto,
-  FindPaginationDto,
-  OrderProgressDto,
-  performanceDto,
-  ScheduleFindPaginationDto,
-  taskBoardDto,
-  taskProgressDto,
-  UserLoginDto,
-} from './mi.dto'
+import { changeFactoryDto, FindPaginationDto, OrderProgressDto, performanceDto, ScheduleFindPaginationDto, taskBoardDto, taskProgressDto, UserLoginDto } from './mi.dto'
 import { Aide } from '@library/utils/aide'
 import * as process from 'node:process'
-import { ProductionReport } from '@model/pe/productionReport.model'
+import { ProductionReport } from '@model/production/productionReport.model'
 import { Op, Sequelize } from 'sequelize'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
-import { ProcessTask } from '@model/pe/processTask.model'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProcessTask } from '@model/production/processTask.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Performance } from '@model/pp/performance.model'
-import { PRI } from '@model/pe/PRI.model'
+import { PRI } from '@model/production/PRI.model'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { PerformanceDetailed, Process, ReportUser } from '@model/index'
@@ -28,20 +19,15 @@ import axios from 'axios'
 import E from '@common/error'
 import moment = require('moment')
 
-
 @Injectable()
 export class MiService {
-
-  constructor(
-  ) {
-  }
+  constructor() {}
 
   async login(dto: UserLoginDto) {
-
     let user: User = await User.findOne({ where: { userCode: dto.userCode } })
     if (!user) {
       throw E.USER_NOT_EXISTS
-    }else if(CryptoUtil.sm4Encryption(dto.password) != user.password){
+    } else if (CryptoUtil.sm4Encryption(dto.password) != user.password) {
       throw E.INVALID_PASSWORD
     }
 
@@ -59,11 +45,9 @@ export class MiService {
   }
 
   public async getInfo(user: User) {
-    return  User.findOne({
+    return User.findOne({
       where: { id: user.id },
-      include:[
-        {association:'role',attributes:['name']}
-      ]
+      include: [{ association: 'role', attributes: ['name'] }],
     })
   }
 
@@ -74,70 +58,63 @@ export class MiService {
         endTime: {
           [Op.between]: [startOfToday, endOfToday],
         },
-        ...(ids && ids.length > 0 && { productUserId: { [Op.in]: ids } }) // 仅在 ids 存在且非空时添加 productUserId 条件
-      };
+        ...(ids && ids.length > 0 && { productUserId: { [Op.in]: ids } }), // 仅在 ids 存在且非空时添加 productUserId 条件
+      }
 
       const rankings = await ProductionReport.findAll({
-        attributes: [
-          'id',
-          'reportQuantity',
-          'estimatedWage',
-        ],
+        attributes: ['id', 'reportQuantity', 'estimatedWage'],
         where: whereConditions,
-      });
+      })
       //根据报工id查询生产员工
-      const reportId = rankings.map((record) => record.id)
-      const  reportUsers = await ReportUser.findAll({
-        where:{
-          productionReportId:reportId
+      const reportId = rankings.map(record => record.id)
+      const reportUsers = await ReportUser.findAll({
+        where: {
+          productionReportId: reportId,
         },
-        include:[
-          {association:"userDuration",attributes:['userId']}
-        ]
-      });
+        include: [{ association: 'userDuration', attributes: ['userId'] }],
+      })
       //根据userID查询用户
-      const userIds = reportUsers.map((record) => record.userDuration.userId);
+      const userIds = reportUsers.map(record => record.userDuration.userId)
       const users = await User.findAll({
-        where:{
-          id:userIds
+        where: {
+          id: userIds,
         },
-        attributes:['id','userName']
-      });
+        attributes: ['id', 'userName'],
+      })
 
-      const datas:{
-        userId: number,
-        rank: number,
-        userName: string,
-        reportQuantity: number,
-        estimatedWage: number,
-      }[] = [];
+      const datas: {
+        userId: number
+        rank: number
+        userName: string
+        reportQuantity: number
+        estimatedWage: number
+      }[] = []
       //归类
       reportUsers.forEach(temp => {
-        const ranking = rankings.find(item => item.id === temp.productionReportId);
-        const data = datas.find(v=>v.userId==temp.userDuration.userId);
-        if(!data){
+        const ranking = rankings.find(item => item.id === temp.productionReportId)
+        const data = datas.find(v => v.userId == temp.userDuration.userId)
+        if (!data) {
           datas.push({
             userId: temp.userDuration.userId,
             rank: 0,
-            userName: users.find(v=>v.id==temp.userDuration.userId)?.userName||"人员不存在",
+            userName: users.find(v => v.id == temp.userDuration.userId)?.userName || '人员不存在',
             reportQuantity: ranking.reportQuantity,
-            estimatedWage: ranking.estimatedWage
+            estimatedWage: ranking.estimatedWage,
           })
-        }else{
+        } else {
           data.reportQuantity += ranking.reportQuantity
           data.estimatedWage += ranking.estimatedWage
         }
-
       })
       //排序
       datas.sort((a, b) => {
         if (a.reportQuantity === b.reportQuantity) {
-          return a.estimatedWage - b.estimatedWage; // 如果 estimatedWage 相同，则按 reportQuantity 升序排序
+          return a.estimatedWage - b.estimatedWage // 如果 estimatedWage 相同，则按 reportQuantity 升序排序
         }
-        return b.reportQuantity - a.reportQuantity; // 按 estimatedWage 降序排序
-      });
-      datas.forEach((v,i)=>{
-        v.rank = i+1
+        return b.reportQuantity - a.reportQuantity // 按 estimatedWage 降序排序
+      })
+      datas.forEach((v, i) => {
+        v.rank = i + 1
       })
       const result = Aide.diyPaging(datas, pagination)
 
@@ -183,7 +160,7 @@ export class MiService {
               through: { attributes: [] }, // 只需指定空的属性
             },
           ],
-          group: ['id']
+          group: ['id'],
         })
 
         if (tasks && tasks.length > 0) {
@@ -268,12 +245,11 @@ export class MiService {
       },
     })
     //不良品率
-    const rat = (goodCount + badCount) !== 0 ? badCount / (goodCount + badCount) : 0;
+    const rat = goodCount + badCount !== 0 ? badCount / (goodCount + badCount) : 0
     //员工绩效排名
     const user1 = await User.findByPk(user.id)
     let ids = []
     if (user1.roleId === 3) {
-
     } else if (user1.roleId === 4) {
       const users = await User.findAll({ where: { departmentId: user1.departmentId } })
       for (const user2 of users) {
@@ -376,31 +352,28 @@ export class MiService {
     const options: FindPaginationOptions = {
       where: {},
       pagination: taskPagination,
-      attributes: [
-        'id',
-        'processName',
-      ],
+      attributes: ['id', 'processName'],
       include: [
         {
           association: 'tasks',
-          attributes: ['planCount','goodCount','badCount'], // 获取工序名称
-          where:{
+          attributes: ['planCount', 'goodCount', 'badCount'], // 获取工序名称
+          where: {
             createdAt: {
               [Op.between]: [startOfToday, endOfToday],
             },
-          }
+          },
         },
       ],
     }
 
     const task = await Process.findPagination<Process>(options)
     task.data = task.data.map(item => {
-      item = item.toJSON();
-      item['totalPlanCount'] = item.tasks.reduce((acc, task) => acc + (Number(task.planCount) || 0), 0); // 确保计划数为数字
-      item['totalGoodCount'] = item.tasks.reduce((acc, task) => acc + (Number(task.goodCount) || 0), 0);
-      item['totalBadCount'] = item.tasks.reduce((acc, task) => acc + (Number(task.badCount) || 0), 0);
+      item = item.toJSON()
+      item['totalPlanCount'] = item.tasks.reduce((acc, task) => acc + (Number(task.planCount) || 0), 0) // 确保计划数为数字
+      item['totalGoodCount'] = item.tasks.reduce((acc, task) => acc + (Number(task.goodCount) || 0), 0)
+      item['totalBadCount'] = item.tasks.reduce((acc, task) => acc + (Number(task.badCount) || 0), 0)
       delete item.tasks
-      return item;
+      return item
     })
     return task
   }
@@ -812,8 +785,6 @@ export class MiService {
     }
   }
 
-
-
   public async changeFactory(dto: changeFactoryDto, user: User) {
     if (dto.factoryId) {
       console.log(user)
@@ -829,7 +800,7 @@ export class MiService {
             headers: {
               Authorization: 'Bearer FigphK45sb4eDSsc4q65gs',
             },
-          },
+          }
         )
         if (response.data) {
           const result = { token: response.data.data.token, url: response.data.data.url }
@@ -844,7 +815,7 @@ export class MiService {
   public async home(user) {
     if (!user.id) throw new HttpException('登录信息异常,请重新登录', 400)
     const user1 = await User.findByPk(user.id)
-    const [order,task] = await Promise.all([
+    const [order, task] = await Promise.all([
       ProductionOrder.findAll({
         where: { status: { [Op.not]: '已结束' } },
         attributes: ['id'],
@@ -879,7 +850,7 @@ export class MiService {
             },
           },
         ],
-      })
+      }),
     ])
     return { order: order.length, task: task.length }
   }
@@ -911,11 +882,9 @@ export class MiService {
           name: order.dataValues.bom.dataValues.parentMaterial.name,
           productionCount,
           totalProductionCount,
-          goodRate: (totalProductionCount !== 0 && totalProductionCount != null) ? ((productionCount / totalProductionCount) * 100).toFixed(2) : '0.00'
+          goodRate: totalProductionCount !== 0 && totalProductionCount != null ? ((productionCount / totalProductionCount) * 100).toFixed(2) : '0.00',
         })
-
       }
-
     }
     return statistics
   }
@@ -979,11 +948,10 @@ export class MiService {
       current: dto.current ? dto.current : 1,
       pageSize: dto.pageSize ? dto.pageSize : 10,
     }
-    if (!user) throw new HttpException("登录信息异常", 400)
+    if (!user) throw new HttpException('登录信息异常', 400)
     const user1 = await User.findByPk(user.id)
     let ids = []
     if (user1.roleId === 3) {
-
     } else if (user1.roleId === 4) {
       const users = await User.findAll({ where: { departmentId: user1.departmentId } })
       for (const user2 of users) {
@@ -993,7 +961,6 @@ export class MiService {
     //员工绩效排名
     const top = await this.calculateEmployeePerformance(ids, startTime, endTime, pagination)
     return top
-
   }
 
   public async deptProgress(user, dto: taskProgressDto) {
@@ -1013,11 +980,11 @@ export class MiService {
       current: dto.current ? dto.current : 1,
       pageSize: dto.pageSize ? dto.pageSize : 10,
     }
-    const processes = await ProcessTask.findPagination<ProcessTask>( {
+    const processes = await ProcessTask.findPagination<ProcessTask>({
       where: {
         endTime: {
-          [Op.between]: [startTime, endTime]
-        }
+          [Op.between]: [startTime, endTime],
+        },
       },
       pagination,
       include: [
@@ -1025,11 +992,11 @@ export class MiService {
           association: 'process',
           attributes: ['id', 'processName'],
           where: { id: { [Op.eq]: dto.processId } },
-          required: true
+          required: true,
         },
         {
           association: 'order',
-          attributes: ['id', 'code', 'bomId', 'startTime', 'endTime',],
+          attributes: ['id', 'code', 'bomId', 'startTime', 'endTime'],
           include: [
             {
               association: 'bom',
@@ -1042,10 +1009,9 @@ export class MiService {
                 },
               ],
             },
-          ]
-        }
+          ],
+        },
       ],
-
     })
     return processes
   }

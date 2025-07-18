@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { FileMenu } from '@model/dm/FileMenu.model'
+import { FileMenu } from '@model/document/FileMenu.model'
 
 export class FindPaginationDto {
   @ApiProperty({ description: '目录名称', type: String, required: false })

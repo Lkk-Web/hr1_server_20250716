@@ -1,7 +1,7 @@
 import { Table, Column, Model, PrimaryKey, AutoIncrement, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 
-@Table({ tableName: `dm_file_menu`, timestamps: true, paranoid: true })
+@Table({ tableName: `document_file_menu`, timestamps: true, paranoid: true })
 export class FileMenu extends BaseDate<FileMenu> {
   @Column({ type: DataType.STRING, comment: '类型名称' })
   declare name: string

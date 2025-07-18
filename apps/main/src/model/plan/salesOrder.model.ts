@@ -1,9 +1,9 @@
 import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Customer } from '@model/base/customer.model'
-import { SalesOrderDetail } from '@model/ps/salesOrderDetail.model'
+import { SalesOrderDetail } from '@model/plan/salesOrderDetail.model'
 
-@Table({ tableName: 'ps_sales_order', freezeTableName: true, timestamps: true, comment: '销售订单表' })
+@Table({ tableName: 'plan_sales_order', freezeTableName: true, timestamps: true, comment: '销售订单表' })
 export class SalesOrder extends BaseDate<SalesOrder> {
   @Column({
     type: DataType.STRING,

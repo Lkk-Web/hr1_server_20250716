@@ -3,13 +3,13 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
-import { FileList } from '@model/dm/FileList.model'
+import { FileList } from '@model/document/FileList.model'
 import { CFileListDto, EFileListDto, FindPaginationDto } from '../dtos/FileList.dto'
 import { User } from '@model/sys/user.model'
-import { FileVersion } from '@model/dm/FileVersion.model'
+import { FileVersion } from '@model/document/FileVersion.model'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { FileMenu } from '@model/dm/FileMenu.model'
+import { FileMenu } from '@model/document/FileMenu.model'
 import { STRUtil } from '@library/utils/str'
 import { Paging } from '@library/utils/paging'
 import { AdjustOrder } from '@model/wm/adjustOrder.model'
@@ -19,7 +19,7 @@ export class FileListService {
   constructor(
     @InjectModel(FileList)
     private FileListModel: typeof FileList
-  ) { }
+  ) {}
 
   public async create(dto: CFileListDto, user: User, loadModel) {
     const temp = await FileList.findOne({ where: { name: dto.name } })
@@ -94,7 +94,7 @@ export class FileListService {
       options.where['name'] = { [Op.like]: `%${dto.name}%` }
     }
 
-    const result = await Paging.diyPaging(FileList, pagination, options);
+    const result = await Paging.diyPaging(FileList, pagination, options)
     // @ts-ignore
     for (const datum of result.data) {
       const obj = await FileMenu.findAll({ where: { status: 1 } })

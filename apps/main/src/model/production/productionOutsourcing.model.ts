@@ -2,9 +2,8 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from '
 import { BaseDate } from '@model/shared/baseDate'
 import { Material, Process, ProcessTask, ProductionOrder, Supplier, User } from '..'
 
-@Table({ tableName: `pe_production_outsourcing`, timestamps: true, comment: '工序委外' })
+@Table({ tableName: `production_outsourcing`, timestamps: true, comment: '工序委外' })
 export class ProductionOutsourcing extends BaseDate<ProductionOutsourcing> {
-
   @Column({
     comment: '工序委外单编号',
     type: DataType.STRING(20),
@@ -167,5 +166,4 @@ export class ProductionOutsourcing extends BaseDate<ProductionOutsourcing> {
 
   @BelongsTo(() => Material, { foreignKey: 'materialId', constraints: false, foreignKeyConstraint: false })
   material: Material
-
 }

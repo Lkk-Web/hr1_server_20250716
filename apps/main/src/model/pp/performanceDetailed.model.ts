@@ -3,9 +3,9 @@ import { Process } from '@model/process/process.model'
 import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { Performance } from './performance.model'
-import { ProductionOrder } from '@model/pe/productionOrder.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 import { User } from '@model/sys/user.model'
-import { ProductionReport } from '@model/pe/productionReport.model'
+import { ProductionReport } from '@model/production/productionReport.model'
 
 /** 绩效工资明细 */
 @Table({ tableName: `pp_performance_detailed`, freezeTableName: true, timestamps: true, comment: '绩效工资明细表' })

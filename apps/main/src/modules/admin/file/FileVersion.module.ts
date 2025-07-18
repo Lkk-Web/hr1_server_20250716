@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { FileVersionController } from './controllers/FileVersion.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { FileVersion } from '@model/dm/FileVersion.model'
+import { FileVersion } from '@model/document/FileVersion.model'
 import { sign } from 'crypto'
 import { FileVersionService } from './services/FileVersion.service'
 import { RedisModule } from '@library/redis'

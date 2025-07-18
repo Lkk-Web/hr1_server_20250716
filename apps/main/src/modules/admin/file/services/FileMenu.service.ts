@@ -3,12 +3,12 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
-import { FileMenu } from '@model/dm/FileMenu.model'
+import { FileMenu } from '@model/document/FileMenu.model'
 import { CFileMenuDto, EFileMenuDto, FindPaginationDto } from '../dtos/FileMenu.dto'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { FindOptions, Op } from 'sequelize'
 import { STRUtil } from '@library/utils/str'
-import { FileList } from '@model/dm/FileList.model'
+import { FileList } from '@model/document/FileList.model'
 import { Paging } from '@library/utils/paging'
 
 @Injectable()
@@ -16,7 +16,7 @@ export class FileMenuService {
   constructor(
     @InjectModel(FileMenu)
     private FileMenuModel: typeof FileMenu
-  ) { }
+  ) {}
 
   public async create(dto: CFileMenuDto, loadModel) {
     let fileMenu = await FileMenu.findOne({ where: { name: dto.name } })

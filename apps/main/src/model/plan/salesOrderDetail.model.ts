@@ -4,9 +4,9 @@ import { Material } from '@model/base/material.model'
 import { Customer } from '@model/base/customer.model'
 import { User } from '@model/sys/user.model'
 import { EquipmentLedger } from '@model/em/equipmentLedger.model'
-import { SalesOrder } from '@model/ps/salesOrder.model'
+import { SalesOrder } from '@model/plan/salesOrder.model'
 
-@Table({ tableName: 'ps_sales_order_detail', freezeTableName: true, timestamps: true, comment: '销售订单明细表' })
+@Table({ tableName: 'plan_sales_order_detail', freezeTableName: true, timestamps: true, comment: '销售订单明细表' })
 export class SalesOrderDetail extends BaseDate<SalesOrderDetail> {
   @ForeignKey(() => SalesOrder)
   @Column({

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ProcessTaskController } from './processTask.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { sign } from 'crypto'
 import { ProcessTaskService } from './processTask.service'
 import { RedisModule } from '@library/redis'

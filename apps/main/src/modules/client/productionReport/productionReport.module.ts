@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ProductionReportController } from './productionReport.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { ProductionReport } from '@model/pe/productionReport.model'
+import { ProductionReport } from '@model/production/productionReport.model'
 import { ProductionReportService } from './productionReport.service'
 import { RedisModule } from '@library/redis'
 

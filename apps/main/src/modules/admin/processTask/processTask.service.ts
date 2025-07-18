@@ -3,11 +3,11 @@ import { Pagination } from '@common/interface'
 import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
-import { ProcessTask } from '@model/pe/processTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { CProcessTaskDto, FindPaginationDto, priorityDto, UProcessTaskDto } from './processTask.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { ProcessTaskDept } from '@model/pe/processTaskDept.model'
+import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { deleteIdsDto } from '@common/dto'
 import { PerformanceConfig } from '@model/index'
 import { Paging } from '@library/utils/paging'
@@ -20,7 +20,7 @@ export class ProcessTaskService {
     private readonly redis: Redis,
     @InjectModel(ProcessTask)
     private processTaskModel: typeof ProcessTask
-  ) { }
+  ) {}
 
   public async create(dto: CProcessTaskDto, loadModel) {
     const temp = await ProcessTask.findOne({ where: { productionOrderId: dto.productionOrderId, processId: dto.processId } })
