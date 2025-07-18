@@ -2,11 +2,11 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from '
 import { BaseDate } from '@model/shared/baseDate'
 import { Supplier } from '@model/base/supplier.model'
 import { Customer } from '@model/base/customer.model'
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { User } from '@model/sys/user.model'
-import { InboundOrderDetail } from '@model/wm/inboundOrderDetail.model'
+import { InboundOrderDetail } from '@model/warehouse/inboundOrderDetail.model'
 
-@Table({ tableName: `wm_inbound_order`, freezeTableName: true, timestamps: true, comment: '入库单表' })
+@Table({ tableName: `warehouse_inbound_order`, freezeTableName: true, timestamps: true, comment: '入库单表' })
 export class InboundOrder extends BaseDate<InboundOrder> {
   @Column({
     type: DataType.STRING(50),

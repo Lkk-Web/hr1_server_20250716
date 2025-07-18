@@ -4,7 +4,7 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { CWarehouseDto, FindPaginationDto, UWarehouseDto } from './warehouse.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'

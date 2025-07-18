@@ -2,21 +2,20 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize
 import { BaseDate } from '@model/shared/baseDate'
 import { Supplier } from '@model/base/supplier.model'
 import { Customer } from '@model/base/customer.model'
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { User } from '@model/sys/user.model'
-import { InboundOrder } from '@model/wm/inboundOrder.model'
+import { InboundOrder } from '@model/warehouse/inboundOrder.model'
 import { Material } from '@model/base/material.model'
-import { TransferOrder } from '@model/wm/transferOrder.model'
 
-@Table({ tableName: `wm_transfer_order_detail`, freezeTableName: true, timestamps: true, comment: '调拨单明细表' })
-export class TransferOrderDetail extends BaseDate<TransferOrderDetail> {
-  @ForeignKey(() => TransferOrder)
+@Table({ tableName: `warehouse_inbound_order_detail`, freezeTableName: true, timestamps: true, comment: '入库单明细表' })
+export class InboundOrderDetail extends BaseDate<InboundOrderDetail> {
+  @ForeignKey(() => InboundOrder)
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
-    comment: '调拨单Id',
+    comment: '入库单Id',
   })
-  declare transferOrderId: number
+  declare inboundOrderId: number
 
   @ForeignKey(() => Material)
   @Column({
@@ -29,9 +28,16 @@ export class TransferOrderDetail extends BaseDate<TransferOrderDetail> {
   @Column({
     type: DataType.DECIMAL(10, 2),
     allowNull: true,
-    comment: '调拨数量',
+    comment: '入库数量',
   })
   declare count: number
+
+  @Column({
+    type: DataType.STRING(50),
+    allowNull: true,
+    comment: '批次号',
+  })
+  declare batNum: string
 
   @BelongsTo(() => Material)
   material: Material

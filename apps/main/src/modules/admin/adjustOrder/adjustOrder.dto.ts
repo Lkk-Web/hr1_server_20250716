@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { AdjustOrder } from '@model/wm/adjustOrder.model'
+import { AdjustOrder } from '@model/warehouse/adjustOrder.model'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })

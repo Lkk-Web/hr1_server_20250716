@@ -3,8 +3,8 @@ import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { Supplier } from '@model/base/supplier.model'
 import { Customer } from '@model/base/customer.model'
-import { Warehouse } from '@model/wm/warehouse.model'
-@Table({ tableName: `wm_flow`, freezeTableName: true, timestamps: true, comment: '库存流水表' })
+import { Warehouse } from '@model/warehouse/warehouse.model'
+@Table({ tableName: `warehouse_flow`, freezeTableName: true, timestamps: true, comment: '库存流水表' })
 export class Flow extends BaseDate<Flow> {
   @ForeignKey(() => Material)
   @Column({

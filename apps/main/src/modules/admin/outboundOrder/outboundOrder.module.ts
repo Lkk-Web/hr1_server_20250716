@@ -1,7 +1,7 @@
 import { forwardRef, Module } from '@nestjs/common'
 import { OutboundOrderController } from './outboundOrder.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { OutboundOrder } from '@model/wm/outboundOrder.model'
+import { OutboundOrder } from '@model/warehouse/outboundOrder.model'
 import { sign } from 'crypto'
 import { OutboundOrderService } from './outboundOrder.service'
 import { RedisModule } from '@library/redis'

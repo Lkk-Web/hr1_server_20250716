@@ -7,7 +7,7 @@ import { ProcessRouteList } from '@model/process/processRouteList.model'
 import { Process } from '@model/process/process.model'
 import { BOM } from '@model/base/bom.model'
 import { POB } from '@model/production/POB.model'
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 
 @Table({ tableName: `production_POBD`, freezeTableName: true, timestamps: true, comment: '生产工单用料清单子项明细表' })
 export class POBD extends BaseDate<POBD> {

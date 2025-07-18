@@ -2,49 +2,28 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from '
 import { BaseDate } from '@model/shared/baseDate'
 import { Supplier } from '@model/base/supplier.model'
 import { Customer } from '@model/base/customer.model'
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { User } from '@model/sys/user.model'
-import { InboundOrderDetail } from '@model/wm/inboundOrderDetail.model'
-import { OutboundOrderDetail } from '@model/wm/outboundOrderDetail.model'
+import { InboundOrderDetail } from '@model/warehouse/inboundOrderDetail.model'
+import { OutboundOrderDetail } from '@model/warehouse/outboundOrderDetail.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
+import { MaterialRequisitionDetail } from '@model/warehouse/materialRequisitionDetail.model'
 
-@Table({ tableName: `wm_outbound_order`, freezeTableName: true, timestamps: true, comment: '出库单表' })
-export class OutboundOrder extends BaseDate<OutboundOrder> {
+@Table({ tableName: `warehouse_material_requisition`, freezeTableName: true, timestamps: true, comment: '生产领料单' })
+export class MaterialRequisition extends BaseDate<MaterialRequisition> {
   @Column({
     type: DataType.STRING(50),
     allowNull: false,
-    comment: '出库单号',
+    comment: '领料单号',
   })
   declare code: string
 
   @Column({
-    type: DataType.STRING(50),
-    allowNull: false,
-    comment: '出库类型',
-  })
-  declare type: string
-
-  @Column({
     type: DataType.DATE,
     allowNull: false,
-    comment: '出库时间',
+    comment: '领料时间',
   })
-  declare outboundTime: Date
-
-  @ForeignKey(() => Supplier)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-    comment: '供应商ID',
-  })
-  declare supplierId: number
-
-  @ForeignKey(() => Customer)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-    comment: '客户Id',
-  })
-  declare customerId: number
+  declare requisitionAt: Date
 
   @ForeignKey(() => Warehouse)
   @Column({
@@ -68,6 +47,23 @@ export class OutboundOrder extends BaseDate<OutboundOrder> {
     comment: '单据状态',
   })
   declare status: string
+
+  @ForeignKey(() => User)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    comment: '领料人Id',
+  })
+  declare pickerId: number
+
+  //工单ID
+  @ForeignKey(() => ProductionOrder)
+  @Column({
+    comment: '工单id',
+    type: DataType.STRING(255),
+    allowNull: true, // 必填项
+  })
+  declare productionOrderId: string
 
   @ForeignKey(() => User)
   @Column({
@@ -100,18 +96,8 @@ export class OutboundOrder extends BaseDate<OutboundOrder> {
   })
   declare updatedUserId: number
 
-  @Column({
-    type: DataType.STRING(20),
-    allowNull: true,
-    comment: '来源单据',
-  })
-  declare originCode: string
-
-  @BelongsTo(() => Supplier)
-  supplier: Supplier
-
-  @BelongsTo(() => Customer)
-  customer: Customer
+  @BelongsTo(() => ProductionOrder)
+  productionOrder: ProductionOrder
 
   @BelongsTo(() => Warehouse)
   warehouse: Warehouse
@@ -125,6 +111,6 @@ export class OutboundOrder extends BaseDate<OutboundOrder> {
   @BelongsTo(() => User, 'updatedUserId')
   updatedUser: User
 
-  @HasMany(() => OutboundOrderDetail)
-  details: OutboundOrderDetail[]
+  @HasMany(() => MaterialRequisitionDetail)
+  details: MaterialRequisitionDetail[]
 }

@@ -10,7 +10,7 @@ import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Paging } from '@library/utils/paging'
-import { AdjustOrder } from '@model/wm/adjustOrder.model'
+import { AdjustOrder } from '@model/warehouse/adjustOrder.model'
 
 @Injectable()
 export class CustomerService {

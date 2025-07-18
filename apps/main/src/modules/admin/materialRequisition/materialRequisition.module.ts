@@ -4,7 +4,7 @@ import { SequelizeModule } from '@nestjs/sequelize'
 import { sign } from 'crypto'
 import { MaterialRequisitionService } from './materialRequisition.service'
 import { RedisModule } from '@library/redis'
-import { MaterialRequisition } from '@model/wm/materialRequisition.model'
+import { MaterialRequisition } from '@model/warehouse/materialRequisition.model'
 import { BatchLogModule } from '../batchLog/batchLog.module'
 import { BatchLogService } from '../batchLog/batchLog.service'
 

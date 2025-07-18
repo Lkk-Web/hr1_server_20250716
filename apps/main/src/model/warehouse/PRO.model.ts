@@ -1,11 +1,11 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { User } from '@model/sys/user.model'
 import { WorkShop } from '@model/base/workShop.model'
-import { PRODetail } from '@model/wm/PRODetail.model'
+import { PRODetail } from '@model/warehouse/PRODetail.model'
 
-@Table({ tableName: `wm_pro`, freezeTableName: true, timestamps: true, comment: '生产入库单' })
+@Table({ tableName: `warehouse_pro`, freezeTableName: true, timestamps: true, comment: '生产入库单' })
 export class PRO extends BaseDate<PRO> {
   @Column({
     type: DataType.STRING(50),

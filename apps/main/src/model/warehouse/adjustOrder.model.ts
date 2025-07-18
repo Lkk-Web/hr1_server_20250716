@@ -2,13 +2,13 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from '
 import { BaseDate } from '@model/shared/baseDate'
 import { Supplier } from '@model/base/supplier.model'
 import { Customer } from '@model/base/customer.model'
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { User } from '@model/sys/user.model'
-import { InboundOrderDetail } from '@model/wm/inboundOrderDetail.model'
-import { OutboundOrderDetail } from '@model/wm/outboundOrderDetail.model'
-import { AdjustOrderDetail } from '@model/wm/adjustOrderDetail.model'
+import { InboundOrderDetail } from '@model/warehouse/inboundOrderDetail.model'
+import { OutboundOrderDetail } from '@model/warehouse/outboundOrderDetail.model'
+import { AdjustOrderDetail } from '@model/warehouse/adjustOrderDetail.model'
 
-@Table({ tableName: `wm_adjust_order`, freezeTableName: true, timestamps: true, comment: '盘点单表' })
+@Table({ tableName: `warehouse_adjust_order`, freezeTableName: true, timestamps: true, comment: '盘点单表' })
 export class AdjustOrder extends BaseDate<AdjustOrder> {
   @Column({
     type: DataType.STRING(50),

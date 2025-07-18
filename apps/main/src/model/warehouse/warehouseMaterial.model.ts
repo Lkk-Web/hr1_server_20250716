@@ -1,11 +1,11 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { Material } from '@model/base/material.model'
 
 /** 仓库物料关联表 */
 @Table({
-  tableName: `wm_warehouse_material`,
+  tableName: `warehouse_material`,
   freezeTableName: true,
   timestamps: true,
   comment: '仓库物料关联表',

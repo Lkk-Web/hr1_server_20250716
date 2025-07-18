@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 import { WorkShop } from '@model/base/workShop.model'
 /** 仓库 */
-@Table({ tableName: `wm_warehouse`, freezeTableName: true, timestamps: true, comment: '仓库表' })
+@Table({ tableName: `warehouse`, freezeTableName: true, timestamps: true, comment: '仓库表' })
 export class Warehouse extends BaseDate<Warehouse> {
   // 仓库名称：必填
   @Column({

@@ -12,7 +12,7 @@ import { FindPaginationOptions } from '@model/shared/interface'
 import { FileMenu } from '@model/document/FileMenu.model'
 import { STRUtil } from '@library/utils/str'
 import { Paging } from '@library/utils/paging'
-import { AdjustOrder } from '@model/wm/adjustOrder.model'
+import { AdjustOrder } from '@model/warehouse/adjustOrder.model'
 
 @Injectable()
 export class FileListService {

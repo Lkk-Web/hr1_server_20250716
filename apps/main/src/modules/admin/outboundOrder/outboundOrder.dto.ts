@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { OutboundOrder } from '@model/wm/outboundOrder.model'
+import { OutboundOrder } from '@model/warehouse/outboundOrder.model'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -62,8 +62,6 @@ export class OutboundOrderDetailDto {
   })
   materialId: number
 
-
-
   @ApiProperty({
     description: '出库数量',
     type: Number,
@@ -77,9 +75,7 @@ export class OutboundOrderDetailDto {
     description: '数量',
     type: Number,
   })
-  batNum: number;
-
-
+  batNum: number
 }
 
 export class COutboundOrderDto {

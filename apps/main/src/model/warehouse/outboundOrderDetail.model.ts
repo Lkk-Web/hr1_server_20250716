@@ -2,37 +2,46 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize
 import { BaseDate } from '@model/shared/baseDate'
 import { Supplier } from '@model/base/supplier.model'
 import { Customer } from '@model/base/customer.model'
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { User } from '@model/sys/user.model'
-import { InboundOrder } from '@model/wm/inboundOrder.model'
+import { InboundOrder } from '@model/warehouse/inboundOrder.model'
 import { Material } from '@model/base/material.model'
-import { OutboundOrder } from '@model/wm/outboundOrder.model'
-import { MaterialRequisition } from '@model/wm/materialRequisition.model'
+import { OutboundOrder } from '@model/warehouse/outboundOrder.model'
 
-@Table({ tableName: `wm_material_requisition_detail`, freezeTableName: true, timestamps: true, comment: '领料单明细表' })
-export class MaterialRequisitionDetail extends BaseDate<MaterialRequisitionDetail> {
-  @ForeignKey(() => MaterialRequisition)
+@Table({ tableName: `warehouse_outbound_order_detail`, freezeTableName: true, timestamps: true, comment: '出库单明细表' })
+export class OutboundOrderDetail extends BaseDate<OutboundOrderDetail> {
+  @ForeignKey(() => OutboundOrder)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
-    comment: '领料单Id',
+    allowNull: true,
+    comment: '出库单Id',
   })
-  declare materialRequisitionId: number
+  declare outboundOrderId: number
 
   @ForeignKey(() => Material)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
+    allowNull: true,
     comment: '物料Id',
   })
   declare materialId: number
 
   @Column({
     type: DataType.DECIMAL(10, 2),
-    allowNull: false,
-    comment: '领用数量',
+    allowNull: true,
+    comment: '出库数量',
   })
   declare count: number
+
+  declare accrueOutCount: number
+
+  @Column({
+    type: DataType.DECIMAL(10, 2),
+    allowNull: false,
+    comment: '订单数量',
+    defaultValue: 0,
+  })
+  declare quantity: number
 
   @Column({
     type: DataType.STRING(50),

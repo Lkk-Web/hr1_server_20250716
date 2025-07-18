@@ -1,12 +1,12 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { Supplier } from '@model/base/supplier.model'
-import { Warehouse } from '@model/wm/warehouse.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { User } from '@model/sys/user.model'
 import { WorkShop } from '@model/base/workShop.model'
-import { ExportOrderDetail } from '@model/wm/exportOrderDetail.model'
+import { ExportOrderDetail } from '@model/warehouse/exportOrderDetail.model'
 import { StrBaseModel } from '@model/shared/strBase.model'
 
-@Table({ tableName: `wm_export_order`, freezeTableName: true, timestamps: true, comment: '出入库单' })
+@Table({ tableName: `warehouse_export_order`, freezeTableName: true, timestamps: true, comment: '出入库单' })
 export class ExportOrder extends StrBaseModel<ExportOrder> {
   @Column({
     type: DataType.STRING(50),

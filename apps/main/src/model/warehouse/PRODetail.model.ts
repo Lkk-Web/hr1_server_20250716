@@ -1,9 +1,9 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
-import { PRO } from '@model/wm/PRO.model'
+import { PRO } from '@model/warehouse/PRO.model'
 
-@Table({ tableName: `wm_pro_detail`, freezeTableName: true, timestamps: true, comment: '生产入库单明细表' })
+@Table({ tableName: `warehouse_pro_detail`, freezeTableName: true, timestamps: true, comment: '生产入库单明细表' })
 export class PRODetail extends BaseDate<PRODetail> {
   @ForeignKey(() => PRO)
   @Column({
