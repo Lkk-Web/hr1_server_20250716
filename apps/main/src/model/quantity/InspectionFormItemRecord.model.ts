@@ -3,12 +3,12 @@ import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 import { ProductionOrder } from '@model/pe/productionOrder.model'
 import { Process } from '@model/pm/process.model'
-import { InspectionForm } from '@model/qm/inspectionForm.model'
-import { InspectionItem } from '@model/qm/inspectionItem.model'
-import { InspectionFormItem } from '@model/qm/InspectionFormItem.model'
-import { DefectiveItem } from '@model/qm/defectiveItem.model'
+import { InspectionForm } from '@model/quantity/inspectionForm.model'
+import { InspectionItem } from '@model/quantity/inspectionItem.model'
+import { InspectionFormItem } from '@model/quantity/InspectionFormItem.model'
+import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 /** 报工检验单检验项目缺陷记录 */
-@Table({ tableName: `qm_inspection_form_item_record`, freezeTableName: true, timestamps: true, comment: '报工检验单检验项目缺陷记录' })
+@Table({ tableName: `quantity_inspection_form_item_record`, freezeTableName: true, timestamps: true, comment: '报工检验单检验项目缺陷记录' })
 export class InspectionFormItemRecord extends BaseDate<InspectionFormItemRecord> {
   @ForeignKey(() => InspectionFormItem)
   @Column({
@@ -26,7 +26,6 @@ export class InspectionFormItemRecord extends BaseDate<InspectionFormItemRecord>
   })
   declare defectiveItemId: number
 
-
   @Column({
     comment: '类型',
     type: DataType.STRING(20),
@@ -41,8 +40,6 @@ export class InspectionFormItemRecord extends BaseDate<InspectionFormItemRecord>
   })
   declare count: number
 
-  @BelongsTo(() => DefectiveItem,{foreignKey: 'defectiveItemId', constraints: false, foreignKeyConstraint: false })
+  @BelongsTo(() => DefectiveItem, { foreignKey: 'defectiveItemId', constraints: false, foreignKeyConstraint: false })
   defectiveItem: DefectiveItem
-
-
 }

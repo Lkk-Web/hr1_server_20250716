@@ -23,7 +23,7 @@ import { KingdeeeService } from '@library/kingdee'
 import { POBD } from '@model/pe/POBD.model'
 // import { SENTENCE } from '@common/enum'
 import { deleteIdsDto } from '@common/dto'
-import { BomService } from '../bd/bom/bom.service'
+import { BomService } from '../baseData/bom/bom.service'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import moment = require('moment')
 import dayjs = require('dayjs')

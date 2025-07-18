@@ -1,7 +1,7 @@
 import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { Process } from '@model/pm/process.model'
-import { DefectiveItem } from '@model/qm/defectiveItem.model'
+import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { ProcessRoute } from '@model/pm/processRoute.model'
 /** 工序部门关联表 */

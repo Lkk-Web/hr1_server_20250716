@@ -1,8 +1,8 @@
 export * from './mi/mi.module'
 
 //基础资料
-export * from './bd/material/material.module'
-export * from './bd/bom/bom.module'
+export * from './baseData/material/material.module'
+export * from './baseData/bom/bom.module'
 export * from './supplier/supplier.module'
 export * from './workShop/workShop.module'
 export * from './workCenter/workCenter.module'

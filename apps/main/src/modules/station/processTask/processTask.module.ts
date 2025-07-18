@@ -5,7 +5,7 @@ import { ProcessTask } from '@model/pe/processTask.model'
 import { ProcessTaskService } from './processTask.service'
 import { RedisModule } from '@library/redis'
 import { NotifyService } from '@modules/admin/notify/notify.service'
-import { BomModule } from '@modules/admin/bd/bom/bom.module'
+import { BomModule } from '@modules/admin/baseData/bom/bom.module'
 
 @Module({
   imports: [RedisModule, BomModule, SequelizeModule.forFeature([ProcessTask])],

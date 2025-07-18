@@ -24,7 +24,7 @@ import { POI } from '@model/pe/POI.model'
 import { POB } from '@model/pe/POB.model'
 import { Process } from '@model/pm/process.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
-import { DefectiveItem } from '@model/qm/defectiveItem.model'
+import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { Material } from '@model/base/material.model'
 import { auditDto } from '../productionReport/productionReport.dto'
 

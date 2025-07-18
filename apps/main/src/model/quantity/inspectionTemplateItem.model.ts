@@ -1,10 +1,10 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { InspectionTemplate } from '@model/qm/inspectionTemplate.model'
-import { InspectionItem } from '@model/qm/inspectionItem.model'
+import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
+import { InspectionItem } from '@model/quantity/inspectionItem.model'
 
 /** 检验模板项次关联表 */
-@Table({ tableName: `qm_inspection_template_item`, freezeTableName: true, timestamps: true, comment: '检验模板项次关联表' })
+@Table({ tableName: `quantity_inspection_template_item`, freezeTableName: true, timestamps: true, comment: '检验模板项次关联表' })
 export class InspectionTemplateItem extends BaseDate<InspectionTemplateItem> {
   @ForeignKey(() => InspectionTemplate)
   @Column({
@@ -21,7 +21,6 @@ export class InspectionTemplateItem extends BaseDate<InspectionTemplateItem> {
     // allowNull: false,
   })
   declare inspectionItemId: number
-
 
   @Column({
     comment: '标准值',

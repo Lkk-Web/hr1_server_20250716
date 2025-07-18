@@ -1,6 +1,6 @@
 import { BelongsToMany, Column, DataType, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
-import { DefectiveItem } from '@model/qm/defectiveItem.model'
+import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { BaseDate } from '@model/shared/baseDate'
 import { ProcessItems } from '@model/pm/processItems.model'
 import { ProcessDept } from '@model/pm/processDept.model'
@@ -43,10 +43,10 @@ export class Process extends BaseDate<Process> {
   // processDept: SYSOrg[]
 
   // @BelongsToMany(() => DefectiveItem, { through: () => ProcessItems,constraints:false,foreignKeyConstraint:false,foreignKey:'processId',otherKey:'defectiveItemId' })
-  @BelongsToMany(() => SYSOrg, { through: () => ProcessDept, uniqueKey: "process_pd_so_unique", foreignKey: 'processId', otherKey: 'deptId' })
+  @BelongsToMany(() => SYSOrg, { through: () => ProcessDept, uniqueKey: 'process_pd_so_unique', foreignKey: 'processId', otherKey: 'deptId' })
   processDept: SYSOrg[]
 
-  @BelongsToMany(() => DefectiveItem, { through: () => ProcessItems, uniqueKey: "process_pi_di_unique", foreignKey: 'processId', otherKey: 'defectiveItemId' })
+  @BelongsToMany(() => DefectiveItem, { through: () => ProcessItems, uniqueKey: 'process_pi_di_unique', foreignKey: 'processId', otherKey: 'defectiveItemId' })
   processItem: DefectiveItem[]
 
   declare performanceConfig: PerformanceConfig

@@ -1,13 +1,13 @@
 import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { InspectionFormInfo } from '@model/qm/inspectionFormInfo.model'
+import { InspectionFormInfo } from '@model/quantity/inspectionFormInfo.model'
 import { Process } from '@model/pm/process.model'
 import { ProductionReport } from '@model/pe/productionReport.model'
-import { InspectionFormBy } from '@model/qm/inspectionFormBy.model'
+import { InspectionFormBy } from '@model/quantity/inspectionFormBy.model'
 
 /** 报工检验单 */
-@Table({ tableName: `qm_inspection_form`, freezeTableName: true, timestamps: true, comment: '报工检验单' })
+@Table({ tableName: `quantity_inspection_form`, freezeTableName: true, timestamps: true, comment: '报工检验单' })
 export class InspectionForm extends BaseDate<InspectionForm> {
   @Column({
     comment: '检验单编码',
@@ -35,10 +35,9 @@ export class InspectionForm extends BaseDate<InspectionForm> {
     comment: '状态',
     type: DataType.STRING(20),
     allowNull: true,
-    defaultValue : '暂存'
+    defaultValue: '暂存',
   })
   declare status: string
-
 
   @Column({
     comment: '源单编号',
@@ -129,10 +128,9 @@ export class InspectionForm extends BaseDate<InspectionForm> {
   @BelongsTo(() => Process, { foreignKey: 'processId', constraints: false, foreignKeyConstraint: false })
   declare process: Process
 
-  @HasMany( ()=> InspectionFormInfo)
-  declare infos : InspectionFormInfo[]
+  @HasMany(() => InspectionFormInfo)
+  declare infos: InspectionFormInfo[]
 
-  @BelongsToMany( ()=> User,()=>InspectionFormBy)
-  declare inspectors : User[]
-
+  @BelongsToMany(() => User, () => InspectionFormBy)
+  declare inspectors: User[]
 }

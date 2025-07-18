@@ -1,10 +1,10 @@
 import { Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { InspectionFormInfo } from '@model/qm/inspectionFormInfo.model'
+import { InspectionFormInfo } from '@model/quantity/inspectionFormInfo.model'
 import { Process } from '@model/pm/process.model'
 
 /** 报工检验单检验项目 */
-@Table({ tableName: `qm_inspection_form_result`, freezeTableName: true, timestamps: true, comment: '报工检验单检验结果' })
+@Table({ tableName: `quantity_inspection_form_result`, freezeTableName: true, timestamps: true, comment: '报工检验单检验结果' })
 export class InspectionFormResult extends BaseDate<InspectionFormResult> {
   @ForeignKey(() => InspectionFormInfo)
   @Column({
@@ -56,5 +56,4 @@ export class InspectionFormResult extends BaseDate<InspectionFormResult> {
     type: DataType.INTEGER,
   })
   declare processId: number
-
 }

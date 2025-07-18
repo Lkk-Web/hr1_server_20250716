@@ -25,7 +25,18 @@ export * from './sys/apiConfig.model'
 export * from './sys/apiDict.model'
 
 //质量管理
-export * from './qm/defectiveItem.model'
+export * from './quantity/defectiveItem.model'
+export * from './quantity/inspectionItem.model'
+export * from './quantity/inspectionTemplate.model'
+export * from './quantity/inspectionTemplateItem.model'
+export * from './quantity/inspectionTemplateMat.model'
+export * from './quantity/inspectionForm.model'
+export * from './quantity/inspectionFormBy.model'
+export * from './quantity/InspectionFormItem.model'
+export * from './quantity/InspectionFormItemRecord.model'
+export * from './quantity/batchLog.model'
+export * from './quantity/inspectionFormInfo.model'
+export * from './quantity/inspectionFormResult.model'
 
 //工艺管理1
 export * from './pm/process.model'
@@ -139,18 +150,7 @@ export * from './em/maintenanceOrder.model'
 export * from './em/maintenanceOrderDetail.model'
 export * from './em/scrapOrder.model'
 
-//质量管理1
-export * from './qm/inspectionItem.model'
-export * from './qm/inspectionTemplate.model'
-export * from './qm/inspectionTemplateItem.model'
-export * from './qm/inspectionTemplateMat.model'
-export * from './qm/inspectionForm.model'
-export * from './qm/inspectionFormBy.model'
-export * from './qm/InspectionFormItem.model'
-export * from './qm/InspectionFormItemRecord.model'
-export * from './qm/batchLog.model'
-export * from './qm/inspectionFormInfo.model'
-export * from './qm/inspectionFormResult.model'
+
 
 // 数据中台
 export * from './io/dcNotify.model'

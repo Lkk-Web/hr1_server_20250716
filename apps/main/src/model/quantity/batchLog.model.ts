@@ -1,9 +1,9 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Material, User, Warehouse } from '..';
+import { Material, User, Warehouse } from '..'
 
 /** 批次日志表 */
-@Table({ tableName: `qm_batch_log`, freezeTableName: true, timestamps: true, comment: '批次日志表' })
+@Table({ tableName: `quantity_batch_log`, freezeTableName: true, timestamps: true, comment: '批次日志表' })
 export class BatchLog extends BaseDate<BatchLog> {
   @Column({
     comment: '来源批次号',
@@ -37,7 +37,7 @@ export class BatchLog extends BaseDate<BatchLog> {
     type: DataType.DATE,
     comment: '业务日期',
   })
-  declare ywDate: Date;
+  declare ywDate: Date
 
   @Column({
     comment: '单位',

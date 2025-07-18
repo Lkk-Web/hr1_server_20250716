@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { DefectiveItem } from '@model/qm/defectiveItem.model'
+import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { POP } from '@model/pe/POP.model'
 import { ProductionReport } from '@model/pe/productionReport.model'
 
@@ -30,9 +30,9 @@ export class PRI extends BaseDate<PRI> {
   })
   declare count: number
 
-  @BelongsTo(() => ProductionReport,{ foreignKey: 'productionReportId', constraints: false, foreignKeyConstraint: false })
-  productionReport : ProductionReport
+  @BelongsTo(() => ProductionReport, { foreignKey: 'productionReportId', constraints: false, foreignKeyConstraint: false })
+  productionReport: ProductionReport
 
-  @BelongsTo(() => DefectiveItem,{foreignKey: 'defectiveItemId', constraints: false, foreignKeyConstraint: false })
+  @BelongsTo(() => DefectiveItem, { foreignKey: 'defectiveItemId', constraints: false, foreignKeyConstraint: false })
   defectiveItem: DefectiveItem
 }

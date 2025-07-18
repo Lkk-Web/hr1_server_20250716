@@ -1,7 +1,7 @@
 import { Pagination } from '@common/interface'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
-import { DefectiveItem } from '@model/qm/defectiveItem.model'
+import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { CDefectiveItemDto, FindPaginationDto, UDefectiveItemDto } from './defectiveItem.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
@@ -16,7 +16,7 @@ export class DefectiveItemService {
   constructor(
     @InjectModel(DefectiveItem)
     private defectiveItemModel: typeof DefectiveItem
-  ) { }
+  ) {}
 
   public async create(dto: CDefectiveItemDto, loadModel) {
     const temp = await DefectiveItem.findOne({ where: { name: dto.name } })
@@ -84,7 +84,7 @@ export class DefectiveItemService {
         [Op.like]: `%${dto.code}%`,
       }
     }
-    const result = await Paging.diyPaging(DefectiveItem, pagination, options);
+    const result = await Paging.diyPaging(DefectiveItem, pagination, options)
     return result
   }
 

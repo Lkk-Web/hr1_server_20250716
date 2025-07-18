@@ -4,15 +4,15 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { CInspectionTemplateDTO, FindPaginationDto, UInspectionTemplateDTO, InspectionTemplateTypeEnum } from './inspectionTemplate.dto'
-import { InspectionTemplate } from '@model/qm/inspectionTemplate.model'
+import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Paging } from '@library/utils/paging'
-// import { InspectionTemplateItem } from '@model/qm/inspectionTemplateItem.model'
-import { InspectionTemplateMat } from '@model/qm/inspectionTemplateMat.model'
+// import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
+import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.model'
 import { deleteIdsDto } from '@common/dto'
-import { InspectionTemplateItem } from '@model/qm/inspectionTemplateItem.model'
+import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 
 @Injectable()
 export class InspectionTemplateService {
@@ -21,22 +21,21 @@ export class InspectionTemplateService {
     private readonly redis: Redis,
     @InjectModel(InspectionTemplate)
     private inspectionTemplateModel: typeof InspectionTemplate,
-    private sequelize: Sequelize,
-  ) {
-  }
+    private sequelize: Sequelize
+  ) {}
 
   public async create(dto: CInspectionTemplateDTO, user) {
-    const same = await InspectionTemplate.findOne({ where: { name: dto.name },attributes:['id'] })
+    const same = await InspectionTemplate.findOne({ where: { name: dto.name }, attributes: ['id'] })
     if (same) throw new HttpException('已有相同名称的检验模板', 400)
-    
+
     // 检查同类型下是否已存在通用方案
     if (dto.templateType === InspectionTemplateTypeEnum.GENERAL) {
-      const existingGeneral = await InspectionTemplate.findOne({ 
-        where: { 
-          type: dto.type, 
-          templateType: InspectionTemplateTypeEnum.GENERAL 
+      const existingGeneral = await InspectionTemplate.findOne({
+        where: {
+          type: dto.type,
+          templateType: InspectionTemplateTypeEnum.GENERAL,
         },
-        attributes: ['id']
+        attributes: ['id'],
       })
       if (existingGeneral) {
         throw new HttpException(`检验种类「${dto.type}」已存在通用方案，同类型只能有一个通用方案`, 400)
@@ -48,7 +47,7 @@ export class InspectionTemplateService {
     const temp = await InspectionTemplate.findOne({
       order: [['createdAt', 'DESC']],
       where: { code: { [Op.like]: `QCT${year}${month}%` } },
-      attributes:['code']
+      attributes: ['code'],
     })
     if (temp) {
       const oldNO = temp.code
@@ -87,7 +86,6 @@ export class InspectionTemplateService {
     return result
   }
 
-
   public async edit(dto: UInspectionTemplateDTO, id: number) {
     let inspectionTemplate = await InspectionTemplate.findOne({ where: { id } })
     if (!inspectionTemplate) {
@@ -95,16 +93,16 @@ export class InspectionTemplateService {
     }
     const same = await InspectionTemplate.findOne({ where: { name: dto.name, id: { [Op.ne]: id } } })
     if (same) throw new HttpException('已有相同名称的检验模板', 400)
-    
+
     // 检查同类型下是否已存在通用方案（排除当前记录）
     if (dto.templateType === InspectionTemplateTypeEnum.GENERAL) {
-      const existingGeneral = await InspectionTemplate.findOne({ 
-        where: { 
-          type: dto.type, 
+      const existingGeneral = await InspectionTemplate.findOne({
+        where: {
+          type: dto.type,
           templateType: InspectionTemplateTypeEnum.GENERAL,
-          id: { [Op.ne]: id }
+          id: { [Op.ne]: id },
         },
-        attributes: ['id']
+        attributes: ['id'],
       })
       if (existingGeneral) {
         throw new HttpException(`检验种类「${dto.type}」已存在通用方案，同类型只能有一个通用方案`, 400)
@@ -162,7 +160,7 @@ export class InspectionTemplateService {
         },
         {
           association: 'items',
-          attributes: ['id', 'name', 'data']
+          attributes: ['id', 'name', 'data'],
         },
         {
           association: 'materials',
@@ -196,7 +194,7 @@ export class InspectionTemplateService {
           through: { attributes: [] },
         },
       ],
-      attributes:{exclude:['data']}
+      attributes: { exclude: ['data'] },
     }
 
     if (dto.code) {
@@ -222,7 +220,7 @@ export class InspectionTemplateService {
         [Op.eq]: dto.templateType,
       }
     }
-    
+
     const result = await Paging.diyPaging(InspectionTemplate, pagination, options)
     return result
   }

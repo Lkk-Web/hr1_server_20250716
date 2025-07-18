@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { DefectiveItem } from '@model/qm/defectiveItem.model'
+import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })

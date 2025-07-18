@@ -1,13 +1,13 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { InspectionFormItem } from '@model/qm/InspectionFormItem.model'
-import { InspectionForm } from '@model/qm/inspectionForm.model'
-import { InspectionTemplate } from '@model/qm/inspectionTemplate.model'
-import { InspectionFormResult } from '@model/qm/inspectionFormResult.model'
+import { InspectionFormItem } from '@model/quantity/InspectionFormItem.model'
+import { InspectionForm } from '@model/quantity/inspectionForm.model'
+import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
+import { InspectionFormResult } from '@model/quantity/inspectionFormResult.model'
 import { Material } from '@model/base/material.model'
 
 /** 报工检验单 */
-@Table({ tableName: `qm_inspection_form_info`, freezeTableName: true, timestamps: true, comment: '报工检验物料信息表' })
+@Table({ tableName: `quantity_inspection_form_info`, freezeTableName: true, timestamps: true, comment: '报工检验物料信息表' })
 export class InspectionFormInfo extends BaseDate<InspectionFormInfo> {
   @ForeignKey(() => InspectionForm)
   @Column({

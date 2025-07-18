@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 /** 不良品项 */
-@Table({ tableName: `qm_defective_item`, freezeTableName: true, timestamps: true, comment: '不良品项表' })
+@Table({ tableName: `quantity_defective_item`, freezeTableName: true, timestamps: true, comment: '不良品项表' })
 export class DefectiveItem extends BaseDate<DefectiveItem> {
   @Column({
     comment: '编码',

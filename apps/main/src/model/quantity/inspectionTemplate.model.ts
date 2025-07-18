@@ -1,12 +1,12 @@
 import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { InspectionTemplateItem } from '@model/qm/inspectionTemplateItem.model'
+import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 import { Material } from '@model/base/material.model'
-import { InspectionTemplateMat } from '@model/qm/inspectionTemplateMat.model'
+import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.model'
 
 /** 检验模板 */
-@Table({ tableName: `qm_inspection_template`, freezeTableName: true, timestamps: true, comment: '检验模板表' })
+@Table({ tableName: `quantity_inspection_template`, freezeTableName: true, timestamps: true, comment: '检验模板表' })
 export class InspectionTemplate extends BaseDate<InspectionTemplate> {
   @Column({
     comment: '检验模板编码',

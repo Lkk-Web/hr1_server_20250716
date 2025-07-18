@@ -2,7 +2,7 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 /** 检验项次 */
-@Table({ tableName: `qm_inspection_item`, freezeTableName: true, timestamps: true, comment: '检验项次表' })
+@Table({ tableName: `quantity_inspection_item`, freezeTableName: true, timestamps: true, comment: '检验项次表' })
 export class InspectionItem extends BaseDate<InspectionItem> {
   @Column({
     comment: '检验项次名称',

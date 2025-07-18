@@ -5,7 +5,7 @@ import { User } from '@model/sys/user.model'
 import { ProcessRoute } from '@model/pm/processRoute.model'
 import { Process } from '@model/pm/process.model'
 import { ProcessRouteList } from '@model/pm/processRouteList.model'
-import { DefectiveItem } from '@model/qm/defectiveItem.model'
+import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 
 @Table({
   tableName: `pm_process_route_list_item`,
