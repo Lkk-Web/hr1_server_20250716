@@ -2,7 +2,7 @@ import { Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescri
 import { BaseDate } from '@model/shared/baseDate'
 
 /** 工艺 */
-@Table({ tableName: `io_craft`, freezeTableName: true, timestamps: true, comment: '工艺' })
+@Table({ tableName: `center_craft`, freezeTableName: true, timestamps: true, comment: '工艺' })
 export class Craft extends BaseDate<Craft> {
   // 标准属性
   @Column({
@@ -124,15 +124,14 @@ export class Craft extends BaseDate<Craft> {
   })
   declare remark2: string
 
-  @ForeignKey(()=>Craft)
+  @ForeignKey(() => Craft)
   @Column({
     comment: '上级id',
     type: DataType.INTEGER,
   })
   declare superiorId: number
 
-  @HasMany(()=>Craft)
+  @HasMany(() => Craft)
   declare children: Craft[]
   //---------------
-
 }

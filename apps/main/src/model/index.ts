@@ -140,6 +140,6 @@ export * from './equipment/maintenanceOrderDetail.model'
 export * from './equipment/scrapOrder.model'
 
 // 数据中台 center
-export * from './io/dcNotify.model'
-export * from './io/drawing.model'
-export * from './io/craft.model'
+export * from './center/dcNotify.model'
+export * from './center/drawing.model'
+export * from './center/craft.model'

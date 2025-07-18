@@ -3,7 +3,7 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequeli
 import { Material, Process, ProductionOrder, SYSOrg, User } from '..'
 
 /** 中台通知 */
-@Table({ tableName: `io_dc_notify`, freezeTableName: true, timestamps: true, comment: '中台通知' })
+@Table({ tableName: `center_dc_notify`, freezeTableName: true, timestamps: true, comment: '中台通知' })
 export class DCNotify extends BaseDate<DCNotify> {
   @Column({
     comment: '事项',

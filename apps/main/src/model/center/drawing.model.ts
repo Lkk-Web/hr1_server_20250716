@@ -3,7 +3,10 @@ import { Column, DataType, Table } from 'sequelize-typescript'
 
 /** 第三方图纸 */
 @Table({
-  tableName: `io_drawing`, freezeTableName: true, timestamps: true, comment: '中台通知',
+  tableName: `center_drawing`,
+  freezeTableName: true,
+  timestamps: true,
+  comment: '中台通知',
   indexes: [
     {
       name: 'idx_key',
