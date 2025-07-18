@@ -77,11 +77,11 @@ export * from './production/reportUser.model'
 export * from './production/reportUserDuration.model'
 
 //绩效管理 performance
-export * from './pp/performance.model'
-export * from './pp/performanceConfig.model'
-export * from './pp/performanceDetailed.model'
-export * from './pp/manHour.model'
-export * from './pp/manHourProcess.model'
+export * from './performance/performance.model'
+export * from './performance/performanceConfig.model'
+export * from './performance/performanceDetailed.model'
+export * from './performance/manHour.model'
+export * from './performance/manHourProcess.model'
 
 //排班管理 schedule
 export * from './sm/teamType.model'

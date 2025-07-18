@@ -2,7 +2,7 @@ import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, Table } from
 import { BaseDate } from '@model/shared/baseDate'
 import { BOM } from '@model/base/bom.model'
 import { ProcessRoute } from '@model/process/processRoute.model'
-import { ManHour } from '@model/pp/manHour.model'
+import { ManHour } from '@model/performance/manHour.model'
 
 /** 物料 */
 @Table({ tableName: `base_material`, freezeTableName: true, timestamps: true, comment: '物料表' })

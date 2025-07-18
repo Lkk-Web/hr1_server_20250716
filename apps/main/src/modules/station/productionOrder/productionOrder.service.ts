@@ -6,7 +6,7 @@ import { FindPaginationOptions } from '@model/shared/interface'
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
 import { ProcessTask } from '@model/production/processTask.model'
-import { PerformanceConfig } from '@model/pp/performanceConfig.model'
+import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { ProductionOrderPageDto } from './productionOrder.dto'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 

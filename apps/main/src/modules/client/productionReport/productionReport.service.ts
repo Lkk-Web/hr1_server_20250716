@@ -9,7 +9,7 @@ import { POP } from '@model/production/POP.model'
 import { ProcessTask } from '@model/production/processTask.model'
 import { PRI } from '@model/production/PRI.model'
 import { User } from '@model/sys/user.model'
-import { Performance } from '@model/pp/performance.model'
+import { Performance } from '@model/performance/performance.model'
 import { deleteIdsDto } from '@common/dto'
 import { PerformanceDetailed } from '@model/index'
 import moment = require('moment')

@@ -4,7 +4,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 
 /** 绩效工资配置 */
-@Table({ tableName: `pp_performance_config`, freezeTableName: true, timestamps: true, comment: '绩效工资配置表' })
+@Table({ tableName: `performance_config`, freezeTableName: true, timestamps: true, comment: '绩效工资配置表' })
 export class PerformanceConfig extends BaseDate<PerformanceConfig> {
   @ForeignKey(() => Material)
   @Column({

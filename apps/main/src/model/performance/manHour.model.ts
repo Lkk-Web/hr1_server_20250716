@@ -3,10 +3,10 @@ import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { PERFORMANCE_CONFIG_TYPE, PERFORMANCE_CONFIG_UNIT } from '@common/enum'
 import { User } from '@model/sys/user.model'
-import { ManHourProcess } from '@model/pp/manHourProcess.model'
+import { ManHourProcess } from '@model/performance/manHourProcess.model'
 
 /** 工时配置 */
-@Table({ tableName: `pp_man_hour`, freezeTableName: true, timestamps: true, comment: '工时配置' })
+@Table({ tableName: `performance_man_hour`, freezeTableName: true, timestamps: true, comment: '工时配置' })
 export class ManHour extends BaseDate<ManHour> {
   @ForeignKey(() => Material)
   @Column({

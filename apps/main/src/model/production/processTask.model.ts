@@ -6,7 +6,7 @@ import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { User } from '@model/sys/user.model'
 import { ProcessTaskUser } from '@model/production/processTaskUser.model'
-import { PerformanceConfig } from '@model/pp/performanceConfig.model'
+import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
 

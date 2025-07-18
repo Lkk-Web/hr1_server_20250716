@@ -4,7 +4,7 @@ import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { BaseDate } from '@model/shared/baseDate'
 import { ProcessItems } from '@model/process/processItems.model'
 import { ProcessDept } from '@model/process/processDept.model'
-import { PerformanceConfig } from '@model/pp/performanceConfig.model'
+import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { TeamProcess } from '@model/sm/teamProcess.model'
 import { ProcessTask } from '@model/production/processTask.model'
 

@@ -4,7 +4,7 @@ import { Material, Process, ProductionOrder, SYSOrg, User } from '..'
 import { PerformanceDetailed } from './performanceDetailed.model'
 
 /** 绩效工资统计 */
-@Table({ tableName: `pp_performance`, freezeTableName: true, timestamps: true, comment: '绩效工资统计表' })
+@Table({ tableName: `performance`, freezeTableName: true, timestamps: true, comment: '绩效工资统计表' })
 export class Performance extends BaseDate<Performance> {
   @ForeignKey(() => SYSOrg)
   @Column({

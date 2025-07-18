@@ -1,10 +1,10 @@
 import { Process } from '@model/process/process.model'
 import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
-import { ManHour } from '@model/pp/manHour.model'
+import { ManHour } from '@model/performance/manHour.model'
 
 /** 工时配置 */
-@Table({ tableName: `pp_man_hour_process`, freezeTableName: true, timestamps: true, comment: '工时配置' })
+@Table({ tableName: `performance_man_hour_process`, freezeTableName: true, timestamps: true, comment: '工时配置' })
 export class ManHourProcess extends BaseDate<ManHourProcess> {
   @ForeignKey(() => ManHour)
   @Column({

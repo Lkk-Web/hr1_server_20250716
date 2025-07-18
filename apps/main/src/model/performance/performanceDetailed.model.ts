@@ -8,7 +8,7 @@ import { User } from '@model/sys/user.model'
 import { ProductionReport } from '@model/production/productionReport.model'
 
 /** 绩效工资明细 */
-@Table({ tableName: `pp_performance_detailed`, freezeTableName: true, timestamps: true, comment: '绩效工资明细表' })
+@Table({ tableName: `performance_detailed`, freezeTableName: true, timestamps: true, comment: '绩效工资明细表' })
 export class PerformanceDetailed extends BaseDate<PerformanceDetailed> {
   @Column({
     comment: '报工ID',
