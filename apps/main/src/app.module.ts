@@ -4,7 +4,6 @@ import { DtoPipe } from '@core/pipe'
 import { LoggerModule } from '@library/logger'
 import { MysqlModule } from '@library/mysql'
 import { TasksModule } from '@library/tasks'
-import { PlatformAdminModule } from '@modules/admin/admin.module'
 import { PlatformClientModule } from '@modules/client/client.module'
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ScheduleModule } from '@nestjs/schedule'
@@ -14,6 +13,7 @@ import { HookModule } from '@modules/hooks/hook.module'
 import { SequelizeModule } from '@nestjs/sequelize'
 import * as ModelList from '@model/index'
 import { MicroserviceClientModule } from '@library/microserviceClient/microserviceClient.module'
+import { PlatformAdminModule } from '@modules/admin/admin.module'
 
 @Module({
   imports: [

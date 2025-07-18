@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable, HttpException } from '@nestjs/common'
 import { jwtDecode } from '@library/utils/crypt.util'
 import { Reflector } from '@nestjs/core'
-import { AUTHORIZE_KEY_METADATA } from '@core/decorator/authorize'
+import { AUTHORIZE_KEY_METADATA } from '@core/decorator/metaData'
 
 @Injectable()
 export class JwtDecodeGuard implements CanActivate {
@@ -46,7 +46,7 @@ export class JwtDecodeGuard implements CanActivate {
         token: token,
         payload: payload,
         userId: payload.id,
-        platform: payload.platform
+        platform: payload.platform,
       }
 
       return true

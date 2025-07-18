@@ -1,5 +1,5 @@
 {
-  "name": "monorepo-main",
+  "name": "@monorepo/auth",
   "version": "0.0.1",
   "description": "",
   "scripts": {

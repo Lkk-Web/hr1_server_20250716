@@ -25,6 +25,7 @@ export const info: Configs = {
   pay_notify_url: envs.PAY_NOTIFY_URL,
   refund_notify_url: envs.REFUND_NOTIFY_URL,
   wsNameSpace: envs.WS_NAMESPACE,
+  proxyAuth: envs.PROXY_AUTH,
 }
 
 export const MYSQL_CONFIG: SequlizeOptions = {
@@ -32,7 +33,6 @@ export const MYSQL_CONFIG: SequlizeOptions = {
   timezone: '+08:00',
   pool: { max: 5 },
   autoLoadModels: true, //是否自动创建
-  synchronize: true,
   logging: false, //是否打印日志
   ...envs.dp,
 }
@@ -76,6 +76,17 @@ export const OSS_ACCOUNT: AliOssAccount = {
   endpoint: 'HOME_PATH',
   // cname: 'HOME_PATH'?true:false,
   timeout: 120 * 1000, // 设置上传超时时间为 120 秒
+}
+
+export const MINIO_CONFIG = {
+  endPoint: process.env.MINIO_POINT,
+  port: process.env.MINIO_PORT ? Number(process.env.MINIO_PORT) : 9000,
+  useSSL: false,
+  accessKey: process.env.MINIO_ACCESSKEY,
+  secretKey: process.env.MINIO_SECRETKEY,
+  dir: process.env.APP_NAME + '/uploads', // cos文件路径, 不定义则会上传至bucket的根目录
+  bucket: process.env.MINIO_BUCKET,
+  url: process.env.MINIO_URL,
 }
 
 /**

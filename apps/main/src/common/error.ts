@@ -1,46 +1,36 @@
-import {HttpStatusConstant} from "@common/interface";
+const E = {
+  /*------ 通用错误码 1000~9999 ------*/
+  UNDEFINED: { error: 1000, message: '未定义异常' },
+  INVALID_PARAMS: { error: 1001, message: '参数异常' },
+  API_ERROR: { error: 1002, message: '接口异常' },
+  TODO: { error: 1003, message: '功能开发中' },
+  ONLY_DEVELOPMENT: { error: 1004, message: '仅开发模式可用' },
 
-export const httpStatusConstant: HttpStatusConstant = {
-  language: 'zh',
-  status: new Map([
-    // The http base status
-    // ----------------------------------------------------------------------------------------
-    [200, { code: 0, errorCode: 200, zh: '请求成功', en: 'Success' }],
-    [400, { code: 400, errorCode: 400, zh: '请求有误', en: 'BadRequest' }],
-    [401, { code: 401, errorCode: 401, zh: '拒绝访问', en: 'Forbidden' }],
-    [403, { code: 403, errorCode: 403, zh: '无权限访问', en: 'Unauthorized' }],
-    [404, { code: 404, errorCode: 404, zh: '未找到访问资源', en: 'NotFound' }],
-    [408, { code: 408, errorCode: 408, zh: '请求超时', en: 'Timeout' }],
-    [500, { code: 500, errorCode: 500, zh: '服务端异常', en: 'InternalServerError' }],
-    [501, { code: 501, errorCode: 501, zh: '服务端执行失败', en: 'NotImplemented' }],
-    [502, { code: 502, errorCode: 502, zh: '服务端网关访问异常', en: 'BadGateway' }],
-    [503, { code: 503, errorCode: 503, zh: '服务端更新中，暂不可用', en: 'Service Unavailable' }],
-    // The custom status
-    // ----------------------------------------------------------------------------------------
-    [400001, { code: 400, errorCode: 400001, zh: '参数有误', en: '' }],
-    [400002, { code: 400, errorCode: 400002, zh: '密码有误', en: '' }],
-    [400003, { code: 400, errorCode: 400003, zh: '账户不存在', en: '' }],
-    [400004, { code: 401, errorCode: 400004, zh: 'token 为空', en: '' }],
-    [400005, { code: 401, errorCode: 400005, zh: '平台不一致', en: '' }],
-    [400006, { code: 401, errorCode: 400006, zh: '用户不存在', en: '' }],
-    [400007, { code: 401, errorCode: 400007, zh: '账号禁用;禁止登录', en: '' }],
-    [400008, { code: 401, errorCode: 400008, zh: '无效验证', en: '' }],
-    [400009, { code: 401, errorCode: 400009, zh: '账户不存在', en: '' }],
-    [400010, { code: 401, errorCode: 400010, zh: '重新登陆', en: '' }],
-    [400041, { code: 400, errorCode: 400041, zh: '非法操作', en: '' }],
-    [
-      400042,
-      {
-        code: 400,
-        errorCode: 400042,
-        zh: '有信息与它关联无法删除或修改',
-        en: '',
-      },
-    ],
-    [400043, { code: 400, errorCode: 400043, zh: '参数存在，不能用重复参数', en: '' }],
-    [400044, { code: 400, errorCode: 400044, zh: '缺少数据或验证失败', en: '' }],
-    [400045, { code: 400, errorCode: 400045, zh: '类型错误', en: '' }],
-    [400046, { code: 400, errorCode: 400046, zh: '出错了', en: '' }],
-    [400047, { code: 401, errorCode: 400047, zh: '账号已禁用', en: '' }],
-  ]),
-};
+  // USER AUTH
+  AUTH_FAILED: { error: 2001, message: '无效验证', statusCode: 401 },
+  INVALID_PASSWORD: { error: 2002, message: '密码错误' },
+  USER_EXISTS: { error: 2003, message: '账号已经存在' },
+  USER_NOT_EXISTS: { error: 2004, message: '账号不存在' },
+  USER_ROLE_NO_PRIVILEGE: { error: 2005, message: '操作权限不足' },
+
+  // RESTFUL
+  RESTFUL_GET_ID: { error: 3001, message: '查询数据不存在' },
+  RESTFUL_DELETE_ID: { error: 3002, message: '删除数据不存在' },
+  RESTFUL_UPDATE_ID: { error: 3003, message: '更新数据不存在' },
+  RESTFUL_DUPLICATION: { error: 3004, message: '数据已经存在' },
+  RESTFUL_TODO: { error: 3005, message: '该接口未实现' },
+  RESTFUL_HAS_DELETED: { error: 3006, message: '该数据已被删除' },
+  RESTFUL_GET_AUTH: { error: 3007, message: '该权限不存在' },
+
+  // SQL
+  SQL_DUPLICATION: { error: 4001, message: '数据已经存在' },
+  SQL_INCOMPLETE_PARAMS: { error: 4002, message: '错误，参数不全' },
+  SQL_INSERT_FAILED: { error: 4003, message: '插入数据失败' },
+
+  /*------ 业务错误码 10000~19999 ------*/
+  // ...TODO
+  K3_API_ERROR: message => ({ error: 90001, message }),
+  API_FACTORY_DATA_EXSITS: { error: 19001, message: '工厂初始数据已存在' },
+}
+
+export default E

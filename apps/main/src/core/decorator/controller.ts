@@ -28,6 +28,20 @@ export function AdminAuth(prefix: string) {
   )
 }
 
+/**
+ *  工控屏（工位）平台鉴权装饰器
+ */
+export function StationAuth(prefix: string) {
+  return applyDecorators(Controller(`${PLATFORM.station}/v1/${prefix}`), ApiPlatformWhitelist([PLATFORM.station]), UseGuards(MicroserviceAuthGuard, PlatformGuardClass))
+}
+
+/**
+ *  第三方API对接
+ */
+export function ThirdController(prefix: string) {
+  return applyDecorators(Controller(`/api/v1/${prefix}`))
+}
+
 export function ApiRes(statusCode: number, config?: { desc?: string; type?: any }) {
   config = config || {}
   return applyDecorators(HttpCode(statusCode), ApiResponse({ status: statusCode, description: config.desc || '成功', type: config.type || Object }))

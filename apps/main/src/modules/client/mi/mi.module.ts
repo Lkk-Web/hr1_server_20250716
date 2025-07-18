@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common'
 import { MiService } from './mi.service'
 import { MiController } from './mi.controller'
-import { FileService } from '@modules/file/file.service'
-import { MicroserviceClientModule } from '@library/microserviceClient/microserviceClient.module'
+import { HttpModule } from '@nestjs/axios'
+import { RedisModule } from '@library/redis'
+import { MiService as ClientMiService } from '@modules/admin/mi/mi.service'
 
 @Module({
-  imports: [MicroserviceClientModule],
+  imports: [HttpModule,RedisModule],
   controllers: [MiController],
-  providers: [MiService, FileService],
+  providers: [MiService,ClientMiService],
 })
 export class MiModule {}

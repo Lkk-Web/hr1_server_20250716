@@ -49,20 +49,21 @@ export interface JwtPayload {
 }
 
 export interface Configs {
-  env?: ENV;
-  appName?: string;
-  homePath?: string;
-  port?: string | number;
-  isDebug?: boolean;
-  enableFileLoging?: boolean;
-  enableConsoleLoging?: boolean;
-  redis?: IoRedisOptions;
-  database?: SequlizeOptions;
-  gitCiAuthorize: string[];
-  appKey?: string;
-  pay_notify_url?: string;
-  refund_notify_url?: string;
-  wsNameSpace?: string;
+  env?: ENV
+  appName?: string
+  homePath?: string
+  port?: string | number
+  isDebug?: boolean
+  enableFileLoging?: boolean
+  enableConsoleLoging?: boolean
+  redis?: IoRedisOptions
+  database?: SequlizeOptions
+  gitCiAuthorize: string[]
+  appKey?: string
+  pay_notify_url?: string
+  refund_notify_url?: string
+  wsNameSpace?: string
+  proxyAuth?: string // 代理认证
 }
 
 export interface SequlizeOptions {

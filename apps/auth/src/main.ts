@@ -35,8 +35,13 @@ async function bootstrap() {
 
   // 微服务
   const microserviceOptions: MicroserviceOptions | any = configs.MicroserviceConfig
-  app.connectMicroservice(microserviceOptions)
-  await app.startAllMicroservices()
+  try {
+    app.connectMicroservice(microserviceOptions)
+    await app.startAllMicroservices()
+  } catch (error) {
+    logger.error('微服务启动失败: ' + error.message)
+    throw error
+  }
 
   // 微信支付回调配置
   // app.use(bodyParser.xml())

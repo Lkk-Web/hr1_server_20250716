@@ -2,8 +2,7 @@ import {REQ, RES} from '@common/type'
 import {ArgumentsHost, Catch, HttpException} from '@nestjs/common'
 import {HttpStatusConstant, ResponseBody} from '@common/interface'
 import {BaseExceptionFilter} from '@nestjs/core'
-import {httpStatusConstant} from '@common/error'
-import {headersConstant} from '@common/constant'
+import {headersConstant, httpStatusConstant} from '@common/constant'
 import {IPUtil} from "@library/utils/ip.util";
 import {LoggerProvider} from "@library/logger";
 import {v4 as uuid} from 'uuid';

@@ -5,17 +5,21 @@
   "author": "Kye",
   "private": true,
   "license": "",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
     "build": "nest build",
     "dev": "concurrently \"npm run auth\" \"npm run main\" --names \"AUTH,MAIN\" --prefix-colors \"blue,green\"",
-    "auth": "cd apps/auth && nest start --debug --watch",
-    "main": "cd apps/main && nest start --debug --watch"
+    "auth": "cd apps/auth && nest start --watch",
+    "main": "cd apps/main && nest start --watch"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
     "@nestjs/core": "^10.4.15",
     "@nestjs/microservices": "^10.4.15",
     "@nestjs/platform-express": "^10.4.15",
+    "@nestjs/axios": "^3.0.3",
     "@nestjs/schedule": "^4.1.2",
     "@nestjs/sequelize": "^10.0.1",
     "@nestjs/swagger": "^8.1.1",
