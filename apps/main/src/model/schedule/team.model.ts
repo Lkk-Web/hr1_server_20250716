@@ -2,15 +2,15 @@ import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, HasOne
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 import { WorkShop } from '@model/base/workShop.model'
-import { TeamUser } from '@model/sm/teamUser.model'
+import { TeamUser } from '@model/schedule/teamUser.model'
 import { Process } from '@model/process/process.model'
-import { TeamEquipmentLedger } from '@model/sm/teamEquipmentLedger.model'
+import { TeamEquipmentLedger } from '@model/schedule/teamEquipmentLedger.model'
 import { EquipmentLedger } from '@model/em/equipmentLedger.model'
-import { TeamProcess } from '@model/sm/teamProcess.model'
+import { TeamProcess } from '@model/schedule/teamProcess.model'
 import { TEAM_TYPE } from '@common/enum'
 
 /** 班组 */
-@Table({ tableName: `sm_team`, freezeTableName: true, timestamps: true, comment: '班组表' })
+@Table({ tableName: `schedule_team`, freezeTableName: true, timestamps: true, comment: '班组表' })
 export class Team extends BaseDate<Team> {
   // 班组名称：必填
   @Column({

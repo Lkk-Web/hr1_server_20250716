@@ -2,7 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 
 import { BaseDate } from '@model/shared/baseDate'
 import { SYSRole } from '@model/sys/SYSRole.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
-import { TeamUser } from '@model/sm/teamUser.model'
+import { TeamUser } from '@model/schedule/teamUser.model'
 
 @Table({ tableName: `sys_user`, freezeTableName: true, timestamps: true, comment: '用户员工表' })
 export class User extends BaseDate<User> {
@@ -44,7 +44,7 @@ export class User extends BaseDate<User> {
   })
   declare password: string
 
-  @Column({ type: DataType.STRING, comment: '员工岗位',allowNull:true })
+  @Column({ type: DataType.STRING, comment: '员工岗位', allowNull: true })
   declare station: string
 
   // 邮箱

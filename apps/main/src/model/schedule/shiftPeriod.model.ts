@@ -1,10 +1,10 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { TeamType } from '@model/sm/teamType.model'
-import { Shift } from '@model/sm/shift.model'
+import { TeamType } from '@model/schedule/teamType.model'
+import { Shift } from '@model/schedule/shift.model'
 /** 班次时间表 */
-@Table({ tableName: `sm_shift_period`, freezeTableName: true, timestamps: true, comment: '班次时间表' })
+@Table({ tableName: `schedule_shift_period`, freezeTableName: true, timestamps: true, comment: '班次时间表' })
 export class ShiftPeriod extends BaseDate<ShiftPeriod> {
   @ForeignKey(() => Shift)
   @Column({

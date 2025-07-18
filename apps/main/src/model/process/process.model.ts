@@ -5,7 +5,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { ProcessItems } from '@model/process/processItems.model'
 import { ProcessDept } from '@model/process/processDept.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
-import { TeamProcess } from '@model/sm/teamProcess.model'
+import { TeamProcess } from '@model/schedule/teamProcess.model'
 import { ProcessTask } from '@model/production/processTask.model'
 
 /** 工序表 */

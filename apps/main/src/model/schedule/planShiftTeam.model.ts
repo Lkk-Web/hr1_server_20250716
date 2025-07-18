@@ -2,7 +2,7 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize
 import { BaseDate } from '@model/shared/baseDate'
 import { SchedulePlanShift, Team } from '..'
 /** 排班计划班次班组关联表 */
-@Table({ tableName: `sm_plan_shift_team`, freezeTableName: true, timestamps: true, comment: '排班计划班次班组关联表' })
+@Table({ tableName: `schedule_plan_shift_team`, freezeTableName: true, timestamps: true, comment: '排班计划班次班组关联表' })
 export class PlanShiftTeam extends BaseDate<PlanShiftTeam> {
   @ForeignKey(() => SchedulePlanShift)
   @Column({
@@ -19,5 +19,4 @@ export class PlanShiftTeam extends BaseDate<PlanShiftTeam> {
     allowNull: false, // 必填
   })
   declare teamId: number
-
 }

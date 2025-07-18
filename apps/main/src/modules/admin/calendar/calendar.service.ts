@@ -4,13 +4,13 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { BadRequestException, HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
-import { Calendar } from '@model/sm/calendar.model'
+import { Calendar } from '@model/schedule/calendar.model'
 import { CalendarDetailDto, CCalendarDto, DetailList, FindPaginationDto, UCalendarDto } from './calendar.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Paging } from '@library/utils/paging'
-import { Shift } from '@model/sm/shift.model'
+import { Shift } from '@model/schedule/shift.model'
 import { CalendarDetail, PlanShiftTeam } from '@model/index'
 import { goToWork, redLetter } from '@library/utils/redLetter'
 import dayjs = require('dayjs')
@@ -24,7 +24,7 @@ export class CalendarService {
     @InjectModel(Calendar)
     private calendarModel: typeof Calendar,
     private sequelize: Sequelize
-  ) { }
+  ) {}
 
   public async create(dto: CCalendarDto, loadModel) {
     const temp = await Calendar.findOne({ where: { name: dto.name } })
@@ -80,9 +80,9 @@ export class CalendarService {
       include: [
         {
           association: 'calendarDetails',
-          attributes: ['id', 'dayDate', 'state', 'scId']
-        }
-      ]
+          attributes: ['id', 'dayDate', 'state', 'scId'],
+        },
+      ],
     }
     const result = await Calendar.findOne(options)
     return result
@@ -95,9 +95,9 @@ export class CalendarService {
       include: [
         {
           association: 'calendarDetails',
-          attributes: ['id', 'dayDate', 'state', 'scId']
-        }
-      ]
+          attributes: ['id', 'dayDate', 'state', 'scId'],
+        },
+      ],
     }
     if (dto.name) {
       options.where['name'] = {
@@ -114,28 +114,28 @@ export class CalendarService {
   async getWorkSchedule(dto: CalendarDetailDto) {
     let holidays = redLetter
     let specialWorkDays = goToWork
-    const start = dayjs(dto.effectiveDate);
-    const end = dayjs(dto.expireDate);
-    const holidayDates = holidays.map(holiday => dayjs(holiday));
-    const specialWorkDates = specialWorkDays.map(day => dayjs(day));
-    const workSchedule = [];
-    let currentDate = start;
+    const start = dayjs(dto.effectiveDate)
+    const end = dayjs(dto.expireDate)
+    const holidayDates = holidays.map(holiday => dayjs(holiday))
+    const specialWorkDates = specialWorkDays.map(day => dayjs(day))
+    const workSchedule = []
+    let currentDate = start
     while (currentDate.isBefore(end) || currentDate.isSame(end, 'day')) {
-      const dayOfWeek = currentDate.day();
-      let isWorkingDay = false;
+      const dayOfWeek = currentDate.day()
+      let isWorkingDay = false
       if (dto.state == '是') {
-        const isHoliday = holidayDates.some(holiday => holiday.isSame(currentDate, 'day'));
-        const isSpecialWorkDay = specialWorkDates.some(day => day.isSame(currentDate, 'day'));
-        isWorkingDay = (dto.workDays.includes(dayOfWeek.toString()) && !isHoliday) || isSpecialWorkDay;
+        const isHoliday = holidayDates.some(holiday => holiday.isSame(currentDate, 'day'))
+        const isSpecialWorkDay = specialWorkDates.some(day => day.isSame(currentDate, 'day'))
+        isWorkingDay = (dto.workDays.includes(dayOfWeek.toString()) && !isHoliday) || isSpecialWorkDay
       } else {
-        isWorkingDay = dto.workDays.includes(dayOfWeek.toString());
+        isWorkingDay = dto.workDays.includes(dayOfWeek.toString())
       }
       workSchedule.push({
         dayDate: currentDate.add(8, 'hour').format('YYYY-MM-DD'),
         state: isWorkingDay,
-      });
-      currentDate = currentDate.add(1, 'day');
+      })
+      currentDate = currentDate.add(1, 'day')
     }
-    return workSchedule;
+    return workSchedule
   }
 }

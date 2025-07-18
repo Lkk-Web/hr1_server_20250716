@@ -1,11 +1,10 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Team } from '@model/sm/team.model'
+import { Team } from '@model/schedule/team.model'
 import { EquipmentLedger } from '@model/em/equipmentLedger.model'
 
-@Table({ tableName: `sm_team_equipment_ledger`, freezeTableName: true, timestamps: true, comment: '班组与设备台账' })
+@Table({ tableName: `schedule_team_equipment_ledger`, freezeTableName: true, timestamps: true, comment: '班组与设备台账' })
 export class TeamEquipmentLedger extends BaseDate<TeamEquipmentLedger> {
-
   @ForeignKey(() => Team)
   @Column({
     type: DataType.INTEGER,
@@ -27,5 +26,4 @@ export class TeamEquipmentLedger extends BaseDate<TeamEquipmentLedger> {
 
   @BelongsTo(() => Team)
   declare team: Team
-
 }

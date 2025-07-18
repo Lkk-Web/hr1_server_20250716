@@ -1,12 +1,12 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany, BelongsToMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { TeamType } from '@model/sm/teamType.model'
-import { Shift } from '@model/sm/shift.model'
-import { SchedulePlanShift } from '@model/sm/schedulePlanShift.model'
+import { TeamType } from '@model/schedule/teamType.model'
+import { Shift } from '@model/schedule/shift.model'
+import { SchedulePlanShift } from '@model/schedule/schedulePlanShift.model'
 import { Calendar } from '..'
 /** 排班计划 */
-@Table({ tableName: `sm_schedule_plan`, freezeTableName: true, timestamps: true, comment: '排班计划表' })
+@Table({ tableName: `schedule_plan`, freezeTableName: true, timestamps: true, comment: '排班计划表' })
 export class SchedulePlan extends BaseDate<SchedulePlan> {
   // 车间名称：必填
   @Column({
@@ -74,5 +74,4 @@ export class SchedulePlan extends BaseDate<SchedulePlan> {
 
   @BelongsTo(() => Calendar)
   declare calendar: Calendar
-
 }

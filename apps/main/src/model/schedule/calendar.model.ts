@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 import { Team, ShiftPeriod, CalendarDetail } from '..'
 /** 工作日历 */
-@Table({ tableName: `sm_calendar`, freezeTableName: true, timestamps: true, comment: '工作日历' })
+@Table({ tableName: `schedule_calendar`, freezeTableName: true, timestamps: true, comment: '工作日历' })
 export class Calendar extends BaseDate<Calendar> {
 
   @Column({

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ShiftController } from './shift.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { Shift } from '@model/sm/shift.model'
+import { Shift } from '@model/schedule/shift.model'
 import { sign } from 'crypto'
 import { ShiftService } from './shift.service'
 import { RedisModule } from '@library/redis'

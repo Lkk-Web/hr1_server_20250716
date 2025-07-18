@@ -4,12 +4,12 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
-import { Shift } from '@model/sm/shift.model'
+import { Shift } from '@model/schedule/shift.model'
 import { CShiftDto, FindPaginationDto, UShiftDto } from './shift.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { ShiftPeriod } from '@model/sm/shiftPeriod.model'
+import { ShiftPeriod } from '@model/schedule/shiftPeriod.model'
 import { Paging } from '@library/utils/paging'
 
 @Injectable()
@@ -18,7 +18,7 @@ export class ShiftService {
     @InjectModel(Shift)
     private shiftModel: typeof Shift,
     private sequelize: Sequelize
-  ) { }
+  ) {}
 
   public async create(dto: CShiftDto, loadModel) {
     const temp = await Shift.findOne({ where: { name: dto.name } })

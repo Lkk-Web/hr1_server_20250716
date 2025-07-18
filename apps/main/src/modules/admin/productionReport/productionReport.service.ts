@@ -28,7 +28,7 @@ import { ExportOrder } from '@model/wm/exportOrder.model'
 import { ExportOrderDetail } from '@model/wm/exportOrderDetail.model'
 import { InspectionFormInfo } from '@model/quantity/inspectionFormInfo.model'
 import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
-import { Team } from '@model/sm/team.model'
+import { Team } from '@model/schedule/team.model'
 import { ReportUser } from '@model/production/reportUser.model'
 import moment = require('moment')
 

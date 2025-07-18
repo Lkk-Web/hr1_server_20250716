@@ -4,7 +4,7 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
-import { TeamType } from '@model/sm/teamType.model'
+import { TeamType } from '@model/schedule/teamType.model'
 import { CTeamTypeDto, FindPaginationDto, UTeamTypeDto } from './teamType.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'

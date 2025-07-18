@@ -3,10 +3,10 @@ import { User } from '@model/sys/user.model'
 import { BaseModel } from '@model/shared/base.model'
 import { NOTIFY_SCENE } from '@common/enum'
 import { ProcessTask } from '@model/production/processTask.model'
-import { Team } from '@model/sm/team.model'
+import { Team } from '@model/schedule/team.model'
 
 /** 班组 */
-@Table({ tableName: `sm_notify`, freezeTableName: true, timestamps: true, updatedAt: false, comment: '班组表' })
+@Table({ tableName: `schedule_notify`, freezeTableName: true, timestamps: true, updatedAt: false, comment: '班组表' })
 export class Notify extends BaseModel<Notify> {
   @ForeignKey(() => User)
   @Column({

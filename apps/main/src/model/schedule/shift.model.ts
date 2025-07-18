@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 import { Team, ShiftPeriod } from '..'
 /** 班次 */
-@Table({ tableName: `sm_shift`, freezeTableName: true, timestamps: true, comment: '班次表' })
+@Table({ tableName: `schedule_shift`, freezeTableName: true, timestamps: true, comment: '班次表' })
 export class Shift extends BaseDate<Shift> {
   @Column({
     type: DataType.STRING(100),
@@ -40,6 +40,4 @@ export class Shift extends BaseDate<Shift> {
 
   @HasMany(() => ShiftPeriod)
   declare periods: ShiftPeriod[]
-
-
 }

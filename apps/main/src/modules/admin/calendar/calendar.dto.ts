@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { Calendar } from '@model/sm/calendar.model'
+import { Calendar } from '@model/schedule/calendar.model'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -8,10 +8,10 @@ export class FindPaginationDto {
   @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
   pageSize?: string
 
-  @ApiProperty({ description: '日历名称', type: String, required: false, })
+  @ApiProperty({ description: '日历名称', type: String, required: false })
   name: string
 
-  @ApiProperty({ description: '状态（启用/禁用）', type: Boolean, required: false, default: true, })
+  @ApiProperty({ description: '状态（启用/禁用）', type: Boolean, required: false, default: true })
   status: boolean
 }
 

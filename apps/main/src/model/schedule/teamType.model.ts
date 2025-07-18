@@ -2,9 +2,9 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo, BelongsToMany } 
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 import { WorkShop } from '@model/base/workShop.model'
-import { TeamUser } from '@model/sm/teamUser.model'
+import { TeamUser } from '@model/schedule/teamUser.model'
 /** 班组类型 */
-@Table({ tableName: `sm_team_type`, freezeTableName: true, timestamps: true, comment: '班组类型表' })
+@Table({ tableName: `schedule_team_type`, freezeTableName: true, timestamps: true, comment: '班组类型表' })
 export class TeamType extends BaseDate<TeamType> {
   // 类型名称：必填
   @Column({

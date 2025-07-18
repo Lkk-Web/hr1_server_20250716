@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { SchedulePlan } from '@model/sm/schedulePlan.model'
+import { SchedulePlan } from '@model/schedule/schedulePlan.model'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -8,16 +8,16 @@ export class FindPaginationDto {
   @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
   pageSize?: string
 
-  @ApiProperty({ description: '计划名称', type: String, required: false, })
+  @ApiProperty({ description: '计划名称', type: String, required: false })
   name: string
 
-  @ApiProperty({ description: '轮班方式', type: String, required: false, })
+  @ApiProperty({ description: '轮班方式', type: String, required: false })
   shiftType: string
 
-  @ApiProperty({ description: '倒班方式', type: String, required: false, })
+  @ApiProperty({ description: '倒班方式', type: String, required: false })
   changeType: string
 
-  @ApiProperty({ description: '状态（启用/禁用）', type: Boolean, required: false, default: true, })
+  @ApiProperty({ description: '状态（启用/禁用）', type: Boolean, required: false, default: true })
   status: boolean
 }
 
@@ -33,7 +33,6 @@ export class ShiftList {
   @ApiProperty({ name: 'TeamList', type: [TeamList], required: false, description: '班组集合' })
   TeamList?: TeamList[]
 }
-
 
 export class CSchedulePlanDto {
   @ApiProperty({
@@ -85,7 +84,7 @@ export class CSchedulePlanDto {
   })
   remark?: string
 
-  @ApiProperty({ description: '状态（启用/禁用）', type: Boolean, required: false, default: true, })
+  @ApiProperty({ description: '状态（启用/禁用）', type: Boolean, required: false, default: true })
   status: boolean
 
   @ApiProperty({
@@ -94,7 +93,6 @@ export class CSchedulePlanDto {
     required: false,
   })
   shiftLists: ShiftList[]
-
 }
 
 export class USchedulePlanDto {
@@ -147,8 +145,7 @@ export class USchedulePlanDto {
   })
   remark?: string
 
-
-  @ApiProperty({ description: '状态（启用/禁用）', type: Boolean, required: false, default: true, })
+  @ApiProperty({ description: '状态（启用/禁用）', type: Boolean, required: false, default: true })
   status: boolean
 
   @ApiProperty({

@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { Shift } from '@model/sm/shift.model'
+import { Shift } from '@model/schedule/shift.model'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -29,8 +29,6 @@ export class FindPaginationDto {
     default: true,
   })
   status: boolean
-
-
 }
 
 export class ShiftPeriodDto {

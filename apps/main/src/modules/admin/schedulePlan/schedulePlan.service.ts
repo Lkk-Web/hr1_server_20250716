@@ -4,14 +4,14 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { BadRequestException, HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
-import { SchedulePlan } from '@model/sm/schedulePlan.model'
+import { SchedulePlan } from '@model/schedule/schedulePlan.model'
 import { CSchedulePlanDto, FindPaginationDto, USchedulePlanDto } from './schedulePlan.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { SchedulePlanShift } from '@model/sm/schedulePlanShift.model'
+import { SchedulePlanShift } from '@model/schedule/schedulePlanShift.model'
 import { Paging } from '@library/utils/paging'
-import { Shift } from '@model/sm/shift.model'
+import { Shift } from '@model/schedule/shift.model'
 import { PlanShiftTeam } from '@model/index'
 
 @Injectable()
@@ -23,7 +23,7 @@ export class SchedulePlanService {
     @InjectModel(SchedulePlan)
     private schedulePlanModel: typeof SchedulePlan,
     private sequelize: Sequelize
-  ) { }
+  ) {}
 
   public async create(dto: CSchedulePlanDto, loadModel) {
     const temp = await SchedulePlan.findOne({ where: { name: dto.name } })
@@ -92,11 +92,14 @@ export class SchedulePlanService {
             {
               association: 'shift',
               attributes: ['id', 'name', 'shortName', 'color', 'remark'],
-              include: [{
-                association: 'periods',
-                attributes: ['id', 'startTime', 'endTime', 'workHours'],
-              }]
-            }, {
+              include: [
+                {
+                  association: 'periods',
+                  attributes: ['id', 'startTime', 'endTime', 'workHours'],
+                },
+              ],
+            },
+            {
               association: 'teams',
               attributes: ['id', 'name', 'remark'],
               include: [
@@ -105,12 +108,13 @@ export class SchedulePlanService {
                   attributes: ['id', 'userName', 'userCode', 'phone'],
                 },
               ],
-            }
-          ]
-        }, {
+            },
+          ],
+        },
+        {
           association: 'calendar',
           attributes: ['id', 'name'],
-        }
+        },
       ],
     }
     const result = await SchedulePlan.findOne(options)
@@ -129,11 +133,14 @@ export class SchedulePlanService {
             {
               association: 'shift',
               attributes: ['id', 'name', 'shortName', 'color', 'remark'],
-              include: [{
-                association: 'periods',
-                attributes: ['id', 'startTime', 'endTime', 'workHours'],
-              }]
-            }, {
+              include: [
+                {
+                  association: 'periods',
+                  attributes: ['id', 'startTime', 'endTime', 'workHours'],
+                },
+              ],
+            },
+            {
               association: 'teams',
               attributes: ['id', 'name', 'remark'],
               include: [
@@ -142,12 +149,13 @@ export class SchedulePlanService {
                   attributes: ['id', 'userName', 'userCode', 'phone'],
                 },
               ],
-            }
-          ]
-        }, {
+            },
+          ],
+        },
+        {
           association: 'calendar',
           attributes: ['id', 'name'],
-        }
+        },
       ],
     }
     if (dto.name) {

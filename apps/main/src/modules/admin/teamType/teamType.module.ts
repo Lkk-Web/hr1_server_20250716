@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { TeamTypeController } from './teamType.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { TeamType } from '@model/sm/teamType.model'
+import { TeamType } from '@model/schedule/teamType.model'
 import { sign } from 'crypto'
 import { TeamTypeService } from './teamType.service'
 import { RedisModule } from '@library/redis'
