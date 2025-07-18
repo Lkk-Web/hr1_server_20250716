@@ -8,7 +8,6 @@ import { InjectModel } from '@nestjs/sequelize'
 import { Redis } from '@sophons/redis'
 import { Sequelize } from 'sequelize-typescript'
 import { Column, Style, Workbook } from 'exceljs'
-import test from 'node:test'
 import { FindPaginationDto } from './workInProgressReport.dto'
 import { Op } from 'sequelize'
 
@@ -20,7 +19,7 @@ export class WorkInProgressReportService {
 
     @InjectModel(ProductionOrder)
     private sequelize: Sequelize
-  ) { }
+  ) {}
   //工单表、产品表、物料表、工序任务单、
   public async findPagination(dto: FindPaginationDto, pagination: Pagination, loadModel) {
     const options: FindPaginationOptions = {
@@ -46,11 +45,13 @@ export class WorkInProgressReportService {
           association: 'tasks',
           attributes: ['planCount', 'goodCount', 'badCount'],
           required: false,
-          include: [{
-            association: 'process',
-            attributes: ['processName'],
-            required: false
-          }],
+          include: [
+            {
+              association: 'process',
+              attributes: ['processName'],
+              required: false,
+            },
+          ],
         },
       ],
     }
@@ -89,11 +90,11 @@ export class WorkInProgressReportService {
         //未清数=计划数-良品数
         task['wqs'] = task.planCount - task.goodCount
         newTasks[task.process.processName] = {
-          'planCount': task.planCount,
-          'goodCount': task.goodCount,
-          'badCount': task.badCount,
-          'zzp': task.zzp,
-          'wqs': task.wqs
+          planCount: task.planCount,
+          goodCount: task.goodCount,
+          badCount: task.badCount,
+          zzp: task.zzp,
+          wqs: task.wqs,
         }
       }
       one.tasks = newTasks
@@ -124,11 +125,13 @@ export class WorkInProgressReportService {
           association: 'tasks',
           attributes: ['planCount', 'goodCount', 'badCount'],
           required: false,
-          include: [{
-            association: 'process',
-            attributes: ['processName'],
-            required: false
-          }],
+          include: [
+            {
+              association: 'process',
+              attributes: ['processName'],
+              required: false,
+            },
+          ],
         },
       ],
     }
