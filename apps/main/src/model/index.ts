@@ -23,6 +23,7 @@ export * from './sys/SYSRoleOrg.model'
 export * from './sys/user.model'
 export * from './sys/apiConfig.model'
 export * from './sys/apiDict.model'
+export * from './sys/printTemplate.model'
 
 //质量管理 quality
 export * from './quantity/defectiveItem.model'
@@ -49,16 +50,16 @@ export * from './process/SOP.model'
 export * from './process/SOPMaterial.model'
 export * from './process/SOPFile.model'
 
-//文件管理
+//文件管理 document
 export * from './dm/FileMenu.model'
 export * from './dm/FileList.model'
 export * from './dm/FileVersion.model'
 
-//生产计划
+//生产计划 plan
 export * from './ps/salesOrder.model'
 export * from './ps/salesOrderDetail.model'
 
-//生产执行
+//生产执行 production
 export * from './pe/productionOrder.model'
 export * from './pe/POP.model'
 export * from './pe/PODmodel'
@@ -74,20 +75,17 @@ export * from './pe/productionReport.model'
 export * from './pe/PRI.model'
 
 export * from './pe/productionOutsourcing.model' //工序委外
-export * from './pe/processTaskLog.model' //工序委外
+export * from './pe/processTaskLog.model'
 
 export * from './pe/reportUser.model'
 export * from './pe/reportUserDuration.model'
 
-//绩效管理
+//绩效管理 performance
 export * from './pp/performance.model'
 export * from './pp/performanceConfig.model'
 export * from './pp/performanceDetailed.model'
 export * from './pp/manHour.model'
 export * from './pp/manHourProcess.model'
-
-//打印模版
-export * from './sys/printTemplate.model'
 
 //排班管理 schedule
 export * from './sm/teamType.model'
@@ -104,7 +102,7 @@ export * from './sm/teamEquipmentLedger.model'
 export * from './sm/teamProcess.model'
 export * from './sm/notify.model'
 
-//库存管理
+//库存管理 warehouse
 export * from './wm/warehouse.model'
 export * from './wm/warehouseMaterial.model'
 export * from './wm/inboundOrder.model'
@@ -122,9 +120,9 @@ export * from './wm/exportOrderDetail.model'
 export * from './wm/PRO.model'
 export * from './wm/PRODetail.model'
 
-//设备管理
-export * from './em/equipmentType.model'
+//设备管理 equipment
 export * from './em/equipment.model'
+export * from './em/equipmentType.model'
 export * from './em/installLocation.model'
 export * from './em/checkStandard.model'
 export * from './em/checkStandardDetail.model'
@@ -145,7 +143,7 @@ export * from './em/maintenanceOrder.model'
 export * from './em/maintenanceOrderDetail.model'
 export * from './em/scrapOrder.model'
 
-// 数据中台
+// 数据中台 center
 export * from './io/dcNotify.model'
 export * from './io/drawing.model'
 export * from './io/craft.model'
