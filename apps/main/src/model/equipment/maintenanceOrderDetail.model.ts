@@ -1,10 +1,10 @@
 import { Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { MaintenanceOrder } from '@model/em/maintenanceOrder.model'
+import { MaintenanceOrder } from '@model/equipment/maintenanceOrder.model'
 
-@Table({ tableName: `em_maintenance_order_detail`, freezeTableName: true, timestamps: true, comment: '保养单明细表' })
+@Table({ tableName: `equipment_maintenance_order_detail`, freezeTableName: true, timestamps: true, comment: '保养单明细表' })
 export class MaintenanceOrderDetail extends BaseDate<MaintenanceOrderDetail> {
-  @ForeignKey(()=>MaintenanceOrder)
+  @ForeignKey(() => MaintenanceOrder)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -46,5 +46,4 @@ export class MaintenanceOrderDetail extends BaseDate<MaintenanceOrderDetail> {
     comment: '保养结果',
   })
   declare bol: boolean
-
 }

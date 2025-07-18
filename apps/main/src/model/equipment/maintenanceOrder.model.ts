@@ -1,10 +1,10 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { EquipmentLedger } from '@model/em/equipmentLedger.model'
-import { MaintenanceOrderDetail } from '@model/em/maintenanceOrderDetail.model'
+import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
+import { MaintenanceOrderDetail } from '@model/equipment/maintenanceOrderDetail.model'
 
-@Table({ tableName: `em_maintenance_order`, freezeTableName: true, timestamps: true, comment: '保养单表' })
+@Table({ tableName: `equipment_maintenance_order`, freezeTableName: true, timestamps: true, comment: '保养单表' })
 export class MaintenanceOrder extends BaseDate<MaintenanceOrder> {
   @Column({
     type: DataType.STRING(20),
@@ -13,7 +13,7 @@ export class MaintenanceOrder extends BaseDate<MaintenanceOrder> {
   })
   declare code: string
 
-  @ForeignKey(()=>EquipmentLedger)
+  @ForeignKey(() => EquipmentLedger)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -28,7 +28,7 @@ export class MaintenanceOrder extends BaseDate<MaintenanceOrder> {
   })
   declare maintenanceAt: Date
 
-  @ForeignKey(()=>User)
+  @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -50,7 +50,6 @@ export class MaintenanceOrder extends BaseDate<MaintenanceOrder> {
   })
   declare nextAt: Date
 
-
   @ForeignKey(() => User)
   @Column({
     type: DataType.INTEGER,
@@ -67,8 +66,8 @@ export class MaintenanceOrder extends BaseDate<MaintenanceOrder> {
   })
   declare updatedUserId: number
 
-  @BelongsTo(()=> EquipmentLedger)
-  declare equipmentLedger : EquipmentLedger
+  @BelongsTo(() => EquipmentLedger)
+  declare equipmentLedger: EquipmentLedger
 
   @BelongsTo(() => User, 'createdUserId')
   declare createdUser: User
@@ -77,8 +76,8 @@ export class MaintenanceOrder extends BaseDate<MaintenanceOrder> {
   declare updatedUser: User
 
   @BelongsTo(() => User, 'maintenanceUserId')
-  declare maintenanceUser : User
+  declare maintenanceUser: User
 
-  @HasMany(()=>MaintenanceOrderDetail)
-  declare details : MaintenanceOrderDetail[]
+  @HasMany(() => MaintenanceOrderDetail)
+  declare details: MaintenanceOrderDetail[]
 }

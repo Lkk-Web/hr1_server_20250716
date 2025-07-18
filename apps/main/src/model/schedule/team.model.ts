@@ -5,7 +5,7 @@ import { WorkShop } from '@model/base/workShop.model'
 import { TeamUser } from '@model/schedule/teamUser.model'
 import { Process } from '@model/process/process.model'
 import { TeamEquipmentLedger } from '@model/schedule/teamEquipmentLedger.model'
-import { EquipmentLedger } from '@model/em/equipmentLedger.model'
+import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 import { TeamProcess } from '@model/schedule/teamProcess.model'
 import { TEAM_TYPE } from '@common/enum'
 

@@ -2,17 +2,17 @@ import { BelongsTo, Column, DataType, ForeignKey, HasOne, Table } from 'sequeliz
 import { BaseDate } from '@model/shared/baseDate'
 import { Supplier } from '@model/base/supplier.model'
 import { User } from '@model/sys/user.model'
-import { EquipmentType } from '@model/em/equipmentType.model'
-import { Equipment } from '@model/em/equipment.model'
+import { EquipmentType } from '@model/equipment/equipmentType.model'
+import { Equipment } from '@model/equipment/equipment.model'
 import { FileList } from '@model/document/FileList.model'
 import { WorkShop } from '@model/base/workShop.model'
-import { InstallLocation } from '@model/em/installLocation.model'
-import { InspectionPlan } from '@model/em/inspectionPlan.model'
-import { CheckStandard } from '@model/em/checkStandard.model'
-import { MaintenancePlan } from '@model/em/maintenancePlan.model'
+import { InstallLocation } from '@model/equipment/installLocation.model'
+import { InspectionPlan } from '@model/equipment/inspectionPlan.model'
+import { CheckStandard } from '@model/equipment/checkStandard.model'
+import { MaintenancePlan } from '@model/equipment/maintenancePlan.model'
 import { TeamEquipmentLedger } from '@model/schedule/teamEquipmentLedger.model'
 
-@Table({ tableName: `em_equipment_ledger`, freezeTableName: true, timestamps: true, comment: '设备台账表' })
+@Table({ tableName: `equipment_ledger`, freezeTableName: true, timestamps: true, comment: '设备台账表' })
 export class EquipmentLedger extends BaseDate<EquipmentLedger> {
   @Column({
     type: DataType.STRING(20),

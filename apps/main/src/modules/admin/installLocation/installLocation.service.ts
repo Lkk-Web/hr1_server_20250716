@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { CInstallLocationDTO, FindPaginationDto, UInstallLocationDTO } from './installLocation.dto'
-import { InstallLocation } from '@model/em/installLocation.model'
+import { InstallLocation } from '@model/equipment/installLocation.model'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'

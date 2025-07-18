@@ -1,24 +1,19 @@
-import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
+import { Supplier } from '@model/base/supplier.model'
+import { Customer } from '@model/base/customer.model'
+import { Warehouse } from '@model/warehouse/warehouse.model'
 import { User } from '@model/sys/user.model'
-import { EquipmentType } from '@model/em/equipmentType.model'
+import { InboundOrderDetail } from '@model/warehouse/inboundOrderDetail.model'
 
-@Table({ tableName: `em_equipment`, freezeTableName: true, timestamps: true, comment: '设备表' })
-export class Equipment extends BaseDate<Equipment> {
+@Table({ tableName: `equipment_type`, freezeTableName: true, timestamps: true, comment: '设备类型表' })
+export class EquipmentType extends BaseDate<EquipmentType> {
   @Column({
     type: DataType.STRING(100),
     allowNull: false,
-    comment: '设备名称',
+    comment: '设备类型名称',
   })
   declare name: string
-
-  @ForeignKey(() => EquipmentType)
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-    comment: '设备类型Id',
-  })
-  declare equipmentTypeId: number
 
   @Column({
     type: DataType.BOOLEAN,
@@ -51,12 +46,9 @@ export class Equipment extends BaseDate<Equipment> {
   })
   declare updatedUserId: number
 
-  @BelongsTo(() => EquipmentType)
-  declare equipmentType: EquipmentType
-
   @BelongsTo(() => User, 'createdUserId')
-  declare createdUser: User
+  createdUser: User
 
   @BelongsTo(() => User, 'updatedUserId')
-  declare updatedUser: User
+  updatedUser: User
 }

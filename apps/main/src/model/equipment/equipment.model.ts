@@ -1,23 +1,24 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
+import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { CheckStandardDetail } from '@model/em/checkStandardDetail.model'
+import { EquipmentType } from '@model/equipment/equipmentType.model'
 
-@Table({ tableName: `em_check_standard`, freezeTableName: true, timestamps: true, comment: '点检标准表' })
-export class CheckStandard extends BaseDate<CheckStandard> {
-  @Column({
-    type: DataType.STRING(20),
-    allowNull: false,
-    comment: '点检标准编码',
-  })
-  declare code: string
-
+@Table({ tableName: `equipment`, freezeTableName: true, timestamps: true, comment: '设备表' })
+export class Equipment extends BaseDate<Equipment> {
   @Column({
     type: DataType.STRING(100),
     allowNull: false,
-    comment: '点检标准名称',
+    comment: '设备名称',
   })
   declare name: string
+
+  @ForeignKey(() => EquipmentType)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    comment: '设备类型Id',
+  })
+  declare equipmentTypeId: number
 
   @Column({
     type: DataType.BOOLEAN,
@@ -50,12 +51,12 @@ export class CheckStandard extends BaseDate<CheckStandard> {
   })
   declare updatedUserId: number
 
+  @BelongsTo(() => EquipmentType)
+  declare equipmentType: EquipmentType
+
   @BelongsTo(() => User, 'createdUserId')
-  createdUser: User
+  declare createdUser: User
 
   @BelongsTo(() => User, 'updatedUserId')
-  updatedUser: User
-
-  @HasMany(() => CheckStandardDetail)
-  details: CheckStandardDetail[]
+  declare updatedUser: User
 }

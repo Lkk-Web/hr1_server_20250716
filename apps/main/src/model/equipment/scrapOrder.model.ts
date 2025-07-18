@@ -1,9 +1,9 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { EquipmentLedger } from '@model/em/equipmentLedger.model'
+import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 
-@Table({ tableName: `em_scarp_Order`, freezeTableName: true, timestamps: true, comment: '报废单表' })
+@Table({ tableName: `equipment_scarp_Order`, freezeTableName: true, timestamps: true, comment: '报废单表' })
 export class ScrapOrder extends BaseDate<ScrapOrder> {
   @Column({
     type: DataType.STRING(20),
@@ -12,7 +12,7 @@ export class ScrapOrder extends BaseDate<ScrapOrder> {
   })
   declare code: string
 
-  @ForeignKey(()=>EquipmentLedger)
+  @ForeignKey(() => EquipmentLedger)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -73,8 +73,8 @@ export class ScrapOrder extends BaseDate<ScrapOrder> {
   })
   declare status: string
 
-  @BelongsTo(()=> EquipmentLedger)
-  equipmentLedger : EquipmentLedger
+  @BelongsTo(() => EquipmentLedger)
+  equipmentLedger: EquipmentLedger
 
   @BelongsTo(() => User, 'createdUserId')
   createdUser: User
@@ -83,5 +83,5 @@ export class ScrapOrder extends BaseDate<ScrapOrder> {
   updatedUser: User
 
   @BelongsTo(() => User, 'scrapUserId')
-  scrapUser : User
+  scrapUser: User
 }

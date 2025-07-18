@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Team } from '@model/schedule/team.model'
-import { EquipmentLedger } from '@model/em/equipmentLedger.model'
+import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 
 @Table({ tableName: `schedule_team_equipment_ledger`, freezeTableName: true, timestamps: true, comment: '班组与设备台账' })
 export class TeamEquipmentLedger extends BaseDate<TeamEquipmentLedger> {

@@ -9,9 +9,9 @@ import { ProductionOutsourcing } from '@model/production/productionOutsourcing.m
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { CheckOrder } from '@model/em/checkOrder.model'
+import { CheckOrder } from '@model/equipment/checkOrder.model'
 import moment = require('moment')
-import { EquipmentLedger } from '@model/em/equipmentLedger.model'
+import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 import { User } from '@model/sys/user.model'
 import { Paging } from '@library/utils/paging'
 import { FileList } from '@model/document/FileList.model'

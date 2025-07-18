@@ -1,13 +1,13 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { CheckStandardDetail } from '@model/em/checkStandardDetail.model'
-import { EquipmentLedger } from '@model/em/equipmentLedger.model'
-import { CheckOrderDetail } from '@model/em/checkOrderDetail.model'
-import { InspectionOrderDetail } from '@model/em/inspectionOrderDetail.model'
-import { RepairOrder } from '@model/em/repairOrder.model'
+import { CheckStandardDetail } from '@model/equipment/checkStandardDetail.model'
+import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
+import { CheckOrderDetail } from '@model/equipment/checkOrderDetail.model'
+import { InspectionOrderDetail } from '@model/equipment/inspectionOrderDetail.model'
+import { RepairOrder } from '@model/equipment/repairOrder.model'
 
-@Table({ tableName: `em_repair_Order_result`, freezeTableName: true, timestamps: true, comment: '维修单维修结果表' })
+@Table({ tableName: `equipment_repair_Order_result`, freezeTableName: true, timestamps: true, comment: '维修单维修结果表' })
 export class RepairOrderResult extends BaseDate<RepairOrderResult> {
   @ForeignKey(() => RepairOrder)
   @Column({
@@ -74,8 +74,8 @@ export class RepairOrderResult extends BaseDate<RepairOrderResult> {
   })
   declare repairUserId: number
 
-  @BelongsTo(()=>RepairOrder,{ foreignKey: 'repairOrderId', constraints: false, foreignKeyConstraint: false })
-  repairOrder : RepairOrder
+  @BelongsTo(() => RepairOrder, { foreignKey: 'repairOrderId', constraints: false, foreignKeyConstraint: false })
+  repairOrder: RepairOrder
 
   @BelongsTo(() => User, { foreignKey: 'repairUserId', constraints: false, foreignKeyConstraint: false })
   repairUser: User

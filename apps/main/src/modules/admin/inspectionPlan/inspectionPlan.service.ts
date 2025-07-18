@@ -5,11 +5,11 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { CInspectionPlanDTO, FindPaginationDto, UInspectionPlanDTO } from './inspectionPlan.dto'
-import { InspectionPlan } from '@model/em/inspectionPlan.model'
+import { InspectionPlan } from '@model/equipment/inspectionPlan.model'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { InspectionPlanDetail } from '@model/em/inspectionPlanDetail.model'
+import { InspectionPlanDetail } from '@model/equipment/inspectionPlanDetail.model'
 import { Paging } from '@library/utils/paging'
 import { FileList } from '@model/document/FileList.model'
 

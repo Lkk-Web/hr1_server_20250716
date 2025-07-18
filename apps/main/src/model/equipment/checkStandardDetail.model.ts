@@ -1,18 +1,17 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { CheckStandard } from '@model/em/checkStandard.model'
-import { InspectionPlan } from '@model/em/inspectionPlan.model'
+import { CheckStandard } from '@model/equipment/checkStandard.model'
 
-@Table({ tableName: `em_inspection_plan_detail`, freezeTableName: true, timestamps: true, comment: '巡检方案明细表' })
-export class InspectionPlanDetail extends BaseDate<InspectionPlanDetail> {
-  @ForeignKey(() => InspectionPlan)
+@Table({ tableName: `equipment_check_standard_detail`, freezeTableName: true, timestamps: true, comment: '点检标准明细表' })
+export class CheckStandardDetail extends BaseDate<CheckStandardDetail> {
+  @ForeignKey(() => CheckStandard)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
-    comment: '巡检方案Id',
+    comment: '点检标准Id',
   })
-  declare inspectionPlanId: number
+  declare checkStandardId: number
 
   @Column({
     type: DataType.STRING(50),
@@ -49,4 +48,11 @@ export class InspectionPlanDetail extends BaseDate<InspectionPlanDetail> {
     defaultValue: true,
   })
   declare status: boolean
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+    comment: '备注',
+  })
+  declare remark: string
 }

@@ -1,32 +1,38 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { CheckStandardDetail } from '@model/em/checkStandardDetail.model'
-import { InspectionPlanDetail } from '@model/em/inspectionPlanDetail.model'
-import { MaintenancePlanDetail } from '@model/em/maintenancePlanDetail.model'
+import { CheckStandardDetail } from '@model/equipment/checkStandardDetail.model'
+import { InspectionPlanDetail } from '@model/equipment/inspectionPlanDetail.model'
 
-@Table({ tableName: `em_maintenance_plan`, freezeTableName: true, timestamps: true, comment: '保养计划表' })
-export class MaintenancePlan extends BaseDate<MaintenancePlan> {
+@Table({ tableName: `equipment_inspection_plan`, freezeTableName: true, timestamps: true, comment: '巡检计划表' })
+export class InspectionPlan extends BaseDate<InspectionPlan> {
   @Column({
     type: DataType.STRING(20),
     allowNull: false,
-    comment: '保养计划编码',
+    comment: '巡检计划编码',
   })
   declare code: string
 
   @Column({
-    type: DataType.STRING(255),
+    type: DataType.STRING(100),
     allowNull: false,
-    comment: '保养方案名称',
+    comment: '巡检方案名称',
   })
   declare name: string
 
   @Column({
     type: DataType.STRING(10),
     allowNull: false,
-    comment: '保养频率',
+    comment: '巡检频率',
   })
   declare frequency: string
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    comment: '当天规定巡检次数',
+  })
+  declare times: number
 
   @Column({
     type: DataType.BOOLEAN,
@@ -65,6 +71,6 @@ export class MaintenancePlan extends BaseDate<MaintenancePlan> {
   @BelongsTo(() => User, 'updatedUserId')
   updatedUser: User
 
-  @HasMany(()=>MaintenancePlanDetail)
-  details : MaintenancePlanDetail[]
+  @HasMany(() => InspectionPlanDetail)
+  details: InspectionPlanDetail[]
 }

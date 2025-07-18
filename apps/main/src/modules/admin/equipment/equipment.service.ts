@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { CEquipmentDTO, FindPaginationDto } from './equipment.dto'
-import { Equipment } from '@model/em/equipment.model'
+import { Equipment } from '@model/equipment/equipment.model'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'

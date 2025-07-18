@@ -1,10 +1,10 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { EquipmentLedger } from '@model/em/equipmentLedger.model'
-import { CheckOrderDetail } from '@model/em/checkOrderDetail.model'
+import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
+import { CheckOrderDetail } from '@model/equipment/checkOrderDetail.model'
 
-@Table({ tableName: `em_check_order`, freezeTableName: true, timestamps: true, comment: '点检单表' })
+@Table({ tableName: `equipment_check_order`, freezeTableName: true, timestamps: true, comment: '点检单表' })
 export class CheckOrder extends BaseDate<CheckOrder> {
   @Column({
     type: DataType.STRING(20),

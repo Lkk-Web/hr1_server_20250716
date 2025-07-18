@@ -8,7 +8,7 @@ import { InspectionItem } from '@model/quantity/inspectionItem.model'
 import { InspectionFormItem } from '@model/quantity/InspectionFormItem.model'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 /** 报工检验单检验项目缺陷记录 */
-@Table({ tableName: `quantity_inspection_form_item_record`, freezeTableName: true, timestamps: true, comment: '报工检验单检验项目缺陷记录' })
+@Table({ tableName: `quantity_inspection_form_itequipment_record`, freezeTableName: true, timestamps: true, comment: '报工检验单检验项目缺陷记录' })
 export class InspectionFormItemRecord extends BaseDate<InspectionFormItemRecord> {
   @ForeignKey(() => InspectionFormItem)
   @Column({

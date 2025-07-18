@@ -3,7 +3,7 @@ import { Body, Get, HttpCode, HttpStatus, Param, Post, Req } from '@nestjs/commo
 import { StationAuth } from '@core/decorator/controller'
 import { EquipmentService } from './equipment.service'
 import { CPadRepairOrderDto } from './equipment.dto'
-import { EquipmentLedger } from '@model/em/equipmentLedger.model'
+import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 import { CCheckOrderDto } from '@modules/admin/checkOrder/checkOrder.dto'
 import { CMaintenanceOrderDto } from '@modules/admin/maintenanceOrder/maintenanceOrder.dto'
 import { MaintenanceOrderService } from '@modules/admin/maintenanceOrder/maintenanceOrder.service'

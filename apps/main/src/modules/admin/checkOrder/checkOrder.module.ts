@@ -1,16 +1,12 @@
-
-import { Module } from "@nestjs/common";
-import { CheckOrderController } from "./checkOrder.controller";
-import { SequelizeModule } from "@nestjs/sequelize";
-import { sign } from "crypto";
-import { CheckOrderService } from "./checkOrder.service";
-import { RedisModule } from '@library/redis';
-import { CheckOrder } from '@model/em/checkOrder.model'
+import { Module } from '@nestjs/common'
+import { CheckOrderController } from './checkOrder.controller'
+import { SequelizeModule } from '@nestjs/sequelize'
+import { sign } from 'crypto'
+import { CheckOrderService } from './checkOrder.service'
+import { RedisModule } from '@library/redis'
+import { CheckOrder } from '@model/equipment/checkOrder.model'
 @Module({
-  imports: [
-    RedisModule,
-    SequelizeModule.forFeature([CheckOrder]),
-  ],
+  imports: [RedisModule, SequelizeModule.forFeature([CheckOrder])],
   controllers: [CheckOrderController],
   providers: [CheckOrderService],
   exports: [],

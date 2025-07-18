@@ -1,11 +1,11 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
-import { CheckStandard } from '@model/em/checkStandard.model'
-import { CheckOrder } from '@model/em/checkOrder.model'
-import { InspectionOrder } from '@model/em/inspectionOrder.model'
+import { CheckStandard } from '@model/equipment/checkStandard.model'
+import { CheckOrder } from '@model/equipment/checkOrder.model'
+import { InspectionOrder } from '@model/equipment/inspectionOrder.model'
 
-@Table({ tableName: `em_inspection_order_detail`, freezeTableName: true, timestamps: true, comment: '巡检单明细表' })
+@Table({ tableName: `equipment_inspection_order_detail`, freezeTableName: true, timestamps: true, comment: '巡检单明细表' })
 export class InspectionOrderDetail extends BaseDate<InspectionOrderDetail> {
   @ForeignKey(() => InspectionOrder)
   @Column({

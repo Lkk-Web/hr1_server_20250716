@@ -5,11 +5,11 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { CScrapOrderDto, FindPaginationDto, UScrapOrderDto } from './scrapOrder.dto'
-import { ScrapOrder } from '@model/em/scrapOrder.model'
+import { ScrapOrder } from '@model/equipment/scrapOrder.model'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { EquipmentLedger } from '@model/em/equipmentLedger.model'
+import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 import { Paging } from '@library/utils/paging'
 import { auditDto } from '../productionReport/productionReport.dto'
 
@@ -22,7 +22,7 @@ export class ScrapOrderService {
     @InjectModel(ScrapOrder)
     private scrapOrderModel: typeof ScrapOrder,
     private sequelize: Sequelize
-  ) { }
+  ) {}
 
   public async create(dto: CScrapOrderDto, user, loadModel) {
     const date = new Date()

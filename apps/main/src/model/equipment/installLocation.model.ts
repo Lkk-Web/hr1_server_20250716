@@ -6,7 +6,7 @@ import { Warehouse } from '@model/warehouse/warehouse.model'
 import { User } from '@model/sys/user.model'
 import { InboundOrderDetail } from '@model/warehouse/inboundOrderDetail.model'
 
-@Table({ tableName: `em_install_location`, freezeTableName: true, timestamps: true, comment: '安装地点' })
+@Table({ tableName: `equipment_install_location`, freezeTableName: true, timestamps: true, comment: '安装地点' })
 export class InstallLocation extends BaseDate<InstallLocation> {
   @Column({
     type: DataType.STRING(100),
