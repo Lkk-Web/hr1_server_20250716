@@ -2,7 +2,7 @@ import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Table 
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 import { InspectionFormInfo } from '@model/quantity/inspectionFormInfo.model'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { ProductionReport } from '@model/pe/productionReport.model'
 import { InspectionFormBy } from '@model/quantity/inspectionFormBy.model'
 

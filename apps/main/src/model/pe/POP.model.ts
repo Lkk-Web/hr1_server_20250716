@@ -1,7 +1,7 @@
 import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { ProductionOrder } from '@model/pe/productionOrder.model'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { POD } from '@model/pe/PODmodel'

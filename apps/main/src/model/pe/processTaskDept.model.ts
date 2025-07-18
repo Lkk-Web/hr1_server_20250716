@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { ProcessTask } from '@model/pe/processTask.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 

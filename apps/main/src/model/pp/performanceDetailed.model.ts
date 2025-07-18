@@ -1,5 +1,5 @@
 import { Material } from '@model/base/material.model'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { Performance } from './performance.model'

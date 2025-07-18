@@ -2,13 +2,13 @@ import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from '
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { User } from '@model/sys/user.model'
-import { ProcessRoute } from '@model/pm/processRoute.model'
-import { Process } from '@model/pm/process.model'
-import { ProcessRouteListItem } from '@model/pm/processRouteListItem.model'
+import { ProcessRoute } from '@model/process/processRoute.model'
+import { Process } from '@model/process/process.model'
+import { ProcessRouteListItem } from '@model/process/processRouteListItem.model'
 import { FileList } from '@model/dm/FileList.model'
 
 /** 工艺路线关联工序子表 */
-@Table({ tableName: `pm_process_route_list`, freezeTableName: true, timestamps: true, comment: '工艺路线关联工序子表' })
+@Table({ tableName: `process_route_list`, freezeTableName: true, timestamps: true, comment: '工艺路线关联工序子表' })
 export class ProcessRouteList extends BaseDate<ProcessRouteList> {
   @ForeignKey(() => ProcessRoute)
   @Column({

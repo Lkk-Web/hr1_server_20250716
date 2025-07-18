@@ -1,4 +1,4 @@
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { ManHour } from '@model/pp/manHour.model'

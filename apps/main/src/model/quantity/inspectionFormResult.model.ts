@@ -1,7 +1,7 @@
 import { Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { InspectionFormInfo } from '@model/quantity/inspectionFormInfo.model'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 
 /** 报工检验单检验项目 */
 @Table({ tableName: `quantity_inspection_form_result`, freezeTableName: true, timestamps: true, comment: '报工检验单检验结果' })

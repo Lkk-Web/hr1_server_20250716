@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 import { all } from 'axios'
 import { WorkShop } from './workShop.model'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 /** 车间 */
 @Table({ tableName: `base_workcenter`, freezeTableName: true, timestamps: true, comment: '工作中心表' })
 export class WorkCenter extends BaseDate<WorkCenter> {

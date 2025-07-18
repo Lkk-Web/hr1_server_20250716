@@ -2,13 +2,13 @@ import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from '
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { User } from '@model/sys/user.model'
-import { ProcessRoute } from '@model/pm/processRoute.model'
-import { Process } from '@model/pm/process.model'
-import { ProcessRouteList } from '@model/pm/processRouteList.model'
+import { ProcessRoute } from '@model/process/processRoute.model'
+import { Process } from '@model/process/process.model'
+import { ProcessRouteList } from '@model/process/processRouteList.model'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 
 @Table({
-  tableName: `pm_process_route_list_item`,
+  tableName: `process_route_list_item`,
   freezeTableName: true,
   timestamps: true,
   comment: '工艺路线的工序关联不良品项表',

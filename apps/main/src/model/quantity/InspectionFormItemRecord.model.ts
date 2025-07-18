@@ -2,7 +2,7 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/sys/user.model'
 import { ProductionOrder } from '@model/pe/productionOrder.model'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { InspectionForm } from '@model/quantity/inspectionForm.model'
 import { InspectionItem } from '@model/quantity/inspectionItem.model'
 import { InspectionFormItem } from '@model/quantity/InspectionFormItem.model'

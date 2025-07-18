@@ -2,7 +2,7 @@ import { Table, Column, Model, DataType, ForeignKey, Unique, Index } from 'seque
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { ProductionOrder } from '@model/pe/productionOrder.model'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { POP } from '@model/pe/POP.model'

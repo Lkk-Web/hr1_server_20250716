@@ -1,8 +1,8 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { ProcessRoute } from '@model/pm/processRoute.model'
-import { ProcessRouteList } from '@model/pm/processRouteList.model'
-import { ProcessRouteListItem } from '@model/pm/processRouteListItem.model'
+import { ProcessRoute } from '@model/process/processRoute.model'
+import { ProcessRouteList } from '@model/process/processRouteList.model'
+import { ProcessRouteListItem } from '@model/process/processRouteListItem.model'
 import { Column, DataType } from 'sequelize-typescript'
 
 export class FindPaginationDto {
@@ -41,8 +41,6 @@ export class FindPaginationDto {
 // }
 
 export class processListDto {
-
-
   @ApiProperty({
     name: 'processId',
     required: false,

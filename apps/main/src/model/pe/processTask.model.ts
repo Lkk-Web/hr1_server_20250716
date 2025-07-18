@@ -1,6 +1,6 @@
 import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { ProductionOrder } from '@model/pe/productionOrder.model'
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { ProcessTaskDept } from '@model/pe/processTaskDept.model'
@@ -79,7 +79,7 @@ export class ProcessTask extends BaseDate<ProcessTask> {
     type: DataType.STRING(10),
     allowNull: true,
   })
-  declare status: PROCESS_TASK_STATUS|string
+  declare status: PROCESS_TASK_STATUS | string
 
   @Column({
     comment: '是否委外',
@@ -96,7 +96,6 @@ export class ProcessTask extends BaseDate<ProcessTask> {
     defaultValue: true,
   })
   declare isInspection: boolean
-
 
   // 优先级
   @Column({
@@ -156,7 +155,7 @@ export class ProcessTask extends BaseDate<ProcessTask> {
   @Column({
     comment: '接收数',
     type: DataType.INTEGER,
-    allowNull: false
+    allowNull: false,
   })
   declare receptionCount: number
 
@@ -164,7 +163,7 @@ export class ProcessTask extends BaseDate<ProcessTask> {
   @Column({
     comment: '报工数',
     type: DataType.INTEGER,
-    allowNull: false
+    allowNull: false,
   })
   declare reportQuantity: number
 
@@ -182,8 +181,8 @@ export class ProcessTask extends BaseDate<ProcessTask> {
 
   declare performanceConfig: PerformanceConfig
 
-  declare sop;
+  declare sop
 
-  @HasMany(()=>ProcessTaskLog)
-  declare operateLogs:ProcessTaskLog[]
+  @HasMany(() => ProcessTaskLog)
+  declare operateLogs: ProcessTaskLog[]
 }

@@ -4,7 +4,7 @@ import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { OrgDto, PadLoginDto, PadTeamListDto, ProcessDto, TeamLoginDto, UserPasswordLoginDto } from './mi.dto'
 import { SuperRedis } from '@sophons/redis'
 import { RedisProvider } from '@library/redis'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { SYSOrg, Team, User } from '@model/index'
 import { Includeable } from 'sequelize/types/model'
 

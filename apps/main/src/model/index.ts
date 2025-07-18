@@ -1,6 +1,6 @@
 export * from './logExternalAPIRequest.model'
 
-/* ----------基础资料--------- */
+// 基础资料 base
 export * from './base/material.model'
 export * from './base/bom.model'
 export * from './base/bomSubItem.model'
@@ -13,7 +13,7 @@ export * from './base/workCenterOfPOP.model'
 export * from './base/trendsTemplate.model'
 export * from './base/trendsField.model'
 
-// 系统管理
+// 系统管理 system
 export * from './sys/SYSMenu.model'
 export * from './sys/SYSOrg.model'
 export * from './sys/SYSRole.model'
@@ -24,7 +24,7 @@ export * from './sys/user.model'
 export * from './sys/apiConfig.model'
 export * from './sys/apiDict.model'
 
-//质量管理
+//质量管理 quality
 export * from './quantity/defectiveItem.model'
 export * from './quantity/inspectionItem.model'
 export * from './quantity/inspectionTemplate.model'
@@ -38,28 +38,21 @@ export * from './quantity/batchLog.model'
 export * from './quantity/inspectionFormInfo.model'
 export * from './quantity/inspectionFormResult.model'
 
-//工艺管理1
-export * from './pm/process.model'
-export * from './pm/processItems.model'
-export * from './pm/processDept.model'
-
-//基础资料2
-
-export * from './wm/warehouse.model'
-export * from './wm/warehouseMaterial.model'
+//工序管理  process
+export * from './process/process.model'
+export * from './process/processItems.model'
+export * from './process/processDept.model'
+export * from './process/processRoute.model'
+export * from './process/processRouteList.model'
+export * from './process/processRouteListItem.model'
+export * from './process/SOP.model'
+export * from './process/SOPMaterial.model'
+export * from './process/SOPFile.model'
 
 //文件管理
 export * from './dm/FileMenu.model'
 export * from './dm/FileList.model'
 export * from './dm/FileVersion.model'
-
-//工艺管理2
-export * from './pm/processRoute.model'
-export * from './pm/processRouteList.model'
-export * from './pm/processRouteListItem.model'
-export * from './pm/SOP.model'
-export * from './pm/SOPMaterial.model'
-export * from './pm/SOPFile.model'
 
 //生产计划
 export * from './ps/salesOrder.model'
@@ -87,8 +80,8 @@ export * from './pe/reportUser.model'
 export * from './pe/reportUserDuration.model'
 
 //绩效管理
-export * from './pp/performanceConfig.model'
 export * from './pp/performance.model'
+export * from './pp/performanceConfig.model'
 export * from './pp/performanceDetailed.model'
 export * from './pp/manHour.model'
 export * from './pp/manHourProcess.model'
@@ -96,7 +89,7 @@ export * from './pp/manHourProcess.model'
 //打印模版
 export * from './sys/printTemplate.model'
 
-//排班管理
+//排班管理 schedule
 export * from './sm/teamType.model'
 export * from './sm/team.model'
 export * from './sm/teamUser.model'
@@ -112,6 +105,8 @@ export * from './sm/teamProcess.model'
 export * from './sm/notify.model'
 
 //库存管理
+export * from './wm/warehouse.model'
+export * from './wm/warehouseMaterial.model'
 export * from './wm/inboundOrder.model'
 export * from './wm/inboundOrderDetail.model'
 export * from './wm/outboundOrder.model'
@@ -150,10 +145,7 @@ export * from './em/maintenanceOrder.model'
 export * from './em/maintenanceOrderDetail.model'
 export * from './em/scrapOrder.model'
 
-
-
 // 数据中台
 export * from './io/dcNotify.model'
 export * from './io/drawing.model'
 export * from './io/craft.model'
-

@@ -2,14 +2,14 @@ import { BelongsToMany, Column, DataType, HasMany, HasOne, Table } from 'sequeli
 import { SYSOrg } from '@model/sys/SYSOrg.model'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { BaseDate } from '@model/shared/baseDate'
-import { ProcessItems } from '@model/pm/processItems.model'
-import { ProcessDept } from '@model/pm/processDept.model'
+import { ProcessItems } from '@model/process/processItems.model'
+import { ProcessDept } from '@model/process/processDept.model'
 import { PerformanceConfig } from '@model/pp/performanceConfig.model'
 import { TeamProcess } from '@model/sm/teamProcess.model'
 import { ProcessTask } from '@model/pe/processTask.model'
 
 /** 工序表 */
-@Table({ tableName: `pm_process`, freezeTableName: true, timestamps: true, comment: '工序表' })
+@Table({ tableName: `process`, freezeTableName: true, timestamps: true, comment: '工序表' })
 export class Process extends BaseDate<Process> {
   // 工序名称
   @Column({

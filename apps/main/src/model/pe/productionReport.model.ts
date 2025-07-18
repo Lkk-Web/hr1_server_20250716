@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { ProductionOrder } from '@model/pe/productionOrder.model'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { User } from '@model/sys/user.model'
 import { PRI } from '@model/pe/PRI.model'
 import { PerformanceConfig } from '@model/pp/performanceConfig.model'
@@ -43,7 +43,7 @@ export class ProductionReport extends BaseDate<ProductionReport> {
     allowNull: true,
     defaultValue: '未开始',
   })
-  declare processStatus: PROCESS_TASK_STATUS|string
+  declare processStatus: PROCESS_TASK_STATUS | string
 
   @ForeignKey(() => User)
   @Column({
@@ -230,7 +230,7 @@ export class ProductionReport extends BaseDate<ProductionReport> {
     allowNull: true,
     comment: '批次号',
   })
-  declare batNum: string;
+  declare batNum: string
 
   @ForeignKey(() => Team)
   @Column({
@@ -239,7 +239,7 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   })
   declare teamId: number
 
-  @BelongsTo(() => ProductionOrder,{ foreignKey: 'productionOrderId', constraints: false, foreignKeyConstraint: false })
+  @BelongsTo(() => ProductionOrder, { foreignKey: 'productionOrderId', constraints: false, foreignKeyConstraint: false })
   order: ProductionOrder
 
   @BelongsTo(() => Process)
@@ -270,5 +270,5 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   declare reportUsers: ReportUser[]
 
   declare performanceConfig: PerformanceConfig
-  declare durationUsers: {duration:number,user:User}[]
+  declare durationUsers: { duration: number; user: User }[]
 }

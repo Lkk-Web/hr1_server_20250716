@@ -14,7 +14,7 @@ import dayjs = require('dayjs')
 import { Warehouse } from '@model/wm/warehouse.model'
 import { WarehouseMaterial } from '@model/wm/warehouseMaterial.model'
 import { deleteIdsDto } from '@common/dto'
-import { Process } from '@model/pm/process.model'
+import { Process } from '@model/process/process.model'
 import { AdjustOrder } from '@model/wm/adjustOrder.model'
 import { OutboundOrder } from '@model/wm/outboundOrder.model'
 import { OutboundOrderDetail } from '@model/wm/outboundOrderDetail.model'

@@ -6,10 +6,10 @@ import { EquipmentLedger } from '@model/em/equipmentLedger.model'
 import { BOM } from '@model/base/bom.model'
 import { Customer } from '@model/base/customer.model'
 import { FileList } from '@model/dm/FileList.model'
-import { Process } from '@model/pm/process.model'
-import { SOP } from '@model/pm/SOP.model'
+import { Process } from '@model/process/process.model'
+import { SOP } from '@model/process/SOP.model'
 
-@Table({ tableName: 'pm_sop_material', freezeTableName: true, timestamps: true, comment: '作业指导书物料中间表' })
+@Table({ tableName: 'process_sop_material', freezeTableName: true, timestamps: true, comment: '作业指导书物料中间表' })
 export class SOPMaterial extends BaseDate<SOPMaterial> {
   @ForeignKey(() => SOP)
   @Column({

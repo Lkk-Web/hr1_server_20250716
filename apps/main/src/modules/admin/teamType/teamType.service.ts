@@ -9,7 +9,7 @@ import { CTeamTypeDto, FindPaginationDto, UTeamTypeDto } from './teamType.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { ProcessRoute } from '@model/pm/processRoute.model'
+import { ProcessRoute } from '@model/process/processRoute.model'
 import { Paging } from '@library/utils/paging'
 import { Supplier } from '@model/base/supplier.model'
 

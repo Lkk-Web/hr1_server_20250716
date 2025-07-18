@@ -3,11 +3,11 @@ import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { User } from '@model/sys/user.model'
 import { FileList } from '@model/dm/FileList.model'
-import { Process } from '@model/pm/process.model'
-import { SOPMaterial } from '@model/pm/SOPMaterial.model'
-import { SOPFile } from '@model/pm/SOPFile.model'
+import { Process } from '@model/process/process.model'
+import { SOPMaterial } from '@model/process/SOPMaterial.model'
+import { SOPFile } from '@model/process/SOPFile.model'
 
-@Table({ tableName: 'pm_sop', freezeTableName: true, timestamps: true, comment: '作业指导书' })
+@Table({ tableName: 'process_sop', freezeTableName: true, timestamps: true, comment: '作业指导书' })
 export class SOP extends BaseDate<SOP> {
   @Column({
     type: DataType.STRING(100),
@@ -63,7 +63,7 @@ export class SOP extends BaseDate<SOP> {
   @BelongsTo(() => User, 'updatedUserId')
   updatedUser: User
 
-  @BelongsToMany(() => Material, { through: () => SOPMaterial, uniqueKey: 'SOP_sopm_material_unique', foreignKey: 'sopId', otherKey: 'materialId' })
+  @BelongsToMany(() => Material, { through: () => SOPMaterial, uniqueKey: 'SOP_soprocess_material_unique', foreignKey: 'sopId', otherKey: 'materialId' })
   materials: Material[]
 
   @BelongsToMany(() => FileList, { through: () => SOPFile, uniqueKey: 'SOP_sopf_fileList_unique', foreignKey: 'sopId', otherKey: 'fileListId' })

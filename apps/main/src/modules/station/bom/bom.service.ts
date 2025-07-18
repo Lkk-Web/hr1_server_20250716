@@ -7,7 +7,7 @@ import { BOM } from '@model/base/bom.model'
 import { BomSubItem } from '@model/base/bomSubItem.model'
 import { Aide } from '@library/utils/aide'
 import { FindOptions } from 'sequelize'
-import { SOP } from '@model/pm/SOP.model'
+import { SOP } from '@model/process/SOP.model'
 import { Craft } from '@model/io/craft.model'
 
 @Injectable()

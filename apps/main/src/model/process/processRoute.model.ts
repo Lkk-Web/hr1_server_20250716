@@ -2,9 +2,9 @@ import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from '
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { User } from '@model/sys/user.model'
-import { ProcessRouteList } from '@model/pm/processRouteList.model'
+import { ProcessRouteList } from '@model/process/processRouteList.model'
 /** 工艺路线 */
-@Table({ tableName: `pm_process_route`, freezeTableName: true, timestamps: true, comment: '工艺路线表' })
+@Table({ tableName: `process_route`, freezeTableName: true, timestamps: true, comment: '工艺路线表' })
 export class ProcessRoute extends BaseDate<ProcessRoute> {
   // 工艺路线名称
   @Column({

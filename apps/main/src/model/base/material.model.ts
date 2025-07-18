@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { BOM } from '@model/base/bom.model'
-import { ProcessRoute } from '@model/pm/processRoute.model'
+import { ProcessRoute } from '@model/process/processRoute.model'
 import { ManHour } from '@model/pp/manHour.model'
 
 /** 物料 */
