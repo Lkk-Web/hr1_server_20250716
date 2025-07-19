@@ -29,7 +29,7 @@ export class MiService {
 
     // 创建用户
     const user = await User.create({
-      name: dto.name,
+      userName: dto.userName,
       phone: dto.phone,
       password: encryptedPassword,
     })
@@ -269,7 +269,7 @@ export class MiService {
       user: {
         id: tokenRecord.dataValues.user.id,
         phone: tokenRecord.dataValues.user.phone,
-        name: tokenRecord.dataValues.user.name,
+        userName: tokenRecord.dataValues.user.userName,
         platform: tokenRecord.dataValues.platform,
       },
     }

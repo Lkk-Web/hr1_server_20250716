@@ -1,22 +1,43 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { Table, Column, DataType } from 'sequelize-typescript'
-import { BaseDate } from "@model/shared/baseDate";
+import { BelongsToMany, Column, DataType, Table } from 'sequelize-typescript'
+import { BaseDate } from '@model/shared/baseDate'
+import { Menu } from './menu'
+import { RoleMenu } from './roleMenu'
 
-@Table({ tableName: 'auth_role', freezeTableName: true, timestamps: true })
+@Table({ tableName: `auth_role`, timestamps: true, freezeTableName: true, paranoid: true })
 export class Role extends BaseDate<Role> {
-  @ApiProperty({ name: 'name', type: String, description: '角色名称', required: true })
-  @Column({
-    comment: '角色名称',
-    type: DataType.STRING(50),
-    allowNull: false,
-    unique: true
-  })
-  declare name: string;
+  @Column({ type: DataType.STRING, comment: '角色编号' })
+  declare code: string
 
-  @ApiProperty({ name: 'description', type: String, description: '角色描述', required: false })
-  @Column({
-    comment: '角色描述',
-    type: DataType.STRING(255)
-  })
-  declare description: string;
+  @Column({ type: DataType.STRING, comment: '角色名称' })
+  declare name: string
+
+  @Column({ type: DataType.STRING, comment: '备注' })
+  declare remark: string
+
+  @Column({ type: DataType.INTEGER, comment: '排序' })
+  declare sort: number
+
+  @Column({ type: DataType.INTEGER, comment: '状态（0禁用/1启用）', defaultValue: 1 })
+  declare status: number
+
+  @Column({ type: DataType.STRING, comment: '组织编号' })
+  declare orgCode: string
+
+  @Column({ type: DataType.DATE, comment: '创建时间', defaultValue: DataType.NOW })
+  declare createdAt: Date
+
+  @Column({ type: DataType.DATE, comment: '更新时间', defaultValue: DataType.NOW })
+  declare updatedAt: Date
+
+  @Column({ type: DataType.STRING, comment: '数据权限范围类型（0全部 1本组织 2本部门及下级部门 3本部门 4自定义）' })
+  declare dataScopeType: string
+
+  @BelongsToMany(() => Menu, { through: () => RoleMenu, uniqueKey: 'Role_rm_menu_unique', foreignKey: 'roleId', otherKey: 'menuId' })
+  declare menuList: Menu[]
+
+  //是否配置权限
+  declare type: string
+
+  // 角色权限
+  declare permissions: any
 }

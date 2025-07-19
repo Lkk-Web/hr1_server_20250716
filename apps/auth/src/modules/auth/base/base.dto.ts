@@ -80,7 +80,7 @@ export class UserRegisterDto {
   @ApiProperty({ description: '姓名', required: true })
   @IsNotEmpty({ message: '姓名不能为空' })
   @IsString({ message: '姓名必须是字符串' })
-  name: string
+  userName: string
 
   @ApiProperty({ description: '手机号', required: true })
   @IsNotEmpty({ message: '手机号不能为空' })
