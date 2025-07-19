@@ -1,7 +1,7 @@
 import { FindAllDto } from '@modules/admin/system/dtos/SYSOrg.dto'
 import { Injectable } from '@nestjs/common'
 import { Op } from 'sequelize'
-import { SYSOrg } from '@model/index'
+import { Organize } from '@model/index'
 import { STRUtil } from '@library/utils/str'
 
 @Injectable()
@@ -41,7 +41,7 @@ export class SysOrgService {
         [Op.eq]: statusBoolean,
       }
     }
-    const orgs = await SYSOrg.findAll(options)
+    const orgs = await Organize.findAll(options)
     for (const org of orgs) {
       org.setDataValue('count', org.dataValues.userArray.length)
     }

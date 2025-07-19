@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 
 @Table({ tableName: `equipment_scarp_Order`, freezeTableName: true, timestamps: true, comment: '报废单表' })

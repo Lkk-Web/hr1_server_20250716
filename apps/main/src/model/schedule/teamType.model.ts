@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, BelongsToMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { WorkShop } from '@model/base/workShop.model'
 import { TeamUser } from '@model/schedule/teamUser.model'
 /** 班组类型 */

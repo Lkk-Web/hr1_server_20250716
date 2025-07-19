@@ -12,7 +12,7 @@ import { ProcessTask } from '@model/production/processTask.model'
 import { PRI } from '@model/production/PRI.model'
 
 import { Performance } from '@model/performance/performance.model'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { PerformanceDetailed } from '@model/performance/performanceDetailed.model'
 import { ResultVO } from '@common/resultVO'

@@ -1,6 +1,6 @@
 import { Table, Column, Model, PrimaryKey, AutoIncrement, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { FileList } from '@model/document/FileList.model'
 
 @Table({ tableName: `document_file_version`, timestamps: true, paranoid: true })

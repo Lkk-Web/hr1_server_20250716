@@ -1,21 +1,10 @@
-import {
-  ApiDict,
-  BOM,
-  BomSubItem,
-  Customer,
-  Material,
-  SalesOrder,
-  SalesOrderDetail,
-  Supplier,
-  SYSOrg,
-  User,
-} from '@model/index'
+import { ApiDict, BOM, BomSubItem, Customer, Material, SalesOrder, SalesOrderDetail, Supplier, Organize, User } from '@model/index'
 import _ = require('lodash')
 
 export const K3Mapping = {
   BD_SYS_ORG: {
     formID: 'BD_Department',
-    dbModel: SYSOrg,
+    dbModel: Organize,
     filterString: `FUseOrgId='${process.env.K3_ORG_ID}'`,
     redisKey: process.env.APP_NAME + 'kingdee:bd_sys_org',
     keys: [
@@ -28,7 +17,7 @@ export const K3Mapping = {
       ['上级部门', 'FParentID', 'parentId', v => v || null],
       ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
-    detailTypes: false,//是否存在详情
+    detailTypes: false, //是否存在详情
     detailKeys: [],
   },
   BD_SYS_USER: {
@@ -44,15 +33,17 @@ export const K3Mapping = {
       ['移动电话', 'FMobile', 'phone'],
       ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
-    detailTypes: false,//是否存在详情
+    detailTypes: false, //是否存在详情
     detailKeys: [],
-    dict: [{
-      name: '员工任岗信息',
-      key: 'FID',
-      fieldName: 'departmentId',
-      keyName: 'content1',
-      valueName: 'content',
-    }]
+    dict: [
+      {
+        name: '员工任岗信息',
+        key: 'FID',
+        fieldName: 'departmentId',
+        keyName: 'content1',
+        valueName: 'content',
+      },
+    ],
   },
   BD_MATERIAL: {
     formID: 'BD_MATERIAL',
@@ -80,7 +71,7 @@ export const K3Mapping = {
       ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
 
-    detailTypes: false,//是否存在详情
+    detailTypes: false, //是否存在详情
     detailKeys: [],
     dbModelDetail: Material,
   },
@@ -103,7 +94,7 @@ export const K3Mapping = {
       ['订单号', 'F_ora_Text', 'orderNo'],
       ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
-    detailTypes: true,//是否存在详情
+    detailTypes: true, //是否存在详情
     detailKeys: [
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FTreeEntity_FENTRYID', 'id'],
@@ -118,7 +109,7 @@ export const K3Mapping = {
       ['图号', 'F_ora_BaseProperty', 'figureNumber'],
     ],
     dbModelDetail: BomSubItem,
-    dict: []
+    dict: [],
   },
   BD_SUPPLIER: {
     formID: 'BD_Supplier',
@@ -133,9 +124,9 @@ export const K3Mapping = {
       ['供应商简称', 'FShortName', 'shortName'],
       ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
-    detailTypes: false,//是否存在详情
+    detailTypes: false, //是否存在详情
     detailKeys: [],
-    dict: []
+    dict: [],
   },
   BD_CUSTOMER: {
     formID: 'BD_Customer_All',
@@ -150,9 +141,9 @@ export const K3Mapping = {
       ['客户分类', 'FShortName', 'types'],
       ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
-    detailTypes: false,//是否存在详情
+    detailTypes: false, //是否存在详情
     detailKeys: [],
-    dict: []
+    dict: [],
   },
   BD_SALESORDER: {
     formID: 'SAL_SaleOrder',
@@ -170,7 +161,7 @@ export const K3Mapping = {
       ['单据状态', 'FDocumentStatus', 'dataStatus', v => convertExtends(v, 'FDocumentStatus')],
       // ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
-    detailTypes: true,//是否存在详情
+    detailTypes: true, //是否存在详情
     detailKeys: [
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FSaleOrderEntry_FEntryID', 'id'],
@@ -186,16 +177,18 @@ export const K3Mapping = {
       ['要货日期', 'FDeliveryDate', 'deliveryDate'],
     ],
     dbModelDetail: SalesOrderDetail,
-    dict: [{
-      name: '单据类型',
-      key: 'FBillTypeID',//金蝶字段名称
-      fieldName: 'types',//数据库对应表字段名称
-      keyName: 'fid',//字典表对应key字段名称
-      valueName: 'content',//字典表对应值字段名称
-    }]
+    dict: [
+      {
+        name: '单据类型',
+        key: 'FBillTypeID', //金蝶字段名称
+        fieldName: 'types', //数据库对应表字段名称
+        keyName: 'fid', //字典表对应key字段名称
+        valueName: 'content', //字典表对应值字段名称
+      },
+    ],
   },
 }
-let a = "FSaleOrderEntry_FEntryID,FID,FMaterialId.FMasterID,FQty,FUnitID.FName,F_ora_Qty,FTaxPrice,FPrice,FAmount,F_ora_BaseProperty_qtr,FBomId,FDeliveryDate"
+let a = 'FSaleOrderEntry_FEntryID,FID,FMaterialId.FMasterID,FQty,FUnitID.FName,F_ora_Qty,FTaxPrice,FPrice,FAmount,F_ora_BaseProperty_qtr,FBomId,FDeliveryDate'
 export const K3DictMapping = [
   {
     name: '岗位信息',
@@ -207,7 +200,7 @@ export const K3DictMapping = [
       ['编码', 'FNumber', 'code'],
       ['岗位名称', 'FName', 'content'],
       ['所属部门id', 'FDept', 'content1'],
-      ['部门名称', 'FFullName', 'content2']
+      ['部门名称', 'FFullName', 'content2'],
     ],
   },
   {
@@ -218,7 +211,7 @@ export const K3DictMapping = [
       // k3name,k3key,dbFieldName,转化函数
       ['金蝶id', 'FCATEGORYID', 'fid'],
       ['编码', 'FNumber', 'code'],
-      ['类别名称', 'FName', 'content']
+      ['类别名称', 'FName', 'content'],
     ],
   },
   {
@@ -229,7 +222,7 @@ export const K3DictMapping = [
       // k3name,k3key,dbFieldName,转化函数
       ['金蝶id', 'FUNITID', 'fid'],
       ['编码', 'FNumber', 'code'],
-      ['单位名称', 'FName', 'content']
+      ['单位名称', 'FName', 'content'],
     ],
   },
   {
@@ -241,7 +234,7 @@ export const K3DictMapping = [
       ['金蝶id', 'FBILLTYPEID', 'fid'],
       ['编码', 'FNumber', 'code'],
       ['单据名称', 'FName', 'content'],
-      ['单据fromid', 'FBillFormID', 'content1']
+      ['单据fromid', 'FBillFormID', 'content1'],
     ],
   },
   {
@@ -253,12 +246,10 @@ export const K3DictMapping = [
       ['金蝶id', 'FSTAFFID', 'fid'],
       ['员工名称', 'FName', 'code'],
       ['所属部门', 'FDept', 'content'],
-      ['员工id', 'FEmpInfoId', 'content1']
+      ['员工id', 'FEmpInfoId', 'content1'],
     ],
     filterString: "FIsFirstPost='1'",
   },
-
-
 ]
 
 // 传入值和extends转换数组
@@ -391,6 +382,3 @@ const K3Extends = {
     },
   ],
 }
-
-
-

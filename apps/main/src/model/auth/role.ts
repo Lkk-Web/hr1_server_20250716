@@ -1,12 +1,12 @@
 import { BelongsToMany, Column, DataType, Table } from 'sequelize-typescript'
-import { SYSMenu } from './SYSMenu.model'
-import { SYSRoleMenu } from './SYSRoleMenu.model'
-import { SYSOrg } from './SYSOrg.model'
-import { SYSRoleOrg } from './SYSRoleOrg.model'
+import { Menu } from './menu'
+import { RoleMenu } from './roleMenu'
+import { Organize } from './organize'
+import { RoleOrganize } from './roleOrganize'
 import { BaseDate } from '@model/shared/baseDate'
 
-@Table({ tableName: `sys_role`, timestamps: true, freezeTableName: true, paranoid: true })
-export class SYSRole extends BaseDate<SYSRole> {
+@Table({ tableName: `auth_role`, timestamps: true, freezeTableName: true, paranoid: true })
+export class Role extends BaseDate<Role> {
   @Column({ type: DataType.STRING, comment: '角色编号' })
   declare code: string
 
@@ -34,11 +34,11 @@ export class SYSRole extends BaseDate<SYSRole> {
   @Column({ type: DataType.STRING, comment: '数据权限范围类型（0全部 1本组织 2本部门及下级部门 3本部门 4自定义）' })
   declare dataScopeType: string
 
-  @BelongsToMany(() => SYSMenu, { through: () => SYSRoleMenu, uniqueKey: 'SYSRole_rm_menu_unique', foreignKey: 'roleId', otherKey: 'menuId' })
-  declare menuList: SYSMenu[]
+  @BelongsToMany(() => Menu, { through: () => RoleMenu, uniqueKey: 'SYSRole_rm_menu_unique', foreignKey: 'roleId', otherKey: 'menuId' })
+  declare menuList: Menu[]
 
-  @BelongsToMany(() => SYSOrg, { through: () => SYSRoleOrg, uniqueKey: 'SYSRole_ro_org_unique', foreignKey: 'roleId', otherKey: 'orgId' })
-  declare orgList: SYSOrg[]
+  @BelongsToMany(() => Organize, { through: () => RoleOrganize, uniqueKey: 'SYSRole_ro_org_unique', foreignKey: 'roleId', otherKey: 'orgId' })
+  declare orgList: Organize[]
 
   //是否配置权限
   declare type: string

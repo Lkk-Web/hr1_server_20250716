@@ -1,6 +1,6 @@
 import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { WorkShop } from '@model/base/workShop.model'
 import { TeamUser } from '@model/schedule/teamUser.model'
 import { Process } from '@model/process/process.model'

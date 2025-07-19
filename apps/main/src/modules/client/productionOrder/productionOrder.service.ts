@@ -4,7 +4,7 @@ import { ProductionOrder } from '@model/production/productionOrder.model'
 import { FindPaginationDto } from './productionOrder.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { PerformanceConfig } from '@model/index'
 
 @Injectable()

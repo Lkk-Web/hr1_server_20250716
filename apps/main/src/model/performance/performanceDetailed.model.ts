@@ -4,7 +4,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { Performance } from './performance.model'
 import { ProductionOrder } from '@model/production/productionOrder.model'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { ProductionReport } from '@model/production/productionReport.model'
 
 /** 绩效工资明细 */

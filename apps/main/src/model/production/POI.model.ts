@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Process } from '@model/process/process.model'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { POP } from '@model/production/POP.model'
 

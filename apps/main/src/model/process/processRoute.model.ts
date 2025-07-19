@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { ProcessRouteList } from '@model/process/processRouteList.model'
 /** 工艺路线 */
 @Table({ tableName: `process_route`, freezeTableName: true, timestamps: true, comment: '工艺路线表' })

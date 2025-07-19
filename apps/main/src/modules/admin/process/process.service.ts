@@ -10,7 +10,7 @@ import { FindPaginationOptions } from '@model/shared/interface'
 import { ProcessItems } from '@model/process/processItems.model'
 import { Aide, JsExclKey } from '@library/utils/aide'
 import { Material } from '@model/base/material.model'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { deleteIdsDto } from '@common/dto'
 import { ProcessRoute } from '@model/process/processRoute.model'
@@ -218,7 +218,7 @@ export class ProcessService {
           let arr = []
           let itemArr = []
           for (const deptName of deptNames) {
-            const dept = await SYSOrg.findOne({ where: { name: deptName } })
+            const dept = await Organize.findOne({ where: { name: deptName } })
             if (!dept) {
               processFailed++
               continue outLoop

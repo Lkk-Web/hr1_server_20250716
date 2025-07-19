@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany, BelongsToMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { TeamType } from '@model/schedule/teamType.model'
 import { Shift } from '@model/schedule/shift.model'
 import { SchedulePlanShift } from '@model/schedule/schedulePlanShift.model'

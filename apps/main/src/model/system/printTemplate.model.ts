@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 
-@Table({ tableName: `sys_print_templates`, timestamps: true, freezeTableName: true, comment: '打印模板表' })
+@Table({ tableName: `system_print_templates`, timestamps: true, freezeTableName: true, comment: '打印模板表' })
 export class PrintTemplate extends BaseDate<PrintTemplate> {
   @Column({
     comment: '模板名称',

@@ -2,7 +2,7 @@ import { Table, Column, Model, DataType, ForeignKey } from 'sequelize-typescript
 import { BaseDate } from '@model/shared/baseDate'
 import { Process } from '@model/process/process.model'
 import { ProcessTask } from '@model/production/processTask.model'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 
 @Table({ tableName: `production_process_task_dept`, timestamps: true, freezeTableName: true, comment: '工序任务单关联部门表' })
 export class ProcessTaskDept extends BaseDate<ProcessTaskDept> {
@@ -16,7 +16,7 @@ export class ProcessTaskDept extends BaseDate<ProcessTaskDept> {
   taskId: number
 
   // 工单编号
-  @ForeignKey(() => SYSOrg)
+  @ForeignKey(() => Organize)
   @Column({
     comment: '部门ID',
     type: DataType.INTEGER,

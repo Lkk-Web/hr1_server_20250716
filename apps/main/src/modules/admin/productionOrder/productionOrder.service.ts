@@ -14,10 +14,10 @@ import { ProcessTask } from '@model/production/processTask.model'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { Aide, JsExclKey } from '@library/utils/aide'
 import { ProcessRoute } from '@model/process/processRoute.model'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { ResultVO } from '@common/resultVO'
 import { BOM } from '@model/base/bom.model'
-import { ApiDict, DefectiveItem, PerformanceConfig, Process, SYSOrg, WarehouseMaterial, WorkCenterOfPOP } from '@model/index'
+import { ApiDict, DefectiveItem, PerformanceConfig, Process, Organize, WarehouseMaterial, WorkCenterOfPOP } from '@model/index'
 import { Paging } from '@library/utils/paging'
 import { KingdeeeService } from '@library/kingdee'
 import { POBD } from '@model/production/POBD.model'
@@ -111,7 +111,7 @@ export class ProductionOrderService {
               //创建部门关联
               if (process.deptsId) {
                 for (const deptsIdElement of process.deptsId) {
-                  const dept = await SYSOrg.findByPk(deptsIdElement)
+                  const dept = await Organize.findByPk(deptsIdElement)
                   if (dept) {
                     await POD.create({ popId: pro.id, deptId: deptsIdElement }, { transaction })
                   } else {

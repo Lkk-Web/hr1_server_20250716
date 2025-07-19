@@ -17,7 +17,7 @@ export * from './inspectionForm/inspectionForm.module'
 
 //系统管理
 export * from './system/SYSOrg.module'
-export * from './system/SYSMenu.module'
+export * from './system/menu.module'
 export * from './system/SYSRole.module'
 export * from './system/SYSBusinessLog.module'
 export * from './user/user.module'

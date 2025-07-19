@@ -1,9 +1,9 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 
-@Table({ tableName: `sys_business_log` })
-export class SYSBusinessLog extends BaseDate<SYSBusinessLog> {
+@Table({ tableName: `system_business_log` })
+export class SystemBusinessLog extends BaseDate<SystemBusinessLog> {
   @Column({
     type: DataType.STRING,
     comment: '操作描述',

@@ -1,6 +1,6 @@
 import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
-import { Material, Process, ProductionOrder, SYSOrg, User } from '..'
+import { Material, Process, ProductionOrder, Organize, User } from '..'
 
 /** 中台通知 */
 @Table({ tableName: `center_dc_notify`, freezeTableName: true, timestamps: true, comment: '中台通知' })

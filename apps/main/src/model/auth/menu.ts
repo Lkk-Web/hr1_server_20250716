@@ -1,17 +1,17 @@
 import { AutoIncrement, BelongsTo, Column, CreatedAt, DataType, ForeignKey, HasMany, HasOne, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript'
-import { SYSRoleMenu } from './SYSRoleMenu.model'
+import { RoleMenu } from './roleMenu'
 import { findPagination } from '@model/shared/method'
 import { BaseDate } from '@model/shared/baseDate'
 
-@Table({ tableName: `sys_menu`, timestamps: true, freezeTableName: true, paranoid: false })
-export class SYSMenu extends BaseDate<SYSMenu> {
+@Table({ tableName: `auth_menu`, timestamps: true, freezeTableName: true, paranoid: false })
+export class Menu extends BaseDate<Menu> {
   @Column({ type: DataType.STRING, comment: '菜单编号' })
   declare code: string
 
   @Column({ type: DataType.STRING, comment: '菜单名称' })
   declare name: string
 
-  @ForeignKey(() => SYSMenu)
+  @ForeignKey(() => Menu)
   @Column({ type: DataType.INTEGER, comment: '父级id' })
   declare parentId: number
 
@@ -33,8 +33,8 @@ export class SYSMenu extends BaseDate<SYSMenu> {
   @Column({ type: DataType.STRING, comment: '菜单类型（M目录 C菜单 F按钮）' })
   declare types: string
 
-  @HasMany(() => SYSMenu)
-  declare childMenus: SYSMenu[]
+  @HasMany(() => Menu)
+  declare childMenus: Menu[]
 
   // methods
   // ------------------------------------------------

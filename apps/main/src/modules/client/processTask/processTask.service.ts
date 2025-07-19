@@ -4,7 +4,7 @@ import { ProcessTask } from '@model/production/processTask.model'
 import { FindPaginationDto } from './processTask.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { ProcessTaskUser } from '@model/production/processTaskUser.model'
 import { PerformanceConfig } from '@model/index'
 import moment = require('moment')

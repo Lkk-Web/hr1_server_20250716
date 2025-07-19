@@ -14,6 +14,7 @@ import { SequelizeModule } from '@nestjs/sequelize'
 import * as ModelList from '@model/index'
 import { MicroserviceClientModule } from '@library/microserviceClient/microserviceClient.module'
 import { PlatformAdminModule } from '@modules/admin/admin.module'
+import { ServicesModule } from '@services/services.module'
 
 @Module({
   imports: [
@@ -25,6 +26,8 @@ import { PlatformAdminModule } from '@modules/admin/admin.module'
     HookModule,
     // 微服务客户端模块
     MicroserviceClientModule,
+    // 服务模块
+    ServicesModule,
     // TOTO.添加数据表
     SequelizeModule.forFeature(Object.values(ModelList)),
 

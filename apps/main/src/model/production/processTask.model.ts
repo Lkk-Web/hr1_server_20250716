@@ -2,9 +2,9 @@ import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMan
 import { BaseDate } from '@model/shared/baseDate'
 import { Process } from '@model/process/process.model'
 import { ProductionOrder } from '@model/production/productionOrder.model'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { ProcessTaskUser } from '@model/production/processTaskUser.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
@@ -173,8 +173,8 @@ export class ProcessTask extends BaseDate<ProcessTask> {
   @BelongsTo(() => Process)
   declare process: Process
 
-  @BelongsToMany(() => SYSOrg, { through: () => ProcessTaskDept, uniqueKey: 'ProcessTask_ptd_so_unique', foreignKey: 'taskId', otherKey: 'deptId' })
-  declare depts: SYSOrg[]
+  @BelongsToMany(() => Organize, { through: () => ProcessTaskDept, uniqueKey: 'ProcessTask_ptd_so_unique', foreignKey: 'taskId', otherKey: 'deptId' })
+  declare depts: Organize[]
 
   @BelongsToMany(() => User, { through: () => ProcessTaskUser, uniqueKey: 'ProcessTask_ptu_user_unique', foreignKey: 'taskId', otherKey: 'userId' })
   declare users: User[]

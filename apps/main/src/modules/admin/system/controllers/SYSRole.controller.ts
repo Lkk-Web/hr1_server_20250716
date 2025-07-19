@@ -5,7 +5,7 @@ import { Body, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Pu
 import { AdminAuth } from '@core/decorator/controller'
 import { SysRoleService } from '../services/SYSRole.service'
 import { CSYSRoleDto, ESYSRoleDto, FindPaginationDto } from '../dtos/SYSRole.dto'
-import { SYSRole } from '@model/sys/SYSRole.model'
+import { Role } from '@model/auth/role'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Sequelize } from 'sequelize-typescript'
 import { IPUtil } from '@library/utils/ip.util'

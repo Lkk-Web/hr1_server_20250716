@@ -2,7 +2,7 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo, BelongsToMany } 
 import { BaseDate } from '@model/shared/baseDate'
 
 /** 外部api配置存储表 */
-@Table({ tableName: `sys_api_config`, freezeTableName: true, timestamps: true, comment: '外部api配置存储表' })
+@Table({ tableName: `system_api_config`, freezeTableName: true, timestamps: true, comment: '外部api配置存储表' })
 export class ApiConfig extends BaseDate<ApiConfig> {
   @Column({
     comment: '平台名称',

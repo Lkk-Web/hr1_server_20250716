@@ -1,13 +1,13 @@
 import { PLATFORM } from '@common/enum'
 import { CryptoUtil, jwtEncodeInExpire } from '@library/utils/crypt.util'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { HttpException, Injectable } from '@nestjs/common'
 import { changeFactoryDto, FindPaginationDto, OrderProgressDto, performanceDto, ScheduleFindPaginationDto, taskBoardDto, taskProgressDto, UserLoginDto } from './mi.dto'
 import { Aide } from '@library/utils/aide'
 import * as process from 'node:process'
 import { ProductionReport } from '@model/production/productionReport.model'
 import { Op, Sequelize } from 'sequelize'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { ProcessTask } from '@model/production/processTask.model'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Performance } from '@model/performance/performance.model'
@@ -127,7 +127,7 @@ export class MiService {
   async getTeamProductionStatistics(startOfToday, endOfToday, pagination: Pagination) {
     try {
       // 获取所有班组信息
-      const teams = await SYSOrg.findAll({
+      const teams = await Organize.findAll({
         attributes: ['id', 'name'], // 假设 'shortName' 是班组的名称
         include: [
           {

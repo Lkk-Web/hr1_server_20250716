@@ -9,7 +9,8 @@
       "@common/*": ["src/common/*"],
       "@library/*": ["src/library/*"],
       "@modules/*": ["src/modules/*"],
-      "@model/*": ["src/model/*"]
+      "@model/*": ["src/model/*"],
+      "@services/*": ["src/services/*"]
     }
   },
   "include": ["src/**/*"],

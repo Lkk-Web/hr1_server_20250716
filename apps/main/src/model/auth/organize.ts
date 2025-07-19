@@ -1,14 +1,14 @@
 import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, PrimaryKey, Table } from 'sequelize-typescript'
 import { DATA_STATUS } from '@common/constant'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { ProcessTask } from '@model/production/processTask.model'
 import { Process, ProcessDept } from '..'
 // import { UserDepartment } from '@model/userDepartment.model'
 
-@Table({ tableName: `sys_org`, timestamps: true, freezeTableName: true, paranoid: true })
-export class SYSOrg extends BaseDate<SYSOrg> {
+@Table({ tableName: `auth_organize`, timestamps: true, freezeTableName: true, paranoid: true })
+export class Organize extends BaseDate<Organize> {
   @Column({ type: DataType.STRING, comment: '组织名称' })
   declare name: string
 
@@ -30,7 +30,7 @@ export class SYSOrg extends BaseDate<SYSOrg> {
   @Column({ type: DataType.DATE, defaultValue: DataType.NOW, comment: '更新时间' })
   declare updatedAt: Date
 
-  @ForeignKey(() => SYSOrg)
+  @ForeignKey(() => Organize)
   @Column({ type: DataType.INTEGER, comment: '父级id' })
   declare parentId: number
   // @Column({ type: DataType.INTEGER, comment: '数据状态' })
@@ -57,8 +57,8 @@ export class SYSOrg extends BaseDate<SYSOrg> {
   @HasMany(() => User)
   userArray: User[]
 
-  @HasMany(() => SYSOrg)
-  declare childOrgs: SYSOrg[]
+  @HasMany(() => Organize)
+  declare childOrgs: Organize[]
 
   // @HasMany(() => UserDepartment)
   // declare deptUsers: UserDepartment[];

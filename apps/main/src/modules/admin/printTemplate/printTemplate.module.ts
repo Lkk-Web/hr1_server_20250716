@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { PrintTemplateController } from './printTemplate.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { PrintTemplate } from '@model/sys/printTemplate.model'
+import { PrintTemplate } from '@model/system/printTemplate.model'
 import { sign } from 'crypto'
 import { PrintTemplateService } from './printTemplate.service'
 import { RedisModule } from '@library/redis'

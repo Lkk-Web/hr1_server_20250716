@@ -2,7 +2,7 @@ import { AutoIncrement, BelongsTo, Column, CreatedAt, DataType, ForeignKey, HasM
 import { findPagination } from '@model/shared/method'
 import { BaseDate } from '@model/shared/baseDate'
 /**系统对接字典表 */
-@Table({ tableName: `sys_api_dict`, timestamps: false, freezeTableName: true, comment: '系统对接字典表' })
+@Table({ tableName: `system_api_dict`, timestamps: false, freezeTableName: true, comment: '系统对接字典表' })
 export class ApiDict extends BaseDate<ApiDict> {
   @Column({ type: DataType.STRING, comment: '对接系统' })
   declare xtName: string

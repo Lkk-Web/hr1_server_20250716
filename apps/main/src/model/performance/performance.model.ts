@@ -1,12 +1,12 @@
 import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
-import { Material, Process, ProductionOrder, SYSOrg, User } from '..'
+import { Material, Process, ProductionOrder, Organize, User } from '..'
 import { PerformanceDetailed } from './performanceDetailed.model'
 
 /** 绩效工资统计 */
 @Table({ tableName: `performance`, freezeTableName: true, timestamps: true, comment: '绩效工资统计表' })
 export class Performance extends BaseDate<Performance> {
-  @ForeignKey(() => SYSOrg)
+  @ForeignKey(() => Organize)
   @Column({
     comment: '部门Id',
     type: DataType.INTEGER,
@@ -60,8 +60,8 @@ export class Performance extends BaseDate<Performance> {
   })
   declare wages: number
 
-  @BelongsTo(() => SYSOrg)
-  declare dept: SYSOrg
+  @BelongsTo(() => Organize)
+  declare dept: Organize
 
   @BelongsTo(() => User)
   declare user: User

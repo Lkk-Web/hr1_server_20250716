@@ -14,7 +14,7 @@ import { ProcessRouteList } from '@model/process/processRouteList.model'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { ProcessRouteListItem } from '@model/process/processRouteListItem.model'
 import { Aide, JsExclKey } from '@library/utils/aide'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { Paging } from '@library/utils/paging'
 
 @Injectable()

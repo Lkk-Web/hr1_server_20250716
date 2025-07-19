@@ -1,10 +1,10 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { SYSRole } from '@model/sys/SYSRole.model'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Role } from '@model/auth/role'
+import { Organize } from '@model/auth/organize'
 import { TeamUser } from '@model/schedule/teamUser.model'
 
-@Table({ tableName: `sys_user`, freezeTableName: true, timestamps: true, comment: '用户员工表' })
+@Table({ tableName: `auth_user`, freezeTableName: true, timestamps: true, comment: '用户员工表' })
 export class User extends BaseDate<User> {
   // 工号：必填项
   @Column({
@@ -56,7 +56,7 @@ export class User extends BaseDate<User> {
   declare email: string
 
   // 默认部门
-  @ForeignKey(() => SYSOrg) // 假设有部门表
+  @ForeignKey(() => Organize) // 假设有部门表
   @Column({
     comment: '默认部门',
     type: DataType.INTEGER,
@@ -64,8 +64,8 @@ export class User extends BaseDate<User> {
   })
   declare departmentId: number
 
-  @BelongsTo(() => SYSOrg)
-  declare department: SYSOrg
+  @BelongsTo(() => Organize)
+  declare department: Organize
 
   @Column({
     comment: '用户状态',
@@ -75,7 +75,7 @@ export class User extends BaseDate<User> {
   declare state: string
 
   // 角色
-  @ForeignKey(() => SYSRole) // 假设有角色表
+  @ForeignKey(() => Role) // 假设有角色表
   @Column({
     comment: '角色ID',
     type: DataType.INTEGER,
@@ -83,8 +83,8 @@ export class User extends BaseDate<User> {
   })
   declare roleId: number
 
-  @BelongsTo(() => SYSRole)
-  declare role: SYSRole
+  @BelongsTo(() => Role)
+  declare role: Role
 
   // 状态：是否启用
   @Column({

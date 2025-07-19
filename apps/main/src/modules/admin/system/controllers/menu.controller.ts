@@ -2,14 +2,14 @@ import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
 import { Permissions } from '@core/decorator/metaData'
 import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { AdminAuth } from '@core/decorator/controller'
-import { SysMenuService } from '../services/SYSMenu.service'
-import { CSYSMenuDto, ESYSMenuDto, FindPaginationDto } from '../dtos/SYSMenu.dto'
-import { SYSMenu } from '@model/sys/SYSMenu.model'
+import { SysMenuService } from '../services/menu.service'
+import { CSYSMenuDto, ESYSMenuDto, FindPaginationDto } from '../dtos/menu.dto'
+import { Menu } from '@model/auth/menu'
 import { Sequelize } from 'sequelize-typescript'
 
 @ApiTags('菜单')
 @ApiBearerAuth()
-@AdminAuth('SYSMenu')
+@AdminAuth('Menu')
 export class SysMenuController {
   constructor(private readonly service: SysMenuService, private readonly sequelize: Sequelize) {}
   @ApiOperation({ summary: '创建' })

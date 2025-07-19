@@ -32,7 +32,6 @@ export const MYSQL_CONFIG: SequlizeOptions = {
   timezone: '+08:00',
   pool: { max: 5 },
   autoLoadModels: true, //是否自动创建
-  synchronize: true,
   logging: false, //是否打印日志
   ...envs.dp,
 }

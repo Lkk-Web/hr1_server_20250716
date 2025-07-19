@@ -4,7 +4,7 @@ import { Body, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Pu
 import { AdminAuth } from '@core/decorator/controller'
 import { SYSOrgService } from '../services/SYSOrg.service'
 import { CSYSOrgDto, ESYSOrgDto, FindAllDto } from '../dtos/SYSOrg.dto'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Sequelize } from 'sequelize-typescript'
 import { OpenAuthorize } from '@core/decorator/metaData'

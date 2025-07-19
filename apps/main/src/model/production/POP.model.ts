@@ -2,7 +2,7 @@ import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Table 
 import { BaseDate } from '@model/shared/baseDate'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Process } from '@model/process/process.model'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { POD } from '@model/production/PODmodel'
 import { POI } from '@model/production/POI.model'
@@ -167,8 +167,8 @@ export class POP extends BaseDate<POP> {
   @BelongsTo(() => ProductionOrder)
   productionOrder: ProductionOrder
 
-  @BelongsToMany(() => SYSOrg, { through: () => POD, uniqueKey: 'POP_pod_so_unique', foreignKey: 'popId', otherKey: 'deptId' })
-  depts: SYSOrg[]
+  @BelongsToMany(() => Organize, { through: () => POD, uniqueKey: 'POP_pod_so_unique', foreignKey: 'popId', otherKey: 'deptId' })
+  depts: Organize[]
 
   @BelongsToMany(() => DefectiveItem, { through: () => POI, uniqueKey: 'POP_poi_di_unique', foreignKey: 'popId', otherKey: 'defectiveItemId' })
   items: DefectiveItem[]

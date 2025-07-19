@@ -1,6 +1,6 @@
 import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { Material } from '@model/base/material.model'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { ProcessRouteList } from '@model/process/processRouteList.model'

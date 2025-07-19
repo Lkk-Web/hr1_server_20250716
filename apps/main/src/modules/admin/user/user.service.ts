@@ -1,18 +1,18 @@
 import { Pagination } from '@common/interface'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { CUserDto, FindPaginationDto, SUserDto, UUserDto } from './user.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Aide, JsExclKey } from '@library/utils/aide'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { trim } from 'lodash'
-import { SYSRole } from '@model/sys/SYSRole.model'
+import { Role } from '@model/auth/role'
 import { Paging } from '@library/utils/paging'
 import { CryptoUtil } from '@library/utils/crypt.util'
 import { KingdeeeService } from '@library/kingdee'
-import { ApiDict } from '@model/sys/apiDict.model'
+import { ApiDict } from '@model/system/apiDict.model'
 import _ = require('lodash')
 
 @Injectable()
@@ -20,7 +20,7 @@ export class UserService {
   constructor(
     @InjectModel(User)
     private userModel: typeof User
-  ) { }
+  ) {}
 
   public async create(dto: CUserDto, loadModel) {
     let temp
@@ -57,26 +57,26 @@ export class UserService {
   }
 
   public async edit(dto: UUserDto, id: number, loadModel) {
-    let user = await User.findOne({ where: { id },attributes:['id','userCode','phone','email'] })
+    let user = await User.findOne({ where: { id }, attributes: ['id', 'userCode', 'phone', 'email'] })
     if (!user) {
       throw new HttpException('数据不存在', 400006)
     }
     let temp
-    if (dto.userCode&&dto.userCode != user.userCode) {
+    if (dto.userCode && dto.userCode != user.userCode) {
       temp = await User.findOne({ where: { userCode: dto.userCode } })
       if (temp && temp.id != id) {
         throw new HttpException('该工号的员工已存在', 400)
       }
     }
-    if(dto.phone&&dto.phone != user.phone){
-      temp = await User.findOne({ where: { phone: dto.phone },attributes:['id'] })
+    if (dto.phone && dto.phone != user.phone) {
+      temp = await User.findOne({ where: { phone: dto.phone }, attributes: ['id'] })
       if (temp && temp.id != id) {
         throw new HttpException('该手机号的员工已存在', 400)
       }
     }
 
-    if (dto.email&&dto.email != user.email) {
-      temp = await User.findOne({ where: { email: dto.email },attributes:['id'] })
+    if (dto.email && dto.email != user.email) {
+      temp = await User.findOne({ where: { email: dto.email }, attributes: ['id'] })
       if (temp && temp.id != id) {
         throw new HttpException('该邮箱的员工已存在', 400)
       }
@@ -111,14 +111,16 @@ export class UserService {
     const options: FindOptions = {
       where: { id },
       attributes: ['id', 'userCode', 'code', 'phone', 'userName', 'createdAt', 'station', 'updatedAt', 'email', 'departmentId', 'state', 'roleId', 'status', 'remark'],
-      include: [{
-        association: 'department',
-        attributes: ['id', 'name'],
-      },
-      {
-        association: 'role',
-        attributes: ['id', 'name'],
-      },]
+      include: [
+        {
+          association: 'department',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'role',
+          attributes: ['id', 'name'],
+        },
+      ],
     }
     const result = await User.findOne(options)
     return result
@@ -187,7 +189,7 @@ export class UserService {
       }
     }
 
-    const result = await Paging.diyPaging(User, pagination, options);
+    const result = await Paging.diyPaging(User, pagination, options)
     return result
   }
 
@@ -231,8 +233,8 @@ export class UserService {
     for (const rowElement of json.row) {
       if (rowElement.departmentName) {
         const nameArray = rowElement.departmentName.split('\\')
-        const dept = await SYSOrg.findOne({ where: { name: trim(nameArray[nameArray.length - 1]) } })
-        const role = await SYSRole.findOne({ where: { name: trim(rowElement.roleName) } })
+        const dept = await Organize.findOne({ where: { name: trim(nameArray[nameArray.length - 1]) } })
+        const role = await Role.findOne({ where: { name: trim(rowElement.roleName) } })
         const options = {}
         const same = await User.findOne({
           where: {
@@ -254,14 +256,14 @@ export class UserService {
 
   public async resetPassword(id: number, user) {
     // @ts-ignore
-    let temp = await User.findOne({ where: { id } });
+    let temp = await User.findOne({ where: { id } })
     if (!temp) {
-      throw new HttpException('该用户不存在', 400);
+      throw new HttpException('该用户不存在', 400)
     }
 
-    await User.update({ password: CryptoUtil.sm4Encryption('123456') }, { where: { id } });
-    const res = await User.findOne({ where: { id } });
-    return res;
+    await User.update({ password: CryptoUtil.sm4Encryption('123456') }, { where: { id } })
+    const res = await User.findOne({ where: { id } })
+    return res
   }
 
   public async asyncKingdee() {
@@ -272,25 +274,25 @@ export class UserService {
     let data = await KingdeeeService.getList('BD_Empinfo', 'FID,FNumber,FName,FBaseProperty,FForbidStatus,FMobile,FBaseProperty3', filterString)
     let mate = []
     let orgList = await ApiDict.findAll({ where: { name: '岗位信息', xtName: '金蝶' }, attributes: ['fid', 'code', 'content', 'content1', 'content2'] })
-    const password = CryptoUtil.sm4Encryption('123456');
+    const password = CryptoUtil.sm4Encryption('123456')
     for (const item of data) {
       let userOrg = ''
       for (const org of orgList) {
-        if (org.content == item.FBaseProperty&& org.content2==item.FBaseProperty3) {
+        if (org.content == item.FBaseProperty && org.content2 == item.FBaseProperty3) {
           userOrg = org.content1
-          break;
+          break
         }
       }
-      if (userOrg != '' ) {
+      if (userOrg != '') {
         let temp = {
           id: item.FID,
           userCode: item.FNumber,
           userName: item.FName,
-          phone: item.FMobile?.trim()||null,
+          phone: item.FMobile?.trim() || null,
           password,
           departmentId: userOrg,
-          status: item.FForbidStatus == "A" ? true : false,
-          roleId: 4
+          status: item.FForbidStatus == 'A' ? true : false,
+          roleId: 4,
         }
 
         mate.push(temp)
@@ -298,26 +300,31 @@ export class UserService {
     }
     // return 11
     //查询对应id的部门是否存在
-    const orgIds = _.uniq(mate.map(v=>Number(v.departmentId)));
-    const orgs = await SYSOrg.findAll({ where: { id: orgIds },attributes:['id'] })
+    const orgIds = _.uniq(mate.map(v => Number(v.departmentId)))
+    const orgs = await Organize.findAll({ where: { id: orgIds }, attributes: ['id'] })
     //不存在就创建
-    const createIds = _.difference(orgIds, orgs.map(v => v.id));
+    const createIds = _.difference(
+      orgIds,
+      orgs.map(v => v.id)
+    )
     if (createIds.length > 0) {
       // console.log('创建部门', createIds)
       // @ts-ignore
-      await SYSOrg.bulkCreate(createIds.map((v:string)=>{
-        const temp = orgList.find(vv=>vv.content1==v);
-        return {
-          id: v,
-          name: temp?.content2,
-          shortName: temp?.content2,
-          code: temp?.code,
-          status: true
-        }
-      }))
+      await Organize.bulkCreate(
+        (createIds as any).map((v: string) => {
+          const temp = orgList.find(vv => vv.content1 == v)
+          return {
+            id: v,
+            name: temp?.content2,
+            shortName: temp?.content2,
+            code: temp?.code,
+            status: true,
+          }
+        })
+      )
     }
     for (let i = 0; i < mate.length; i += 100) {
-      const batch = mate.slice(i, i + 100);
+      const batch = mate.slice(i, i + 100)
       await User.bulkCreate(batch, { updateOnDuplicate: ['id', 'userCode', 'userName', 'status', 'departmentId'] })
     }
     return true

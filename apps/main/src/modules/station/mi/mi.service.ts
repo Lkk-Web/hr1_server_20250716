@@ -5,7 +5,7 @@ import { OrgDto, PadLoginDto, PadTeamListDto, ProcessDto, TeamLoginDto, UserPass
 import { SuperRedis } from '@sophons/redis'
 import { RedisProvider } from '@library/redis'
 import { Process } from '@model/process/process.model'
-import { SYSOrg, Team, User } from '@model/index'
+import { Organize, Team, User } from '@model/index'
 import { Includeable } from 'sequelize/types/model'
 
 // const client = new Core({ // 创建 Client 对象
@@ -26,7 +26,7 @@ export class MiService {
   ) {}
   async padLogin(dto: PadLoginDto) {
     //根据部门id及工序id获取登录token
-    let org = await SYSOrg.findOne({
+    let org = await Organize.findOne({
       where: {
         id: dto.orgId, //工序id
       },
@@ -162,7 +162,7 @@ export class MiService {
       }
       options.include[0].required = true
     }
-    let sysOrg = await SYSOrg.findAll(options)
+    let sysOrg = await Organize.findAll(options)
 
     return sysOrg
   }

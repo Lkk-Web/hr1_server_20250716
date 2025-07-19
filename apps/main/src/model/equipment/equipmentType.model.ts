@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { Supplier } from '@model/base/supplier.model'
 import { Customer } from '@model/base/customer.model'
 import { Warehouse } from '@model/warehouse/warehouse.model'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { InboundOrderDetail } from '@model/warehouse/inboundOrderDetail.model'
 
 @Table({ tableName: `equipment_type`, freezeTableName: true, timestamps: true, comment: '设备类型表' })

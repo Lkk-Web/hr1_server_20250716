@@ -1,16 +1,16 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript'
-import { SYSRole } from './SYSRole.model'
-import { SYSMenu } from './SYSMenu.model'
-import { User, SYSOrg } from '..'
+import { Role } from './role'
+import { Menu } from './menu'
+import { User, Organize } from '..'
 
 // 角色权限表
-@Table({ tableName: `sys_role_org`, timestamps: false })
-export class SYSRoleOrg extends Model<SYSRoleOrg> {
-  @ForeignKey(() => SYSRole)
+@Table({ tableName: `auth_role_organize`, timestamps: false })
+export class RoleOrganize extends Model<RoleOrganize> {
+  @ForeignKey(() => Role)
   @Column({ type: DataType.INTEGER, comment: '角色id' })
   declare roleId: number
 
-  @ForeignKey(() => SYSOrg)
+  @ForeignKey(() => Organize)
   @Column({ type: DataType.INTEGER, comment: '组织id' })
   declare orgId: number
 }

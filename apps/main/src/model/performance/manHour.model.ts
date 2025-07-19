@@ -2,7 +2,7 @@ import { Material } from '@model/base/material.model'
 import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { PERFORMANCE_CONFIG_TYPE, PERFORMANCE_CONFIG_UNIT } from '@common/enum'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { ManHourProcess } from '@model/performance/manHourProcess.model'
 
 /** 工时配置 */

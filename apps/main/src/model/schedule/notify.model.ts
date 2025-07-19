@@ -1,5 +1,5 @@
 import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, Table } from 'sequelize-typescript'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { BaseModel } from '@model/shared/base.model'
 import { NOTIFY_SCENE } from '@common/enum'
 import { ProcessTask } from '@model/production/processTask.model'

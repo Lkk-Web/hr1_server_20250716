@@ -2,7 +2,7 @@ import { StationAuth } from '@core/decorator/controller'
 import { Body, Get, HttpCode, HttpStatus, Post, Req } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { UserLoginDto } from './user.dto'
-import { SYSOrg, SYSRole, User } from '@model/index'
+import { Organize, Role, User } from '@model/index'
 import { CryptoUtil, jwtEncodeInExpire } from '@library/utils/crypt.util'
 import { PLATFORM } from '@common/enum'
 import E from '@common/error'
@@ -29,12 +29,12 @@ export class UserController {
       attributes: ['id', 'phone', 'userName', 'station', 'email'],
       include: [
         {
-          model: SYSRole,
+          model: Role,
           attributes: ['id', 'code', 'name', 'dataScopeType'],
           required: false,
         },
         {
-          model: SYSOrg,
+          model: Organize,
           attributes: ['id', 'code', 'name', 'address'],
           required: false,
         },

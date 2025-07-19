@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { CSYSBusinessLogDto, FindPaginationDto } from '../dtos/SYSBusinessLog.dto'
-import { SYSBusinessLog } from '@model/sys/SYSBusinessLog.model'
+import { SystemBusinessLog } from '@model/system/SYSBusinessLog.model'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Paging } from '@library/utils/paging'
@@ -13,17 +13,17 @@ import { FileList } from '@model/document/FileList.model'
 @Injectable()
 export class SYSBusinessLogService {
   constructor(
-    @InjectModel(SYSBusinessLog)
-    private SYSBusinessLogModel: typeof SYSBusinessLog
+    @InjectModel(SystemBusinessLog)
+    private SYSBusinessLogModel: typeof SystemBusinessLog
   ) {}
 
   public async create(dto: CSYSBusinessLogDto, loadModel) {
-    const result = await SYSBusinessLog.create(dto)
+    const result = await SystemBusinessLog.create(dto)
     return result
   }
 
   public async delete(id: number, loadModel) {
-    const result = await SYSBusinessLog.destroy({
+    const result = await SystemBusinessLog.destroy({
       where: {
         id: id,
       },
@@ -33,7 +33,7 @@ export class SYSBusinessLogService {
 
   public async find(id: number, loadModel) {
     const options: FindOptions = { where: { id }, include: [{ all: true }] }
-    const result = await SYSBusinessLog.findOne(options)
+    const result = await SystemBusinessLog.findOne(options)
     return result
   }
 
@@ -53,7 +53,7 @@ export class SYSBusinessLogService {
         [Op.eq]: dto.module,
       }
     }
-    const result = await Paging.diyPaging(SYSBusinessLog, pagination, options)
+    const result = await Paging.diyPaging(SystemBusinessLog, pagination, options)
     return result
   }
 }

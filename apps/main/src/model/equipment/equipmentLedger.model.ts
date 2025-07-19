@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Supplier } from '@model/base/supplier.model'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { EquipmentType } from '@model/equipment/equipmentType.model'
 import { Equipment } from '@model/equipment/equipment.model'
 import { FileList } from '@model/document/FileList.model'

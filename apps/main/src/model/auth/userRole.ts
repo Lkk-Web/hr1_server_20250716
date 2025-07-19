@@ -1,11 +1,11 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript'
-import { SYSRole } from './SYSRole.model'
-import { SYSMenu } from './SYSMenu.model'
+import { Role } from './role'
+import { Menu } from './menu'
 import { User } from '..'
 
-@Table({ tableName: `sys_user_role`, timestamps: false, freezeTableName: true, paranoid: true })
-export class SYSUserRole extends Model<SYSUserRole> {
-  @ForeignKey(() => SYSRole)
+@Table({ tableName: `auth_user_role`, timestamps: false, freezeTableName: true, paranoid: true })
+export class UserRole extends Model<UserRole> {
+  @ForeignKey(() => Role)
   @Column({ type: DataType.INTEGER, comment: '角色id' })
   declare roleId: number
 

@@ -1,6 +1,6 @@
-import { IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { SYSOrg } from '@model/sys/SYSOrg.model';
+import { IsNotEmpty } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
+import { Organize } from '@model/auth/organize'
 
 export class FindAllDto {
   @ApiProperty({
@@ -8,7 +8,7 @@ export class FindAllDto {
     type: String,
     required: false,
   })
-  name: string;
+  name: string
 
   // @ApiProperty({
   //   description: '组织简称',
@@ -22,20 +22,20 @@ export class FindAllDto {
     type: String,
     required: false,
   })
-  code: string;
+  code: string
 
   @ApiProperty({
     description: '地址',
     type: String,
     required: false,
   })
-  address: string;
+  address: string
 
   @ApiProperty({ description: '组织类型（公司、部门）', type: String, required: false })
-  types: string;
+  types: string
 
   @ApiProperty({ description: '状态（0禁用 1启用 ）', type: Number, required: false })
-  status: number;
+  status: number
 }
 
 export class CSYSOrgDto {
@@ -43,7 +43,7 @@ export class CSYSOrgDto {
     description: '组织名称',
     type: String,
   })
-  name: string;
+  name: string
 
   // @ApiProperty({
   //   description: '组织简称',
@@ -55,7 +55,7 @@ export class CSYSOrgDto {
     description: '组织编码',
     type: String,
   })
-  code: string;
+  code: string
 
   // @ApiProperty({
   //   description: '地址',
@@ -70,26 +70,26 @@ export class CSYSOrgDto {
   // coordinate: any;
 
   @ApiProperty({ description: '父级id', type: Number, required: false })
-  parentId: number;
+  parentId: number
 
   @ApiProperty({ description: '组织类型（公司、部门）', type: String, required: true })
-  types: string;
+  types: string
 
   @ApiProperty({ description: '状态（0禁用 1启用 ）', type: Number, required: false })
-  status: number;
+  status: number
 
   @ApiProperty({ description: '排序', type: Number, required: false })
-  sort: number;
+  sort: number
 
   @ApiProperty({ description: '用户ID数组', type: [Number], required: false })
-  users?: number[];
+  users?: number[]
 
   @ApiProperty({
     description: '备注',
     type: String,
     required: false,
   })
-  remark: string;
+  remark: string
 }
 
 export class ESYSOrgDto {
@@ -97,19 +97,19 @@ export class ESYSOrgDto {
     description: '组织名称',
     type: String,
   })
-  name: string;
+  name: string
 
   @ApiProperty({
     description: '组织简称',
     type: String,
   })
-  shortName: string;
+  shortName: string
 
   @ApiProperty({
     description: '组织编码',
     type: String,
   })
-  code: string;
+  code: string
 
   // @ApiProperty({
   //   description: '地址',
@@ -124,24 +124,24 @@ export class ESYSOrgDto {
   // coordinate: any;
 
   @ApiProperty({ description: '父级id', type: Number, required: false })
-  parentId: number;
+  parentId: number
 
   @ApiProperty({ description: '组织类型（公司、部门）', type: String, required: false })
-  types: string;
+  types: string
 
   @ApiProperty({ description: '状态（0禁用 1启用 ）', type: Number, required: false })
-  status: number;
+  status: number
 
   @ApiProperty({ description: '排序', type: Number, required: false })
-  sort: number;
+  sort: number
 
   @ApiProperty({ description: '用户ID数组', type: [Number], required: false })
-  users?: number[];
+  users?: number[]
 
   @ApiProperty({
     description: '备注',
     type: String,
     required: false,
   })
-  remark: string;
+  remark: string
 }

@@ -3,36 +3,36 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { CSYSOrgDto, ESYSOrgDto, FindAllDto } from '../dtos/SYSOrg.dto'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { STRUtil } from '@library/utils/str'
-import { SYSBusinessLog } from '@model/sys/SYSBusinessLog.model'
+import { SystemBusinessLog } from '@model/system/SYSBusinessLog.model'
 import { SYS_MODULE, USER_TYPE } from '@common/constant'
 import { FindOptions, Op } from 'sequelize'
 import { Aide, JsExclKey } from '@library/utils/aide'
 import { trim } from 'lodash'
-import { SYSRole } from '@model/sys/SYSRole.model'
+import { Role } from '@model/auth/role'
 
 @Injectable()
 export class SYSOrgService {
   constructor(
-    @InjectModel(SYSOrg)
-    private SYSOrgModel: typeof SYSOrg
-  ) { }
+    @InjectModel(Organize)
+    private SYSOrgModel: typeof Organize
+  ) {}
 
   public async create(dto: CSYSOrgDto, user: User, loadModel) {
     // if (user.type != USER_TYPE.GLOBAL_ADMIN) {
     // 	// 无权操作
     // 	throw new HttpException('无权操作', 400);
     // }
-    let sysOrg = await SYSOrg.findOne({ where: { name: dto.name } })
+    let sysOrg = await Organize.findOne({ where: { name: dto.name } })
     if (sysOrg) {
       throw new HttpException('该组织/部门已存在', 400)
     }
     // const code = await this.createOrgCode(dto.shortName);
     // 生成机构编码
-    const result = await SYSOrg.create({
+    const result = await Organize.create({
       ...dto,
       // code: code,
     })
@@ -54,18 +54,18 @@ export class SYSOrgService {
   }
 
   public async edit(dto: ESYSOrgDto, id: number, user: User, loadModel) {
-    let sysOrg = await SYSOrg.findOne({ where: { id } })
+    let sysOrg = await Organize.findOne({ where: { id } })
     if (!sysOrg) {
       throw new HttpException('数据不存在', 400)
     }
     if (dto.name) {
-      const temp = await SYSOrg.findOne({ where: { name: dto.name } })
+      const temp = await Organize.findOne({ where: { name: dto.name } })
       if (temp && temp.id != id) {
         throw new HttpException('该组织/部门已存在', 400)
       }
     }
     await sysOrg.update(dto)
-    sysOrg = await SYSOrg.findOne({ where: { id } })
+    sysOrg = await Organize.findOne({ where: { id } })
     if (dto.users) {
       // await UserDepartment.destroy({ where: { deptId: id } })
       for (const user1 of dto.users) {
@@ -86,7 +86,7 @@ export class SYSOrgService {
   }
 
   public async delete(id: number, user: User, loadModel) {
-    const result = await SYSOrg.destroy({
+    const result = await Organize.destroy({
       where: {
         id: id,
       },
@@ -117,7 +117,7 @@ export class SYSOrgService {
       // 	},
       // ]
     }
-    const result = await SYSOrg.findOne(options)
+    const result = await Organize.findOne(options)
     return result
   }
 
@@ -168,7 +168,7 @@ export class SYSOrgService {
         [Op.eq]: statusBoolean,
       }
     }
-    const orgs = await SYSOrg.findAll(options)
+    const orgs = await Organize.findAll(options)
     for (const org of orgs) {
       org.setDataValue('count', org.dataValues.userArray.length)
     }
@@ -180,11 +180,11 @@ export class SYSOrgService {
 
   // 上移部门
   public async moveUp(deptId: number, loadModel) {
-    const dept = await SYSOrg.findByPk(deptId)
+    const dept = await Organize.findByPk(deptId)
 
     if (!dept) throw new Error('部门不存在')
 
-    const upperDept = await SYSOrg.findOne({
+    const upperDept = await Organize.findOne({
       where: {
         parentId: dept.parentId,
         sort: { [Op.lt]: dept.sort }, // 找到下一个部门
@@ -206,11 +206,11 @@ export class SYSOrgService {
 
   // 下移部门
   public async moveDown(deptId: number, loadModel) {
-    const dept = await SYSOrg.findByPk(deptId)
+    const dept = await Organize.findByPk(deptId)
 
     if (!dept) throw new Error('部门不存在')
 
-    const lowerDept = await SYSOrg.findOne({
+    const lowerDept = await Organize.findOne({
       where: {
         parentId: dept.parentId,
         sort: { [Op.gt]: dept.sort }, // 找到下一个部门
@@ -267,20 +267,20 @@ export class SYSOrgService {
     // 遍历每行数据并保存到数据库
     for (const rowElement of json.row) {
       if (rowElement.departmentName) {
-        const parentDept = await SYSOrg.findOne({ where: { name: trim(rowElement.parentDepartmentName) } })
+        const parentDept = await Organize.findOne({ where: { name: trim(rowElement.parentDepartmentName) } })
         let same
         if (parentDept) {
-          same = await SYSOrg.findOne({ where: { name: trim(rowElement.departmentName), parentId: parentDept.id } })
+          same = await Organize.findOne({ where: { name: trim(rowElement.departmentName), parentId: parentDept.id } })
         } else {
-          same = await SYSOrg.findOne({ where: { name: trim(rowElement.departmentName) } })
+          same = await Organize.findOne({ where: { name: trim(rowElement.departmentName) } })
         }
         if (!same && parentDept) {
-          const temp = await SYSOrg.findOne({ where: { id: parentDept.id }, order: [['sort', 'DESC']] })
-          await SYSOrg.create({ name: trim(rowElement.departmentName), parentId: parentDept.id, status: 1, remark: rowElement.remark, sort: temp.sort + 1 })
+          const temp = await Organize.findOne({ where: { id: parentDept.id }, order: [['sort', 'DESC']] })
+          await Organize.create({ name: trim(rowElement.departmentName), parentId: parentDept.id, status: 1, remark: rowElement.remark, sort: temp.sort + 1 })
           deptSuccess++
         } else if (!same) {
-          const temp = await SYSOrg.findOne({ where: { parentId: null }, order: [['sort', 'DESC']] })
-          await SYSOrg.create({ name: trim(rowElement.departmentName), status: 1, remark: rowElement.remark, sort: temp.sort + 1 })
+          const temp = await Organize.findOne({ where: { parentId: null }, order: [['sort', 'DESC']] })
+          await Organize.create({ name: trim(rowElement.departmentName), status: 1, remark: rowElement.remark, sort: temp.sort + 1 })
           deptSuccess++
         } else {
           deptFailed++

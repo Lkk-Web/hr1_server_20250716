@@ -1,6 +1,6 @@
 import { PLATFORM } from '@common/enum'
 import { CryptoUtil, jwtEncodeInExpire } from '@library/utils/crypt.util'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { changeFactoryDto, OrderProgressDto, RegisterDto, RoleBoardDto, taskProgressDto, UserLoginDto } from './mi.dto'
 import axios from 'axios'
@@ -31,7 +31,7 @@ import { RepairOrderResult } from '@model/equipment/repairOrderResult.model'
 import { Aide } from '@library/utils/aide'
 import { STRUtil } from '@library/utils/str'
 import { ReportUser } from '@model/production/reportUser.model'
-import { SYSMenu } from '@model/sys/SYSMenu.model'
+import { Menu } from '@model/auth/menu'
 import moment = require('moment')
 
 // const client = new Core({ // 创建 Client 对象
@@ -151,7 +151,7 @@ export class MiService {
     let users
     // 如果用户是管理员，则返回所有菜单
     if (user.dataValues.role && user.dataValues.role.dataValues.code == 'admin') {
-      let menuList = await SYSMenu.findAll({
+      let menuList = await Menu.findAll({
         attributes: ['id', 'name', 'parentId', 'url', 'sort', 'types', 'icon', 'perms', 'status'],
       })
       let newmenuList = STRUtil.buildMenuTree(JSON.parse(JSON.stringify(menuList)))
@@ -208,7 +208,7 @@ export class MiService {
     let users
     // 如果用户是管理员，则返回所有菜单
     if (user1.dataValues.role && user1.dataValues.role.dataValues.code == 'admin') {
-      let menuList = await SYSMenu.findAll({
+      let menuList = await Menu.findAll({
         attributes: ['id', 'name', 'parentId', 'url', 'sort', 'types', 'icon', 'perms', 'status'],
       })
       let newmenuList = STRUtil.buildMenuTree(JSON.parse(JSON.stringify(menuList)))

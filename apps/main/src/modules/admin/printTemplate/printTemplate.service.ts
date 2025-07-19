@@ -4,7 +4,7 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
-import { PrintTemplate } from '@model/sys/printTemplate.model'
+import { PrintTemplate } from '@model/system/printTemplate.model'
 import { CPrintTemplateDto, FindPaginationDto, UPrintTemplateDto } from './printTemplate.dto'
 import { FindOptions } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
@@ -17,7 +17,7 @@ export class PrintTemplateService {
 
     @InjectModel(PrintTemplate)
     private printTemplateModel: typeof PrintTemplate
-  ) { }
+  ) {}
 
   public async create(dto: CPrintTemplateDto, loadModel) {
     if (dto.templateName) {
@@ -67,7 +67,7 @@ export class PrintTemplateService {
       pagination,
     }
     // @ts-ignore
-    const result = await Paging.diyPaging(PrintTemplate, pagination, options);
+    const result = await Paging.diyPaging(PrintTemplate, pagination, options)
     return result
   }
 }

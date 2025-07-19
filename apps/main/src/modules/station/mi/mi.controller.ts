@@ -8,7 +8,7 @@ import { OrgDto, PadLoginDto, PadTeamListDto, ProcessDto, TeamLoginDto, UserPass
 import { FileInterceptor } from '@nestjs/platform-express'
 import { FileUploadDto } from '@modules/file/file.dto'
 import { Aide } from '@library/utils/aide'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 
 @ApiTags('我的')
 @ApiBearerAuth()

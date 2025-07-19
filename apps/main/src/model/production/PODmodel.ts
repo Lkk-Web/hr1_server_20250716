@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Process } from '@model/process/process.model'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
+import { Organize } from '@model/auth/organize'
 import { POP } from '@model/production/POP.model'
 
 @Table({ tableName: `production_POD`, freezeTableName: true, timestamps: true, comment: '生产工单工序关联部门表' })
@@ -17,7 +17,7 @@ export class POD extends BaseDate<POD> {
   })
   declare popId: number
 
-  @ForeignKey(() => SYSOrg)
+  @ForeignKey(() => Organize)
   @Column({
     comment: '部门ID',
     type: DataType.INTEGER,

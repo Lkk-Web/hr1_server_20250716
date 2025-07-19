@@ -6,7 +6,7 @@ import { OpenAuthorize } from '@core/decorator/metaData'
 import { HookService } from './hook.service'
 import { HookTwoService } from './hookTwo.service'
 import { CryptoUtil, jwtEncodeInExpire } from '@library/utils/crypt.util'
-import { FileMenu, SYSMenu, SYSOrg, SYSRole, SYSRoleOrg, TrendsTemplate, User } from '@model/index'
+import { FileMenu, Menu, Organize, Role, RoleOrganize, TrendsTemplate, User } from '@model/index'
 import { CensorParamPipe } from '@core/pipe/censorParam.pipe'
 import { PLATFORM } from '@common/enum'
 import E from '@common/error'
@@ -42,7 +42,7 @@ export class HookController {
   @HttpCode(HttpStatus.OK)
   async initNewFactory(@Body() dto: UserRegisterDto, @Req() req) {
     // 初始化一个工厂默认数据表
-    let count = await SYSRole.count()
+    let count = await Role.count()
     if (count) {
       throw E.API_FACTORY_DATA_EXSITS
     }
@@ -53,23 +53,23 @@ export class HookController {
       const { name, data } = xlsData[index]
       switch (name) {
         case 'sys_org':
-          await SYSOrg.bulkCreate(data)
+          await Organize.bulkCreate(data)
           break
         case 'sys_role':
-          await SYSRole.bulkCreate(data)
+          await Role.bulkCreate(data)
           break
         case 'sys_role_org':
-          await SYSRoleOrg.bulkCreate(data)
+          await RoleOrganize.bulkCreate(data)
           break
         case 'trendsTemplate':
           await TrendsTemplate.bulkCreate(data)
           break
         case 'sys_menu':
-          // await SYSMenu.bulkCreate(data)
+          // await Menu.bulkCreate(data)
           // 由于有父级需要循环添加
           for (let i = 0; i < data.length; i++) {
             const element = data[i]
-            await SYSMenu.create(element)
+            await Menu.create(element)
           }
           break
         case 'dm_file_menu':

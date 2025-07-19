@@ -1,5 +1,5 @@
 import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, Table } from 'sequelize-typescript'
-import { User } from '@model/sys/user.model'
+import { User } from '@model/auth/user.model'
 import { BaseModel } from '@model/shared/base.model'
 
 @Table({ tableName: `production_report_user_duration`, timestamps: true, updatedAt: false, comment: '生产报工员工时长' })

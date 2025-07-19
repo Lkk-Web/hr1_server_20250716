@@ -1,8 +1,8 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { FileMenu } from '@model/document/FileMenu.model'
-import { SYSOrg } from '@model/sys/SYSOrg.model'
-import { User } from '@model/sys/user.model'
+import { Organize } from '@model/auth/organize'
+import { User } from '@model/auth/user.model'
 import { FileVersion } from '@model/document/FileVersion.model'
 
 @Table({ tableName: `document_file_list`, timestamps: true, paranoid: true })
@@ -23,7 +23,7 @@ export class FileList extends BaseDate<FileList> {
   @Column({ type: DataType.TEXT, comment: '最新文件路径' })
   declare url: string
 
-  @ForeignKey(() => SYSOrg)
+  @ForeignKey(() => Organize)
   @Column({ type: DataType.INTEGER, comment: '创建组织' })
   declare createdOrgId: number
 
@@ -35,7 +35,7 @@ export class FileList extends BaseDate<FileList> {
   @Column({ type: DataType.INTEGER, comment: '创建人ID' })
   declare createUserId: number
 
-  @ForeignKey(() => SYSOrg)
+  @ForeignKey(() => Organize)
   @Column({ type: DataType.INTEGER, comment: '使用组织' })
   declare useOrgId: number
 
