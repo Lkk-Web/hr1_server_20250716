@@ -39,3 +39,6 @@ gitfoo.sh
 config.yaml
 package-lock.json
 yarn.lock
+
+# apps
+apps/main/README.md

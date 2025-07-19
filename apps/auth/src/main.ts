@@ -7,7 +7,6 @@ import { LoggerModule, LoggerProvider } from './library/logger'
 import { LogInterceptor } from '@core/interceptor/log'
 import { join } from 'path'
 import { AbnormalFilter } from './core/filter/abnormalFilter'
-import * as os from 'os'
 import express = require('express')
 import * as AuthModules from '@modules/auth/index'
 import { MicroserviceOptions } from '@nestjs/microservices'
@@ -16,16 +15,6 @@ import { swaggerStart } from '@library/utils/swagger'
 // 微信支付回调配置
 // const bodyParser = require('body-parser')
 // require('body-parser-xml')(bodyParser)
-
-const getLocalIP = () => {
-  const ips = []
-  const interfaces = os.networkInterfaces()
-  for (let devName in interfaces) {
-    const iface = interfaces[devName]
-    ips.push(iface[1].address)
-  }
-  return ips
-}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true })
@@ -57,31 +46,26 @@ async function bootstrap() {
   const rootDir = join(__dirname, '..')
   app.use('/', express.static(join(rootDir, 'public')))
   app.useGlobalInterceptors(iocContext.get(LogInterceptor))
+
   //监听线程异常
   process.on('uncaughtException', function (err) {
-    console.error('线程出现异常=>>', err)
     logger.error('线程出现异常=>>' + err.message)
   })
   process.on('unhandledRejection', function (reason, promise) {
-    console.error('线程异常未处理=>>', reason)
     logger.error('线程异常未处理=>>' + reason['message'])
   })
+
   // 异常捕捉格式化
   app.useGlobalPipes(iocContext.get(DtoPipe))
-  // 异常捕捉格式化
   app.useGlobalFilters(iocContext.get(ExceptionCatchFilter), iocContext.get(AbnormalFilter))
 
   // 创建接口文档
   if (configs.info.isDebug) {
-    // ips = getLocalIP()
     swaggerStart(app, { title: '微服务权限文档', path: 'auth', modules: AuthModules, desc: '' }, configs.info.port)
   }
 
-  // 启动
   await app.listen(configs.info.port)
-
   console.log('[microservice start]', `TCP://localhost:${microserviceOptions.options.port}`)
-  console.log('[server start]', `http://127.0.0.1:${configs.info.port}/`)
 }
 
 bootstrap()

@@ -1,13 +1,10 @@
-import { PLATFORM } from '@common/enum'
-import { CryptoUtil, jwtEncodeInExpire } from '@library/utils/crypt.util'
 import { User } from '@model/auth/user.model'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
-import { changeFactoryDto, OrderProgressDto, RoleBoardDto, taskProgressDto, UserLoginDto } from './mi.dto'
+import { changeFactoryDto, OrderProgressDto, RoleBoardDto, taskProgressDto } from './mi.dto'
 import axios from 'axios'
 import { HttpService } from '@nestjs/axios'
 import { SuperRedis } from '@sophons/redis'
 import { RedisProvider } from '@library/redis'
-import E from '@common/error'
 import * as process from 'node:process'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { col, fn, Op } from 'sequelize'
@@ -34,14 +31,6 @@ import { ReportUser } from '@model/production/reportUser.model'
 import { Menu } from '@model/auth/menu'
 import moment = require('moment')
 
-// const client = new Core({ // 创建 Client 对象
-//   accessKeyId: AliSmsInfo.accessKeyId, // 替换成自己的 AccessKey ID
-//   accessKeySecret: AliSmsInfo.secretAccessKey, // 替换成自己的 AccessKey Secret
-//   endpoint: 'https://dysmsapi.aliyuncs.com', // API 访问入口，根据实际情况修改
-//   apiVersion: '2017-05-25', // API 版本号，根据实际情况修改
-
-// })
-
 interface LoginDto {}
 
 @Injectable()
@@ -58,70 +47,6 @@ export class MiService {
     @Inject(RedisProvider.local)
     private readonly redis: SuperRedis
   ) {}
-
-  async login(dto: UserLoginDto, loadModel, factoryCode) {
-    // console.log('dto: ', dto, CryptoUtil.hashing(dto.password))
-    let user: User = await User.findOne({ where: { userName: dto.userName }, attributes: ['id', 'password'] })
-    if (!user) {
-      throw E.USER_NOT_EXISTS
-    } else if (CryptoUtil.sm4Encryption(dto.password) != user.password) {
-      throw E.INVALID_PASSWORD
-    }
-    user = await User.findOne({
-      where: { id: user.id },
-      include: [
-        {
-          association: 'role',
-          attributes: ['id', 'code', 'name', 'dataScopeType'],
-          include: [
-            {
-              association: 'menuList',
-              attributes: ['id', 'name', 'parentId', 'url', 'sort', 'types', 'icon', 'perms', 'status'],
-              required: false,
-              through: { attributes: [] },
-            },
-          ],
-          required: false,
-        },
-      ],
-    })
-
-    let permissions = []
-    let users
-    // 如果用户是管理员，则返回所有菜单
-    if (user.dataValues.role && user.dataValues.role.dataValues.code == 'admin') {
-      let menuList = await Menu.findAll({
-        attributes: ['id', 'name', 'parentId', 'url', 'sort', 'types', 'icon', 'perms', 'status'],
-      })
-      let newmenuList = STRUtil.buildMenuTree(JSON.parse(JSON.stringify(menuList)))
-      users = JSON.parse(JSON.stringify(user))
-      delete users.role.menuList
-      users['menuList'] = newmenuList
-      permissions = permissions.concat(newmenuList.map(item => item.perms))
-    } else {
-      if (user.dataValues.role && user.dataValues.role.dataValues.menuList) {
-        let menuList = STRUtil.buildMenuTree(JSON.parse(JSON.stringify(user.role.menuList)))
-        users = JSON.parse(JSON.stringify(user))
-        delete users.role.menuList
-        users['menuList'] = menuList
-
-        permissions = permissions.concat(menuList.map(item => item.perms))
-      }
-    }
-    user = await User.findOne({
-      where: { id: user.id },
-      attributes: ['id', 'userCode', 'userName', 'phone', 'station', 'departmentId', 'roleId', 'status'],
-    })
-    return {
-      token: jwtEncodeInExpire({
-        platform: PLATFORM.admin,
-        id: user.id,
-        name: user.userName,
-        permissions: permissions ? permissions : null,
-      }),
-      user: users ? users : user,
-    }
-  }
 
   public async getInfo(user: User, factoryCode, loadModel) {
     let res = {}
