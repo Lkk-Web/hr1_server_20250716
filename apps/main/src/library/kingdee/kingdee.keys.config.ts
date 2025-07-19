@@ -1,12 +1,14 @@
+import { info, kingdeeServiceConfig } from '@common/config'
 import { ApiDict, BOM, BomSubItem, Customer, Material, SalesOrder, SalesOrderDetail, Supplier, Organize, User } from '@model/index'
 import _ = require('lodash')
+
 
 export const K3Mapping = {
   BD_SYS_ORG: {
     formID: 'BD_Department',
     dbModel: Organize,
-    filterString: `FUseOrgId='${process.env.K3_ORG_ID}'`,
-    redisKey: process.env.APP_NAME + 'kingdee:bd_sys_org',
+    filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
+    redisKey: info.appName + 'kingdee:bd_sys_org',
     keys: [
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FDEPTID', 'id'],
@@ -23,8 +25,8 @@ export const K3Mapping = {
   BD_SYS_USER: {
     formID: 'BD_Empinfo',
     dbModel: User,
-    filterString: `FUseOrgId='${process.env.K3_ORG_ID}'`,
-    redisKey: process.env.APP_NAME + 'kingdee:bd_sys_user',
+    filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
+    redisKey: info.appName + 'kingdee:bd_sys_user',
     keys: [
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FID', 'id'],
@@ -48,8 +50,8 @@ export const K3Mapping = {
   BD_MATERIAL: {
     formID: 'BD_MATERIAL',
     dbModel: Material,
-    filterString: `FUseOrgId='${process.env.K3_ORG_ID}'`,
-    redisKey: process.env.APP_NAME + 'kingdee:bd_material',
+    filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
+    redisKey: info.appName + 'kingdee:bd_material',
     keys: [
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FMasterID', 'id'],
@@ -78,8 +80,8 @@ export const K3Mapping = {
   BD_BOM: {
     formID: 'ENG_BOM',
     dbModel: BOM,
-    filterString: `FDocumentStatus='C' and FUseOrgId='${process.env.K3_ORG_ID}'`,
-    redisKey: process.env.APP_NAME + 'kingdee:bd_sys_user',
+    filterString: `FDocumentStatus='C' and FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
+    redisKey: info.appName + 'kingdee:bd_sys_user',
     // pageSize:1000,
     keys: [
       // k3name,k3key,dbFieldName,转化函数
@@ -114,8 +116,8 @@ export const K3Mapping = {
   BD_SUPPLIER: {
     formID: 'BD_Supplier',
     dbModel: Supplier,
-    filterString: `FUseOrgId='${process.env.K3_ORG_ID}'`,
-    redisKey: process.env.APP_NAME + 'kingdee:bd_supplier',
+    filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
+    redisKey: info.appName + 'kingdee:bd_supplier',
     keys: [
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FSupplierId', 'id'],
@@ -131,8 +133,8 @@ export const K3Mapping = {
   BD_CUSTOMER: {
     formID: 'BD_Customer_All',
     dbModel: Customer,
-    filterString: `FUseOrgId='${process.env.K3_ORG_ID}'`,
-    redisKey: process.env.APP_NAME + 'kingdee:bd_customer',
+    filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
+    redisKey: info.appName + 'kingdee:bd_customer',
     keys: [
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FCUSTID', 'id'],
@@ -148,8 +150,8 @@ export const K3Mapping = {
   BD_SALESORDER: {
     formID: 'SAL_SaleOrder',
     dbModel: SalesOrder,
-    filterString: `FDocumentStatus='C' and FSaleOrgId='${process.env.K3_ORG_ID}' and FBillTypeID='eacb50844fc84a10b03d7b841f3a6278'`,
-    redisKey: process.env.APP_NAME + 'kingdee:bd_sales_order',
+    filterString: `FDocumentStatus='C' and FSaleOrgId='${kingdeeServiceConfig.K3_ORG_ID}' and FBillTypeID='eacb50844fc84a10b03d7b841f3a6278'`,
+    redisKey: info.appName + 'kingdee:bd_sales_order',
     keys: [
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FID', 'id'],

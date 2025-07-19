@@ -2,18 +2,20 @@ import axios from 'axios'
 import { Aide } from '@library/utils/aide'
 import { RedisProvider } from '@library/redis/redis.service'
 import { RedisKey } from '@library/redis/redis.keys.config'
+import { kingdeeServiceConfig } from '@common/config'
 
 export class KingdeeeService {
   public static async login() {
     let redis = RedisProvider.redisClient
-    let url = `${process.env.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.AuthService.LoginByAppSecret.common.kdsvc`
+    let url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.AuthService.LoginByAppSecret.common.kdsvc`
     let param = {
       lcid: '2052',
-      appId: process.env.K3_APPID,
-      acctId: process.env.K3_ACCTID,
-      appSecret: process.env.K3_SECRET,
-      username: process.env.K3_USER,
+      appId: kingdeeServiceConfig.K3_APPID,
+      acctId: kingdeeServiceConfig.K3_ACCTID,
+      appSecret: kingdeeServiceConfig.K3_SECRET,
+      username: kingdeeServiceConfig.K3_USER,
     }
+    console.log('kingdeeServiceConfig:', url, param)
     let res = await axios.post(url, param)
     if (res.status == 200) {
       //根据返回值存储Token至redis失效时间计算方式Create+Validity计算结果
@@ -21,7 +23,7 @@ export class KingdeeeService {
       let kdservice = res.data.KDSVCSessionId
       let userToken = res.data.Context.SessionId
       let token = `kdservice-sessionid=${kdservice};ASP.NET_SessionId=${userToken}`
-      await redis.client.set(RedisKey.K3_TOKEN, token, 'EX', process.env.K3_EX)
+      await redis.client.set(RedisKey.K3_TOKEN, token, 'EX', kingdeeServiceConfig.K3_EX)
       return token
     } else {
       Aide.throwException(500, '金蝶系统登录失败，账号异常，请联系管理员！')
@@ -135,11 +137,11 @@ export class KingdeeeService {
         cookie: token,
       },
     }
-    let filterAyy = [];
-    if(FilterString){
+    let filterAyy = []
+    if (FilterString) {
       filterAyy = this.sqlToArray(FilterString)
     }
-    const url = `${process.env.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteBillQuery.common.kdsvc`
+    const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExecuteBillQuery.common.kdsvc`
     const results = []
     let currentStartRow = StartRow || 0
     const pageSize = Limit || 200
@@ -190,80 +192,80 @@ export class KingdeeeService {
   }
 
   /**
-    * 金蝶获取表单带参列表
-    * @param FormId 表单ID，必填
-    * @param FieldKeys 查询字段，多个用逗号隔开，必填，可填写字段参考金蝶文档：FNumber,FName
-    * @param TopRowCount 最多查到多少行，0是所有，非必填，默认0
-    * @param Limit 每页多少行，非必填，默认200
-    * @param StartRow 从第几行开始查 ，非必填，默认0，从第一行开始查
-    * @param FilterString 搜索条件，SQL Where 条件表达式。如：FQty>=600000 AND FBillNo='CGDD004284'，非必填，默认空
-    * @param OrderString 排序条件，ASC-升序，DESC-降序。如：FQty DESC,FBillNo ASC，非必填，默认空
-    */
+   * 金蝶获取表单带参列表
+   * @param FormId 表单ID，必填
+   * @param FieldKeys 查询字段，多个用逗号隔开，必填，可填写字段参考金蝶文档：FNumber,FName
+   * @param TopRowCount 最多查到多少行，0是所有，非必填，默认0
+   * @param Limit 每页多少行，非必填，默认200
+   * @param StartRow 从第几行开始查 ，非必填，默认0，从第一行开始查
+   * @param FilterString 搜索条件，SQL Where 条件表达式。如：FQty>=600000 AND FBillNo='CGDD004284'，非必填，默认空
+   * @param OrderString 排序条件，ASC-升序，DESC-降序。如：FQty DESC,FBillNo ASC，非必填，默认空
+   */
   public static async getList(FormId: string, FieldKeys: string, FilterString?: string, TopRowCount?: number, Limit?: number, StartRow?: number, OrderString?: string) {
     if (!FormId) {
-      Aide.throwException(500, '表单ID不能为空！');
+      Aide.throwException(500, '表单ID不能为空！')
     }
-    let filterAyy = [];
-    if(FilterString){
+    let filterAyy = []
+    if (FilterString) {
       filterAyy = this.sqlToArray(FilterString)
     }
     let token = await this.getToken()
     const config = {
       withCredentials: true, // 允许携带凭证
       headers: {
-        'cookie': token,
+        cookie: token,
       },
-    };
-    const url = `${process.env.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc`;
-    const results = [];
-    let currentStartRow = StartRow || 0;
-    const pageSize = Limit || 10000;
-    let hasMore = true;
+    }
+    const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc`
+    const results = []
+    let currentStartRow = StartRow || 0
+    const pageSize = Limit || 10000
+    let hasMore = true
 
     while (hasMore) {
       const param = {
-        "data": {
-          "FormId": FormId, // 需要查询表单的ID
-          "TopRowCount": TopRowCount ? TopRowCount : 0, // 最多查到多少行，0是所有
-          "Limit": pageSize, // 每页多少行
-          "StartRow": currentStartRow, // 从第几行开始查
-          "FilterString": filterAyy, // 搜索条件
-          "OrderString": OrderString, // 排序条件
-          "FieldKeys": FieldKeys, // 查询字段，多个用逗号隔开，必填
-        }
-      };
+        data: {
+          FormId: FormId, // 需要查询表单的ID
+          TopRowCount: TopRowCount ? TopRowCount : 0, // 最多查到多少行，0是所有
+          Limit: pageSize, // 每页多少行
+          StartRow: currentStartRow, // 从第几行开始查
+          FilterString: filterAyy, // 搜索条件
+          OrderString: OrderString, // 排序条件
+          FieldKeys: FieldKeys, // 查询字段，多个用逗号隔开，必填
+        },
+      }
 
-      const { data } = await axios.post(url, param, config);
+      const { data } = await axios.post(url, param, config)
       if (data && data.length > 0) {
         if (data[0][0]?.Result) {
-          let err = data[0][0].Result;
-          if (err.ResponseStatus.Errors[0].Message == "会话信息已丢失，请重新登录") {
-            await this.login();
-            Aide.throwException(500, "登录过期请重新请求！");
+          let err = data[0][0].Result
+          if (err.ResponseStatus.Errors[0].Message == '会话信息已丢失，请重新登录') {
+            await this.login()
+            Aide.throwException(500, '登录过期请重新请求！')
           } else {
-            Aide.throwException(500, err.ResponseStatus.Errors[0].Message);
+            Aide.throwException(500, err.ResponseStatus.Errors[0].Message)
           }
         }
-        results.push(...data);
-        currentStartRow += pageSize;
+        results.push(...data)
+        currentStartRow += pageSize
       } else {
         if (data?.Result) {
-          let err = data.Result;
-          if (err.ResponseStatus.Errors[0].Message == "会话信息已丢失，请重新登录") {
-            await this.login();
-            Aide.throwException(500, "登录过期请重新请求！");
+          let err = data.Result
+          if (err.ResponseStatus.Errors[0].Message == '会话信息已丢失，请重新登录') {
+            await this.login()
+            Aide.throwException(500, '登录过期请重新请求！')
           } else {
-            Aide.throwException(500, err.ResponseStatus.Errors[0].Message);
+            Aide.throwException(500, err.ResponseStatus.Errors[0].Message)
           }
         }
-        hasMore = false;
+        hasMore = false
       }
       // 如果 TopRowCount 不为 0 且当前结果数量达到或超过 TopRowCount，则停止循环
       if (TopRowCount && results.length >= TopRowCount) {
-        hasMore = false;
+        hasMore = false
       }
     }
-    return results;
+    return results
   }
 
   /**
@@ -287,7 +289,7 @@ export class KingdeeeService {
         cookie: token,
       },
     }
-    const url = `${process.env.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.View.common.kdsvc`
+    const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.View.common.kdsvc`
     const param = {
       formid: FormId, // 需要查询表单的ID
       data: {
@@ -315,8 +317,8 @@ export class KingdeeeService {
       Aide.throwException(500, '表单ID不能为空！')
     }
     let token = await this.getToken()
-    let filterAyy = [];
-    if(FilterString){
+    let filterAyy = []
+    if (FilterString) {
       filterAyy = this.sqlToArray(FilterString)
     }
     const config = {
@@ -325,7 +327,7 @@ export class KingdeeeService {
         cookie: token,
       },
     }
-    const url = `${process.env.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc`
+    const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc`
     const pageSize = Limit || 200
     const param = {
       data: {
@@ -350,7 +352,7 @@ export class KingdeeeService {
    */
   public static async getMeta(FormId: string) {
     const config = await this.autoLogin()
-    const url = `${process.env.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.QueryBusinessInfo.common.kdsvc`
+    const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.QueryBusinessInfo.common.kdsvc`
     const param = {
       formid: FormId, // 需要查询表单的ID
       data: { FormId },
@@ -366,7 +368,7 @@ export class KingdeeeService {
    */
   public static async getGroup(FormId: string, GroupFieldKey: string) {
     const config = await this.autoLogin()
-    const url = `${process.env.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.QueryGroupInfo.common.kdsvc`
+    const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.QueryGroupInfo.common.kdsvc`
     const param = {
       formid: FormId, // 需要查询表单的ID
       data: { FormId, GroupFieldKey },
@@ -426,7 +428,7 @@ export class KingdeeeService {
       // 创建一个新对象，使用 keys 和 row 中的值来填充
       const obj = {
         name: name,
-        xtName: '金蝶'
+        xtName: '金蝶',
       }
       keys.forEach((key, index) => {
         let [, , newKey, func] = mappingKeys[index]
@@ -477,11 +479,11 @@ export class KingdeeeService {
     return token
   }
   private static async request(action: string, params: any, needToken: boolean = true) {
-    const url = `${process.env.K3_IP}/k3cloud/${action}`
+    const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/${action}`
     let headers = {}
 
     if (needToken) {
-      const token = await this.getToken();
+      const token = await this.getToken()
       headers = { Cookie: token }
     }
 
@@ -497,7 +499,7 @@ export class KingdeeeService {
     }
   }
   public static async save(formId: string, data: any) {
-    return ;
+    return
     const params = {
       FormId: formId,
       Data: data,
@@ -506,7 +508,7 @@ export class KingdeeeService {
     return this.request('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Save.common.kdsvc', params)
   }
   public static async submit(formId: string, data: any) {
-    return ;
+    return
     const params = {
       FormId: formId,
       Data: data,
@@ -515,7 +517,7 @@ export class KingdeeeService {
     return this.request('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.Submit.common.kdsvc', params)
   }
   public static async audit(formId: string, data: any) {
-    return ;
+    return
     const params = {
       FormId: formId,
       Data: data,
@@ -559,7 +561,7 @@ export class KingdeeeService {
    *
    * */
   public static async push(formId: string, data: any) {
-    return ;
+    return
     const params = {
       FormId: formId,
       Data: data,
@@ -580,15 +582,14 @@ export class KingdeeeService {
     return this.request('Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.ExcuteOperation.common.kdsvc', params)
   }
 
-
   /**
    * 将 SQL 查询条件转换为金蝶查询数组格式
    * @param sql
    * @private
    */
-  private static sqlToArray(sql:string) {
+  private static sqlToArray(sql: string) {
     // 替换非标准运算符并规范空格
-    sql = sql.replace(/=>/g, '>=').replace(/\s+/g, ' ').trim();
+    sql = sql.replace(/=>/g, '>=').replace(/\s+/g, ' ').trim()
 
     // 定义运算符映射
     const operatorMap = {
@@ -597,8 +598,8 @@ export class KingdeeeService {
       '=': '67',
       '>': '72',
       '<': '44',
-      'like': 'like' // 特殊处理
-    };
+      like: 'like', // 特殊处理
+    }
 
     // 特殊字段的运算符映射
     const specialMap = {
@@ -607,90 +608,88 @@ export class KingdeeeService {
       'FBillType=': '105',
       'FBillTypeID=': '105',
       'FMoEntryStatus=': '29',
-    };
+    }
 
     // 解析逻辑关系 - 智能分词器
-    const tokens = sql.split(/(\band\b|\bor\b)/i)
+    const tokens = sql
+      .split(/(\band\b|\bor\b)/i)
       .map(t => t.trim())
-      .filter(Boolean);
+      .filter(Boolean)
 
-    const result = [];
+    const result = []
     const operatorPattern = Object.keys(operatorMap)
       .sort((a, b) => b.length - a.length)
       .map(op => op.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-      .join('|');
-    const valuePattern = `(?:(["'])(.*?)\\1|(\\S+))`;
+      .join('|')
+    const valuePattern = `(?:(["'])(.*?)\\1|(\\S+))`
     for (let i = 0; i < tokens.length; i++) {
       // 跳过逻辑运算符
-      if (tokens[i] === 'and' || tokens[i] === 'or') continue;
+      if (tokens[i] === 'and' || tokens[i] === 'or') continue
 
-      const condition = tokens[i];
+      const condition = tokens[i]
 
       // 支持字段名中的点（.）和引号包裹的值
-      const pattern = new RegExp(
-        `([\\w.]+)\\s*(${operatorPattern})\\s*${valuePattern}`,
-        'i'
-      );
+      const pattern = new RegExp(`([\\w.]+)\\s*(${operatorPattern})\\s*${valuePattern}`, 'i')
 
-      const match = condition.match(pattern);
+      const match = condition.match(pattern)
       // console.log(match,condition)
-      if (!match) throw new Error(`Invalid condition: ${condition}`);
+      if (!match) throw new Error(`Invalid condition: ${condition}`)
 
-      let [, field, op, ,, value] = match;
-      op = op.toLowerCase();
+      let [, field, op, , , value] = match
+      op = op.toLowerCase()
 
       // 处理LIKE运算符的特殊情况
-      let compareCode = operatorMap[op];
+      let compareCode = operatorMap[op]
       if (op === 'like') {
         if (value.startsWith('%') && value.endsWith('%')) {
-          compareCode = '17'; // 模糊查询
+          compareCode = '17' // 模糊查询
         } else if (value.startsWith('%')) {
-          compareCode = '60'; // 左包含
+          compareCode = '60' // 左包含
         } else if (value.endsWith('%')) {
-          compareCode = '211'; // 右包含
+          compareCode = '211' // 右包含
         } else {
-          compareCode = '17'; // 默认模糊查询
+          compareCode = '17' // 默认模糊查询
         }
       }
 
       // 应用特殊字段映射
-      const opKey = `${field}${op === 'like' ? '=' : op}`;
+      const opKey = `${field}${op === 'like' ? '=' : op}`
       if (specialMap[opKey]) {
-        compareCode = specialMap[opKey];
+        compareCode = specialMap[opKey]
       }
 
       // 确定逻辑关系
-      let logic = 0;
+      let logic = 0
       if (i > 0) {
-        const prevToken = tokens[i - 1];
+        const prevToken = tokens[i - 1]
         if (prevToken === 'or') {
-          logic = 1;
+          logic = 1
         } else if (prevToken === 'and') {
-          logic = 0;
+          logic = 0
         }
       }
 
       // 对于LIKE操作，移除值中的通配符
       if (op === 'like') {
-        value = value.replace(/%/g, '');
+        value = value.replace(/%/g, '')
       }
       //取消对引号的处理
       if (value.startsWith("'") && value.endsWith("'")) {
-        value = value.slice(1, -1);
+        value = value.slice(1, -1)
       } else if (value.startsWith('"') && value.endsWith('"')) {
-        value = value.slice(1, -1);
+        value = value.slice(1, -1)
       }
 
       result.push({
         FieldName: field,
         Compare: compareCode,
         Value: value,
-        Left: "",
-        Right: "",
-        Logic: result.length === 0 ? 0 : logic
-      });
+        Left: '',
+        Right: '',
+        Logic: result.length === 0 ? 0 : logic,
+      })
     }
 
-    return result;
+    return result
   }
 }

@@ -14,6 +14,7 @@ import { ApiDict } from '@model/index'
 import dayjs = require('dayjs')
 import { K3Mapping } from '@library/kingdee/kingdee.keys.config'
 import { FileService } from '@modules/file/file.service'
+import { kingdeeServiceConfig } from '@common/config'
 
 @ApiTags('我的')
 @ApiBearerAuth()
@@ -114,12 +115,11 @@ export class MiController {
   }
 
   @ApiOperation({ summary: '同步金蝶公用接口' })
-  @OpenAuthorize()
   @Post('syncKingdee')
   async syncKingdee(@Body() dto: SyncKingdeeDto): Promise<any> {
     const { formID, dbModel, keys, redisKey, detailTypes, detailKeys, dbModelDetail, dict, filterString, pageSize: size } = K3Mapping[dto.tableName]
     // 更新时间参数
-    let updateData = await RedisProvider.redisClient.client.get(redisKey)
+    // let updateData = await RedisProvider.redisClient.client.get(redisKey)
     // let filterString = updateData ? `FModifyDate>='${updateData}'` : ''
     // filterString += ` and FUseOrgId='${process.env.K3_ORG_ID}'`
     // console.log('filterString: ', filterString)
@@ -155,7 +155,7 @@ export class MiController {
         if (dict) {
           fieldKeys += ',' + dictKey.join(',')
         }
-        let data = await KingdeeeService.getListV2(formID, fieldKeys, filterString ? filterString : `FUseOrgId='${process.env.K3_ORG_ID}'`, pageSize, startRow)
+        let data = await KingdeeeService.getListV2(formID, fieldKeys, filterString ? filterString : `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`, pageSize, startRow)
         if (data.length == 0) {
           console.log('所有数据已查询完毕。')
           break
@@ -211,8 +211,8 @@ export class MiController {
         }
       }
     }
-    await RedisProvider.redisClient.client.set(redisKey, dayjs().format('YYYY-MM-DD'))
-    return { updateData, count: startRow, detail: startRowDetail }
+    // await RedisProvider.redisClient.client.set(redisKey, dayjs().format('YYYY-MM-DD'))
+    return { updateData: new Date(), count: startRow, detail: startRowDetail }
   }
 
   @ApiOperation({ summary: '获取临时文件' })

@@ -7,7 +7,7 @@ import * as FormData from 'form-data'
 import { HttpException } from '@nestjs/common'
 import { customAlphabet, nanoid } from 'nanoid'
 import * as configs from '@common/config'
-import { COS_CONFIG, info, MINIO_CONFIG, ReMailboxInfo } from '@common/config'
+import { COS_CONFIG, info, ReMailboxInfo } from '@common/config'
 import { Op } from 'sequelize'
 import { FileBuffer } from '@common/cache'
 import { BufferCacheInfo, Pagination } from '@common/interface'
@@ -25,34 +25,6 @@ const crypto = require('crypto')
 export class Aide {
   private static cacheFilePath = join(__dirname, '../../cache.json')
   private static minio: Minio.Client = null
-
-  public static getMinio() {
-    if (!this.minio) {
-      this.minio = new Minio.Client(MINIO_CONFIG)
-    }
-    return this.minio
-  }
-
-  //上传到minio
-  public static async uploadFileMinio(file: Express.Multer.File) {
-    const minio = this.getMinio()
-    const fileName = Buffer.from(file.originalname, 'latin1').toString('utf8')
-    const suffix = fileName.substring(fileName.lastIndexOf('.'))
-    const time = Date.now()
-    const filePath = `${info.appName}/upload/${time.toString() + _.random(1000, 9999) + suffix}`
-    const result = await new Promise((resolve, reject) => {
-      minio.putObject(MINIO_CONFIG.bucket, filePath, file.buffer, file.buffer.length, (err, obj) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(obj)
-        }
-      })
-    })
-    return `${MINIO_CONFIG.url}/${filePath}`
-    // return result
-  }
-
   static async uploadFile(file: Express.Multer.File) {
     const cos = new COS({
       SecretId: COS_CONFIG.SecretId,
