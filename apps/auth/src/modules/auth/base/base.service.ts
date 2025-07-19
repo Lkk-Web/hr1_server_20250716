@@ -29,13 +29,14 @@ export class MiService {
 
     // 创建用户
     const user = await User.create({
+      userCode: dto.userCode,
       userName: dto.userName,
       phone: dto.phone,
       password: encryptedPassword,
     })
 
     const userJson = user.toJSON()
-    delete userJson.password // 隐藏密码
+    delete userJson.password
 
     return {
       user: userJson,
@@ -44,7 +45,6 @@ export class MiService {
   }
 
   async postToken(dto: UserLoginDto, ipAddress?: string, userAgent?: string) {
-    // 登陆获取用户信息
     let user = await User.findOne({
       where: { phone: dto.username },
     })
@@ -69,7 +69,6 @@ export class MiService {
       where: {
         userId: user.id,
         platform: dto.platform,
-        deviceId: dto.deviceId || null,
         isActive: true,
       },
     })
@@ -91,7 +90,6 @@ export class MiService {
         userId: user.id,
         token: accessToken,
         platform: dto.platform,
-        deviceId: dto.deviceId,
         ipAddress: ipAddress,
         userAgent: userAgent,
         expiresAt: expiresAt,
@@ -142,13 +140,29 @@ export class MiService {
     // 获取用户信息
     const user = await User.findOne({
       where: { id: payload.id },
-      include: {
-        association: 'tokenInfo',
-        attributes: ['platform', 'refreshToken', 'expiresAt', 'refreshExpiresAt', 'lastUsedAt', 'isActive'],
-        where: {
-          token: dto.token,
+      attributes: ['id', 'userCode', 'userName', 'phone', 'email', 'status'],
+      include: [
+        {
+          association: 'tokenInfo',
+          attributes: ['platform', 'refreshToken', 'expiresAt', 'refreshExpiresAt', 'lastUsedAt', 'isActive'],
+          where: {
+            token: dto.token,
+          },
         },
-      },
+        {
+          association: 'role',
+          attributes: ['id', 'code', 'name', 'dataScopeType'],
+          include: [
+            {
+              association: 'menuList',
+              attributes: ['id', 'name', 'parentId', 'url', 'sort', 'types', 'icon', 'perms', 'status'],
+              required: false,
+              through: { attributes: [] },
+            },
+          ],
+          required: false,
+        },
+      ],
     })
 
     if (!user) {

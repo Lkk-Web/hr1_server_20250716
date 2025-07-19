@@ -7,10 +7,6 @@ export class UserLoginDto {
   @ApiProperty({ name: 'username', required: true, description: '用户名(手机号)', type: String })
   username: string
 
-  @IsNotEmpty({ message: '手机号不能为空' })
-  @ApiProperty({ name: 'phone', required: true, description: '手机', type: String })
-  phone: string
-
   @ApiProperty({ name: 'password', required: true, description: '密码', type: String })
   @IsNotEmpty({ message: '密码不能为空' })
   password: string
@@ -19,10 +15,6 @@ export class UserLoginDto {
   @IsNotEmpty({ message: '平台类型不能为空' })
   @IsEnum(PLATFORM, { message: '无效的平台类型' })
   platform: PLATFORM
-
-  @ApiProperty({ name: 'deviceId', required: false, description: '设备标识', type: String })
-  @IsOptional()
-  deviceId?: string
 }
 
 export class TokenGetUserDto {
@@ -81,6 +73,10 @@ export class UserRegisterDto {
   @IsNotEmpty({ message: '姓名不能为空' })
   @IsString({ message: '姓名必须是字符串' })
   userName: string
+
+  @ApiProperty({ name: 'userCode', required: true, description: '工号', type: String })
+  @IsNotEmpty({ message: '工号不能为空' })
+  userCode: string
 
   @ApiProperty({ description: '手机号', required: true })
   @IsNotEmpty({ message: '手机号不能为空' })

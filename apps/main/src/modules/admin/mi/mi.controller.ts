@@ -2,7 +2,7 @@ import { OpenAuthorize } from '@core/decorator/metaData'
 import { AdminAuth } from '@core/decorator/controller'
 import { Body, Get, HttpCode, HttpException, HttpStatus, Param, Post, Query, Req, Request, Res, StreamableFile, UploadedFile, UseInterceptors } from '@nestjs/common'
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
-import { changeFactoryDto, OrderProgressDto, RegisterDto, RoleBoardDto, taskProgressDto, UserLoginDto } from './mi.dto'
+import { changeFactoryDto, OrderProgressDto, RoleBoardDto, taskProgressDto, UserLoginDto } from './mi.dto'
 import { MiService } from './mi.service'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Aide } from '@library/utils/aide'
@@ -15,45 +15,13 @@ import { RedisProvider } from '@library/redis'
 import { ApiDict } from '@model/index'
 import dayjs = require('dayjs')
 import { K3Mapping } from '@library/kingdee/kingdee.keys.config'
+import { FileService } from '@modules/file/file.service'
 
 @ApiTags('我的')
 @ApiBearerAuth()
 @AdminAuth('mi')
 export class MiController {
-  constructor(private readonly service: MiService) {}
-
-  // @ApiOperation({ summary: '用户注册' })
-  // @OpenAuthorize()
-  // @HttpCode(HttpStatus.OK)
-  // @Post('')
-  // async create(@Body(new CensorParamPipe(new UserRegisterDto())) dto: UserRegisterDto, @Request() req) {
-  //   return this.service.create(dto, IPUtil.getIp(req).replace('::ffff:', ''))
-  // }
-
-  @ApiOperation({ summary: '登录' })
-  @OpenAuthorize()
-  @Post('login')
-  async postToken(@Body(new CensorParamPipe(new UserLoginDto())) dto: UserLoginDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const data = await this.service.login(dto, loadModel, factoryCode)
-    return data
-  }
-
-  @ApiOperation({ summary: '用户注册' })
-  @OpenAuthorize()
-  @HttpCode(HttpStatus.OK)
-  @Post('')
-  async create(@Body() dto: RegisterDto, @Request() req) {
-    return this.service.create(dto, IPUtil.getIp(req).replace('::ffff:', ''))
-  }
-
-  @ApiOperation({ summary: '根据token获取个人信息' })
-  @HttpCode(HttpStatus.OK)
-  @Get('info')
-  async getInfo(@Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.getInfo(req.user, factoryCode, loadModel)
-  }
+  constructor(private readonly service: MiService, private readonly fileService: FileService) {}
 
   @ApiOperation({ summary: 'PC首页' })
   @HttpCode(HttpStatus.OK)
@@ -136,24 +104,14 @@ export class MiController {
   }
 
   @ApiOperation({ summary: '文件上传' })
-  @OpenAuthorize()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      limits: {
-        fieldSize: 55555,
-      },
-    })
-  )
-  @ApiBody({
-    description: '文件上传',
-    type: FileUploadDto,
-  })
+  @UseInterceptors(FileInterceptor('file', { limits: { fieldSize: 55555 } }))
+  @ApiBody({ description: '文件上传', type: FileUploadDto })
   @HttpCode(HttpStatus.OK)
   @Post('upload')
   async upload(@UploadedFile() file, @Req() req) {
     if (!file) throw new HttpException(null, 400014)
-    const result = await Aide.uploadFileMinio(file)
+    const result = await this.fileService.uploadFile(file)
     return result
   }
 

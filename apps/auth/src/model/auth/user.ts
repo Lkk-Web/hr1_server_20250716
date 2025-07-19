@@ -1,6 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Role } from './role'
+import { TokenInfo } from './tokenInfo'
 
 @Table({ tableName: `auth_user`, freezeTableName: true, timestamps: true, comment: '用户员工表' })
 export class User extends BaseDate<User> {
@@ -106,4 +107,7 @@ export class User extends BaseDate<User> {
     comment: '备注',
   })
   declare remark: string
+
+  @HasMany(() => TokenInfo)
+  declare tokenInfo: TokenInfo[]
 }

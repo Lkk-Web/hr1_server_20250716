@@ -9,19 +9,6 @@ export class UserLoginDto {
   password: string
 }
 
-export class RegisterDto {
-  @ApiProperty({ name: 'phone', required: true, description: '手机号 【不能重复】', type: String })
-  @IsString({ message: '手机号不能为空,且必须为字符串' })
-  phone: string
-
-  @ApiProperty({ name: 'password', required: true, description: '密码', type: String })
-  @IsString({ message: '密码不能为空,且必须为字符串' })
-  password: string
-
-  @ApiProperty({ name: 'userCode', required: true, description: '工号', type: String })
-  userCode: string
-}
-
 export class RoleBoardDto {
   @ApiProperty({
     type: String,

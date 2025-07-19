@@ -5,7 +5,7 @@ import { Column } from 'exceljs'
 import { join } from 'path'
 import * as FormData from 'form-data'
 import { HttpException } from '@nestjs/common'
-import { nanoid } from 'nanoid'
+import { customAlphabet, nanoid } from 'nanoid'
 import * as configs from '@common/config'
 import { COS_CONFIG, info, MINIO_CONFIG, ReMailboxInfo } from '@common/config'
 import { Op } from 'sequelize'
@@ -156,7 +156,7 @@ export class Aide {
       },
     })
     //写入磁盘
-    let buf = Buffer.from(buffer, 'binary')
+    let buf: any = Buffer.from(buffer, 'binary')
     let filePath1 = await this.bufferUpOSS(buf, fileName)
     return filePath1
   }
@@ -190,7 +190,7 @@ export class Aide {
     const fileName = filename + '.xlsx'
     //写入缓冲区
     let buffer: any = await workbook.xlsx.writeBuffer()
-    let buf = Buffer.from(buffer, 'binary')
+    let buf: any = Buffer.from(buffer, 'binary')
     if (isBuff) {
       return {
         fileName,
@@ -235,7 +235,7 @@ export class Aide {
 
     //写入缓冲区
     let buffer: any = await workbook.xlsx.writeBuffer()
-    let buf = Buffer.from(buffer, 'binary')
+    let buf: any = Buffer.from(buffer, 'binary')
     if (isBuff) {
       return {
         fileName,
@@ -249,7 +249,7 @@ export class Aide {
   }
 
   // Excel转JSON
-  public static async excelToJson(buffer: Buffer, jsExclKeys: JsExclKey[]) {
+  public static async excelToJson(buffer: Buffer | any, jsExclKeys: JsExclKey[]) {
     const result: CellL = { row: [], col: [] }
     const workbook = new Excel.Workbook()
     const file = await workbook.xlsx.load(buffer)
@@ -395,7 +395,7 @@ export class Aide {
     return result
   }
   // 读取多表格xls,返回[{name,data}...]（默认第一行为键值）
-  public static async excelToJson2(buffer: Buffer) {
+  public static async excelToJson2(buffer: Buffer | any) {
     const workbook = new Excel.Workbook()
     const result = []
     const xls = await workbook.xlsx.load(buffer)
@@ -422,7 +422,7 @@ export class Aide {
   }
 
   //双标题Excel转JSON
-  public static async excelToJsonSmooth(buffer: Buffer) {
+  public static async excelToJsonSmooth(buffer: Buffer | any) {
     const workbook = new Excel.Workbook()
     await workbook.xlsx.load(buffer)
     const worksheet = workbook.getWorksheet(1)
@@ -996,8 +996,8 @@ export class Aide {
   }
 }
 
-// export const _nanoid = customAlphabet('1234567890')
-// export const $nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+export const _nanoid = customAlphabet('1234567890')
+export const $nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
 export const getTime = (dto: TimeDto, unit: OpUnitType = 'day') => {
   let endTime = dto.endTime ? dayjs(dto.endTime).endOf(unit) : dayjs().endOf(unit)
