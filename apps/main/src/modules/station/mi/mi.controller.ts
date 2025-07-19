@@ -7,7 +7,6 @@ import { CensorParamPipe } from '@core/pipe/censorParam.pipe'
 import { OrgDto, PadLoginDto, PadTeamListDto, ProcessDto, TeamLoginDto, UserPasswordLoginDto } from './mi.dto'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { FileUploadDto } from '@modules/file/file.dto'
-import { Aide } from '@library/utils/aide'
 import { User } from '@model/auth/user.model'
 
 @ApiTags('我的')
@@ -86,9 +85,9 @@ export class MiController {
   @HttpCode(HttpStatus.OK)
   @Post('upload')
   async upload(@UploadedFile() file, @Req() req) {
-    if (!file) throw new HttpException(null, 400014)
-    const result = await Aide.uploadFileMinio(file)
-    return result
+    // if (!file) throw new HttpException(null, 400014)
+    // const result = await Aide.uploadFileMinio(file)
+    // return result
   }
 
   // @ApiOperation({ summary: '根据token获取个人信息' })

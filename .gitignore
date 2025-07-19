@@ -42,3 +42,4 @@ yarn.lock
 
 # apps
 apps/main/README.md
+apps/main/__test

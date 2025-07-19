@@ -1,24 +1,24 @@
-import { ENV } from '@common/type';
-import { Transport } from '@nestjs/microservices';
+import { ENV } from '@common/type'
+import { Transport } from '@nestjs/microservices'
 export interface ResponseBody<T> {
-  data: T;
-  code: number;
-  errorCode: number;
-  message: string;
-  requestId: string;
-  timestamp: number;
+  data: T
+  code: number
+  errorCode: number
+  message: string
+  requestId: string
+  timestamp: number
 }
 
 export interface HttpStatusConstantInfo {
-  zh: string;
-  en: string;
-  code: number;
-  errorCode: number;
+  zh: string
+  en: string
+  code: number
+  errorCode: number
 }
 
 export interface HttpStatusConstant {
-  language?: "zh" | "en";
-  status?: Map<number, HttpStatusConstantInfo>;
+  language?: 'zh' | 'en'
+  status?: Map<number, HttpStatusConstantInfo>
 }
 
 export interface Pagination {
@@ -43,9 +43,9 @@ export interface AppException {
 }
 
 export interface JwtPayload {
-  username: string;
-  sub: number;
-  platform: string;
+  username: string
+  sub: number
+  platform: string
 }
 
 export interface Configs {
@@ -67,74 +67,74 @@ export interface Configs {
 }
 
 export interface SequlizeOptions {
-  username?: string;
-  password?: string;
-  database?: string;
-  host?: string;
-  port?: number;
-  logging?: boolean;
-  timezone?:string;
-  dialect?: 'postgres' | 'mysql';
-  pool?: { max: number };
-  autoLoadModels?: boolean;
-  synchronize?: boolean;
+  username?: string
+  password?: string
+  database?: string
+  host?: string
+  port?: number
+  logging?: boolean
+  timezone?: string
+  dialect?: 'postgres' | 'mysql'
+  pool?: { max: number }
+  autoLoadModels?: boolean
+  synchronize?: boolean
 }
 
 export interface IoRedisOptions {
-  host?: string;
-  port?: number;
-  password?: string;
-  expiredTime?: number;
+  host?: string
+  port?: number
+  password?: string
+  expiredTime?: number
 }
 
-export interface WeChat{
-  appID:string;
-  appSecret:string;
+export interface WeChat {
+  appID: string
+  appSecret: string
 }
 
-export interface BusinessInfo{
-  app_id:string;
-  mchId:string;
-  partner_key:string;
-  pfxName:string
+export interface BusinessInfo {
+  app_id: string
+  mchId: string
+  partner_key: string
+  pfxName: string
 }
 
 export interface RequestCount {
-  type: string;//请求类型
-  path: string;//请求路径
-  failCount: number;//失败次数
-  succeedCount: number;//成功次数
-  minTime: number;//最小耗时
-  maxTime: number;//最大耗时
-  avgTime: number;//平均耗时
-  success?: number;//成功率
+  type: string //请求类型
+  path: string //请求路径
+  failCount: number //失败次数
+  succeedCount: number //成功次数
+  minTime: number //最小耗时
+  maxTime: number //最大耗时
+  avgTime: number //平均耗时
+  success?: number //成功率
 }
 
 export interface RequestInfo {
-  type: string;//请求类型
-  path: string;//请求路径
-  state: boolean;//状态
-  time: number;//耗时
+  type: string //请求类型
+  path: string //请求路径
+  state: boolean //状态
+  time: number //耗时
 }
 
 export interface ReMailbox {
-  url: string;//发送地址
-  title: string;//发送标题
+  url: string //发送地址
+  title: string //发送标题
 }
 
-export interface AliOssAccount{
-  region:string;
-  accessKeyId:string;
-  accessKeySecret:string;
-  bucket:string;
-  timeout?:number;
-  cname?:boolean;
-  endpoint?:string;
+export interface AliOssAccount {
+  region: string
+  accessKeyId: string
+  accessKeySecret: string
+  bucket: string
+  timeout?: number
+  cname?: boolean
+  endpoint?: string
 }
 export interface BufferCacheInfo {
-  buffer: Buffer;//文件流
-  name: string;//文件名+后缀
-  time: number;//添加时间
+  buffer: Buffer //文件流
+  name: string //文件名+后缀
+  time: number //添加时间
 }
 
 export interface MicroserviceConfig {
@@ -145,6 +145,15 @@ export interface MicroserviceConfig {
   }
 }
 
+export interface KingdeeServiceConfig {
+  K3_IP: string
+  K3_APPID: string
+  K3_ACCTID: string
+  K3_SECRET: string
+  K3_EX: number
+  K3_USER: string
+  K3_ORG_ID: number
+}
 
 /*
 export interface SocketServer<T,E> {

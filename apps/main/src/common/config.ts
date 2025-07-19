@@ -1,5 +1,5 @@
 import { APP_ENV } from './enum'
-import { AliOssAccount, BusinessInfo, Configs, IoRedisOptions, MicroserviceConfig, ReMailbox, SequlizeOptions, WeChat } from '@common/interface'
+import { AliOssAccount, BusinessInfo, Configs, IoRedisOptions, KingdeeServiceConfig, MicroserviceConfig, ReMailbox, SequlizeOptions, WeChat } from '@common/interface'
 import { join } from 'path'
 import { pathConstant } from '@common/constant'
 import YAML = require('yaml')
@@ -78,16 +78,6 @@ export const OSS_ACCOUNT: AliOssAccount = {
   timeout: 120 * 1000, // 设置上传超时时间为 120 秒
 }
 
-export const MINIO_CONFIG = {
-  endPoint: process.env.MINIO_POINT,
-  port: process.env.MINIO_PORT ? Number(process.env.MINIO_PORT) : 9000,
-  useSSL: false,
-  accessKey: process.env.MINIO_ACCESSKEY,
-  secretKey: process.env.MINIO_SECRETKEY,
-  dir: process.env.APP_NAME + '/uploads', // cos文件路径, 不定义则会上传至bucket的根目录
-  bucket: process.env.MINIO_BUCKET,
-  url: process.env.MINIO_URL,
-}
 
 /**
  * Auth 微服务配置
@@ -100,9 +90,16 @@ export const authServiceConfig: MicroserviceConfig = {
   },
 }
 
-/*
-export const WsServer:SocketServer<Admin,User> = {
-  user:[],
-  socketIDs:{}
+
+/**
+ * 金蝶配置
+ */
+export const kingdeeServiceConfig: KingdeeServiceConfig = {
+  K3_IP: envs.kingdee.K3_IP,
+  K3_APPID: envs.kingdee.K3_APPID,
+  K3_ACCTID: envs.kingdee.K3_ACCTID,
+  K3_SECRET: envs.kingdee.K3_SECRET,
+  K3_EX: envs.kingdee.K3_EX,
+  K3_USER: envs.kingdee.K3_USER,
+  K3_ORG_ID: envs.kingdee.K3_ORG_ID,
 }
-*/

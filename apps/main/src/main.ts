@@ -47,16 +47,14 @@ async function bootstrap() {
   const rootDir = join(__dirname, '..')
   app.use('/', express.static(join(rootDir, 'public')))
   app.useGlobalInterceptors(iocContext.get(LogInterceptor))
-  //监听线程异常
-  process.on('uncaughtException', function (err) {
-    console.error('线程出现异常=>>', err)
-    logger.error('线程出现异常=>>' + err.message)
+
+  process.on('uncaughtException', error => {
+    throw error
   })
-  process.on('unhandledRejection', function (reason, promise) {
-    console.error('线程异常未处理=>>', reason)
-    console.error('注:该异常系统容易崩溃')
-    logger.error('线程异常未处理=>>' + reason['message'])
+  process.on('unhandledRejection', error => {
+    throw error
   })
+
   // 异常捕捉格式化
   app.useGlobalPipes(iocContext.get(DtoPipe))
   // 异常捕捉格式化
