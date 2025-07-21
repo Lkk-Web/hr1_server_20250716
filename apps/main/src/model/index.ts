@@ -3,7 +3,7 @@ export * from './logExternalAPIRequest.model'
 // 基础资料 base
 export * from './base/material.model'
 export * from './base/bom.model'
-export * from './base/bomSubItem.model'
+export * from './base/bomDetail.model'
 export * from './base/supplier.model'
 export * from './base/workShop.model'
 export * from './base/workCenter.model'

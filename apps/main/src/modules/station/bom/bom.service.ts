@@ -4,7 +4,7 @@ import { Redis } from 'ioredis'
 import { ProcessTask } from '@model/production/processTask.model'
 import { materialListDto } from './bom.dto'
 import { BOM } from '@model/base/bom.model'
-import { BomSubItem } from '@model/base/bomSubItem.model'
+import { BomDetail } from '@model/base/bomDetail.model'
 import { Aide } from '@library/utils/aide'
 import { FindOptions } from 'sequelize'
 import { SOP } from '@model/process/SOP.model'
@@ -45,7 +45,7 @@ export class BomService {
       const { id, parentIndex, level } = queue[i]
 
       // Get BOM sub items
-      const children = await BomSubItem.findAll({
+      const children = await BomDetail.findAll({
         where: { bomId: id },
         attributes: ['id', 'sort', 'bomId', 'materialId', 'spec', 'attr', 'unit', 'quantity', 'feedProcessId', 'figureNumber', 'subBomCode'],
         include: [

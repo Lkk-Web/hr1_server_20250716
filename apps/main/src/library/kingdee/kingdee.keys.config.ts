@@ -1,7 +1,6 @@
 import { info, kingdeeServiceConfig } from '@common/config'
-import { ApiDict, BOM, BomSubItem, Customer, Material, SalesOrder, SalesOrderDetail, Supplier, Organize, User } from '@model/index'
+import { ApiDict, BOM, BomDetail, Customer, Material, SalesOrder, SalesOrderDetail, Supplier, Organize, User } from '@model/index'
 import _ = require('lodash')
-
 
 export const K3Mapping = {
   BD_SYS_ORG: {
@@ -79,18 +78,20 @@ export const K3Mapping = {
       ['ID', 'FID', 'id'],
       ['编码', 'FNumber', 'code'],
       ['物料id', 'FMATERIALID.FMasterID', 'materialId'],
+      ['物料名称', 'FITEMNAME', 'materialName'],
       ['物料属性', 'FITEMPPROPERTY', 'attr', v => convertExtends(v, 'FErpClsID')],
       ['物料规格', 'FITEMMODEL', 'spec'],
       ['父项物料单位', 'FUNITID', 'unit'],
       ['版本', 'FNumber', 'version'],
-      ['图号', 'F_ora_BaseProperty1', 'figureNumber'],
-      ['订单号', 'F_ora_Text', 'orderNo'],
+      // ['图号', 'F_ora_BaseProperty', 'figureNumber'],
+      // ['订单号', 'F_ora_Text', 'orderNo'],
       ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
     detailTypes: true, //是否存在详情
     detailKeys: [
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FTreeEntity_FENTRYID', 'id'],
+      ['子项物料名称', 'FCHILDITEMNAME', 'materialName'],
       ['父项BOM ID', 'FID', 'bomId'],
       ['编码', 'FNumber', 'code'],
       ['物料id', 'FMATERIALIDCHILD.FMasterID', 'materialId'],
@@ -99,9 +100,9 @@ export const K3Mapping = {
       ['物料属性', 'FCHILDITEMPROPERTY', 'attr'],
       ['子项单位', 'FUNITID', 'unit'],
       ['子项Bom编码', 'FBOMID.FNumber', 'subBomCode'],
-      ['图号', 'F_ora_BaseProperty', 'figureNumber'],
+      // ['图号', 'F_ora_BaseProperty', 'figureNumber'],
     ],
-    dbModelDetail: BomSubItem,
+    dbModelDetail: BomDetail,
     dict: [],
   },
   BD_SUPPLIER: {

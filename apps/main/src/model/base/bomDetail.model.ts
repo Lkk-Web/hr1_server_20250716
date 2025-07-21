@@ -3,8 +3,8 @@ import { BaseDate } from '@model/shared/baseDate'
 import { BOM } from '@model/base/bom.model'
 import { Material } from '@model/base/material.model'
 
-@Table({ tableName: `base_bom_sub_item`, freezeTableName: true, timestamps: true, comment: 'BOM子项物料表' })
-export class BomSubItem extends BaseDate<BomSubItem> {
+@Table({ tableName: `base_bom_detail`, freezeTableName: true, timestamps: true, comment: 'BOM子项物料表' })
+export class BomDetail extends BaseDate<BomDetail> {
   // 父物料编码：外键，关联物料表
   @ForeignKey(() => BOM)
   @Column({
@@ -44,6 +44,13 @@ export class BomSubItem extends BaseDate<BomSubItem> {
     allowNull: true,
   })
   declare spec: string
+
+  @Column({
+    comment: '物料名称',
+    type: DataType.STRING(255),
+    allowNull: true,
+  })
+  declare materialName: string
 
   @Column({
     comment: '物料属性',

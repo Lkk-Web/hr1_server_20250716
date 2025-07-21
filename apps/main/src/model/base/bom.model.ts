@@ -1,7 +1,7 @@
 import { Table, Column, Model, ForeignKey, DataType, BelongsTo, HasMany, Default } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
-import { BomSubItem } from '@model/base/bomSubItem.model'
+import { BomDetail } from '@model/base/bomDetail.model'
 
 @Table({ tableName: `base_bom`, freezeTableName: true, timestamps: true, comment: 'BOM表' })
 export class BOM extends BaseDate<BOM> {
@@ -37,6 +37,13 @@ export class BOM extends BaseDate<BOM> {
     allowNull: true,
   })
   declare remark: string
+
+  @Column({
+    comment: '物料名称',
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  declare materialName: string
 
   @Column({
     comment: '版本',

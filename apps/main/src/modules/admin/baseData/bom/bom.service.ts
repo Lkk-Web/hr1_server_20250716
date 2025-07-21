@@ -5,7 +5,7 @@ import { CBomDto, FindPaginationDto, UBomDto } from './bom.dto'
 import { BOM } from '@model/base/bom.model'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { BomSubItem } from '@model/base/bomSubItem.model'
+import { BomDetail } from '@model/base/bomDetail.model'
 import { Aide, JsExclKey } from '@library/utils/aide'
 import { Material } from '@model/base/material.model'
 import { deleteIdsDto } from '@common/dto'
@@ -78,7 +78,7 @@ export class BomService {
   }
 
   public async delete(id: number, loadModel) {
-    await BomSubItem.destroy({ where: { bomId: id } })
+    await BomDetail.destroy({ where: { bomId: id } })
     const result = await BOM.destroy({
       where: {
         id: id,
@@ -111,7 +111,7 @@ export class BomService {
   }
   private async getBomWithChildren(bom: BOM) {
     // 获取子 BOM 子项
-    const children = await BomSubItem.findAll({
+    const children = await BomDetail.findAll({
       where: { bomId: bom.id }, // 找到当前 BOM 的子项
       attributes: ['id', 'sort', 'bomId', 'materialId', 'spec', 'attr', 'unit', 'quantity', 'feedProcessId', 'figureNumber', 'subBomCode'], // 正确的字段
       include: [
@@ -365,7 +365,7 @@ export class BomService {
     for (const id of dto.ids) {
       try {
         const deleteBom = await BOM.destroy({ where: { id } })
-        const deleteBomItem = await BomSubItem.destroy({ where: { bomId: id } })
+        const deleteBomItem = await BomDetail.destroy({ where: { bomId: id } })
         if (deleteBom) {
           success++
         } else {

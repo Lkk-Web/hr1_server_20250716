@@ -340,6 +340,7 @@ export class KingdeeeService {
         FieldKeys: FieldKeys, // 查询字段，多个用逗号隔开，必填
       },
     }
+    console.log('param: ', param)
     const { data } = await axios.post(url, param, config)
     console.log(data.Result)
     if (data.Result && !data.Result.ResponseStatus.IsSuccess) throw data.Result.ResponseStatus.Errors[0].Message
