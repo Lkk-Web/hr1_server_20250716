@@ -1,6 +1,6 @@
 import { IsInt, IsNotEmpty, IsString } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { SystemBusinessLog } from '@model/system/SYSBusinessLog.model'
+import { SystemBusinessLog } from '@model/system/operationLog'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'module', type: String, required: false, description: '操作模块' })

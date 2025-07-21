@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { CSYSBusinessLogDto, FindPaginationDto } from '../dtos/SYSBusinessLog.dto'
-import { SystemBusinessLog } from '@model/system/SYSBusinessLog.model'
+import { SystemBusinessLog } from '@model/system/operationLog'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Paging } from '@library/utils/paging'

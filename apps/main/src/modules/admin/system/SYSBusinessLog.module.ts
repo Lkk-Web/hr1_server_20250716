@@ -4,7 +4,7 @@ import { SequelizeModule } from '@nestjs/sequelize'
 import { sign } from 'crypto'
 import { SYSBusinessLogService } from './services/SYSBusinessLog.service'
 import { RedisModule } from '@library/redis'
-import { SystemBusinessLog } from '@model/system/SYSBusinessLog.model'
+import { SystemBusinessLog } from '@model/system/operationLog'
 @Module({
   imports: [RedisModule, SequelizeModule.forFeature([SystemBusinessLog])],
   controllers: [SYSBusinessLogController],
