@@ -1,10 +1,7 @@
 import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, PrimaryKey, Table } from 'sequelize-typescript'
-import { DATA_STATUS } from '@common/constant'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/auth/user'
-import { ProcessTaskDept } from '@model/production/processTaskDept.model'
-import { ProcessTask } from '@model/production/processTask.model'
-import { Process, ProcessDept } from '..'
+import { User } from './user'
+
 // import { UserDepartment } from '@model/userDepartment.model'
 
 @Table({ tableName: `auth_organize`, timestamps: true, freezeTableName: true, paranoid: true })
@@ -60,15 +57,6 @@ export class Organize extends BaseDate<Organize> {
   @HasMany(() => Organize)
   declare childOrgs: Organize[]
 
-  // @HasMany(() => UserDepartment)
-  // declare deptUsers: UserDepartment[];
-
-  @BelongsToMany(() => ProcessTask, { through: () => ProcessTaskDept, uniqueKey: 'SYSOrg_ptd_pt_unique', foreignKey: 'deptId', otherKey: 'taskId' })
-  processTasks: ProcessTask[]
-  //     foreignKey
-
-  @BelongsToMany(() => Process, { through: () => ProcessDept, uniqueKey: 'so_process_pd_unique', foreignKey: 'deptId', otherKey: 'processId' })
-  process: Process[]
   //部门员工人数
   declare count: number
 }

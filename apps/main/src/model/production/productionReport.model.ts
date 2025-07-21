@@ -2,7 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequeli
 import { BaseDate } from '@model/shared/baseDate'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Process } from '@model/process/process.model'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { PRI } from '@model/production/PRI.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { ProcessTask } from '@model/production/processTask.model'

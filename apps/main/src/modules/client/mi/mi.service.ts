@@ -1,6 +1,6 @@
 import { PLATFORM } from '@common/enum'
 import { CryptoUtil, jwtEncodeInExpire } from '@library/utils/crypt.util'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { HttpException, Injectable } from '@nestjs/common'
 import { changeFactoryDto, FindPaginationDto, OrderProgressDto, performanceDto, ScheduleFindPaginationDto, taskBoardDto, taskProgressDto, UserLoginDto } from './mi.dto'
 import { Aide } from '@library/utils/aide'

@@ -12,7 +12,7 @@ import { FindPaginationOptions } from '@model/shared/interface'
 import { CheckOrder } from '@model/equipment/checkOrder.model'
 import moment = require('moment')
 import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { Paging } from '@library/utils/paging'
 import { FileList } from '@model/document/FileList.model'
 import dayjs = require('dayjs')

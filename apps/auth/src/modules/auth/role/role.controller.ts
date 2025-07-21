@@ -1,10 +1,6 @@
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
-import { Permissions } from '@core/decorator/metaData'
 import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common'
-import { AdminAuth } from '@core/decorator/controller'
-import { SysRoleService } from '../services/SYSRole.service'
-import { CSYSRoleDto, ESYSRoleDto, FindPaginationDto } from '../dtos/SYSRole.dto'
 import { Role } from '@model/auth/role'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Sequelize } from 'sequelize-typescript'
@@ -12,18 +8,19 @@ import { IPUtil } from '@library/utils/ip.util'
 import { CurrentPage } from '@core/decorator/request'
 import { OpenAuthorize } from '@core/decorator/metaData'
 import { FileUploadDto } from '@modules/file/file.dto'
+import { JwtDecodeController } from '@core/decorator/controller'
+import { RoleService } from './role.service'
+import { FindPaginationDto, RoleCreateDto, RoleEditDto } from './role.dto'
 
 @ApiTags('角色')
 @ApiBearerAuth()
-@OpenAuthorize()
-@AdminAuth('SYSRole')
-export class SysRoleController {
-  constructor(private readonly service: SysRoleService, private readonly sequelize: Sequelize) {}
+@JwtDecodeController('role')
+export class RoleController {
+  constructor(private readonly service: RoleService, private readonly sequelize: Sequelize) {}
   @ApiOperation({ summary: '创建' })
   @HttpCode(HttpStatus.OK)
   @Post('/')
-  @Permissions('sy:ro:add')
-  async create(@Body() dto: CSYSRoleDto, @Req() req) {
+  async create(@Body() dto: RoleCreateDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.create(dto, req.user, IPUtil.getIp(req).replace('::ffff:', ''), loadModel)
     return result
@@ -33,8 +30,7 @@ export class SysRoleController {
   @ApiOperation({ summary: '修改' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Put(':id')
-  @Permissions('sy:ro:edit')
-  async edit(@Body() dto: ESYSRoleDto, @Param() params, @Req() req) {
+  async edit(@Body() dto: RoleEditDto, @Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
     const result = await this.service.edit(dto, id, req.user, IPUtil.getIp(req).replace('::ffff:', ''), loadModel)
@@ -55,7 +51,6 @@ export class SysRoleController {
   @ApiOperation({ summary: '删除' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Delete(':id')
-  @Permissions('sy:ro:del')
   async delete(@Param() params, @Req() req) {
     const { id } = params
     let { factoryCode, loadModel } = req
@@ -67,7 +62,6 @@ export class SysRoleController {
   @ApiOperation({ summary: '详情' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')
-  @Permissions('sy:ro:list')
   async find(@Param() Param, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.find(Param.id, loadModel)
@@ -76,7 +70,6 @@ export class SysRoleController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')
-  @Permissions('sy:ro:list')
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.findPagination(dto, pagination, loadModel)

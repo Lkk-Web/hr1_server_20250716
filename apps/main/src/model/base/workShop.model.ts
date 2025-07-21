@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 /** 车间 */
 @Table({ tableName: `base_workshop`, freezeTableName: true, timestamps: true, comment: '车间表' })
 export class WorkShop extends BaseDate<WorkShop> {

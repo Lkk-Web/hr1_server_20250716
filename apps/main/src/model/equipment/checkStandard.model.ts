@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { CheckStandardDetail } from '@model/equipment/checkStandardDetail.model'
 
 @Table({ tableName: `equipment_check_standard`, freezeTableName: true, timestamps: true, comment: '点检标准表' })

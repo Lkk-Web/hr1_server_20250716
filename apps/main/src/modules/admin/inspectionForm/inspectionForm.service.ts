@@ -15,7 +15,7 @@ import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { POP } from '@model/production/POP.model'
 import { ProductionReportTwoService } from '@modules/station/productionReport/productionReportTwo.service'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { InspectionFormBy } from '@model/quantity/inspectionFormBy.model'
 import dayjs = require('dayjs')
 

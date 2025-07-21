@@ -2,28 +2,27 @@ import { Pagination } from '@common/interface'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
 import { Role } from '@model/auth/role'
-import { CSYSRoleDto, ESYSRoleDto, FindPaginationDto } from '../dtos/SYSRole.dto'
-import { ESYSRoleMenuPowerDto } from '../dtos/SYSRoleMenu.dto'
 import { RoleMenu } from '@model/auth/roleMenu'
-import { DATA_SCOPE_TYPE, SYS_MODULE, USER_TYPE } from '@common/constant'
-import { SystemBusinessLog } from '@model/system/SYSBusinessLog.model'
 import { FindOptions, Op, where } from 'sequelize'
 import { Menu } from '@model/auth/menu'
-import { Organize, RoleOrganize, User } from '@model/index'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Aide, JsExclKey } from '@library/utils/aide'
 import { trim } from 'lodash'
 import { Paging } from '@library/utils/paging'
+import { FindPaginationDto, RoleCreateDto, RoleEditDto, RoleMenuPowerDto } from './role.dto'
+import { User } from '@model/index'
+import { RoleOrganize } from '@model/auth/roleOrganize'
+import { DATA_SCOPE_TYPE } from '@common/constant'
 
 @Injectable()
-export class SysRoleService {
+export class RoleService {
   constructor(
     @InjectModel(Role)
-    private SYSRoleModel: typeof Role
+    private roleModal: typeof Role
   ) {}
 
-  public async create(dto: CSYSRoleDto, user: User, ip: string, loadModel) {
-    let sysRole = await Role.findOne({ where: { name: dto.name } })
+  public async create(dto: RoleCreateDto, user: User, ip: string, loadModel) {
+    let sysRole = await this.roleModal.findOne({ where: { name: dto.name } })
     if (sysRole) {
       throw new HttpException('该角色已存在', 400)
     }
@@ -36,29 +35,24 @@ export class SysRoleService {
       menuList = dto.menus
     }
     delete dto.menus
+
     let orgList = []
     if (dto.dataScopeType == '4') {
       orgList = dto.orgs
     }
     delete dto.orgs
-    const result = await Role.create(dto)
-    // await SYSBusinessLog.create({
-    // 	description: '创建角色',
-    // 	params: `${dto.name}`,
-    // 	userId: user.id,
-    // 	module: SYS_MODULE.ROLE,
-    // });
+
     if (menuList.length > 0) {
       await RoleMenu.bulkCreate(menuList.map(item => ({ roleId: result.id, menuId: item })))
     }
     if (orgList.length > 0) {
       await RoleOrganize.bulkCreate(orgList.map(item => ({ roleId: result.id, orgId: item })))
     }
-    // await SYSBusinessLog.create({module:'角色管理',ip,userId:user.id,behavioral:'新增',description:user.name+'新增了角色',params:''+dto})
+    const result = await Role.create(dto)
     return result
   }
 
-  public async edit(dto: ESYSRoleDto, id: number, user: User, ip: string, loadModel) {
+  public async edit(dto: RoleEditDto, id: number, user: User, ip: string, loadModel) {
     let sysRole = await Role.findOne({ where: { id } })
     if (!sysRole) {
       throw new HttpException('角色不存在', 400)
@@ -163,7 +157,7 @@ export class SysRoleService {
     return result
   }
 
-  public async editRoleMenuPower(dtos: ESYSRoleMenuPowerDto, roleId: number, user: User, loadModel) {
+  public async editRoleMenuPower(dtos: RoleMenuPowerDto, roleId: number, user: User, loadModel) {
     if (!roleId) throw new HttpException('请携带角色ID修改权限', 400)
     if (!(await Role.findByPk(roleId))) throw new HttpException('未查询到该角色', 400)
     let res = false

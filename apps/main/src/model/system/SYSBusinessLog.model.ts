@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 
 @Table({ tableName: `system_business_log` })
 export class SystemBusinessLog extends BaseDate<SystemBusinessLog> {

@@ -2,7 +2,7 @@ import { Model, Column, DataType, Table, ForeignKey, BelongsTo } from 'sequelize
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { Customer } from '@model/base/customer.model'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 import { SalesOrder } from '@model/plan/salesOrder.model'
 

@@ -13,7 +13,7 @@ import { CheckOrder } from '@model/equipment/checkOrder.model'
 import { InspectionOrderDetail } from '@model/equipment/inspectionOrderDetail.model'
 import moment = require('moment')
 import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { Paging } from '@library/utils/paging'
 import { FileList } from '@model/document/FileList.model'
 

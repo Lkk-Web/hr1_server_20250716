@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { UserController } from './user.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { UserService } from './user.service'
 import { RedisModule } from '@library/redis'
 import { ApiDictService } from '@modules/admin/apiDict/apiDict.service'

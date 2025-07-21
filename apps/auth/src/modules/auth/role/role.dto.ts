@@ -1,6 +1,7 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Role } from '@model/auth/role'
+import { DATA_SCOPE_TYPE } from '@common/constant'
 
 export class FindPaginationDto {
   @ApiProperty({ description: '角色名称', type: String, required: false })
@@ -16,7 +17,7 @@ export class FindPaginationDto {
   pageSize?: string
 }
 
-export class CSYSRoleDto {
+export class RoleCreateDto {
   @ApiProperty({ description: '角色名称', type: String })
   name: string
 
@@ -39,7 +40,7 @@ export class CSYSRoleDto {
   orgs?: [number]
 }
 
-export class ESYSRoleDto {
+export class RoleEditDto {
   @ApiProperty({ description: '角色名称', type: String })
   name: string
 
@@ -60,4 +61,31 @@ export class ESYSRoleDto {
 
   @ApiProperty({ description: '组织Id集合（数据权限为4时必填）', type: [Number], required: false })
   orgs?: [number]
+}
+
+class MenuPower {
+  @ApiProperty({ description: '菜单id', type: Number })
+  menuId: number
+
+  @ApiProperty({ description: '操作编号', type: [String] })
+  code: [string]
+
+  @ApiProperty({ description: '状态 0/1', type: Number, required: false })
+  status: number
+
+  @ApiProperty({
+    description: '数据权限范围类型 全部/本部门/仅本人/自定义',
+    type: Number,
+    enum: Object.values(DATA_SCOPE_TYPE),
+  })
+  dataScopeType: DATA_SCOPE_TYPE
+
+  @ApiProperty({ description: '部门ID', type: [Number] })
+  depts: number[]
+}
+
+
+export class RoleMenuPowerDto {
+  @ApiProperty({ description: '数组对象', type: [MenuPower] })
+  arr: MenuPower[]
 }

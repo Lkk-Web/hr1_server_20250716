@@ -1,12 +1,10 @@
-import { Pagination } from '@common/interface'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
 import { Menu } from '@model/auth/menu'
 import { CSYSMenuDto, ESYSMenuDto, FindPaginationDto } from '../dtos/menu.dto'
 import { RoleMenu } from '@model/auth/roleMenu'
 import { Role } from '@model/auth/role'
-import { User } from '@model/auth/user.model'
-import { SystemBusinessLog } from '@model/system/SYSBusinessLog.model'
+import { User } from '@model/auth/user'
 import { FindOptions, Op, where } from 'sequelize'
 import { STRUtil } from '@library/utils/str'
 @Injectable()

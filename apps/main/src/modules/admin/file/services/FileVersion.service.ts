@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { CFileVersionDto, EFileVersionDto, FindPaginationDto } from '../dtos/FileVersion.dto'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { FindOptions } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { FileVersion } from '@model/document/FileVersion.model'

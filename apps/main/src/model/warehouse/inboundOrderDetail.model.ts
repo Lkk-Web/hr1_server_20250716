@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { Supplier } from '@model/base/supplier.model'
 import { Customer } from '@model/base/customer.model'
 import { Warehouse } from '@model/warehouse/warehouse.model'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { InboundOrder } from '@model/warehouse/inboundOrder.model'
 import { Material } from '@model/base/material.model'
 

@@ -1,7 +1,7 @@
 import { Pagination } from '@common/interface'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { CUserDto, FindPaginationDto, SUserDto, UUserDto } from './user.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'

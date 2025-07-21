@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { ProcessRoute } from '@model/process/processRoute.model'
 import { Process } from '@model/process/process.model'
 import { ProcessRouteList } from '@model/process/processRouteList.model'

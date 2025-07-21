@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Process } from '@model/process/process.model'
 import { InspectionForm } from '@model/quantity/inspectionForm.model'

@@ -5,7 +5,7 @@ import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { Organize } from '@model/auth/organize'
 import { CSYSOrgDto, ESYSOrgDto, FindAllDto } from '../dtos/SYSOrg.dto'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { STRUtil } from '@library/utils/str'
 import { SystemBusinessLog } from '@model/system/SYSBusinessLog.model'
 import { SYS_MODULE, USER_TYPE } from '@common/constant'

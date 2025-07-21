@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany, BelongsToMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { Team, ShiftPeriod, CalendarDetail } from '..'
 /** 工作日历 */
 @Table({ tableName: `schedule_calendar`, freezeTableName: true, timestamps: true, comment: '工作日历' })

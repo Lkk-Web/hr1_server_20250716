@@ -5,7 +5,7 @@ import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { FileList } from '@model/document/FileList.model'
 import { CFileListDto, EFileListDto, FindPaginationDto } from '../dtos/FileList.dto'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { FileVersion } from '@model/document/FileVersion.model'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'

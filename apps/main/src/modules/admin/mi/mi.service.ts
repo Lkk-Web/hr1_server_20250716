@@ -1,4 +1,4 @@
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { changeFactoryDto, OrderProgressDto, RoleBoardDto, taskProgressDto } from './mi.dto'
 import axios from 'axios'

@@ -2,6 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 
 import { BaseDate } from '@model/shared/baseDate'
 import { Role } from './role'
 import { TokenInfo } from './tokenInfo'
+import { Organize } from './organize'
 
 @Table({ tableName: `auth_user`, freezeTableName: true, timestamps: true, comment: '用户员工表' })
 export class User extends BaseDate<User> {
@@ -55,7 +56,7 @@ export class User extends BaseDate<User> {
   declare email: string
 
   // 默认部门
-  // @ForeignKey(() => Organize) // 假设有部门表
+  @ForeignKey(() => Organize) // 假设有部门表
   @Column({
     comment: '默认部门',
     type: DataType.INTEGER,
@@ -63,8 +64,8 @@ export class User extends BaseDate<User> {
   })
   declare departmentId: number
 
-  // @BelongsTo(() => Organize)
-  // declare department: Organize
+  @BelongsTo(() => Organize)
+  declare department: Organize
 
   @Column({
     comment: '用户状态',

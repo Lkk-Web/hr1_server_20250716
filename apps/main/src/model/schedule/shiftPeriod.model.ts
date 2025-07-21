@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { TeamType } from '@model/schedule/teamType.model'
 import { Shift } from '@model/schedule/shift.model'
 /** 班次时间表 */

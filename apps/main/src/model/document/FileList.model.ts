@@ -2,7 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequeli
 import { BaseDate } from '@model/shared/baseDate'
 import { FileMenu } from '@model/document/FileMenu.model'
 import { Organize } from '@model/auth/organize'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { FileVersion } from '@model/document/FileVersion.model'
 
 @Table({ tableName: `document_file_list`, timestamps: true, paranoid: true })

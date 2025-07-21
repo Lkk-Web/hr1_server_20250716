@@ -7,7 +7,7 @@ import { CensorParamPipe } from '@core/pipe/censorParam.pipe'
 import { OrgDto, PadLoginDto, PadTeamListDto, ProcessDto, TeamLoginDto, UserPasswordLoginDto } from './mi.dto'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { FileUploadDto } from '@modules/file/file.dto'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 
 @ApiTags('我的')
 @ApiBearerAuth()

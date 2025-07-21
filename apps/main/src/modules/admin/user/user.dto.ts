@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })

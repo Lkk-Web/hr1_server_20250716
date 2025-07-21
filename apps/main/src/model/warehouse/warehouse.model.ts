@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { WorkShop } from '@model/base/workShop.model'
 /** 仓库 */
 @Table({ tableName: `warehouse`, freezeTableName: true, timestamps: true, comment: '仓库表' })

@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { Supplier } from '@model/base/supplier.model'
 import { Warehouse } from '@model/warehouse/warehouse.model'
-import { User } from '@model/auth/user.model'
+import { User } from '@model/auth/user'
 import { WorkShop } from '@model/base/workShop.model'
 import { ExportOrderDetail } from '@model/warehouse/exportOrderDetail.model'
 import { StrBaseModel } from '@model/shared/strBase.model'
