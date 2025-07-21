@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common'
-import { SysMenuController } from './controllers/menu.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
 import { Menu } from '@model/auth/menu'
-import { sign } from 'crypto'
-import { SysMenuService } from './services/menu.service'
 import { RedisModule } from '@library/redis'
+import { MenuService } from './menu.service'
+import { MenuController } from './menu.controller'
 @Module({
   imports: [RedisModule, SequelizeModule.forFeature([Menu])],
-  controllers: [SysMenuController],
-  providers: [SysMenuService],
+  controllers: [MenuController],
+  providers: [MenuService],
   exports: [],
 })
 export class MenuModule {}

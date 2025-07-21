@@ -22,98 +22,6 @@ import { kingdeeServiceConfig } from '@common/config'
 export class MiController {
   constructor(private readonly service: MiService, private readonly fileService: FileService) {}
 
-  @ApiOperation({ summary: 'PC首页' })
-  @HttpCode(HttpStatus.OK)
-  @Get('PCHome/:type')
-  @ApiParam({ name: 'type', required: true, description: 'type', type: String })
-  async PCHome(@Param() Param, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.PCHome(Param.type, req.user, loadModel)
-  }
-
-  @ApiOperation({ summary: '切换工厂' })
-  @HttpCode(HttpStatus.OK)
-  @Post('changeFactory')
-  async changeFactory(@Body() dto: changeFactoryDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.changeFactory(dto, req.user, loadModel)
-  }
-
-  @ApiOperation({ summary: '角色看板' })
-  @HttpCode(HttpStatus.OK)
-  @Get('roleBoard')
-  async roleBoard(@Query() dto: RoleBoardDto, @Req() req) {
-    return this.service.roleBoard(dto, req.user)
-  }
-
-  @ApiOperation({ summary: '车间看板' })
-  @HttpCode(HttpStatus.OK)
-  @Get('workShopBoard')
-  async workShopBoard(@Query() dto: RoleBoardDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.workShopBoard(dto, req.user, loadModel)
-  }
-
-  @ApiOperation({ summary: '生产实时播报' })
-  @HttpCode(HttpStatus.OK)
-  @Get('productionBroadcast')
-  async productionBroadcast(@Query() dto: RoleBoardDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.productionBroadcast(dto, req.user, loadModel)
-  }
-
-  @ApiOperation({ summary: '设备动态播报' })
-  @HttpCode(HttpStatus.OK)
-  @Get('equipmentBroadcast')
-  async equipmentBroadcast(@Query() dto: RoleBoardDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.equipmentBroadcast(dto, req.user, loadModel)
-  }
-
-  @ApiOperation({ summary: '工单进度' })
-  @HttpCode(HttpStatus.OK)
-  @Get('orderProgress')
-  async orderProgress(@Req() req, @Query() dto: OrderProgressDto) {
-    let { factoryCode, loadModel } = req
-    return this.service.orderProgress(req.user, dto, loadModel)
-  }
-
-  @ApiOperation({ summary: '部门工序进度' })
-  @HttpCode(HttpStatus.OK)
-  @Get('deptProgress')
-  async deptProgress(@Req() req, @Query() dto: taskProgressDto) {
-    let { factoryCode, loadModel } = req
-    return this.service.deptProgress(req.user, dto, loadModel)
-  }
-
-  @ApiOperation({ summary: '任务执行进度' })
-  @HttpCode(HttpStatus.OK)
-  @Get('questionProcess')
-  async questionProcess(@Req() req, @Query() dto: taskProgressDto) {
-    let { factoryCode, loadModel } = req
-    return this.service.questionProcess(req.user, dto, loadModel)
-  }
-
-  @ApiOperation({ summary: '绩效排名' })
-  @HttpCode(HttpStatus.OK)
-  @Get('salary')
-  async salary(@Req() req, @Query() dto: OrderProgressDto) {
-    let { factoryCode, loadModel } = req
-    return this.service.salary(req.user, dto, loadModel)
-  }
-
-  @ApiOperation({ summary: '文件上传' })
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file', { limits: { fieldSize: 55555 } }))
-  @ApiBody({ description: '文件上传', type: FileUploadDto })
-  @HttpCode(HttpStatus.OK)
-  @Post('upload')
-  async upload(@UploadedFile() file, @Req() req) {
-    if (!file) throw new HttpException(null, 400014)
-    const result = await this.fileService.uploadFile(file)
-    return result
-  }
-
   @ApiOperation({ summary: '同步金蝶公用接口' })
   @Post('syncKingdee')
   async syncKingdee(@Body() dto: SyncKingdeeDto): Promise<any> {
@@ -213,6 +121,98 @@ export class MiController {
     }
     // await RedisProvider.redisClient.client.set(redisKey, dayjs().format('YYYY-MM-DD'))
     return { updateData: new Date(), count: startRow, detail: startRowDetail }
+  }
+
+  @ApiOperation({ summary: 'PC首页' })
+  @HttpCode(HttpStatus.OK)
+  @Get('PCHome/:type')
+  @ApiParam({ name: 'type', required: true, description: 'type', type: String })
+  async PCHome(@Param() Param, @Req() req) {
+    let { factoryCode, loadModel } = req
+    return this.service.PCHome(Param.type, req.user, loadModel)
+  }
+
+  @ApiOperation({ summary: '切换工厂' })
+  @HttpCode(HttpStatus.OK)
+  @Post('changeFactory')
+  async changeFactory(@Body() dto: changeFactoryDto, @Req() req) {
+    let { factoryCode, loadModel } = req
+    return this.service.changeFactory(dto, req.user, loadModel)
+  }
+
+  @ApiOperation({ summary: '角色看板' })
+  @HttpCode(HttpStatus.OK)
+  @Get('roleBoard')
+  async roleBoard(@Query() dto: RoleBoardDto, @Req() req) {
+    return this.service.roleBoard(dto, req.user)
+  }
+
+  @ApiOperation({ summary: '车间看板' })
+  @HttpCode(HttpStatus.OK)
+  @Get('workShopBoard')
+  async workShopBoard(@Query() dto: RoleBoardDto, @Req() req) {
+    let { factoryCode, loadModel } = req
+    return this.service.workShopBoard(dto, req.user, loadModel)
+  }
+
+  @ApiOperation({ summary: '生产实时播报' })
+  @HttpCode(HttpStatus.OK)
+  @Get('productionBroadcast')
+  async productionBroadcast(@Query() dto: RoleBoardDto, @Req() req) {
+    let { factoryCode, loadModel } = req
+    return this.service.productionBroadcast(dto, req.user, loadModel)
+  }
+
+  @ApiOperation({ summary: '设备动态播报' })
+  @HttpCode(HttpStatus.OK)
+  @Get('equipmentBroadcast')
+  async equipmentBroadcast(@Query() dto: RoleBoardDto, @Req() req) {
+    let { factoryCode, loadModel } = req
+    return this.service.equipmentBroadcast(dto, req.user, loadModel)
+  }
+
+  @ApiOperation({ summary: '工单进度' })
+  @HttpCode(HttpStatus.OK)
+  @Get('orderProgress')
+  async orderProgress(@Req() req, @Query() dto: OrderProgressDto) {
+    let { factoryCode, loadModel } = req
+    return this.service.orderProgress(req.user, dto, loadModel)
+  }
+
+  @ApiOperation({ summary: '部门工序进度' })
+  @HttpCode(HttpStatus.OK)
+  @Get('deptProgress')
+  async deptProgress(@Req() req, @Query() dto: taskProgressDto) {
+    let { factoryCode, loadModel } = req
+    return this.service.deptProgress(req.user, dto, loadModel)
+  }
+
+  @ApiOperation({ summary: '任务执行进度' })
+  @HttpCode(HttpStatus.OK)
+  @Get('questionProcess')
+  async questionProcess(@Req() req, @Query() dto: taskProgressDto) {
+    let { factoryCode, loadModel } = req
+    return this.service.questionProcess(req.user, dto, loadModel)
+  }
+
+  @ApiOperation({ summary: '绩效排名' })
+  @HttpCode(HttpStatus.OK)
+  @Get('salary')
+  async salary(@Req() req, @Query() dto: OrderProgressDto) {
+    let { factoryCode, loadModel } = req
+    return this.service.salary(req.user, dto, loadModel)
+  }
+
+  @ApiOperation({ summary: '文件上传' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file', { limits: { fieldSize: 55555 } }))
+  @ApiBody({ description: '文件上传', type: FileUploadDto })
+  @HttpCode(HttpStatus.OK)
+  @Post('upload')
+  async upload(@UploadedFile() file, @Req() req) {
+    if (!file) throw new HttpException(null, 400014)
+    const result = await this.fileService.uploadFile(file)
+    return result
   }
 
   @ApiOperation({ summary: '获取临时文件' })

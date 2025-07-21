@@ -1,6 +1,4 @@
-import { IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { Menu } from '@model/auth/menu'
 
 export class FindPaginationDto {
   @ApiProperty({ description: '菜单名称', type: String, required: false })
@@ -19,33 +17,33 @@ export class FindPaginationDto {
   status: number
 }
 
-export class CSYSMenuDto {
+export class MenuCreateDto {
   @ApiProperty({ description: '菜单名称', type: String })
   name: string
 
   @ApiProperty({ description: '父级id', type: Number, required: false })
-  parentId: number
+  parentId?: number
 
   @ApiProperty({ description: '菜单类型（M目录 C菜单 F按钮）', type: String, required: true, enum: ['M', 'C', 'F'], example: 'M' })
   types: string
 
   @ApiProperty({ description: '菜单url', type: String, required: false })
-  url: string
+  url?: string
 
   @ApiProperty({ description: '图标', type: String, required: false })
-  icon: string
+  icon?: string
 
   @ApiProperty({ description: '权限标识', type: String, required: false })
-  perms: string
+  perms?: string
 
   @ApiProperty({ description: '状态（0隐藏 1显示 ）', type: Number, required: false })
-  status: number
+  status?: number
 
   @ApiProperty({ description: '排序', type: Number, required: false })
   sort: number
 }
 
-export class ESYSMenuDto {
+export class MenuEditDto {
   @ApiProperty({ description: '菜单名称', type: String })
   name: string
 

@@ -1,20 +1,20 @@
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
 import { Menu } from '@model/auth/menu'
-import { CSYSMenuDto, ESYSMenuDto, FindPaginationDto } from '../dtos/menu.dto'
 import { RoleMenu } from '@model/auth/roleMenu'
 import { Role } from '@model/auth/role'
 import { User } from '@model/auth/user'
 import { FindOptions, Op, where } from 'sequelize'
+import { FindPaginationDto, MenuCreateDto, MenuEditDto } from './menu.dto'
 import { STRUtil } from '@library/utils/str'
 @Injectable()
-export class SysMenuService {
+export class MenuService {
   constructor(
     @InjectModel(Menu)
     private SYSMenuModel: typeof Menu
   ) {}
 
-  public async create(dto: CSYSMenuDto, user: User, loadModel) {
+  public async create(dto: MenuCreateDto, user: User, loadModel) {``
     const temp = await Menu.findOne({ where: { name: dto.name } })
     if (temp) {
       throw new HttpException('已存在相同名字菜单', 400)
@@ -30,7 +30,7 @@ export class SysMenuService {
     return result
   }
 
-  public async edit(dto: ESYSMenuDto, id: number, user: User, loadModel) {
+  public async edit(dto: MenuEditDto, id: number, user: User, loadModel) {
     let sysMenu = await Menu.findOne({ where: { id } })
     if (!sysMenu) {
       throw new HttpException('数据不存在', 400)
