@@ -6,8 +6,8 @@ export enum APP_ENV {
 
 export enum PLATFORM {
   admin = 'admin', // 管理端
+  client = 'client', // 移动端
   planning = 'planning', // 计划端
   workstation = 'workstation', // 工位端
-  mobile = 'mobile', // 移动端
   dashboard = 'dashboard', // 看板端
 }

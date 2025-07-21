@@ -5,7 +5,7 @@ import { PLATFORM } from '@common/enum'
 export class UserLoginDto {
   @IsNotEmpty({ message: '用户名不能为空' })
   @ApiProperty({ name: 'username', required: true, description: '用户名(手机号)', type: String })
-  username: string
+  userName: string
 
   @ApiProperty({ name: 'password', required: true, description: '密码', type: String })
   @IsNotEmpty({ message: '密码不能为空' })

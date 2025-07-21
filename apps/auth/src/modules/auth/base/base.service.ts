@@ -46,7 +46,7 @@ export class MiService {
 
   async postToken(dto: UserLoginDto, ipAddress?: string, userAgent?: string) {
     let user = await User.findOne({
-      where: { phone: dto.username },
+      where: { userName: dto.userName },
     })
     dto.password = CryptoUtil.sm4Encryption(dto.password)
     if (user) {
