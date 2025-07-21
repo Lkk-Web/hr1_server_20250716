@@ -341,8 +341,8 @@ export class KingdeeeService {
       },
     }
     const { data } = await axios.post(url, param, config)
-    console.log('getListV2 URL: ', url)
-    console.log('getListV2 BODY: ', JSON.stringify(param.data, null, 2))
+    console.log(data.Result)
+    if (data.Result && !data.Result.ResponseStatus.IsSuccess) throw data.Result.ResponseStatus.Errors[0].Message
     return data
   }
   /**

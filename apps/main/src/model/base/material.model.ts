@@ -64,32 +64,6 @@ export class Material extends BaseDate<Material> {
   })
   declare formData: string
 
-  // k3扩展属性
-  @Column({
-    comment: '图号',
-    type: DataType.TEXT,
-  })
-  declare k3DrawingNo: string
-  @Column({
-    comment: '国标图号',
-    type: DataType.TEXT,
-  })
-  declare k3StandardDrawingNo: string
-  @Column({
-    comment: '材质',
-    type: DataType.TEXT,
-  })
-  declare k3Meterial: string
-  @Column({
-    comment: '辅助单位',
-    type: DataType.TEXT,
-  })
-  declare k3AuxUinit: string
-  @Column({
-    comment: '颜色',
-    type: DataType.TEXT,
-  })
-  declare k3Color: string
   @Column({
     comment: '数据状态',
     type: DataType.TEXT,
