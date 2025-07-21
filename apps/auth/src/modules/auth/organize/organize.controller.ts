@@ -1,23 +1,23 @@
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
 import { Body, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common'
-import { AdminAuth } from '@core/decorator/controller'
-import { SYSOrgService } from '../services/SYSOrg.service'
-import { CSYSOrgDto, ESYSOrgDto, FindAllDto } from '../dtos/SYSOrg.dto'
+import { JwtDecodeController } from '@core/decorator/controller'
+import { OrganizeCreateDto, OrganizeEditDto, FindAllDto } from './organize.dto'
 import { Organize } from '@model/auth/organize'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Sequelize } from 'sequelize-typescript'
 import { OpenAuthorize } from '@core/decorator/metaData'
 import { FileUploadDto } from '@modules/file/file.dto'
+import { OrganizeService } from './organize.service'
 
-@ApiTags('组织/部门')
+@ApiTags('组织(部门)')
 @ApiBearerAuth()
-@AdminAuth('SYSOrg')
-export class SYSOrgController {
-  constructor(private readonly service: SYSOrgService, private readonly sequelize: Sequelize) {}
+@JwtDecodeController('oranize')
+export class OrganizeController {
+  constructor(private readonly service: OrganizeService, private readonly sequelize: Sequelize) {}
   @ApiOperation({ summary: '创建' })
   @HttpCode(HttpStatus.OK)
   @Post('/')
-  async create(@Body() dto: CSYSOrgDto, @Req() req) {
+  async create(@Body() dto: OrganizeCreateDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.create(dto, req.user, loadModel)
     return result
@@ -27,7 +27,7 @@ export class SYSOrgController {
   @ApiOperation({ summary: '修改' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Put(':id')
-  async edit(@Body() dto: ESYSOrgDto, @Param() params, @Req() req) {
+  async edit(@Body() dto: OrganizeEditDto, @Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
     const result = await this.service.edit(dto, id, req.user, loadModel)

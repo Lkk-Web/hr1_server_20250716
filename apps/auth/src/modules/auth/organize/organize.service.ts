@@ -1,27 +1,22 @@
-import { Pagination } from '@common/interface'
-import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
-import { HttpException, Inject, Injectable } from '@nestjs/common'
+import { HttpException, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { Organize } from '@model/auth/organize'
-import { CSYSOrgDto, ESYSOrgDto, FindAllDto } from '../dtos/SYSOrg.dto'
+import { OrganizeCreateDto, OrganizeEditDto, FindAllDto } from './organize.dto'
 import { User } from '@model/auth/user'
 import { STRUtil } from '@library/utils/str'
-import { SystemBusinessLog } from '@model/system/operationLog'
-import { SYS_MODULE, USER_TYPE } from '@common/constant'
 import { FindOptions, Op } from 'sequelize'
 import { Aide, JsExclKey } from '@library/utils/aide'
 import { trim } from 'lodash'
-import { Role } from '@model/auth/role'
 
 @Injectable()
-export class SYSOrgService {
+export class OrganizeService {
   constructor(
     @InjectModel(Organize)
     private SYSOrgModel: typeof Organize
   ) {}
 
-  public async create(dto: CSYSOrgDto, user: User, loadModel) {
+  public async create(dto: OrganizeCreateDto, user: User, loadModel) {
     // if (user.type != USER_TYPE.GLOBAL_ADMIN) {
     // 	// 无权操作
     // 	throw new HttpException('无权操作', 400);
@@ -53,7 +48,7 @@ export class SYSOrgService {
     return this.find(result.id, loadModel)
   }
 
-  public async edit(dto: ESYSOrgDto, id: number, user: User, loadModel) {
+  public async edit(dto: OrganizeEditDto, id: number, user: User, loadModel) {
     let sysOrg = await Organize.findOne({ where: { id } })
     if (!sysOrg) {
       throw new HttpException('数据不存在', 400)

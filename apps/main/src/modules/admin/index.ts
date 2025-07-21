@@ -16,8 +16,6 @@ export * from './inspectionTemplate/inspectionTemplate.module'
 export * from './inspectionForm/inspectionForm.module'
 
 //系统管理
-export * from './system/SYSOrg.module'
-export * from './system/SYSBusinessLog.module'
 export * from './user/user.module'
 export * from './apiDict/apiDict.module'
 

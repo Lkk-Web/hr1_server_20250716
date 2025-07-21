@@ -38,7 +38,7 @@ export class FindAllDto {
   status: number
 }
 
-export class CSYSOrgDto {
+export class OrganizeCreateDto {
   @ApiProperty({
     description: '组织名称',
     type: String,
@@ -92,7 +92,7 @@ export class CSYSOrgDto {
   remark: string
 }
 
-export class ESYSOrgDto {
+export class OrganizeEditDto {
   @ApiProperty({
     description: '组织名称',
     type: String,

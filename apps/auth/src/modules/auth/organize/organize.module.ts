@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common'
-import { SYSOrgController } from './controllers/SYSOrg.controller'
 import { SequelizeModule } from '@nestjs/sequelize'
 import { Organize } from '@model/auth/organize'
 import { sign } from 'crypto'
-import { SYSOrgService } from './services/SYSOrg.service'
+import { OrganizeService } from './organize.service'
 import { RedisModule } from '@library/redis'
+import { OrganizeController } from './organize.controller'
+
 @Module({
   imports: [RedisModule, SequelizeModule.forFeature([Organize])],
-  controllers: [SYSOrgController],
-  providers: [SYSOrgService],
+  controllers: [OrganizeController],
+  providers: [OrganizeService],
   exports: [],
 })
-export class SYSOrgModule {}
+export class OrganizeModule {}
