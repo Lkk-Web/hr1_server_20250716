@@ -19,6 +19,3 @@ export const OpenAuthorize = () => SetMetadata(AUTHORIZE_KEY_METADATA, true)
  * @returns 装饰器函数
  */
 export const ApiPlatformWhitelist = (platforms: string[]) => SetMetadata(PLATFORM_WHITELIST_KEY, platforms)
-
-// 权限装饰器
-export const Permissions = (...permissions: string[]) => SetMetadata('permissions', permissions)

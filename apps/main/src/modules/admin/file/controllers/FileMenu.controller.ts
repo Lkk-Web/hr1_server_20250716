@@ -7,7 +7,6 @@ import { CFileMenuDto, EFileMenuDto, FindPaginationDto } from '../dtos/FileMenu.
 import { FileMenu } from '@model/document/FileMenu.model'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
-import { Permissions } from '@core/decorator/metaData'
 
 @ApiTags('文件目录管理')
 @ApiBearerAuth()
@@ -17,7 +16,6 @@ export class FileMenuController {
   @ApiOperation({ summary: '创建' })
   @HttpCode(HttpStatus.OK)
   @Post('/')
-  @Permissions('fi:ma:add')
   async create(@Body() dto: CFileMenuDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.create(dto, loadModel)
@@ -28,7 +26,6 @@ export class FileMenuController {
   @ApiOperation({ summary: '修改' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Put(':id')
-  @Permissions('fi:ma:edit')
   async edit(@Body() dto: EFileMenuDto, @Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
@@ -40,7 +37,6 @@ export class FileMenuController {
   @ApiOperation({ summary: '删除' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Delete(':id')
-  @Permissions('fi:ma:del')
   async delete(@Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
@@ -52,7 +48,6 @@ export class FileMenuController {
   @ApiOperation({ summary: '详情' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')
-  @Permissions('fi:ma:list')
   async find(@Param() Param, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.find(Param.id, loadModel)
@@ -61,7 +56,6 @@ export class FileMenuController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')
-  @Permissions('fi:ma:list')
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.findPagination(dto, pagination, loadModel)

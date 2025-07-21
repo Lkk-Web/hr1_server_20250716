@@ -1,5 +1,4 @@
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
-import { Permissions } from '@core/decorator/metaData'
 import { Body, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common'
 import { AdminAuth } from '@core/decorator/controller'
 import { SYSOrgService } from '../services/SYSOrg.service'
@@ -18,7 +17,6 @@ export class SYSOrgController {
   @ApiOperation({ summary: '创建' })
   @HttpCode(HttpStatus.OK)
   @Post('/')
-  @Permissions('sy:or:add')
   async create(@Body() dto: CSYSOrgDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.create(dto, req.user, loadModel)
@@ -29,7 +27,6 @@ export class SYSOrgController {
   @ApiOperation({ summary: '修改' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Put(':id')
-  @Permissions('sy:or:edit')
   async edit(@Body() dto: ESYSOrgDto, @Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
@@ -41,7 +38,6 @@ export class SYSOrgController {
   @ApiOperation({ summary: '删除' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Delete(':id')
-  @Permissions('sy:or:del')
   async delete(@Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
@@ -53,7 +49,6 @@ export class SYSOrgController {
   @ApiOperation({ summary: '详情' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')
-  @Permissions('sy:or:list')
   async find(@Param() Param, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.find(Param.id, loadModel)
@@ -63,7 +58,6 @@ export class SYSOrgController {
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')
   @OpenAuthorize()
-  @Permissions('sy:or:list')
   async findPagination(@Query() dto: FindAllDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.findAll(dto, loadModel)

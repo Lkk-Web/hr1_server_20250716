@@ -1,5 +1,4 @@
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
-import { Permissions } from '@core/decorator/metaData'
 import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { AdminAuth } from '@core/decorator/controller'
 import { SysMenuService } from '../services/menu.service'
@@ -15,7 +14,6 @@ export class SysMenuController {
   @ApiOperation({ summary: '创建' })
   @HttpCode(HttpStatus.OK)
   @Post('/')
-  @Permissions('sy:me:add')
   async create(@Body() dto: CSYSMenuDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.create(dto, req.user, loadModel)
@@ -26,7 +24,6 @@ export class SysMenuController {
   @ApiOperation({ summary: '修改' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Put(':id')
-  @Permissions('sy:me:edit')
   async edit(@Body() dto: ESYSMenuDto, @Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
@@ -38,7 +35,6 @@ export class SysMenuController {
   @ApiOperation({ summary: '删除' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Delete(':id')
-  @Permissions('sy:me:del')
   async delete(@Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
@@ -50,7 +46,6 @@ export class SysMenuController {
   @ApiOperation({ summary: '详情' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')
-  @Permissions('sy:me:list')
   async find(@Param() Param, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.find(Param.id, loadModel)
@@ -59,7 +54,6 @@ export class SysMenuController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')
-  @Permissions('sy:me:list')
   async findPagination(@Query() dto: FindPaginationDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.findPagination(dto, loadModel)

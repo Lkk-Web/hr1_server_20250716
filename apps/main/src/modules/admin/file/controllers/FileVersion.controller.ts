@@ -7,7 +7,6 @@ import { CFileVersionDto, EFileVersionDto, FindPaginationDto } from '../dtos/Fil
 import { FileVersion } from '@model/document/FileVersion.model'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
-import { Permissions } from '@core/decorator/metaData'
 
 @ApiTags('文件版本管理')
 @ApiBearerAuth()
@@ -17,7 +16,6 @@ export class FileVersionController {
   @ApiOperation({ summary: '创建' })
   @HttpCode(HttpStatus.OK)
   @Post('/')
-  @Permissions('fi:ma:uploadFile')
   async create(@Body() dto: CFileVersionDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.create(dto, req.user, loadModel)
@@ -39,7 +37,6 @@ export class FileVersionController {
   @ApiOperation({ summary: '删除' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Delete(':id')
-  @Permissions('fi:ma:delHistory')
   async delete(@Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
@@ -51,7 +48,6 @@ export class FileVersionController {
   @ApiOperation({ summary: '详情' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')
-  @Permissions('fi:ma:viewHistory')
   async find(@Param() Param, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.find(Param.id, loadModel)

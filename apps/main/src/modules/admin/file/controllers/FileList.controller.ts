@@ -4,10 +4,8 @@ import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req }
 import { AdminAuth } from '@core/decorator/controller'
 import { FileListService } from '../services/FileList.service'
 import { CFileListDto, EFileListDto, findDto, FindPaginationDto } from '../dtos/FileList.dto'
-import { FileList } from '@model/document/FileList.model'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
-import { Permissions } from '@core/decorator/metaData'
 
 @ApiTags('文件列表管理')
 @ApiBearerAuth()
@@ -17,7 +15,6 @@ export class FileListController {
   @ApiOperation({ summary: '创建' })
   @HttpCode(HttpStatus.OK)
   @Post('/')
-  @Permissions('fi:ma:addFileRec')
   async create(@Body() dto: CFileListDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.create(dto, req.user, loadModel)
@@ -28,7 +25,6 @@ export class FileListController {
   @ApiOperation({ summary: '修改' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Put(':id')
-  @Permissions('fi:ma:editFileRec')
   async edit(@Body() dto: EFileListDto, @Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params
@@ -40,7 +36,6 @@ export class FileListController {
   @ApiOperation({ summary: '删除' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Delete(':id')
-  @Permissions('fi:ma:delFileRec')
   async delete(@Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
     const { id } = params

@@ -26,10 +26,6 @@ export class RoleService {
     if (sysRole) {
       throw new HttpException('该角色已存在', 400)
     }
-    // const last = await SYSRole.findOne({
-    // 	order: [['id', 'DESC']],
-    // });
-    // dto['code'] = String(parseInt(last.code, 10) + 1).padStart(4, '0');
     let menuList = []
     if (dto.menus) {
       menuList = dto.menus
