@@ -2,6 +2,8 @@ import { BelongsToMany, Column, DataType, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Menu } from './menu'
 import { RoleMenu } from './roleMenu'
+import { Organize } from './organize'
+import { RoleOrganize } from './roleOrganize'
 
 @Table({ tableName: `auth_role`, timestamps: true, freezeTableName: true, paranoid: true })
 export class Role extends BaseDate<Role> {
@@ -34,6 +36,9 @@ export class Role extends BaseDate<Role> {
 
   @BelongsToMany(() => Menu, { through: () => RoleMenu, uniqueKey: 'Role_rm_menu_unique', foreignKey: 'roleId', otherKey: 'menuId' })
   declare menuList: Menu[]
+
+  @BelongsToMany(() => Organize, { through: () => RoleOrganize, uniqueKey: 'SYSRole_ro_org_unique', foreignKey: 'roleId', otherKey: 'orgId' })
+  declare orgList: Organize[]
 
   //是否配置权限
   declare type: string
