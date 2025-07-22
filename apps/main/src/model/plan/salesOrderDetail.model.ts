@@ -61,20 +61,6 @@ export class SalesOrderDetail extends BaseDate<SalesOrderDetail> {
   declare amount: number
 
   @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-    comment: '即时库存',
-  })
-  declare oraQty: number
-
-  @Column({
-    comment: '国标图号',
-    type: DataType.TEXT,
-    allowNull: true,
-  })
-  declare k3StandardDrawingNo: string
-
-  @Column({
     type: DataType.DATE,
     allowNull: true,
     comment: '要货日期',
