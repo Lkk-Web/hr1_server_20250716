@@ -52,6 +52,8 @@ export class MiService {
     if (user) {
       // 验证密码
       if (user.dataValues.password !== dto.password) throw new HttpException('密码错误', 400017)
+    } else {
+      throw new HttpException('用户不存在', 400016)
     }
 
     // 生成访问token和刷新token
