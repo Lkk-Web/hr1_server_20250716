@@ -54,7 +54,7 @@ export class CProcessDto {
     name: 'departmentId',
     required: true,
     description: '报工部门ID，必填项',
-    type: Object,
+    type: [Number],
   })
   departmentId: number[]
 
@@ -96,7 +96,7 @@ export class UProcessDto {
     name: 'departmentId',
     required: true,
     description: '报工部门ID，必填项',
-    type: Object,
+    type: [Number],
   })
   departmentId: number[]
 

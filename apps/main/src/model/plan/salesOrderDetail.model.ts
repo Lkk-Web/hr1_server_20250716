@@ -83,4 +83,18 @@ export class SalesOrderDetail extends BaseDate<SalesOrderDetail> {
 
   @BelongsTo(() => Material)
   material: Material
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    comment: '物料编码',
+  })
+  declare materialCode: string
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    comment: '物料名称',
+  })
+  declare materialName: string
 }
