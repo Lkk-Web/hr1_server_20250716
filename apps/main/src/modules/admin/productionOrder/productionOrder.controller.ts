@@ -51,7 +51,6 @@ export class ProductionOrderController {
   @ApiOperation({ summary: '详情' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')
-  @OpenAuthorize()
   async find(@Query() dto: pobDto, @Param() Param, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.find(Param.id, loadModel, dto)

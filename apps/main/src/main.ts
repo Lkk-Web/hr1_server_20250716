@@ -69,7 +69,6 @@ async function bootstrap() {
 
   // 启动
   await app.listen(configs.info.port)
-  console.log('[server start]', `http://127.0.0.1:${configs.info.port}/`)
 }
 
 //swagger文档 配置

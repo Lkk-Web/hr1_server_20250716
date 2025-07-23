@@ -1581,7 +1581,7 @@ export class ProductionOrderService {
             let temp = {
               id: item.dataValues.material.id,
               materialId: item.dataValues.material.id,
-              name: item.dataValues.material.name,
+              name: item.dataValues.material.materialName,
               code: item.dataValues.material.code,
               spec: item.dataValues.material.spec,
               unit: item.dataValues.material.unit,
