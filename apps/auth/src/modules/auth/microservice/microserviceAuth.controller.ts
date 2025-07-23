@@ -10,12 +10,10 @@ export class MicroserviceAuthController {
   constructor(private readonly miService: MiService) {}
 
   @MessagePattern('auth.verify.token')
-  async verifyToken(@Payload() data: { token: string; serviceId: string }) {
+  async verifyToken(@Payload() data: MicroserviceTokenVerifyDto) {
     try {
-      const dto: MicroserviceTokenVerifyDto = { token: data.token }
-
-      const result = await this.miService.verifyMicroserviceToken(dto)
-      console.log('[MicroserviceAuthController] token验证成功:', dto, result)
+      const result = await this.miService.verifyMicroserviceToken(data)
+      console.log('[MicroserviceAuthController] token验证成功:', data, result)
       return result
     } catch (error) {
       return {

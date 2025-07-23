@@ -11,6 +11,7 @@ import { Paging } from '@library/utils/paging'
 import * as crypto from 'crypto'
 import { TokenInfo } from '@model/auth/tokenInfo'
 import { DtoPipe } from '@core/pipe'
+import { SystemOperationLog } from '@model/index'
 
 @Injectable()
 export class MiService {
@@ -279,6 +280,16 @@ export class MiService {
 
     // 更新最后使用时间
     await tokenRecord.update({ lastUsedAt: new Date() })
+    await SystemOperationLog.create({
+      userId: tokenRecord.dataValues.user.id,
+      description: 'main-service',
+      url: dto.path,
+      behavioral: dto.method,
+      body: dto.body,
+      params: dto.params,
+      query: dto.query,
+      ip: dto.ip
+    })
 
     return {
       valid: true,

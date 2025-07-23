@@ -1,6 +1,6 @@
 import { IsJSON, IsNotEmpty, IsString, ValidateIf, IsEnum, IsOptional, MinLength, Matches } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { PLATFORM } from '@common/enum'
+import { PLATFORM, request_Method } from '@common/enum'
 
 export class UserLoginDto {
   @IsNotEmpty({ message: '用户名不能为空' })
@@ -33,6 +33,30 @@ export class MicroserviceTokenVerifyDto {
   @ApiProperty({ name: 'serviceId', required: false, description: '微服务标识', type: String })
   @IsOptional()
   serviceId?: string
+
+  @ApiProperty({ name: 'path', required: false, description: '请求路径', type: String })
+  @IsOptional()
+  path?: string
+
+  @ApiProperty({ name: 'method', required: false, description: '请求方法', type: String })
+  @IsOptional()
+  method?: request_Method
+
+  @ApiProperty({ name: 'body', required: false, description: '请求体', type: String })
+  @IsOptional()
+  body?: string
+
+  @ApiProperty({ name: 'params', required: false, description: '路由参数', type: String })
+  @IsOptional()
+  params?: string
+
+  @ApiProperty({ name: 'query', required: false, description: '查询参数', type: String })
+  @IsOptional()
+  query?: string
+
+  @ApiProperty({ name: 'ip', required: false, description: 'IP地址', type: String })
+  @IsOptional()
+  ip?: string
 }
 
 export class RefreshTokenDto {

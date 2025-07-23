@@ -27,6 +27,13 @@ export class MicroserviceAuthGuard implements CanActivate {
       throw new UnauthorizedException('Token格式错误')
     }
 
+    // 获取请求路径和方法
+    const requestPath = request.url
+    const requestMethod = request.method
+    const requestBody = request.body ? JSON.stringify(request.body) : ''
+    const requestParams = request.params ? JSON.stringify(request.params) : ''
+    const requestQuery = request.query ? JSON.stringify(request.query) : ''
+
     try {
       // 发送微服务消息到Auth服务
       const result = await firstValueFrom(
@@ -34,6 +41,12 @@ export class MicroserviceAuthGuard implements CanActivate {
           .send('auth.verify.token', {
             token,
             serviceId: 'main-service',
+            path: requestPath,
+            method: requestMethod,
+            body: requestBody,
+            params: requestParams,
+            query: requestQuery,
+            ip: request.ip,
           })
           .pipe(
             timeout(5000), // 5秒超时

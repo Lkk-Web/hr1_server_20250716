@@ -11,3 +11,11 @@ export enum PLATFORM {
   workstation = 'workstation', // 工位端
   dashboard = 'dashboard', // 看板端
 }
+
+
+export enum request_Method {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  DELETE = 'DELETE',
+}
