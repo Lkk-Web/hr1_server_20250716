@@ -879,7 +879,7 @@ export class MiService {
         }
         //产品名                                                   良品数           总数                  良品率
         statistics.push({
-          name: order.dataValues.bom.dataValues.parentMaterial.name,
+          name: order.dataValues.bom.dataValues.parentMaterial.materialName,
           productionCount,
           totalProductionCount,
           goodRate: totalProductionCount !== 0 && totalProductionCount != null ? ((productionCount / totalProductionCount) * 100).toFixed(2) : '0.00',

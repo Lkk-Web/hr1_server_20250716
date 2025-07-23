@@ -17,13 +17,6 @@ export class FindPaginationDto {
 
 export class CCustomerDto {
   @ApiProperty({
-    description: '客户简称',
-    type: String,
-    required: true,
-  })
-  shortName: string
-
-  @ApiProperty({
     description: '客户全称',
     type: String,
     required: true,
@@ -53,13 +46,6 @@ export class CCustomerDto {
 }
 
 export class UCustomerDto {
-  @ApiProperty({
-    description: '客户简称',
-    type: String,
-    required: true,
-  })
-  shortName: string
-
   @ApiProperty({
     description: '客户全称',
     type: String,

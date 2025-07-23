@@ -428,7 +428,7 @@ export class MiService {
           totalProductionCount += Number(productionReport.dataValues.reportQuantity)
         }
         statistics.push({
-          name: order.dataValues.bom.dataValues.parentMaterial.name,
+          name: order.dataValues.bom.dataValues.parentMaterial.materialName,
           productionCount,
           totalProductionCount,
           goodRate: totalProductionCount != 0 ? ((Number(productionCount) / Number(totalProductionCount)) * 100).toFixed(2) : '0.00',
@@ -881,7 +881,7 @@ export class MiService {
 
       const formatOrder = orders1.map(order => ({
         code: order.code,
-        name: order.dataValues.bom.dataValues.parentMaterial.dataValues.name,
+        name: order.dataValues.bom.dataValues.parentMaterial.dataValues.materialName,
         planCount: order.plannedOutput,
         actualOutput: order.actualOutput,
         doneRate: Number(order.plannedOutput) ? ((Number(order.actualOutput) / Number(order.plannedOutput)) * 100).toFixed(2) : 0.0,
@@ -1223,7 +1223,7 @@ export class MiService {
 
       const formatOrder = orders.map(order => ({
         code: order.code,
-        name: order.dataValues.bom.dataValues.parentMaterial.dataValues.name,
+        name: order.dataValues.bom.dataValues.parentMaterial.dataValues.materialName,
         planCount: order.plannedOutput,
         actualOutput: order.actualOutput,
         doneRate: Number(order.plannedOutput) ? ((Number(order.actualOutput) / Number(order.plannedOutput)) * 100).toFixed(2) : 0.0,

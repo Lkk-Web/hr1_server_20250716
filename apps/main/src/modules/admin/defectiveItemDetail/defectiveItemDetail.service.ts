@@ -442,7 +442,7 @@ export class DefectiveItemDetailService {
       const temp: any = {
         productionOrderCode: value.order.code,
         bomCode: value.order.bom.parentMaterial.code,
-        materialName: value.order.bom.parentMaterial.name,
+        materialName: value.order.bom.parentMaterial.materialName,
         materialSpec: value.order.bom.parentMaterial.spec,
         unit: value.order.bom.parentMaterial.unit,
         productionOrderNum: value.order.plannedOutput,

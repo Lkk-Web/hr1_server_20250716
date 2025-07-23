@@ -351,7 +351,7 @@ export class TransferOrderService {
               //调出仓库减少对应数量
               const out = await WarehouseMaterial.findOne({ where: { warehouseId: order.dataValues.outWarehouseId, materialId: detail.dataValues.materialId } })
 
-              if (!out) throw new HttpException('调出仓库不存在物料:' + detail.dataValues.material.name, 400)
+              if (!out) throw new HttpException('调出仓库不存在物料:' + detail.dataValues.material.materialName, 400)
 
               if (Number(out.dataValues.count) - Number(detail.dataValues.count) < 0) throw new HttpException('调出仓库库存不足', 400)
 
@@ -404,7 +404,7 @@ export class TransferOrderService {
               //调出仓库增加
               const out = await WarehouseMaterial.findOne({ where: { warehouseId: order.dataValues.outWarehouseId, materialId: detail.dataValues.materialId } })
 
-              if (!out) throw new HttpException('调出仓库不存在物料:' + detail.dataValues.material.name, 400)
+              if (!out) throw new HttpException('调出仓库不存在物料:' + detail.dataValues.material.materialName, 400)
 
               await out.update({ count: Number(out.dataValues.count) + Number(detail.dataValues.count) }, { transaction })
 

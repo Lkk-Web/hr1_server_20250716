@@ -45,7 +45,7 @@ export class MaterialService {
       }
     }
 
-    const temp = await Material.findOne({ where: { name: dto.name, spec: dto.spec ? dto.spec : null, attr: dto.attr } })
+    const temp = await Material.findOne({ where: { materialName: dto.name, spec: dto.spec ? dto.spec : null, attribute: dto.attr } })
     if (temp) {
       throw new HttpException('同种物料已存在!', 400)
     }
@@ -61,9 +61,9 @@ export class MaterialService {
     }
     const temp = await Material.findOne({
       where: {
-        name: dto.name,
+        materialName: dto.name,
         spec: dto.spec ? dto.spec : null,
-        attr: dto.attr,
+        attribute: dto.attr,
         id: { [Op.ne]: id },
       },
     })
@@ -326,9 +326,9 @@ export class MaterialService {
             } else {
               const temp = await Material.findOne({
                 where: {
-                  name: rowElement.name,
+                  materialName: rowElement.name,
                   spec: rowElement.spec,
-                  attr: rowElement.attr,
+                  attribute: rowElement.attr,
                 },
                 transaction,
               })
@@ -362,9 +362,9 @@ export class MaterialService {
             }
             const temp1 = await Material.findOne({
               where: {
-                name: rowElement.name,
+                materialName: rowElement.name,
                 spec: rowElement.spec,
-                attr: rowElement.attr,
+                attribute: rowElement.attr,
               },
               transaction,
             })
@@ -393,7 +393,7 @@ export class MaterialService {
         const temp = await BOM.findOne({ where: { materialId: id } })
         if (temp) {
           const material = await Material.findByPk(id)
-          errors.push(`物料: ${material.name} 为关键物料, 无法删除, 请先将该物料从BOM中移除`)
+          errors.push(`物料: ${material.materialName} 为关键物料, 无法删除, 请先将该物料从BOM中移除`)
         }
         const deleteNum = await Material.destroy({ where: { id } })
         if (deleteNum) {

@@ -1,4 +1,4 @@
-import { BelongsToMany, Column, DataType, HasMany, HasOne, Table } from 'sequelize-typescript'
+import { BelongsToMany, Column, DataType, HasMany, HasOne, Table, BelongsTo } from 'sequelize-typescript'
 import { Organize } from '@model/auth/organize'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { BaseDate } from '@model/shared/baseDate'
@@ -28,6 +28,13 @@ export class Process extends BaseDate<Process> {
   })
   declare reportRatio: number
 
+  // 父级工序ID
+  @Column({
+    comment: '父级工序ID',
+    type: DataType.INTEGER,
+  })
+  declare parentId: number
+
   @Column({
     comment: '是否为外包工序',
     type: DataType.BOOLEAN,
@@ -36,13 +43,13 @@ export class Process extends BaseDate<Process> {
   })
   declare isOut: boolean
 
-  // @HasMany(()=>ProcessItems)
-  // aaa : ProcessItems[]
+  // 添加父子关系关联
+  @BelongsTo(() => Process, { foreignKey: 'parentId', as: 'parentProcess' })
+  declare parentProcess: Process
 
-  // @BelongsToMany(() => SYSOrg, { through: () => ProcessDept,constraints:false,foreignKeyConstraint:false,foreignKey:'processId',otherKey:'deptId' })
-  // processDept: SYSOrg[]
+  @HasMany(() => Process, { foreignKey: 'parentId', as: 'childProcesses' })
+  declare childProcesses: Process[]
 
-  // @BelongsToMany(() => DefectiveItem, { through: () => ProcessItems,constraints:false,foreignKeyConstraint:false,foreignKey:'processId',otherKey:'defectiveItemId' })
   @BelongsToMany(() => Organize, { through: () => ProcessDept, uniqueKey: 'process_pd_so_unique', foreignKey: 'processId', otherKey: 'deptId' })
   processDept: Organize[]
 

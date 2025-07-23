@@ -85,6 +85,7 @@ export class UserController {
     const result = await this.service.find(Param.id, loadModel)
     return result
   }
+  
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')

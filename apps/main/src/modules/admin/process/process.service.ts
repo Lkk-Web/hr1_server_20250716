@@ -40,6 +40,14 @@ export class ProcessService {
         throw new HttpException('同名工序已存在', 400)
       }
     }
+
+    if (dto.parentId) {
+      const parentProcess = await Process.findOne({ where: { id: dto.parentId } })
+      if (!parentProcess) {
+        throw new HttpException('父级工序不存在', 400)
+      }
+    }
+
     const result = await Process.create(dto)
     if (dto.defectiveItems) {
       await ProcessItems.bulkCreate(
@@ -66,6 +74,17 @@ export class ProcessService {
     if (!process) {
       throw new HttpException('数据不存在', 400006)
     }
+
+    if (dto.parentId) {
+      if (dto.parentId === id) {
+        throw new HttpException('父级工序不能指定当前工序', 400)
+      }
+      const parentProcess = await Process.findOne({ where: { id: dto.parentId } })
+      if (!parentProcess) {
+        throw new HttpException('父级工序不存在', 400)
+      }
+    }
+
     if (dto.processName != process.processName) {
       if (dto.processName) {
         const temp = await Process.findOne({ where: { processName: dto.processName } })
@@ -127,6 +146,11 @@ export class ProcessService {
           attributes: ['id', 'name'],
           where: {},
         },
+        {
+          association: 'childProcesses',
+          attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
+          required: false,
+        },
       ],
     }
     const result = await Process.findOne(options)
@@ -147,6 +171,11 @@ export class ProcessService {
           association: 'processDept',
           attributes: ['id', 'name'],
           where: {},
+          required: false,
+        },
+        {
+          association: 'childProcesses',
+          attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
           required: false,
         },
       ],

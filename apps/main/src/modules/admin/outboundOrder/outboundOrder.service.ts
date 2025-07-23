@@ -347,7 +347,7 @@ export class OutboundOrderService {
               //修改物料数量
               const temp = await WarehouseMaterial.findOne({ where: { warehouseId: order.warehouseId, materialId: detail.materialId }, transaction })
               if (Number(temp.count) - Number(detail.count) < 0) throw new HttpException('仓库库存数量不足以出库', 400)
-              await material.update({ quantity: Number(material.quantity) - Number(detail.count) }, { transaction })
+              // await material.update({ quantity: Number(material.quantity) - Number(detail.count) }, { transaction })
               if (temp) {
                 await temp.update({ count: Number(temp.count) - Number(detail.count) }, { transaction })
               }
@@ -378,7 +378,7 @@ export class OutboundOrderService {
               const material = await Material.findByPk(detail.materialId)
               if (!material) throw new HttpException('未找到对应物料', 400)
               //修改物料数量
-              await material.update({ quantity: Number(material.quantity) + Number(detail.count) }, { transaction })
+              // await material.update({ quantity: Number(material.quantity) + Number(detail.count) }, { transaction })
               const temp = await WarehouseMaterial.findOne({ where: { warehouseId: order.warehouseId, materialId: detail.materialId }, transaction })
               if (temp) {
                 await temp.update({ count: Number(temp.count) + Number(detail.count) }, { transaction })

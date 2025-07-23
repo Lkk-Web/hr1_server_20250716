@@ -314,7 +314,7 @@ export class AdjustOrderService {
                   { transaction }
                 )
               }
-              await material.update({ quantity: Number(material.quantity) + Number(adjustment) }, { transaction })
+              // await material.update({ quantity: Number(material.quantity) + Number(adjustment) }, { transaction })
 
               // 分别记录盘亏和盘盈的明细，供后续生成合并单据
               if (adjustment < 0) {
@@ -413,7 +413,7 @@ export class AdjustOrderService {
                 )
               }
 
-              await material.update({ quantity: Number(material.quantity) - adjustment }, { transaction })
+              // await material.update({ quantity: Number(material.quantity) - adjustment }, { transaction })
 
               //删除对应出入库单
               const ino = await InboundOrder.findAll({ where: { originCode: order.code }, transaction })

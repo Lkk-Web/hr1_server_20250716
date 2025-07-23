@@ -15,7 +15,7 @@ export class YieldStatisticsService {
   constructor(
     @Inject(RedisProvider.local)
     private readonly redis: Redis
-  ) { }
+  ) {}
 
   public async findPagination(dto: FindPaginationDto, pagination: Pagination, loadModel) {
     const options: FindPaginationOptions = {
@@ -243,10 +243,10 @@ export class YieldStatisticsService {
       }
       const temp: any = {
         bomCode: value.bom.parentMaterial.code,
-        bomName: value.bom.parentMaterial.name,
+        bomName: value.bom.parentMaterial.materialName,
         bomSpec: value.bom.parentMaterial.spec,
         remark: value.remark,
-        attr: value.bom.parentMaterial.attr,
+        attr: value.bom.parentMaterial.attribute,
         unit: value.bom.parentMaterial.unit,
         goodCount: goodNumber,
         badCount: badNumber,

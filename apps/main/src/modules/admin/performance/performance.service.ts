@@ -188,7 +188,7 @@ export class PerformanceService {
         "员工姓名":v.userDuration.user.userName,
         "工单编号":v.productionReport?.order?.code||'',
         "产品编号":v.productionReport?.order?.bom.parentMaterial.code||'',
-        "产品名称":v.productionReport?.order?.bom.parentMaterial.name||'',
+        "产品名称":v.productionReport?.order?.bom.parentMaterial.materialName||'',
         "工序":v.productionReport?.process.processName||'',
         "报工开始时间":dayjs(v.productionReport?.startTime||Date.now()).format("YYYY-MM-DD HH:mm:ss"),
         "报工结束时间":dayjs(v.productionReport?.endTime||Date.now()).format("YYYY-MM-DD HH:mm:ss"),

@@ -20,7 +20,8 @@ export class Material extends BaseDate<Material> {
     allowNull: true,
     defaultValue: '自制', // 默认为自制
   })
-  declare attr: string
+  declare attribute: string
+
   @Column({
     comment: '物料类别',
     type: DataType.STRING(50),
@@ -33,7 +34,8 @@ export class Material extends BaseDate<Material> {
     type: DataType.STRING(128),
     allowNull: true, // 必填项
   })
-  declare name: string
+  declare materialName: string
+
   @Column({
     comment: '物料规格',
     type: DataType.STRING(255),
@@ -71,34 +73,34 @@ export class Material extends BaseDate<Material> {
   declare k3DataStatus: string
 
   // 库存相关属性
-  @Column({
-    comment: '最小库存',
-    type: DataType.DECIMAL(10, 2),
-    allowNull: true,
-    defaultValue: 0,
-  })
-  declare minimumInventory: number
-  @Column({
-    comment: '最大库存',
-    type: DataType.DECIMAL(10, 2),
-    allowNull: true,
-    defaultValue: 0,
-  })
-  declare maximumInventory: number
-  @Column({
-    comment: '安全库存',
-    type: DataType.DECIMAL(10, 2),
-    allowNull: true,
-    defaultValue: 0,
-  })
-  declare safetyInventory: number
-  @Column({
-    comment: '库存数量',
-    type: DataType.DECIMAL(15, 2),
-    allowNull: true,
-    defaultValue: 0,
-  })
-  declare quantity: number
+  // @Column({
+  //   comment: '最小库存',
+  //   type: DataType.DECIMAL(10, 2),
+  //   allowNull: true,
+  //   defaultValue: 0,
+  // })
+  // declare minimumInventory: number
+  // @Column({
+  //   comment: '最大库存',
+  //   type: DataType.DECIMAL(10, 2),
+  //   allowNull: true,
+  //   defaultValue: 0,
+  // })
+  // declare maximumInventory: number
+  // @Column({
+  //   comment: '安全库存',
+  //   type: DataType.DECIMAL(10, 2),
+  //   allowNull: true,
+  //   defaultValue: 0,
+  // })
+  // declare safetyInventory: number
+  // @Column({
+  //   comment: '库存数量',
+  //   type: DataType.DECIMAL(15, 2),
+  //   allowNull: true,
+  //   defaultValue: 0,
+  // })
+  // declare quantity: number
 
   @Column({
     comment: '启用批号管理',

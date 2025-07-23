@@ -51,6 +51,14 @@ export class CProcessDto {
   processName: string
 
   @ApiProperty({
+    name: 'parentId',
+    required: false,
+    description: '父级工序ID',
+    type: Number,
+  })
+  parentId?: number
+
+  @ApiProperty({
     name: 'departmentId',
     required: true,
     description: '报工部门ID，必填项',
@@ -91,6 +99,14 @@ export class UProcessDto {
     type: String,
   })
   processName: string
+
+  @ApiProperty({
+    name: 'parentId',
+    required: false,
+    description: '父级工序ID',
+    type: Number,
+  })
+  parentId?: number
 
   @ApiProperty({
     name: 'departmentId',

@@ -340,7 +340,7 @@ export class WorkInProgressReportService {
       const temp: any = {
         productionOrderCode: value.code,
         bomCode: value.bom.parentMaterial.code,
-        bomName: value.bom.parentMaterial.name,
+        bomName: value.bom.parentMaterial.materialName,
         bomSpec: value.bom.parentMaterial.spec,
         status: value.status,
         planCount: value.plannedOutput,

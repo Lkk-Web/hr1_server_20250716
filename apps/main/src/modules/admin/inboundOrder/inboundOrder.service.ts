@@ -289,7 +289,7 @@ export class InboundOrderService {
               const material = await Material.findByPk(detail.materialId)
               if (!material) throw new HttpException('未找到对应物料', 400)
               //修改物料数量
-              await material.update({ quantity: Number(material.quantity) + Number(detail.count) }, { transaction })
+              // await material.update({ quantity: Number(material.quantity) + Number(detail.count) }, { transaction })
               const temp = await WarehouseMaterial.findOne({ where: { warehouseId: order.warehouseId, materialId: detail.materialId }, transaction })
               if (temp) {
                 await temp.update({ count: Number(temp.count) + Number(detail.count) }, { transaction })
@@ -321,7 +321,7 @@ export class InboundOrderService {
               const material = await Material.findByPk(detail.materialId)
               if (!material) throw new HttpException('未找到对应物料', 400)
               //修改物料数量
-              await material.update({ quantity: Number(material.quantity) - Number(detail.count) }, { transaction })
+              // await material.update({ quantity: Number(material.quantity) - Number(detail.count) }, { transaction })
 
               const temp = await WarehouseMaterial.findOne({ where: { warehouseId: order.warehouseId, materialId: detail.materialId }, transaction })
               if (temp) {
@@ -547,9 +547,9 @@ export class InboundOrderService {
           material: {
             id: detail.materialId,
             code: detail.dataValues.material.code,
-            name: detail.dataValues.material.name,
+            name: detail.dataValues.material.materialName,
             spec: detail.dataValues.material.spec,
-            attr: detail.dataValues.material.attr,
+            attr: detail.dataValues.material.attribute,
             unit: detail.dataValues.material.unit,
           },
           orderCount: detail.count,
@@ -580,9 +580,9 @@ export class InboundOrderService {
           material: {
             id: detail.materialId,
             code: detail.dataValues.material.code,
-            name: detail.dataValues.material.name,
+            name: detail.dataValues.material.materialName,
             spec: detail.dataValues.material.spec,
-            attr: detail.dataValues.material.attr,
+            attr: detail.dataValues.material.attribute,
             unit: detail.dataValues.material.unit,
           },
           orderCount: detail.count,
