@@ -28,6 +28,7 @@ import { PROCESS_TASK_STATUS } from '@common/enum'
 import moment = require('moment')
 import dayjs = require('dayjs')
 import _ = require('lodash')
+import { log } from 'console'
 
 @Injectable()
 export class ProductionOrderService {
@@ -349,7 +350,7 @@ export class ProductionOrderService {
         {
           association: 'material',
           required: false,
-          attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
+          attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
           where: {},
         },
         {
@@ -375,7 +376,7 @@ export class ProductionOrderService {
           include: [
             {
               association: 'material',
-              attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
+              attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
               required: false,
             },
           ],
@@ -445,17 +446,12 @@ export class ProductionOrderService {
               attributes: [
                 'id',
                 'code',
-                'attr',
+                'attribute',
                 'category',
-                'name',
+                'materialName',
                 'spec',
                 'unit',
                 'status',
-                'k3DrawingNo',
-                'k3StandardDrawingNo',
-                'k3Meterial',
-                'k3AuxUinit',
-                'k3Color',
                 'k3DataStatus',
               ],
               required: true,
@@ -500,6 +496,13 @@ export class ProductionOrderService {
             {
               association: 'process',
               attributes: ['id', 'processName'],
+              include: [
+                {
+                  association: 'childProcesses',
+                  attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
+                  required: false,
+                },
+              ],
             },
             {
               association: 'workCenter',
@@ -834,7 +837,7 @@ export class ProductionOrderService {
             include: [
               {
                 association: 'material',
-                attributes: ['id', 'name', 'attr', 'spec', 'unit'],
+                attributes: ['id', 'materialName', 'attribute', 'spec', 'unit'],
                 where: { id: material.id },
               },
               {
@@ -978,7 +981,7 @@ export class ProductionOrderService {
         include: [
           {
             association: 'material',
-            attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
+            attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
             where: {},
           },
           {
@@ -1004,7 +1007,7 @@ export class ProductionOrderService {
             include: [
               {
                 association: 'material',
-                attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
+                attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
               },
               {
                 association: 'feedProcess',
@@ -1020,7 +1023,7 @@ export class ProductionOrderService {
         include: [
           {
             association: 'material',
-            attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
+            attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
             where: {},
           },
           {
@@ -1046,7 +1049,7 @@ export class ProductionOrderService {
             include: [
               {
                 association: 'material',
-                attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
+                attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
               },
               {
                 association: 'feedProcess',
@@ -1086,7 +1089,7 @@ export class ProductionOrderService {
           include: [
             {
               association: 'parentMaterial',
-              attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
+              attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit', 'status'],
               required: false,
             },
           ],
@@ -1103,7 +1106,7 @@ export class ProductionOrderService {
             {
               association: 'material',
               required: false,
-              attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
+              attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
               where: {},
             },
             {
@@ -1112,7 +1115,7 @@ export class ProductionOrderService {
               include: [
                 {
                   association: 'material',
-                  attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
+                  attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
                 },
               ],
             },
@@ -1190,12 +1193,13 @@ export class ProductionOrderService {
     //   { key: 'FPrdOrgId.FNumber', type: 'string', value: '102' },
     //   { key: 'FWorkshopID.FName', type: 'string', value: '线束车间' },
     // ])
-    let filterString = `FDate>='2025-05-25' and FDocumentStatus='C' and FStatus='4' and FBillType = '123f39178eb2424c8449f992e1fff1ee'`
+    let filterString = `FDate>='2025-03-25' and FDocumentStatus='C' and FStatus='4' and FBillType = '123f39178eb2424c8449f992e1fff1ee'`
     let data = await KingdeeeService.getList(
       'PRD_MO',
-      'FTreeEntity_FEntryId,FID,FBillNo,FRowId,FWorkShopID,FWorkshopID.FName,FPlanStartDate,FPlanFinishDate,FMaterialId,FMaterialId.FMasterID,FQty,FBomId,FRoutingId,FSrcBillType,FSrcBillNo,F_ora_Text,FTreeEntity_FSEQ,FBillType,FStatus,FDocumentStatus',
+      'FTreeEntity_FEntryId,FID,FBillNo,FRowId,FWorkShopID,FWorkshopID.FName,FPlanStartDate,FPlanFinishDate,FMaterialId,FMaterialId.FMasterID,FQty,FBomId,FRoutingId,FSrcBillType,FSrcBillNo,FTreeEntity_FSEQ,FBillType.FName,FStatus,FDocumentStatus',
       filterString
     )
+    // return data
     const dataMap = data.reduce((map, item) => {
       map[item.FBillNo] = item
       return map
@@ -1243,7 +1247,7 @@ export class ProductionOrderService {
       }
 
       let temp = {
-        id: item.FBillNo + item.FTreeEntity_FEntryId,
+        id: item.FBillNo + String(item['FTreeEntity.FEntryId']),
         kingdeeCode: item.FBillNo,
         kingdeeRow: item.FRowId,
         bomId: item.FBomId ? item.FBomId : null,
@@ -1255,14 +1259,14 @@ export class ProductionOrderService {
         startTime: item.FPlanStartDate,
         endTime: item.FPlanFinishDate,
         fid: item.FID,
-        salesOrderCode: item.F_ora_Text,
         fseq: item.FTreeEntity_FSEQ,
-        billType: item.FBillType,
+        billType: item['FBillType.FName'],
       }
       mate.push(temp)
     }
     for (let i = 0; i < mate.length; i += 100) {
       let batch = mate.slice(i, i + 100)
+      // console.log(batch)
       //查询bom是否存在不存在就过滤保存
       const bomIds = _.uniq(batch.map(item => item.bomId)).filter(id => id !== null)
       if (bomIds.length) {
@@ -1288,6 +1292,7 @@ export class ProductionOrderService {
           'endTime',
           'fid',
           'salesOrderCode',
+          'billType',
         ],
       })
 
@@ -1342,7 +1347,7 @@ export class ProductionOrderService {
             },
             {
               association: 'material',
-              attributes: ['id', 'name', 'attr', 'spec', 'unit'],
+              attributes: ['id', 'materialName', 'attribute', 'spec', 'unit'],
               where: { id: freshProductionOrder.subMaterialId },
             },
           ],
@@ -1399,7 +1404,7 @@ export class ProductionOrderService {
     // let filterString2 = await KingdeeeService.buildFilterString([
     //   { key: 'FWorkshopID.FName', type: 'string', value: '线束车间' },
     // ])
-    let filterString2 = "FCreateDate>='2025-05-25' and FMoEntryStatus='4' and FMOType.FName = '汇报入库-普通生产'"
+    let filterString2 = "FCreateDate>='2025-03-25' and FMoEntryStatus='4' and FMOType.FName = '汇报入库-普通生产'"
     data = await KingdeeeService.getList(
       'PRD_PPBOM',
       'FMOEntryID,FID,FBillNo,FMaterialID.FMasterID,FBOMID,FWorkshopID,FWorkshopID.FName,FUnitID,FMOBillNO,FQty,FMOEntrySeq,FDocumentStatus,FDescription',
@@ -1431,6 +1436,7 @@ export class ProductionOrderService {
       }
       mate.push(temp)
     }
+    // console.log(mate)
     for (let i = 0; i < mate.length; i += 100) {
       let batch = mate.slice(i, i + 100)
       //查询bom是否存在不存在就过滤保存
@@ -1445,7 +1451,7 @@ export class ProductionOrderService {
       }
       let result = await POB.bulkCreate(batch, {
         updateOnDuplicate: ['id', 'productionOrderId', 'code', 'materialId', 'bomId', 'workShopId', 'unit', 'count', 'orderRowNum', 'remark'],
-        ignoreDuplicates: true,
+        // ignoreDuplicates: true,
       })
     }
 
@@ -1546,7 +1552,7 @@ export class ProductionOrderService {
               include: [
                 {
                   association: 'material',
-                  attributes: ['id', 'name', 'code', 'spec', 'unit'],
+                  attributes: ['id', 'materialName', 'code', 'spec', 'unit'],
                 },
               ],
             },

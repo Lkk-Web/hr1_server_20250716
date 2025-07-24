@@ -213,7 +213,7 @@ export class WorkCenterService {
                   include: [
                     {
                       association: 'parentMaterial',
-                      attributes: ['name', 'code'],
+                      attributes: ['materialName', 'code'],
                     },
                   ],
                 },
