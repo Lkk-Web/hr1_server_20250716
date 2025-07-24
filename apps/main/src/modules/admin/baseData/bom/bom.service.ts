@@ -93,7 +93,7 @@ export class BomService {
       include: [
         {
           association: 'parentMaterial',
-          attributes: ['id', 'name'],
+          attributes: ['id', 'materialName', 'remark'],
           include: [
             {
               association: 'processRoute',
@@ -117,22 +117,7 @@ export class BomService {
       include: [
         {
           association: 'parentMaterial', // 对应定义的 material 关联
-          attributes: [
-            'id',
-            'code',
-            'attr',
-            'category',
-            'name',
-            'spec',
-            'unit',
-            'status',
-            'k3DrawingNo',
-            'k3StandardDrawingNo',
-            'k3Meterial',
-            'k3AuxUinit',
-            'k3Color',
-            'k3DataStatus',
-          ],
+          attributes: ['id', 'code', 'attribute', 'category', 'materialName', 'spec', 'unit', 'status', 'k3DataStatus'],
         },
       ],
     })
@@ -173,22 +158,7 @@ export class BomService {
       include: [
         {
           association: 'parentMaterial',
-          attributes: [
-            'id',
-            'code',
-            'attr',
-            'category',
-            'name',
-            'spec',
-            'unit',
-            'status',
-            'k3DrawingNo',
-            'k3StandardDrawingNo',
-            'k3Meterial',
-            'k3AuxUinit',
-            'k3Color',
-            'k3DataStatus',
-          ],
+          attributes: ['id', 'code', 'attribute', 'category', 'materialName', 'spec', 'unit', 'status', 'k3DataStatus'],
           where: {},
         },
       ],
