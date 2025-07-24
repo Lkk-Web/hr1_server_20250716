@@ -72,36 +72,6 @@ export class Material extends BaseDate<Material> {
   })
   declare k3DataStatus: string
 
-  // 库存相关属性
-  // @Column({
-  //   comment: '最小库存',
-  //   type: DataType.DECIMAL(10, 2),
-  //   allowNull: true,
-  //   defaultValue: 0,
-  // })
-  // declare minimumInventory: number
-  // @Column({
-  //   comment: '最大库存',
-  //   type: DataType.DECIMAL(10, 2),
-  //   allowNull: true,
-  //   defaultValue: 0,
-  // })
-  // declare maximumInventory: number
-  // @Column({
-  //   comment: '安全库存',
-  //   type: DataType.DECIMAL(10, 2),
-  //   allowNull: true,
-  //   defaultValue: 0,
-  // })
-  // declare safetyInventory: number
-  // @Column({
-  //   comment: '库存数量',
-  //   type: DataType.DECIMAL(15, 2),
-  //   allowNull: true,
-  //   defaultValue: 0,
-  // })
-  // declare quantity: number
-
   @Column({
     comment: '启用批号管理',
     type: DataType.BOOLEAN,
