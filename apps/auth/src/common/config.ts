@@ -22,6 +22,7 @@ export const info: Configs = {
   port: envs.appConfig.port || '8002',
   gitCiAuthorize: envs['GIT_CI_AUTHORIZE'] ? envs['GIT_CI_AUTHORIZE'].split('|') : [],
   appKey: envs.appConfig.key,
+  home_path: envs.appConfig.home_path,
   pay_notify_url: envs.PAY_NOTIFY_URL,
   refund_notify_url: envs.REFUND_NOTIFY_URL,
   wsNameSpace: envs.WS_NAMESPACE,

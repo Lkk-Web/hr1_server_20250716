@@ -9,6 +9,9 @@ export const swaggerStart = (app: INestApplication, options: SwaggerStartOptions
       .setTitle(options.title)
       .setDescription(options.desc || '')
       .setVersion('1.0')
+      .addServer(`http://127.0.0.1:${port}`, '本地')
+      .addServer(`http://192.168.31.12:${port}`, '开发')
+      .addServer(`${options.home_path}`, '使用环境')
       .build()
     const documentOptions: SwaggerDocumentOptions = {}
     if (options.modules) {
@@ -57,4 +60,5 @@ interface SwaggerStartOptions {
   desc?: string
   title: string
   path: string
+  home_path: string
 }

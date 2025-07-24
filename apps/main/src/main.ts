@@ -79,6 +79,9 @@ function swaggerStart(app: INestApplication, options: SwaggerStartOptions) {
       .setTitle(options.title)
       .setDescription(options.desc || '')
       .setVersion('1.0')
+      .addServer(`http://127.0.0.1:${configs.info.port}`, '本地')
+      .addServer(`http://192.168.31.12:${configs.info.port}`, '开发')
+      .addServer(`${configs.info.home_path}`, '使用环境')
       .build()
     const documentOptions: SwaggerDocumentOptions = {}
     if (options.modules) {

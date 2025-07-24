@@ -26,6 +26,7 @@ export const info: Configs = {
   refund_notify_url: envs.REFUND_NOTIFY_URL,
   wsNameSpace: envs.WS_NAMESPACE,
   proxyAuth: envs.PROXY_AUTH,
+  home_path: envs.appConfig.home_path,
 }
 
 export const MYSQL_CONFIG: SequlizeOptions = {

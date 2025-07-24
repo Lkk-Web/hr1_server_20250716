@@ -64,6 +64,7 @@ export interface Configs {
   refund_notify_url?: string
   wsNameSpace?: string
   proxyAuth?: string // 代理认证
+  home_path?: string
 }
 
 export interface SequlizeOptions {

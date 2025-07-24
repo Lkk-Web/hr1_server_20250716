@@ -62,6 +62,7 @@ export interface Configs {
   pay_notify_url?: string;
   refund_notify_url?: string;
   wsNameSpace?: string;
+  home_path?: string;
 }
 
 export interface SequlizeOptions {
