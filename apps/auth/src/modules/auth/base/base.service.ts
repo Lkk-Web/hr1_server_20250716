@@ -213,7 +213,7 @@ export class MiService {
     })
 
     const newRefreshToken = crypto.randomBytes(32).toString('hex')
-    const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000) // 2小时
+    const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48小时
     const refreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7天
 
     await tokenRecord.update({
