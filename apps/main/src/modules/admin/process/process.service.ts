@@ -125,6 +125,8 @@ export class ProcessService {
     if (route || order || task || report) {
       throw new HttpException('该工序已存在后续业务数据（如工艺路线、工单\\任务单\\报工等），不允许删除！', 400)
     }
+    //先删除子工序
+    await Process.destroy({ where: { isChild: 0, parentId: id } })
     const result = await Process.destroy({
       where: {
         id: id,
@@ -147,7 +149,7 @@ export class ProcessService {
           where: {},
         },
         {
-          association: 'childProcesses',
+          association: 'children',
           attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
           required: false,
         },
@@ -159,7 +161,7 @@ export class ProcessService {
 
   public async findPagination(dto: FindPaginationDto, pagination: Pagination, simplify = false) {
     const options: FindPaginationOptions = {
-      where: {},
+      where: { isChild: 1 },
       pagination,
       include: [
         {
@@ -174,9 +176,16 @@ export class ProcessService {
           required: false,
         },
         {
-          association: 'childProcesses',
-          attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
+          association: 'children',
+          attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt', 'isChild', 'parentId'],
           required: false,
+          include: [
+            {
+              association: 'processDept',
+              attributes: ['id', 'name'],
+              required: false,
+            },
+          ],
         },
       ],
     }
@@ -314,6 +323,8 @@ export class ProcessService {
     let errors: Array<string> = []
     for (const id of dto.ids) {
       try {
+        //先删除子工序
+        await Process.destroy({ where: { isChild: 0, parentId: id } })
         const deleteNum = await Process.destroy({ where: { id } })
         if (deleteNum) {
           success++
@@ -321,7 +332,7 @@ export class ProcessService {
           failed++
         }
       } catch (e) {
-        errors.push(`删除物料 ID ${id} 时出错: ${e.message}`)
+        errors.push(`删除工序 ID ${id} 时出错: ${e.message}`)
         failed++
       }
     }

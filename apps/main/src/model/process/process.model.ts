@@ -35,6 +35,13 @@ export class Process extends BaseDate<Process> {
   })
   declare parentId: number
 
+  //1为父工序 0为子工序
+  @Column({
+    comment: '是否为子工序',
+    type: DataType.INTEGER,
+  })
+  declare isChild: number
+
   @Column({
     comment: '是否为外包工序',
     type: DataType.BOOLEAN,
@@ -44,11 +51,11 @@ export class Process extends BaseDate<Process> {
   declare isOut: boolean
 
   // 添加父子关系关联
-  @BelongsTo(() => Process, { foreignKey: 'parentId', as: 'parentProcess' })
-  declare parentProcess: Process
+  @BelongsTo(() => Process, { foreignKey: 'parentId', as: 'parent' })
+  declare parent: Process
 
-  @HasMany(() => Process, { foreignKey: 'parentId', as: 'childProcesses' })
-  declare childProcesses: Process[]
+  @HasMany(() => Process, { foreignKey: 'parentId', as: 'children' })
+  declare children: Process[]
 
   @BelongsToMany(() => Organize, { through: () => ProcessDept, uniqueKey: 'process_pd_so_unique', foreignKey: 'processId', otherKey: 'deptId' })
   processDept: Organize[]
