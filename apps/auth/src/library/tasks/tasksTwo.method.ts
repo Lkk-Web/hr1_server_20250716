@@ -3,7 +3,7 @@ import {
 
 } from "@common/enum";
 import {Op, Sequelize} from "sequelize";
-import * as dayjs from "dayjs";
+import dayjs from 'dayjs'  // ✅ 默认导入
 import { RequestCount} from "@common/interface";
 import {ReqRecording} from "@common/cache";
 import {Dayjs} from "dayjs";
