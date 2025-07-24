@@ -18,17 +18,9 @@ import express = require('express')
 // const bodyParser = require('body-parser')
 // require('body-parser-xml')(bodyParser)
 
-const getLocalIP = () => {
-  const ips = []
-  const interfaces = os.networkInterfaces()
-  for (let devName in interfaces) {
-    const iface = interfaces[devName]
-    ips.push(iface[1].address)
-  }
-  return ips
-}
-
 async function bootstrap() {
+  // 记录启动开始时间
+  const startTime = Date.now()
   const app = await NestFactory.create(AppModule, { cors: true })
   const iocContext = app.select(AppModule)
   const logger = app.select(LoggerModule).get(LoggerProvider)
@@ -62,13 +54,16 @@ async function bootstrap() {
 
   // 创建接口文档
   if (configs.info.isDebug) {
-    // ips = getLocalIP()
     swaggerStart(app, { title: '管理端文档', path: 'admin', modules: AdminModules, desc: '' })
     swaggerStart(app, { title: '用户端文档', path: 'client', modules: ClientModules, desc: '' })
   }
 
   // 启动
   await app.listen(configs.info.port)
+
+  // 计算并输出启动时间
+  const endTime = Date.now()
+  logger.debug(`⏱️  启动耗时: ${endTime - startTime}ms (${((endTime - startTime) / 1000).toFixed(2)}s)`)
 }
 
 //swagger文档 配置
