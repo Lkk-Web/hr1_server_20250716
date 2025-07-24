@@ -10,6 +10,7 @@ export class MicroserviceAuthGuard implements CanActivate {
   constructor(private readonly reflector: Reflector, @Inject('AUTH_SERVICE') private readonly authClient: ClientProxy) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const start: any = new Date()
     // 检查是否跳过授权验证
     const skipAuth = this.reflector.getAllAndOverride<boolean>(AUTHORIZE_KEY_METADATA, [context.getHandler(), context.getClass()])
 
@@ -56,6 +57,9 @@ export class MicroserviceAuthGuard implements CanActivate {
             })
           )
       )
+
+      const end = Date.now()
+      console.log(`耗时：${end - start} ms`)
 
       if (result.valid) {
         // 将用户信息附加到请求对象

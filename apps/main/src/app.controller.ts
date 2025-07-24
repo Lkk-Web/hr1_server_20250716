@@ -1,3 +1,4 @@
+import { ApiPlatformWhitelist } from '@core/decorator/metaData'
 import { Controller, Get } from '@nestjs/common'
 
 @Controller()
@@ -5,6 +6,7 @@ export class AppController {
   constructor() {}
 
   @Get()
+  @ApiPlatformWhitelist(['client', 'admin', 'station'])
   getHello(): object {
     return {
       version: '1.0.0',

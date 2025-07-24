@@ -13,7 +13,7 @@ export class MicroserviceAuthController {
   async verifyToken(@Payload() data: MicroserviceTokenVerifyDto) {
     try {
       const result = await this.miService.verifyMicroserviceToken(data)
-      console.log('[MicroserviceAuthController] token验证成功:', data, result)
+      console.log('[Microservice] token验证成功', data.path, result.user.userName)
       return result
     } catch (error) {
       return {

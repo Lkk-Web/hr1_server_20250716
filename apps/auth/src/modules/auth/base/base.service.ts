@@ -125,7 +125,7 @@ export class MiService {
     // 检查 token 是否过期
     if (new Date() > tokenRecord.expiresAt) {
       await tokenRecord.update({ isActive: false })
-      throw new HttpException('token已过期', 401)
+      throw new HttpException(`token已过期,${tokenRecord.expiresAt}`, 401)
     }
 
     // 获取用户信息
@@ -263,10 +263,9 @@ export class MiService {
 
     if (new Date() > tokenRecord.expiresAt) {
       await tokenRecord.update({ isActive: false })
-      throw new HttpException('token已过期', 401)
+      throw new HttpException(`token已过期,${tokenRecord.expiresAt}`, 401)
     }
 
-    // 更新最后使用时间
     await tokenRecord.update({ lastUsedAt: new Date() })
     if (dto.method != request_Method.GET) {
       await SystemOperationLog.create({
