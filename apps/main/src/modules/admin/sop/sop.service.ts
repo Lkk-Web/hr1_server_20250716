@@ -164,7 +164,7 @@ export class SopService {
         },
         {
           association: 'materials',
-          attributes: ['id', 'name', 'code', 'spec'],
+          attributes: ['id', 'materialName', 'code', 'spec'],
           through: { attributes: [] },
         },
         {
