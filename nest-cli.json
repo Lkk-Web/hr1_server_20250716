@@ -3,6 +3,10 @@
   "sourceRoot": "src",
   "monorepo": true,
   "root": "apps",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "tsconfig.build.json"
+  },
   "projects": {
     "api-gateway": {
       "type": "application",

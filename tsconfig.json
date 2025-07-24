@@ -11,6 +11,12 @@
     "target": "ESNext",
     "lib": ["ESNext", "DOM"],
     "outDir": "dist",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
     "paths": {
       "apps/*": ["./apps/*"],
       "libs/*": ["./libs/*"]
