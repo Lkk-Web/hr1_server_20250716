@@ -35,12 +35,12 @@ export class FindPaginationDto {
   spec?: string
 
   @ApiProperty({
-    name: 'attr',
+    name: 'attribute',
     required: false,
     description: '物料属性，默认为自制',
     type: String,
   })
-  attr: string
+  attribute: string
 
 
 

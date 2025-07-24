@@ -176,9 +176,9 @@ export class MaterialService {
         [Op.like]: `%${dto.code}%`,
       }
     }
-    if (dto.attr) {
-      const temp = dto.attr.split(',')
-      options.where['attr'] = {
+    if (dto.attribute) {
+      const temp = dto.attribute.split(',')
+      options.where['attribute'] = {
         [Op.in]: temp,
       }
     }

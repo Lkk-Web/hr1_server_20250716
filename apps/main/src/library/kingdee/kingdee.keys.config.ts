@@ -55,11 +55,11 @@ export const K3Mapping = {
       // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FMasterID', 'id'],
       ['编码', 'FNumber', 'code'],
-      ['名称', 'FName', 'name'],
+      ['名称', 'FName', 'materialName'],
       ['描述', 'FDescription', 'remark'],
       ['规格型号', 'FSpecification', 'spec'],
       ['数据状态', 'FDocumentStatus', 'k3DataStatus', v => convertExtends(v, 'FDocumentStatus')],
-      ['物料属性', 'FErpClsID', 'attr', v => convertExtends(v, 'FErpClsID')],
+      ['物料属性', 'FErpClsID', 'attribute', v => convertExtends(v, 'FErpClsID')],
       ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
       ['基本单位', 'FBaseUnitId.FName', 'unit'],
     ],
