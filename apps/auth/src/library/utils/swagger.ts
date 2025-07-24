@@ -16,7 +16,7 @@ export const swaggerStart = (app: INestApplication, options: SwaggerStartOptions
     }
     const document = SwaggerModule.createDocument(app, config, documentOptions)
     const prefix = options.path.replace(/\//, '_')
-    SwaggerModule.setup(`doc/${options.path}`, app, document, {
+    SwaggerModule.setup(options.env === 'prod' ? '' : `doc/${options.path}`, app, document, {
       customCss: `.swagger-ui .model-box-control, .swagger-ui .models-control, .swagger-ui .opblock-summary-control {
           all: inherit;
           border-bottom: 0;
@@ -55,6 +55,7 @@ export const swaggerStart = (app: INestApplication, options: SwaggerStartOptions
 interface SwaggerStartOptions {
   modules?: any
   desc?: string
+  env?: string
   title: string
   path: string
 }

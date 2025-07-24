@@ -2,6 +2,14 @@
 
 基于 NestJS 框架，采用微服务架构和 Monorepo。
 
+测试服部署：
+
+如果第一次部署需要 `pm2 save`
+
+```
+cd /home/hr1_server_20250716 && git pull && npm run build && pm2 restart 18 && pm2 restart 19 && pm2 logs 18
+```
+
 ### 技术栈
 
 - **框架**: NestJS 8.0.0+

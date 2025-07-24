@@ -60,7 +60,7 @@ async function bootstrap() {
 
   // 创建接口文档
   if (configs.info.isDebug) {
-    swaggerStart(app, { title: '微服务权限文档', path: 'auth', modules: AuthModules, desc: '' }, configs.info.port)
+    swaggerStart(app, { title: '微服务权限文档', path: 'auth', modules: AuthModules, desc: '', env: configs.info.env }, configs.info.port)
   }
 
   await app.listen(configs.info.port)
