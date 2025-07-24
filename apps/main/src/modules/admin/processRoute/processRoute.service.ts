@@ -34,6 +34,10 @@ export class ProcessRouteService {
     //   throw new HttpException('产品:' + material.name + '已被其他工艺路线关联,请选择其他产品', 400)
     // }
 
+    const processRoute = await ProcessRoute.findOne({ where: { name: dto.name } })
+    if (processRoute) {
+      throw new HttpException('工艺路线名称已存在', 400)
+    }
     //建立外层工艺路线
     const result = await ProcessRoute.create({ name: dto.name, remark: dto.remark, status: dto.status, createdUserId: user.id })
     if (dto.processRouteList) {
@@ -158,7 +162,7 @@ export class ProcessRouteService {
       include: [
         {
           association: 'material',
-          attributes: ['id', 'code', 'name', 'attr', 'spec', 'unit'],
+          attributes: ['id', 'code', 'materialName', 'attribute', 'spec', 'unit'],
         },
         {
           association: 'createdUser',
@@ -199,7 +203,7 @@ export class ProcessRouteService {
       include: [
         {
           association: 'material',
-          attributes: ['id', 'code', 'name'],
+          attributes: ['id', 'code', 'materialName'],
         },
         {
           association: 'createdUser',
@@ -271,7 +275,7 @@ export class ProcessRouteService {
       include: [
         {
           association: 'material',
-          attributes: ['id', 'code', 'name'],
+          attributes: ['id', 'code', 'materialName'],
           where: {},
           required: false,
         },
