@@ -3,6 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { BOM } from '@model/base/bom.model'
 import { ProcessRoute } from '@model/process/processRoute.model'
 import { ManHour } from '@model/performance/manHour.model'
+import { SalesOrderDetail } from '@model/plan/salesOrderDetail.model'
 
 /** 物料 */
 @Table({ tableName: `base_material`, freezeTableName: true, timestamps: true, comment: '物料表' })
@@ -111,6 +112,9 @@ export class Material extends BaseDate<Material> {
 
   @HasMany(() => BOM)
   declare boms: BOM[]
+
+  @HasMany(() => SalesOrderDetail)
+  declare salesOrderDetails: SalesOrderDetail[]
 
   //---------------
   declare manHour: ManHour

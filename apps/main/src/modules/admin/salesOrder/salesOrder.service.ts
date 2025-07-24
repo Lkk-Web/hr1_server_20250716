@@ -125,7 +125,7 @@ export class SalesOrderService {
           include: [
             {
               association: 'material',
-              attributes: ['id', 'code', 'name', 'spec', 'attr', 'unit', 'quantity'],
+              attributes: ['id', 'code', 'materialName', 'spec', 'attribute', 'unit', 'quantity'],
             },
           ],
         },
@@ -149,12 +149,13 @@ export class SalesOrderService {
         },
         {
           association: 'details',
-          attributes: ['id', 'materialId', 'bomId', 'unitPrice', 'unit', 'quantity', 'amount', 'oraQty', 'k3StandardDrawingNo', 'deliveryDate'],
+          attributes: ['id', 'materialId', 'bomId', 'unitPrice', 'unit', 'quantity', 'amount', 'deliveryDate'],
+          where: {},
           include: [
             {
               association: 'material',
-              attributes: ['id', 'code', 'name', 'spec', 'attr', 'unit', 'minimumInventory', 'maximumInventory', 'safetyInventory', 'quantity'],
-              where: {},
+              attributes: ['id', 'code', 'materialName', 'spec', 'attribute', 'unit'],
+              required: false,
             },
           ],
         },
@@ -165,6 +166,16 @@ export class SalesOrderService {
       options.where['code'] = {
         [Op.like]: `%${dto.code}%`,
       }
+    }
+
+    // 处理客户名称查询
+    if (dto.customerName) {
+      options.include[0].where = {
+        fullName: {
+          [Op.like]: `%${dto.customerName}%`,
+        },
+      }
+      options.include[0].required = true
     }
 
     if (dto.materialCode) {
@@ -185,10 +196,14 @@ export class SalesOrderService {
       }
     }
 
+    // 处理交货日期查询
     if (dto.deliveryDate) {
-      options.where['deliveryDate'] = {
+      options.include[1].where = {
+        deliveryDate: {
         [Op.eq]: dto.deliveryDate,
+        },
       }
+      options.include[1].required = true
     }
 
     const result = await Paging.diyPaging(SalesOrder, pagination, options)

@@ -24,6 +24,9 @@ export class SalesOrderDetail extends BaseDate<SalesOrderDetail> {
   })
   declare materialId: number
 
+  @BelongsTo(() => Material)
+  material: Material
+
   @ForeignKey(() => Material)
   @Column({
     type: DataType.INTEGER,
@@ -66,9 +69,6 @@ export class SalesOrderDetail extends BaseDate<SalesOrderDetail> {
     comment: '要货日期',
   })
   declare deliveryDate: Date
-
-  @BelongsTo(() => Material)
-  material: Material
 
   @Column({
     type: DataType.STRING,
