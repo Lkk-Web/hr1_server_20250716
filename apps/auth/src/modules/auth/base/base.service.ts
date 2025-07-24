@@ -1,7 +1,7 @@
 import { Injectable, HttpException } from '@nestjs/common'
 import { TokenGetUserDto, UserLoginDto, UserRegisterDto, MicroserviceTokenVerifyDto, RefreshTokenDto, LogoutDto } from './base.dto'
 import { User } from '@model/auth/user'
-import { PLATFORM } from '@common/enum'
+import { PLATFORM, request_Method } from '@common/enum'
 import { CryptoUtil, jwtDecode, jwtEncodeInExpire } from '@library/utils/crypt.util'
 import { Aide } from '@library/utils/aide'
 import { literal, Op, Sequelize } from 'sequelize'
@@ -46,7 +46,7 @@ export class MiService {
   }
 
   async postToken(dto: UserLoginDto, ipAddress?: string, userAgent?: string) {
-    let user = await User.findOne({
+    const user = await User.findOne({
       where: { userName: dto.userName },
     })
     dto.password = CryptoUtil.sm4Encryption(dto.password)
@@ -57,24 +57,12 @@ export class MiService {
       throw new HttpException('用户不存在', 400016)
     }
 
-    // 生成访问token和刷新token
-    const accessToken = jwtEncodeInExpire({
-      platform: dto.platform,
-      id: user.id,
-    })
-
+    const accessToken = jwtEncodeInExpire({ platform: dto.platform, id: user.id })
     const refreshToken = crypto.randomBytes(32).toString('hex')
-    const expiresAt = new Date(Date.now() + 2 * 60 * 60 * 1000) // 2小时
+    const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000) // 48小时
     const refreshExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7天
 
-    // 检查是否已存在相同平台和设备的token
-    const existingToken = await TokenInfo.findOne({
-      where: {
-        userId: user.id,
-        platform: dto.platform,
-        isActive: true,
-      },
-    })
+    const existingToken = await TokenInfo.findOne({ where: { userId: user.id, platform: dto.platform } })
 
     if (existingToken) {
       // 更新现有token
@@ -109,7 +97,7 @@ export class MiService {
     return {
       accessToken,
       refreshToken,
-      expiresIn: 7200, // 2小时
+      expiresIn: 48 * 3600, // 48小时
       user: userJson,
     }
   }
@@ -280,16 +268,18 @@ export class MiService {
 
     // 更新最后使用时间
     await tokenRecord.update({ lastUsedAt: new Date() })
-    await SystemOperationLog.create({
-      userId: tokenRecord.dataValues.user.id,
-      description: 'main-service',
-      url: dto.path,
-      behavioral: dto.method,
-      body: dto.body,
-      params: dto.params,
-      query: dto.query,
-      ip: dto.ip
-    })
+    if (dto.method != request_Method.GET) {
+      await SystemOperationLog.create({
+        userId: tokenRecord.dataValues.user.id,
+        description: 'main-service',
+        url: dto.path,
+        behavioral: dto.method,
+        body: dto.body,
+        params: dto.params,
+        query: dto.query,
+        ip: dto.ip,
+      })
+    }
 
     return {
       valid: true,
