@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { actionDto, CProductionOrderDTO, ERPFindPaginationDto, FindPaginationDto, pobDto, POBPaginationDto, priorityDto } from './productionOrder.dto'
-import { FindOptions, Op } from 'sequelize'
+import { FindOptions, Op, or, where } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Material } from '@model/base/material.model'
 import { POP } from '@model/production/POP.model'
@@ -306,7 +306,7 @@ export class ProductionOrderService {
           include: [
             {
               association: 'parentMaterial',
-              attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
+              attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit', 'status'],
               required: false,
               where: {},
             },
@@ -443,17 +443,7 @@ export class ProductionOrderService {
           include: [
             {
               association: 'parentMaterial',
-              attributes: [
-                'id',
-                'code',
-                'attribute',
-                'category',
-                'materialName',
-                'spec',
-                'unit',
-                'status',
-                'k3DataStatus',
-              ],
+              attributes: ['id', 'code', 'attribute', 'category', 'materialName', 'spec', 'unit', 'status', 'k3DataStatus'],
               required: true,
               // include: [
               //   {
@@ -498,7 +488,7 @@ export class ProductionOrderService {
               attributes: ['id', 'processName'],
               include: [
                 {
-                  association: 'childProcesses',
+                  association: 'children',
                   attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
                   required: false,
                 },
@@ -681,17 +671,24 @@ export class ProductionOrderService {
           }
           await ProductionOrder.update({ status: '执行中' }, { where: { id: number } })
           let pop = await POP.findOne({ where: { productionOrderId: number }, order: [['id', 'ASC']] })
-          await pop.update({ status: '执行中' })
+          if (pop) {
+            POP.update({ status: '执行中' }, { where: { productionOrderId: number } })
+          }
+          // await pop.update({ status: '执行中' })
 
           await ProcessTask.destroy({ where: { productionOrderId: order.id } })
           //创建工序任务单
           order = await this.find(number, loadModel, { kingdeeCode: order.kingdeeCode })
+          // console.log(order)
           pop = await POP.findOne({
             where: { productionOrderId: number, status: '执行中' },
             order: [['id', 'ASC']],
             include: [{ association: 'process', attributes: ['id', 'processName'] }],
           })
-          await ProductionOrder.update({ currentProcess: pop.dataValues.process.processName }, { where: { id: number } })
+          // console.log(pop)
+          if (pop) {
+            await ProductionOrder.update({ currentProcess: pop.dataValues.process.processName }, { where: { id: number } })
+          }
           let count = 0
 
           for (let i = 0; i < order.processes.length; i++) {
