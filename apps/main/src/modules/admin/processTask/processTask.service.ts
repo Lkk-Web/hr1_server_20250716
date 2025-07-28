@@ -104,7 +104,7 @@ export class ProcessTaskService {
               include: [
                 {
                   association: 'parentMaterial',
-                  attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
+                  attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit', 'status'],
                   where: {},
                 },
               ],
@@ -159,7 +159,7 @@ export class ProcessTaskService {
               include: [
                 {
                   association: 'parentMaterial',
-                  attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
+                  attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit', 'status'],
                   where: {},
                 },
               ],
