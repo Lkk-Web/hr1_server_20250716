@@ -8,15 +8,6 @@
     "tsConfigPath": "tsconfig.build.json"
   },
   "projects": {
-    "api-gateway": {
-      "type": "application",
-      "root": "apps/api-gateway",
-      "entryFile": "main",
-      "sourceRoot": "apps/api-gateway/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
-      }
-    },
     "auth": {
       "type": "application",
       "root": "apps/auth",
@@ -32,16 +23,35 @@
       "entryFile": "main",
       "sourceRoot": "apps/main/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/main/tsconfig.build.json"
+        "tsConfigPath": "apps/main/tsconfig.build.json",
+        "webpack": true,
+        "builder": {
+          "type": "webpack",
+          "options": {
+            "useSWC": true,
+            "sourceMap": true,
+            "optimization": true,
+            "extractComments": false,
+            "generatePackageJson": false
+          }
+        },
+        "typeCheck": false,
+        "assets": [
+          {
+            "include": "**/*",
+            "exclude": "**/*.ts",
+            "watchAssets": true
+          }
+        ]
       }
     },
-    "notification-service": {
+    "api-gateway": {
       "type": "application",
-      "root": "apps/notification-service",
+      "root": "apps/api-gateway",
       "entryFile": "main",
-      "sourceRoot": "apps/notification-service/src",
+      "sourceRoot": "apps/api-gateway/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/notification-service/tsconfig.app.json"
+        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
       }
     }
   }
