@@ -9,9 +9,7 @@ import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { SalesOrderDetail } from '@model/plan/salesOrderDetail.model'
-import { WarehouseMaterial } from '@model/warehouse/warehouseMaterial.model'
 import { deleteIdsDto } from '@common/dto'
-import { OutboundOrder } from '@model/warehouse/outboundOrder.model'
 import { Paging } from '@library/utils/paging'
 import { auditDto } from '../productionReport/productionReport.dto'
 import dayjs = require('dayjs')
@@ -200,7 +198,7 @@ export class SalesOrderService {
     if (dto.deliveryDate) {
       options.include[1].where = {
         deliveryDate: {
-        [Op.eq]: dto.deliveryDate,
+          [Op.eq]: dto.deliveryDate,
         },
       }
       options.include[1].required = true
@@ -208,39 +206,6 @@ export class SalesOrderService {
 
     const result = await Paging.diyPaging(SalesOrder, pagination, options)
 
-    for (const datum of result.data) {
-      for (const detail of datum.dataValues.details) {
-        if (dto.warehouseId) {
-          //查询仓库数量
-          const warehouseMaterial = await WarehouseMaterial.findOne({
-            where: {
-              warehouseId: dto.warehouseId,
-              materialId: detail.materialId,
-            },
-          })
-          detail.dataValues.material.setDataValue('warehouseCount', warehouseMaterial ? warehouseMaterial.count : 0)
-        }
-
-        const outOrder = await OutboundOrder.findAll({
-          where: { originCode: datum.code },
-          include: [
-            {
-              association: 'details',
-              where: { materialId: detail.materialId },
-            },
-          ],
-        })
-        if (outOrder && outOrder.length > 0) {
-          let accrueOutCount = 0
-          for (const outboundOrder of outOrder) {
-            for (const detail1 of outboundOrder.dataValues.details) {
-              accrueOutCount += Number(detail1.count)
-            }
-          }
-          detail.dataValues.material.setDataValue('accrueOutCount', accrueOutCount ? accrueOutCount : 0)
-        }
-      }
-    }
     return result
   }
 

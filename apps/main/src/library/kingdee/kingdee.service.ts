@@ -30,34 +30,6 @@ export class KingdeeeService {
     }
   }
 
-  // public static async buildFilterString(fids: string, startTime: string | number | Date, endTime: string | number | Date) {
-  //   let filterString = '';
-
-  //   if (fids) {
-  //     const fidsArray = fids.split(',');
-  //     const fidsFilter = fidsArray.map(fid => `FNumber='${fid}'`).join(' OR ');
-  //     filterString += `(${fidsFilter})`;
-  //   }
-
-  //   if (startTime && endTime) {
-  //     if (filterString) {
-  //       filterString += ' AND ';
-  //     }
-  //     filterString += `(FModifyDate BETWEEN '${new Date(startTime).toISOString()}' AND '${new Date(endTime).toISOString()}')`;
-  //   } else if (startTime) {
-  //     if (filterString) {
-  //       filterString += ' AND ';
-  //     }
-  //     filterString += `(FModifyDate >= '${new Date(startTime).toISOString()}')`;
-  //   } else if (endTime) {
-  //     if (filterString) {
-  //       filterString += ' AND ';
-  //     }
-  //     filterString += `(FModifyDate <= '${new Date(endTime).toISOString()}')`;
-  //   }
-
-  //   return filterString;
-  // }
   /**
    * 查询参数封装方法
    * @param filterParams const filterParams = [
@@ -342,7 +314,6 @@ export class KingdeeeService {
     }
     console.log('param: ', param)
     const { data } = await axios.post(url, param, config)
-    console.log(data.Result)
     if (data.Result && !data.Result.ResponseStatus.IsSuccess) throw data.Result.ResponseStatus.Errors[0].Message
     return data
   }
@@ -381,23 +352,22 @@ export class KingdeeeService {
   /**
    * 解析从金蝶获取的表单列表数据
    * @param data - 二维数组，每个子数组包含与 fieldKeys 对应的数据
-   * @param mappingKeys - K3Mapping中的keys
+   * @param detailKeys - K3Mapping中的keys
    * @param dictKey - 字典表中的key
    * @param dictFieldKey - 实际表中的字段名
    * @param dictDataList - 字典表数据
    * @returns - 对象数组，每个对象包含由 fieldKeys 指定的字段和对应的值
    */
-  public static parseKingdeeDataByMapping(data: string[][], mappingKeys: any[][], dictKey?: string[], dictFieldKey?: string[], dictDataList?: string[][][]) {
+  public static parseKingdeeDataByMapping(data: string[][], detailKeys: any[][], dictKey?: string[], dictFieldKey?: string[], dictDataList?: string[][][]) {
     // 将 fieldKeys 字符串分割成字段数组
-    const keys = mappingKeys.map(v => v[1])
     // 迭代数据数组，将每个子数组转换成对象
     return data.map(row => {
-      // 创建一个新对象，使用 keys 和 row 中的值来填充
       const obj = {}
-      keys.forEach((key, index) => {
-        let [, , newKey, func] = mappingKeys[index]
-        let val = row[key]
-        obj[newKey] = func ? func(val) : val
+
+      detailKeys.map(field => {
+        let [, key, newKey, func] = field
+        let value = row[key.includes('_') ? key.replace('_', '.') : key]
+        obj[newKey] = func ? func(value) : value
       })
 
       dictKey.forEach((v, index) => {
@@ -410,6 +380,9 @@ export class KingdeeeService {
         })
         obj[dictFieldKey[index]] = val
       })
+
+      // 保留金蝶数据
+      obj['jsonData'] = JSON.stringify(row)
 
       return obj
     })

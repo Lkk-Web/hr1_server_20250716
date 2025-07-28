@@ -83,4 +83,18 @@ export class SalesOrderDetail extends BaseDate<SalesOrderDetail> {
     comment: '物料名称',
   })
   declare materialName: string
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    comment: '备注',
+  })
+  declare remark: string
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+    comment: '金蝶数据',
+  })
+  declare jsonData: string
 }

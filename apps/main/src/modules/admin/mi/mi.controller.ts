@@ -95,7 +95,7 @@ export class MiController {
           let data = await KingdeeeService.getListV2(
             formID,
             detailKeys.map(v => v[1]).join(','),
-            filterString ? filterString : `FUseOrgId='${process.env.K3_ORG_ID}'`,
+            filterString ? filterString : `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
             pageSizeDetail,
             startRowDetail
           )
@@ -105,7 +105,7 @@ export class MiController {
           }
           data = KingdeeeService.parseKingdeeDataByMapping(data, detailKeys, dictKey, dictFieldKey, dictDataList)
           // 更新或插入数据库
-          let result = await dbModelDetail.bulkCreate(data, { updateOnDuplicate: detailKeys.map(v => v[2]) })
+          await dbModelDetail.bulkCreate(data, { updateOnDuplicate: detailKeys.map(v => v[2]) })
           // 翻页
           startRowDetail += data.length
           if (data.length < pageSize) {

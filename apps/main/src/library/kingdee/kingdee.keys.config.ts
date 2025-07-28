@@ -157,7 +157,6 @@ export const K3Mapping = {
     ],
     detailTypes: true, //是否存在详情
     detailKeys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FSaleOrderEntry_FEntryID', 'id'],
       ['销售订单id', 'FID', 'salesOrderId'],
       ['物料id', 'FMaterialId.FMasterID', 'materialId'],
@@ -165,12 +164,12 @@ export const K3Mapping = {
       ['物料名称', 'FMaterialId.FName', 'materialName'],
       ['销售数量', 'FQty', 'quantity'],
       ['销售单位', 'FUnitID.FName', 'unit'],
-      // ['即时库存', 'F_ora_Qty', 'oraQty'],
       ['含税单价', 'FTaxPrice', 'unitPrice'],
       ['金额', 'FAmount', 'amount'],
-      // ['图号', 'F_ora_BaseProperty_qtr', 'k3StandardDrawingNo'],
       ['BOM ID', 'FBomId', 'bomId'],
       ['要货日期', 'FDeliveryDate', 'deliveryDate'],
+      ['备注', 'FEntryNote', 'remark'],
+      ['金蝶原始数据', '', 'jsonData'],
     ],
     dbModelDetail: SalesOrderDetail,
     dict: [
@@ -252,10 +251,12 @@ export const K3DictMapping = [
 const convertExtends = (value, k3key) => {
   return _.find(K3Extends[k3key], { Value: value })?.Caption
 }
+
 // 传是否，返回bool
 const convertBool = value => {
   return value == '是'
 }
+
 const K3Extends = {
   FDocumentStatus: [
     {
