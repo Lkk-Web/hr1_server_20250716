@@ -18,8 +18,7 @@
     "prod": "npm run build && npm run prod:main && npm run prod:auth",
     "prod:main": "cross-env RUN_ENV=./apps/main/config.yaml pm2 start ./dist/apps/main/main.js --name hr1_dev_main",
     "prod:auth": "cross-env RUN_ENV=./apps/auth/config.yaml pm2 start ./dist/apps/auth/main.js --name hr1_dev_auth",
-    "test": "npm run build && cross-env RUN_ENV=./apps/auth/config.yaml node ./dist/apps/auth/main.js",
-    "time": "time npm run build"
+    "test": "npm run build && cross-env RUN_ENV=./apps/auth/config.yaml node ./dist/apps/auth/main.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",

@@ -2,11 +2,7 @@ import { Column, Model, Table, DataType, ForeignKey, BelongsTo, Index } from 'se
 import { User } from './user'
 import { PLATFORM } from '@common/enum'
 
-@Table({
-  tableName: 'auth_token_info',
-  timestamps: true,
-  paranoid: true, // 软删除
-})
+@Table({ tableName: 'auth_token_info', timestamps: true, paranoid: true, comment: '用户Token信息表' }) // 软删除
 export class TokenInfo extends Model {
   @ForeignKey(() => User)
   @Column({

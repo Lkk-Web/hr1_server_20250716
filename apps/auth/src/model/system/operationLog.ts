@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
 import { request_Method } from '@common/enum'
 
-@Table({ tableName: `system_operation_log` })
+@Table({ tableName: `system_operation_log`, comment: '操作日志表' })
 export class SystemOperationLog extends BaseDate<SystemOperationLog> {
   @ForeignKey(() => User)
   @Column({

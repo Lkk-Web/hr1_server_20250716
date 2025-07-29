@@ -16,6 +16,16 @@ import { FileUploadDto } from '@modules/file/file.dto'
 @AdminAuth('productionOrder')
 export class ProductionOrderController {
   constructor(private readonly service: ProductionOrderService, private readonly sequelize: Sequelize) {}
+
+  @ApiOperation({ summary: '批量同步金蝶生产领料数据', description: '只同步：业务状态开工 单据状态已审核' })
+  @HttpCode(HttpStatus.OK)
+  @Post('/asyncKingdee')
+  @OpenAuthorize()
+  async asyncKingdee() {
+    const result = await this.service.asyncKingdee()
+    return result
+  }
+
   @ApiOperation({ summary: '创建' })
   @HttpCode(HttpStatus.OK)
   @Post('/')
@@ -123,15 +133,6 @@ export class ProductionOrderController {
   async simpleList(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.simpleList(dto, pagination, req.user, loadModel)
-    return result
-  }
-
-  @ApiOperation({ summary: '批量同步金蝶生产领料数据', description: '只同步：业务状态开工 单据状态已审核' })
-  @HttpCode(HttpStatus.OK)
-  @Post('/asyncKingdee')
-  @OpenAuthorize()
-  async asyncKingdee() {
-    const result = await this.service.asyncKingdee()
     return result
   }
 

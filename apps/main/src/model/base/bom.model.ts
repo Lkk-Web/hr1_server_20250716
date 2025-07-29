@@ -21,7 +21,7 @@ export class BOM extends BaseDate<BOM> {
   })
   declare materialId: number
 
-  // 父物料编码：外键，关联物料表
+  // 父物料编码：外键，关联BOM表
   @ForeignKey(() => BOM)
   @Default(0)
   @Column({
@@ -72,13 +72,6 @@ export class BOM extends BaseDate<BOM> {
     allowNull: true,
   })
   declare orderNo: string
-
-  @Column({
-    comment: '图号',
-    type: DataType.STRING(50),
-    allowNull: true,
-  })
-  declare figureNumber: string
 
   @Column({
     comment: '父项物料单位',

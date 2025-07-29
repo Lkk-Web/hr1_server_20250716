@@ -166,6 +166,41 @@ export class KingdeeeService {
   /**
    * 金蝶获取表单带参列表
    * @param FormId 表单ID，必填
+   * @param fid 金蝶id，金蝶id与金蝶编码必须填一个
+   * @param code 金蝶编码，金蝶id与金蝶编码必须填一个
+   * @param orgId 组织编码
+   */
+  public static async getOne(FormId: string, fid?: string, code?: string, orgId?: string) {
+    if (!FormId) {
+      Aide.throwException(500, '表单ID不能为空！')
+    }
+    if (!fid && !code) {
+      Aide.throwException(500, '金蝶id与金蝶编码必须填一个！')
+    }
+    let token = await this.getToken()
+    const config = {
+      withCredentials: true, // 允许携带凭证
+      headers: {
+        cookie: token,
+      },
+    }
+    const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.View.common.kdsvc`
+    const param = {
+      formid: FormId, // 需要查询表单的ID
+      data: {
+        CreateOrgId: orgId ? orgId : 0, // 组织编码
+        Number: code ? code : '', // 金蝶编码
+        Id: fid ? fid : '', // 金蝶id
+        IsSortBySeq: false, // 单据体是否按序号排序，默认false
+      },
+    }
+    const { data } = await axios.post(url, param, config)
+    return data
+  }
+
+  /**
+   * 金蝶获取表单带参列表
+   * @param FormId 表单ID，必填
    * @param FieldKeys 查询字段，多个用逗号隔开，必填，可填写字段参考金蝶文档：FNumber,FName
    * @param TopRowCount 最多查到多少行，0是所有，非必填，默认0
    * @param Limit 每页多少行，非必填，默认200
@@ -238,41 +273,6 @@ export class KingdeeeService {
       }
     }
     return results
-  }
-
-  /**
-   * 金蝶获取表单带参列表
-   * @param FormId 表单ID，必填
-   * @param fid 金蝶id，金蝶id与金蝶编码必须填一个
-   * @param code 金蝶编码，金蝶id与金蝶编码必须填一个
-   * @param orgId 组织编码
-   */
-  public static async getOne(FormId: string, fid?: string, code?: string, orgId?: string) {
-    if (!FormId) {
-      Aide.throwException(500, '表单ID不能为空！')
-    }
-    if (!fid && !code) {
-      Aide.throwException(500, '金蝶id与金蝶编码必须填一个！')
-    }
-    let token = await this.getToken()
-    const config = {
-      withCredentials: true, // 允许携带凭证
-      headers: {
-        cookie: token,
-      },
-    }
-    const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.View.common.kdsvc`
-    const param = {
-      formid: FormId, // 需要查询表单的ID
-      data: {
-        CreateOrgId: orgId ? orgId : 0, // 组织编码
-        Number: code ? code : '', // 金蝶编码
-        Id: fid ? fid : '', // 金蝶id
-        IsSortBySeq: false, // 单据体是否按序号排序，默认false
-      },
-    }
-    const { data } = await axios.post(url, param, config)
-    return data
   }
 
   /**
