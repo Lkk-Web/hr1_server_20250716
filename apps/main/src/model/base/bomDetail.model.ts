@@ -32,11 +32,11 @@ export class BomDetail extends BaseDate<BomDetail> {
 
   // 数量
   @Column({
-    comment: '数量',
-    type: DataType.DECIMAL(10, 2),
+    comment: '用料：分子',
+    type: DataType.DECIMAL(10, 4),
     allowNull: true,
   })
-  declare quantity: number
+  declare molecule: number
 
   @Column({
     comment: '物料规格',
@@ -57,7 +57,7 @@ export class BomDetail extends BaseDate<BomDetail> {
     type: DataType.STRING(50),
     allowNull: true,
   })
-  declare attr: string
+  declare attribute: string
 
   @Column({
     comment: '子项单位',
@@ -72,21 +72,6 @@ export class BomDetail extends BaseDate<BomDetail> {
     allowNull: true,
   })
   declare feedProcessId: number
-
-  @Column({
-    comment: '图号',
-    type: DataType.STRING(50),
-    allowNull: true,
-  })
-  declare figureNumber: string
-
-  // 子项Bom编码
-  @Column({
-    comment: '子项Bom编码',
-    type: DataType.STRING,
-    allowNull: true,
-  })
-  declare subBomCode: string
 
   @BelongsTo(() => BOM)
   declare bom: BOM

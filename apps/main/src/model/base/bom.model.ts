@@ -53,6 +53,20 @@ export class BOM extends BaseDate<BOM> {
   declare version: string
 
   @Column({
+    comment: 'BOM 分组',
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  declare group: string
+
+  @Column({
+    comment: 'BOM 分组名称',
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  declare groupName: string
+
+  @Column({
     comment: '物料规格',
     type: DataType.STRING(255),
     allowNull: true,
@@ -64,21 +78,7 @@ export class BOM extends BaseDate<BOM> {
     type: DataType.STRING(50),
     allowNull: true,
   })
-  declare attr: string
-
-  @Column({
-    comment: '订单号',
-    type: DataType.STRING(50),
-    allowNull: true,
-  })
-  declare orderNo: string
-
-  @Column({
-    comment: '父项物料单位',
-    type: DataType.STRING(50),
-    allowNull: true,
-  })
-  declare unit: string
+  declare attribute: string
 
   @Default(true)
   @Column({
@@ -87,20 +87,8 @@ export class BOM extends BaseDate<BOM> {
   })
   declare status: boolean
 
-  // 数量
-  @Column({
-    comment: '数量',
-    type: DataType.INTEGER,
-    allowNull: true,
-    defaultValue: 1,
-  })
-  declare quantity: number
-
-  @Column({
-    comment: '自定义字段的数据（JSON格式）',
-    type: DataType.TEXT,
-  })
-  declare formData: string
+  @HasMany(() => BomDetail)
+  declare bomDetails: BomDetail[]
 
   @BelongsTo(() => Material)
   declare parentMaterial: Material

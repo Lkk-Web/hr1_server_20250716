@@ -55,17 +55,13 @@ export class Material extends BaseDate<Material> {
     type: DataType.BOOLEAN,
   })
   declare status: boolean
+
   @Column({
     comment: '备注',
     type: DataType.TEXT,
     allowNull: true,
   })
   declare remark: string
-  @Column({
-    comment: '自定义字段的数据（JSON格式）',
-    type: DataType.TEXT,
-  })
-  declare formData: string
 
   @Column({
     comment: '数据状态',
