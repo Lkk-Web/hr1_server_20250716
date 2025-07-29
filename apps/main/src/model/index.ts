@@ -1,5 +1,14 @@
 export * from './logExternalAPIRequest.model'
 
+// 权限 后期砍掉
+export * from './auth/menu'
+export * from './auth/organize'
+export * from './auth/role'
+export * from './auth/roleMenu'
+export * from './auth/userRole'
+export * from './auth/roleOrganize'
+export * from './auth/user'
+
 // 基础资料 base
 export * from './base/material.model'
 export * from './base/bom.model'
@@ -14,16 +23,12 @@ export * from './base/trendsTemplate.model'
 export * from './base/trendsField.model'
 
 // 系统管理 system
-export * from './auth/menu'
-export * from './auth/organize'
-export * from './auth/role'
-export * from './auth/roleMenu'
-export * from './auth/userRole'
-export * from './auth/roleOrganize'
-export * from './auth/user'
 export * from './system/apiConfig.model'
 export * from './system/apiDict.model'
 export * from './system/printTemplate.model'
+export * from './system/dynamicForm.model'
+export * from './system/dynamicFormData.model'
+export * from './system/dynamicFormRule.model'
 
 //质量管理 quality
 export * from './quantity/defectiveItem.model'

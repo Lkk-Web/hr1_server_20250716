@@ -51,7 +51,7 @@ export class BomService {
         if (item.materialId == dto.materialId) {
           throw new HttpException('不能将父项物料作为子物料加入BOM', 400)
         }
-        await BOM.create({ parentId: result.id, materialId: item.materialId, quantity: item.quantity, version })
+        await BOM.create({ parentId: result.id, materialId: item.materialId, version })
       }
     }
 
@@ -70,7 +70,7 @@ export class BomService {
         if (item.materialId == dto.materialId) {
           throw new HttpException('不能将父项物料作为子物料加入BOM', 400)
         }
-        await BOM.create({ parentId: id, materialId: item.materialId, quantity: item.quantity })
+        await BOM.create({ parentId: id, materialId: item.materialId })
       }
     }
 
@@ -293,7 +293,7 @@ export class BomService {
             }
             if (!temp) {
               temp = await BOM.create(
-                { materialId: material.id, remark: trim(rowElement.remark), parentId: 0, version, quantity: Number(trim(rowElement.quantity)) },
+                { materialId: material.id, remark: trim(rowElement.remark), parentId: 0, version},
                 { transaction }
               )
             }
@@ -311,7 +311,7 @@ export class BomService {
                 throw new HttpException('未有报错文案,请完善报错清单文档', 400)
               }
               await BOM.create(
-                { parentId: temp.id, materialId: sub.id, remark: trim(rowElement.remark), version: parentBOM.version, quantity: Number(trim(rowElement.quantity)) },
+                { parentId: temp.id, materialId: sub.id, remark: trim(rowElement.remark), version: parentBOM.version },
                 { transaction }
               )
             }

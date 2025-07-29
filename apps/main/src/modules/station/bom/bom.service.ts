@@ -32,7 +32,7 @@ export class BomService {
       Aide.throwException(400013)
     }
 
-    return this.getBomWithChildren(processTask.order.bomId)
+    // return this.getBomWithChildren(processTask.order.bomId)
   }
 
   private async getBomWithChildren(bomId: number) {
@@ -83,22 +83,6 @@ export class BomService {
         // Link to parent if not root level
         if (parentIndex !== -1) {
           result[parentIndex].items.push(childData)
-        }
-
-        // Check if child has a sub-BOM
-        const childBom = await BOM.findOne({
-          where: child.subBomCode ? { code: child.subBomCode } : { materialId: child.materialId },
-          attributes: ['id', 'code', 'materialId', 'spec', 'attr', 'unit', 'quantity', 'orderNo', 'figureNumber', 'remark', 'version', 'status', 'formData'],
-        })
-
-        // If child has a sub-BOM, add to queue for processing
-        if (childBom) {
-          console.log(childBom.id)
-          queue.push({
-            id: childBom.id,
-            parentIndex: currentIndex,
-            level: level + 1,
-          })
         }
       }
 

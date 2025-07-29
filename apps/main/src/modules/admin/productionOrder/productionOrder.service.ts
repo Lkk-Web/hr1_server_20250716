@@ -71,9 +71,7 @@ export class ProductionOrderService {
           }
           const result = await ProductionOrder.create(
             {
-              kingdeeRow: dayjs().unix().toString(),
               code: dto.code,
-              bomId: dto.bomId,
               salesOrderId: dto.salesOrderId,
               plannedOutput: dto.plannedOutput,
               startTime: dto.startTime,
@@ -819,7 +817,6 @@ export class ProductionOrderService {
           const order = await ProductionOrder.create(
             {
               code: rowElement.code,
-              bomId: bom.id,
               plannedOutput: rowElement.plannedOutput,
               startTime: rowElement.startTime,
               endTime: rowElement.endTime,
@@ -1201,6 +1198,10 @@ export class ProductionOrderService {
       map[item.FBillNo] = item
       return map
     }, {} as Record<string, any>)
+
+    console.log(11111, dataMap)
+    console.log(22222, data)
+
     let mate = []
     let code
     //按规则创建编码
@@ -1250,7 +1251,6 @@ export class ProductionOrderService {
         bomId: item.FBomId ? item.FBomId : null,
         code: code,
         topMaterialId: topMaterialId ? topMaterialId : null,
-        subMaterialId: item['FMaterialId.FMasterID'],
         FStatus: item.FStatus,
         plannedOutput: item.FQty,
         startTime: item.FPlanStartDate,
@@ -1275,22 +1275,7 @@ export class ProductionOrderService {
         batch = batch.filter(item => existingBomIds.includes(item.bomId))
       }
       let result = await ProductionOrder.bulkCreate(batch, {
-        updateOnDuplicate: [
-          'id',
-          'kingdeeCode',
-          'kingdeeRow',
-          'bomId',
-          'code',
-          'topMaterialId',
-          'subMaterialId',
-          'FStatus',
-          'plannedOutput',
-          'startTime',
-          'endTime',
-          'fid',
-          'salesOrderCode',
-          'billType',
-        ],
+        updateOnDuplicate: ['id', 'kingdeeCode','code', 'FStatus', 'plannedOutput', 'startTime', 'endTime', 'fid', 'salesOrderCode', 'billType'],
       })
 
       // 手动获取 id
@@ -1298,7 +1283,6 @@ export class ProductionOrderService {
         result = await ProductionOrder.findAll({
           where: {
             kingdeeCode: batch.map(item => item.kingdeeCode),
-            kingdeeRow: batch.map(item => item.kingdeeRow),
           },
         })
       }
@@ -1307,7 +1291,7 @@ export class ProductionOrderService {
       const productionOrderIds = result.map(po => po.id)
       const freshProductionOrders = await ProductionOrder.findAll({
         where: { id: productionOrderIds },
-        attributes: ['id', 'subMaterialId', 'plannedOutput', 'startTime', 'endTime', 'schedulingStatus'],
+        attributes: ['id', 'plannedOutput', 'startTime', 'endTime', 'schedulingStatus'],
       })
 
       // 创建到现有映射
@@ -1341,11 +1325,6 @@ export class ProductionOrderService {
                   ],
                 },
               ],
-            },
-            {
-              association: 'material',
-              attributes: ['id', 'materialName', 'attribute', 'spec', 'unit'],
-              where: { id: freshProductionOrder.subMaterialId },
             },
           ],
         })
