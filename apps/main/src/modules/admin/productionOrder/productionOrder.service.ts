@@ -363,101 +363,100 @@ export class ProductionOrderService {
           where: {},
           required: false,
           attributes: {
-            exclude: ['productionOrderId'], // 👈 在这里排除你不想要的字段
+            exclude: ['productionOrderId', 'materialId'], // 👈 在这里排除你不想要的字段
           },
+          include: [
+            {
+              association: 'material',
+              required: true,
           // include: [
           //   {
-          //     association: 'parentMaterial',
-          //     attributes: ['id', 'code', 'attribute', 'category', 'materialName', 'spec', 'unit', 'status', 'k3DataStatus'],
-          //     required: true,
-          //     // include: [
-          //     //   {
-          //     //     association: 'boms',
-          //     //     required: false,
-          //     //     attributes:['id','code','materialId','remark','version','spec','attr','quantity','size'],
-          //     //   },
-          //     // ],
-          //     where: {},
+              //     association: 'boms',
+              //     required: false,
           //   },
           // ],
+              where: {},
+            },
+          ],
         },
-
         // {
-        //   association: 'processes',
-        //   attributes: [
-        //     'id',
-        //     'productionOrderId',
-        //     'processId',
-        //     'reportRatio',
-        //     'reportRatio',
-        //     'isOutsource',
-        //     'sort',
-        //     'planCount',
-        //     'goodCount',
-        //     'badCount',
-        //     'startTime',
-        //     'endTime',
-        //     'actualStartTime',
-        //     'actualEndTime',
-        //     'processTaskId',
-        //     'isInspection',
-        //     'reportQuantity',
-        //   ],
-        //   include: [
-        //     {
-        //       association: 'process',
-        //       attributes: ['id', 'processName'],
-        //       include: [
-        //         {
-        //           association: 'children',
-        //           attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
-        //           required: false,
-        //         },
-        //       ],
-        //     },
-        //     {
-        //       association: 'workCenter',
-        //       // where: {},
-        //       attributes: ['id', 'name'],
-        //       through: {
-        //         attributes: ['id'],
-        //       },
-        //     },
-        //     {
-        //       association: 'depts',
-        //       attributes: ['id', 'name'],
-        //       through: {
-        //         attributes: [], // 隐藏中间表的数据
-        //       },
-        //     },
-        //     {
-        //       association: 'items',
-        //       attributes: ['id', 'name'],
-        //       through: {
-        //         attributes: [], // 隐藏中间表的数据
-        //       },
-        //     },
-        //     {
-        //       association: 'file',
-        //       attributes: ['id', 'name', 'versionCode', 'url'],
-        //       where: {},
-        //       required: false,
-        //     },
-        //   ],
+        //   // {
+        //   //   association: 'processes',
+        //   //   attributes: [
+        //   //     'id',
+        //   //     'productionOrderId',
+        //   //     'processId',
+        //   //     'reportRatio',
+        //   //     'reportRatio',
+        //   //     'isOutsource',
+        //   //     'sort',
+        //   //     'planCount',
+        //   //     'goodCount',
+        //   //     'badCount',
+        //   //     'startTime',
+        //   //     'endTime',
+        //   //     'actualStartTime',
+        //   //     'actualEndTime',
+        //   //     'processTaskId',
+        //   //     'isInspection',
+        //   //     'reportQuantity',
+        //   //   ],
+        //   //   include: [
+        //   //     {
+        //   //       association: 'process',
+        //   //       attributes: ['id', 'processName'],
+        //   //       include: [
+        //   //         {
+        //   //           association: 'children',
+        //   //           attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
+        //   //           required: false,
+        //   //         },
+        //   //       ],
+        //   //     },
+        //   //     {
+        //   //       association: 'workCenter',
+        //   //       // where: {},
+        //   //       attributes: ['id', 'name'],
+        //   //       through: {
+        //   //         attributes: ['id'],
+        //   //       },
+        //   //     },
+        //   //     {
+        //   //       association: 'depts',
+        //   //       attributes: ['id', 'name'],
+        //   //       through: {
+        //   //         attributes: [], // 隐藏中间表的数据
+        //   //       },
+        //   //     },
+        //   //     {
+        //   //       association: 'items',
+        //   //       attributes: ['id', 'name'],
+        //   //       through: {
+        //   //         attributes: [], // 隐藏中间表的数据
+        //   //       },
+        //   //     },
+        //   //     {
+        //   //       association: 'file',
+        //   //       attributes: ['id', 'name', 'versionCode', 'url'],
+        //   //       where: {},
+        //   //       required: false,
+        //   //     },
+        //   //   ],
+        //   // },
         // },
       ],
     }
-    // if (dto.code) {
-    //   options.where['code'] = {
-    //     [Op.like]: `%${dto.code}%`,
-    //   }
-    // }
 
     if (dto.kingdeeCode) {
       options.where['kingdeeCode'] = {
         [Op.like]: `%${dto.kingdeeCode}%`,
       }
     }
+    // if (dto.code) {
+    //   options.where['code'] = {
+    //     [Op.like]: `%${dto.code}%`,
+    //   }
+    // }
 
     // if (dto.name) {
     //   options.include[0].include[0].where['name'] = {
