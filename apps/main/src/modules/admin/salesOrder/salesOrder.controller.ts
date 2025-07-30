@@ -14,25 +14,6 @@ import { auditDto } from '../productionReport/productionReport.dto'
 @AdminAuth('salesOrder')
 export class SalesOrderController {
   constructor(private readonly service: SalesOrderService, private readonly sequelize: Sequelize) {}
-  @ApiOperation({ summary: '创建' })
-  @HttpCode(HttpStatus.OK)
-  @Post('/')
-  async create(@Body() dto: CSalesOrderDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.create(dto, req.user, loadModel)
-    return result
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '修改' })
-  @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
-  @Put(':id')
-  async edit(@Body() dto: CSalesOrderDto, @Param() params, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const { id } = params
-    const result = await this.service.edit(dto, id, req.user, loadModel)
-    return result
-  }
 
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '删除' })
@@ -78,15 +59,6 @@ export class SalesOrderController {
   async batDelete(@Body() dto: deleteIdsDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.batDelete(dto, loadModel)
-    return result
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '用于选择的销售订单列表' })
-  @Get('simpleList')
-  async simpleList(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.simpleList(dto, pagination, req.user, loadModel)
     return result
   }
 }

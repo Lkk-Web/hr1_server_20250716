@@ -24,77 +24,6 @@ export class SalesOrderService {
     private sequelize: Sequelize
   ) {}
 
-  public async create(dto: CSalesOrderDto, user, loadModel) {
-    if (dto.code) {
-      const temp = await SalesOrder.findOne({ where: { code: dto.code } })
-      if (temp) throw new HttpException('已存在相同编号的调拨单', 400)
-    } else {
-      const date = new Date()
-      const year = date.getFullYear().toString().substring(2)
-      const month = date.getMonth().toString().padStart(2, '0')
-      const temp = await SalesOrder.findOne({
-        order: [['id', 'DESC']],
-        where: { code: { [Op.like]: `XSD${year}${month}%` } },
-      })
-      if (temp) {
-        //规则 DB + 年份2位尾数 + 月份(2位) + 四位流水
-        const oldNO = temp.code
-        const lastFourChars = oldNO.length >= 4 ? oldNO.slice(-4) : '0'.repeat(4 - oldNO.length) + oldNO
-        let num = parseInt(lastFourChars)
-        num++
-        let newNO = num.toString().padStart(4, '0')
-
-        dto.code = 'XSD' + year + month + newNO
-      } else {
-        dto.code = 'XSD' + year + month + '0001'
-      }
-    }
-    const result = await SalesOrder.create({
-      code: dto.code,
-      orderDate: dto.orderDate,
-      customerId: dto.customerId,
-    })
-    if (dto.details) {
-      for (const detail of dto.details) {
-        await SalesOrderDetail.create({
-          salesOrderId: result.id,
-          materialId: detail.materialId,
-          unitPrice: detail.unitPrice,
-          quantity: detail.quantity,
-          amount: detail.amount,
-          deliveryDate: dto.deliveryDate,
-        })
-      }
-    }
-    return result
-  }
-
-  public async edit(dto: USalesOrderDto, id: number, user, loadModel) {
-    let salesOrder = await SalesOrder.findOne({ where: { id } })
-    if (!salesOrder) {
-      throw new HttpException('数据不存在', 400006)
-    }
-    await SalesOrderDetail.destroy({ where: { salesOrderId: id } })
-    await salesOrder.update({
-      orderDate: dto.orderDate,
-      customerId: dto.customerId,
-    })
-    if (dto.details) {
-      for (const detail of dto.details) {
-        await SalesOrderDetail.create({
-          salesOrderId: id,
-          materialId: detail.materialId,
-          unitPrice: detail.unitPrice,
-          quantity: detail.quantity,
-          amount: detail.amount,
-          deliveryDate: dto.deliveryDate,
-        })
-      }
-    }
-    salesOrder = await SalesOrder.findOne({ where: { id } })
-    return salesOrder
-  }
-
   public async delete(id: number, loadModel) {
     const temp = await SalesOrder.findByPk(id)
     // if (temp && temp.status === '已审核') throw new HttpException('销售订单已审核,产生了关联数据,无法删除', 400)
@@ -219,15 +148,5 @@ export class SalesOrderService {
     for (const id of dto.ids) {
       await this.delete(id, loadModel)
     }
-  }
-
-  public async simpleList(dto: FindPaginationDto, pagination: Pagination, user, loadModel: any) {
-    const options: FindPaginationOptions = {
-      where: {},
-      pagination,
-      attributes: ['id', 'code'],
-    }
-    const result = await Paging.diyPaging(SalesOrder, pagination, options)
-    return result
   }
 }
