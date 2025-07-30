@@ -20,7 +20,7 @@ import { BOM } from '@model/base/bom.model'
 import { ApiDict, DefectiveItem, PerformanceConfig, Process, Organize, WarehouseMaterial, WorkCenterOfPOP } from '@model/index'
 import { Paging } from '@library/utils/paging'
 import { KingdeeeService } from '@library/kingdee'
-import { POBD } from '@model/production/POBD.model'
+import { POBDetail } from '@model/production/POBDetail.model'
 // import { SENTENCE } from '@common/enum'
 import { deleteIdsDto } from '@common/dto'
 import { BomService } from '../baseData/bom/bom.service'
@@ -29,6 +29,9 @@ import moment = require('moment')
 import dayjs = require('dayjs')
 import _ = require('lodash')
 import { log } from 'console'
+import { K3Mapping } from '@library/kingdee/kingdee.keys.config'
+import { kingdeeServiceConfig } from '@common/config'
+import { ProductionOrderDetail } from '@model/production/productionOrderDetail.model'
 
 @Injectable()
 export class ProductionOrderService {
@@ -46,7 +49,7 @@ export class ProductionOrderService {
           if (!dto.code || dto.code.length === 0) {
             const temp2 = await ProductionOrder.findOne({ order: [['id', 'DESC']] })
             if (temp2) {
-              const oldNO = temp2.code
+              const oldNO = temp2.kingdeeCode
               const lastFourChars = oldNO.length >= 4 ? oldNO.slice(-4) : '0'.repeat(4 - oldNO.length) + oldNO
               let num = parseInt(lastFourChars)
               num++
@@ -65,15 +68,14 @@ export class ProductionOrderService {
             }
           }
 
-          const temp = await ProductionOrder.findOne({ where: { code: dto.code } })
+          const temp = await ProductionOrder.findOne({ where: { kingdeeCode: dto.code } })
           if (temp) {
             throw new HttpException('已存在相同编号的生产工单！', 400)
           }
           const result = await ProductionOrder.create(
             {
-              code: dto.code,
-              salesOrderId: dto.salesOrderId,
-              plannedOutput: dto.plannedOutput,
+              kingdeeCode: dto.code,
+              // plannedOutput: dto.plannedOutput,
               startTime: dto.startTime,
               endTime: dto.endTime,
               actualOutput: dto.actualOutput,
@@ -138,7 +140,7 @@ export class ProductionOrderService {
               if (!temp) {
                 throw new HttpException('所选ID为:' + bom.materialId + '的物料不存在', 400)
               }
-              await POB.create({ productionOrderId: dto.code, code: `PPBO${dto.code}`, ...bom }, { transaction })
+              await POB.create({ productionOrderDetailId: dto.code, kingdeeCode: `PPBO${dto.code}`, ...bom }, { transaction })
             }
           }
 
@@ -276,13 +278,13 @@ export class ProductionOrderService {
     try {
       //删除依赖关系
       const process = await POP.findAll({ where: { productionOrderId: id }, attributes: ['id'] })
-      const pobs = await POB.findAll({ where: { productionOrderId: id }, attributes: ['id'] })
+      const pobs = await POB.findAll({ where: { productionOrderDetailId: id }, attributes: ['id'] })
       await POD.destroy({ where: { popId: process.map(v => v.id) }, transaction })
       await POI.destroy({ where: { popId: process.map(v => v.id) }, transaction })
       await WorkCenterOfPOP.destroy({ where: { POPId: process.map(v => v.id) }, transaction })
-      await POBD.destroy({ where: { pobId: pobs.map(v => v.id) }, transaction })
+      await POBDetail.destroy({ where: { pobId: pobs.map(v => v.id) }, transaction })
       await POP.destroy({ where: { productionOrderId: id }, transaction })
-      await POB.destroy({ where: { productionOrderId: id }, transaction })
+      await POB.destroy({ where: { productionOrderDetailId: id }, transaction })
       const result = await productOrder.destroy({ transaction })
       await transaction.commit()
       return result
@@ -297,264 +299,159 @@ export class ProductionOrderService {
       where: { id },
       include: [
         {
-          association: 'bom',
-          attributes: ['id', 'code', 'materialId', 'spec', 'attr', 'unit', 'quantity', 'orderNo', 'figureNumber', 'remark', 'version', 'status', 'formData'],
+          association: 'productionOrderDetail',
           where: {},
           required: false,
+          attributes: {
+            exclude: ['productionOrderId'],
+          },
           include: [
             {
-              association: 'parentMaterial',
-              attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit', 'status'],
-              required: false,
-              where: {},
+              association: 'boms',
+              include: [{ association: 'pobDetail' }],
             },
           ],
         },
-        {
-          association: 'processes',
-          include: [
-            {
-              association: 'process',
-              attributes: ['id', 'processName'],
-            },
-            {
-              association: 'depts',
-              attributes: ['id', 'name'],
-              through: {
-                attributes: [], // 隐藏中间表的数据
-              },
-            },
-            {
-              association: 'items',
-              attributes: ['id', 'name'],
-              through: {
-                attributes: [], // 隐藏中间表的数据
-              },
-            },
-            {
-              association: 'file',
-              attributes: ['id', 'name', 'versionCode', 'url'],
-              where: {},
-              required: false,
-            },
-          ],
-        },
+        // {
+        //   association: 'processes',
+        //   include: [
+        //     {
+        //       association: 'process',
+        //       attributes: ['id', 'processName'],
+        //     },
+        //     {
+        //       association: 'depts',
+        //       attributes: ['id', 'name'],
+        //       through: {
+        //         attributes: [], // 隐藏中间表的数据
+        //       },
+        //     },
+        //     {
+        //       association: 'items',
+        //       attributes: ['id', 'name'],
+        //       through: {
+        //         attributes: [], // 隐藏中间表的数据
+        //       },
+        //     },
+        //     {
+        //       association: 'file',
+        //       attributes: ['id', 'name', 'versionCode', 'url'],
+        //       where: {},
+        //       required: false,
+        //     },
+        //   ],
+        // },
       ],
     }
-    let pobList = await POB.findAll({
-      attributes: ['id', 'productionOrderId', 'code', 'fz', 'count', 'remark', 'bomId'],
-      where: { productionOrderId: id },
-      include: [
-        {
-          association: 'material',
-          required: false,
-          attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
-          where: {},
-        },
-        {
-          association: 'items',
-          required: false,
-          attributes: [
-            'id',
-            'item',
-            'ratio',
-            'type',
-            'numerator',
-            'denominator',
-            'sendCount',
-            'length',
-            'method',
-            'warehouseId',
-            'transferCount',
-            'receivedCount',
-            'unclaimedCount',
-            'replaceCount',
-            'actualReceived',
-          ],
-          include: [
-            {
-              association: 'material',
-              attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
-              required: false,
-            },
-          ],
-        },
-      ],
-    })
-    let res = await ProductionOrder.findOne(options)
-    let result = JSON.parse(JSON.stringify(res))
-    let boms = []
-    for (const bom of pobList) {
-      if (bom.bomId == result.bomId) {
-        boms.push(bom.dataValues)
-      }
-    }
-    for (const process of result.processes) {
-      const temp = await PerformanceConfig.findOne({
-        where: {
-          materialId: result.bom.materialId,
-          processId: process.processId,
-        },
-      })
-      if (temp) {
-        process['performanceConfig'] = temp
-      }
-    }
-    result['boms'] = boms
-    return result
+
+    const res = await ProductionOrder.findOne(options)
+    return res
   }
 
   public async findPagination(dto: FindPaginationDto, pagination: Pagination, user: User) {
     const options: FindPaginationOptions = {
       where: {},
       pagination,
-      order: [
-        ['kingdeeCode', 'DESC'],
-        ['code', 'DESC'],
-      ],
-      attributes: [
-        'id',
-        'kingdeeCode',
-        'kingdeeRow',
-        'code',
-        'FStatus',
-        'status',
-        'priority',
-        'plannedOutput',
-        'startTime',
-        'endTime',
-        'actualOutput',
-        'actualStartTime',
-        'actualEndTime',
-        'totalWorkingHours',
-        'currentProcess',
-        'remark',
-        'schedulingStatus',
-        'salesOrderCode',
-      ],
+      order: [['kingdeeCode', 'DESC']],
       include: [
         {
-          association: 'bom',
-          attributes: ['id', 'code', 'materialId', 'spec', 'attr', 'unit', 'quantity', 'orderNo', 'figureNumber', 'remark', 'version', 'status', 'formData'],
+          association: 'salesOrder',
+          attributes: ['id', 'code'],
+        },
+        {
+          association: 'productionOrderDetail',
           where: {},
           required: false,
-          include: [
-            {
-              association: 'parentMaterial',
-              attributes: ['id', 'code', 'attribute', 'category', 'materialName', 'spec', 'unit', 'status', 'k3DataStatus'],
-              required: true,
-              // include: [
-              //   {
-              //     association: 'boms',
-              //     required: false,
-              //     attributes:['id','code','materialId','remark','version','spec','attr','quantity','size'],
-              //   },
-              // ],
-              where: {},
-            },
-          ],
+          attributes: {
+            exclude: ['productionOrderId'], // 👈 在这里排除你不想要的字段
+          },
+          // include: [
+          //   {
+          //     association: 'parentMaterial',
+          //     attributes: ['id', 'code', 'attribute', 'category', 'materialName', 'spec', 'unit', 'status', 'k3DataStatus'],
+          //     required: true,
+          //     // include: [
+          //     //   {
+          //     //     association: 'boms',
+          //     //     required: false,
+          //     //     attributes:['id','code','materialId','remark','version','spec','attr','quantity','size'],
+          //     //   },
+          //     // ],
+          //     where: {},
+          //   },
+          // ],
         },
+
         // {
-        //   association: 'salesOrder',
-        //   attributes: ['id', 'code'],
-        //   required: false,
-        // },
-        {
-          association: 'processes',
-          attributes: [
-            'id',
-            'productionOrderId',
-            'processId',
-            'reportRatio',
-            'reportRatio',
-            'isOutsource',
-            'sort',
-            'planCount',
-            'goodCount',
-            'badCount',
-            'startTime',
-            'endTime',
-            'actualStartTime',
-            'actualEndTime',
-            'processTaskId',
-            'isInspection',
-            'reportQuantity',
-          ],
-          include: [
-            {
-              association: 'process',
-              attributes: ['id', 'processName'],
-              include: [
-                {
-                  association: 'children',
-                  attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
-                  required: false,
-                },
-              ],
-            },
-            {
-              association: 'workCenter',
-              // where: {},
-              attributes: ['id', 'name'],
-              through: {
-                attributes: ['id'],
-              },
-            },
-            {
-              association: 'depts',
-              attributes: ['id', 'name'],
-              through: {
-                attributes: [], // 隐藏中间表的数据
-              },
-            },
-            {
-              association: 'items',
-              attributes: ['id', 'name'],
-              through: {
-                attributes: [], // 隐藏中间表的数据
-              },
-            },
-            {
-              association: 'file',
-              attributes: ['id', 'name', 'versionCode', 'url'],
-              where: {},
-              required: false,
-            },
-          ],
-        },
-        // {
-        //   association: 'boms',
-        //   attributes: ['id', 'productionOrderCode', 'code', 'fz', 'count', 'remark'],
-        //   required: false,
+        //   association: 'processes',
+        //   attributes: [
+        //     'id',
+        //     'productionOrderId',
+        //     'processId',
+        //     'reportRatio',
+        //     'reportRatio',
+        //     'isOutsource',
+        //     'sort',
+        //     'planCount',
+        //     'goodCount',
+        //     'badCount',
+        //     'startTime',
+        //     'endTime',
+        //     'actualStartTime',
+        //     'actualEndTime',
+        //     'processTaskId',
+        //     'isInspection',
+        //     'reportQuantity',
+        //   ],
         //   include: [
         //     {
-        //       association: 'material',
-        //       required: false,
-        //       attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
-        //       where: {},
+        //       association: 'process',
+        //       attributes: ['id', 'processName'],
+        //       include: [
+        //         {
+        //           association: 'children',
+        //           attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
+        //           required: false,
+        //         },
+        //       ],
+        //     },
+        //     {
+        //       association: 'workCenter',
+        //       // where: {},
+        //       attributes: ['id', 'name'],
+        //       through: {
+        //         attributes: ['id'],
+        //       },
+        //     },
+        //     {
+        //       association: 'depts',
+        //       attributes: ['id', 'name'],
+        //       through: {
+        //         attributes: [], // 隐藏中间表的数据
+        //       },
         //     },
         //     {
         //       association: 'items',
+        //       attributes: ['id', 'name'],
+        //       through: {
+        //         attributes: [], // 隐藏中间表的数据
+        //       },
+        //     },
+        //     {
+        //       association: 'file',
+        //       attributes: ['id', 'name', 'versionCode', 'url'],
+        //       where: {},
         //       required: false,
-        //       attributes: ['id', 'item', 'ratio', 'type', 'numerator', 'denominator', 'sendCount', 'length', 'method', 'warehouseId', 'transferCount', 'receivedCount', 'unclaimedCount', 'replaceCount', 'actualReceived'],
-        //       include: [
-        //         {
-        //           association: 'material',
-        //           attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit'],
-        //           required: false,
-        //         }
-        //       ]
-        //     }
+        //     },
         //   ],
-        //   where: {},
         // },
       ],
     }
-    if (dto.code) {
-      options.where['code'] = {
-        [Op.like]: `%${dto.code}%`,
-      }
-    }
+    // if (dto.code) {
+    //   options.where['code'] = {
+    //     [Op.like]: `%${dto.code}%`,
+    //   }
+    // }
 
     if (dto.kingdeeCode) {
       options.where['kingdeeCode'] = {
@@ -562,87 +459,87 @@ export class ProductionOrderService {
       }
     }
 
-    if (dto.name) {
-      options.include[0].include[0].where['name'] = {
-        [Op.like]: `%${dto.name}%`,
-      }
-    }
+    // if (dto.name) {
+    //   options.include[0].include[0].where['name'] = {
+    //     [Op.like]: `%${dto.name}%`,
+    //   }
+    // }
 
-    if (dto.status) {
-      if (dto.status === '未完成') {
-        options.where['status'] = {
-          [Op.in]: ['未开始', '执行中'],
-        }
-      } else {
-        options.where['status'] = {
-          [Op.eq]: dto.status,
-        }
-      }
-    }
-
-    if (dto.materialCode) {
-      options.include[0].include[0].where['code'] = {
-        [Op.like]: `%${dto.materialCode}%`,
-      }
-    }
-
-    if (dto.isDept) {
-      if (user) {
-        const user1 = await User.findByPk(user.id)
-        if (user1.departmentId) {
-          options.include[1].include[1].where['id'] = {
-            [Op.eq]: user1.departmentId,
-          }
-        }
-      }
-    }
-
-    if (dto.startTime) {
-      options.where['startTime'] = {
-        [Op.gte]: moment(dto.startTime).startOf('day').toISOString(),
-        [Op.lte]: moment(dto.startTime).endOf('day').toISOString(),
-      }
-    }
-
-    if (dto.endTime) {
-      options.where['endTime'] = {
-        [Op.gte]: moment(dto.endTime).startOf('day').toISOString(),
-        [Op.lte]: moment(dto.endTime).endOf('day').toISOString(),
-      }
-    }
-
-    // 工序排产
-    if (dto.popStartTime && dto.popEndTime) {
-      // 筛选startTime >= dto.startTime 且 endTime <= dto.endTime 的记录
-      options.where['startTime'] = { [Op.gte]: dto.popStartTime }
-      options.where['endTime'] = { [Op.lte]: dto.popEndTime }
-    } else if (dto.popStartTime) {
-      // 只有开始时间，筛选startTime >= dto.startTime的记录
-      options.where['startTime'] = { [Op.gte]: dto.popStartTime }
-    } else if (dto.popEndTime) {
-      // 只有结束时间，筛选endTime <= dto.endTime的记录
-      options.where['endTime'] = { [Op.lte]: dto.popEndTime }
-    }
-
-    if (dto.schedulingStatus) {
-      options.where['schedulingStatus'] = dto.schedulingStatus
-    }
-
-    const result = await ProductionOrder.findPagination<ProductionOrder>(options)
-    // @ts-ignore
-    // for (const datum of result.data) {
-    //   for (const process of datum.dataValues.processes) {
-    //     const temp = await PerformanceConfig.findOne({
-    //       where: {
-    //         materialId: datum.dataValues.bom.dataValues.materialId,
-    //         processId: process.processId,
-    //       },
-    //     })
-    //     if (temp) {
-    //       process.setDataValue('performanceConfig', temp)
+    // if (dto.status) {
+    //   if (dto.status === '未完成') {
+    //     options.where['status'] = {
+    //       [Op.in]: ['未开始', '执行中'],
+    //     }
+    //   } else {
+    //     options.where['status'] = {
+    //       [Op.eq]: dto.status,
     //     }
     //   }
     // }
+
+    // if (dto.materialCode) {
+    //   options.include[0].include[0].where['code'] = {
+    //     [Op.like]: `%${dto.materialCode}%`,
+    //   }
+    // }
+
+    // if (dto.isDept) {
+    //   if (user) {
+    //     const user1 = await User.findByPk(user.id)
+    //     if (user1.departmentId) {
+    //       options.include[1].include[1].where['id'] = {
+    //         [Op.eq]: user1.departmentId,
+    //       }
+    //     }
+    //   }
+    // }
+
+    // if (dto.startTime) {
+    //   options.where['startTime'] = {
+    //     [Op.gte]: moment(dto.startTime).startOf('day').toISOString(),
+    //     [Op.lte]: moment(dto.startTime).endOf('day').toISOString(),
+    //   }
+    // }
+
+    // if (dto.endTime) {
+    //   options.where['endTime'] = {
+    //     [Op.gte]: moment(dto.endTime).startOf('day').toISOString(),
+    //     [Op.lte]: moment(dto.endTime).endOf('day').toISOString(),
+    //   }
+    // }
+
+    // // 工序排产
+    // if (dto.popStartTime && dto.popEndTime) {
+    //   // 筛选startTime >= dto.startTime 且 endTime <= dto.endTime 的记录
+    //   options.where['startTime'] = { [Op.gte]: dto.popStartTime }
+    //   options.where['endTime'] = { [Op.lte]: dto.popEndTime }
+    // } else if (dto.popStartTime) {
+    //   // 只有开始时间，筛选startTime >= dto.startTime的记录
+    //   options.where['startTime'] = { [Op.gte]: dto.popStartTime }
+    // } else if (dto.popEndTime) {
+    //   // 只有结束时间，筛选endTime <= dto.endTime的记录
+    //   options.where['endTime'] = { [Op.lte]: dto.popEndTime }
+    // }
+
+    // if (dto.schedulingStatus) {
+    //   options.where['schedulingStatus'] = dto.schedulingStatus
+    // }
+
+    const result = await ProductionOrder.findPagination<ProductionOrder>(options)
+    // // @ts-ignore
+    // // for (const datum of result.data) {
+    // //   for (const process of datum.dataValues.processes) {
+    // //     const temp = await PerformanceConfig.findOne({
+    // //       where: {
+    // //         materialId: datum.dataValues.bom.dataValues.materialId,
+    // //         processId: process.processId,
+    // //       },
+    // //     })
+    // //     if (temp) {
+    // //       process.setDataValue('performanceConfig', temp)
+    // //     }
+    // //   }
+    // // }
 
     return result
   }
@@ -807,7 +704,7 @@ export class ProductionOrderService {
             processFailed++
             continue
           }
-          const temp = await ProductionOrder.findOne({ where: { code: rowElement.code } })
+          const temp = await ProductionOrder.findOne({ where: { kingdeeCode: rowElement.code } })
           if (temp) {
             errors.push('已有相同编号的生产工单存在')
             processFailed++
@@ -816,8 +713,8 @@ export class ProductionOrderService {
           //创建生产工单
           const order = await ProductionOrder.create(
             {
-              code: rowElement.code,
-              plannedOutput: rowElement.plannedOutput,
+              kingdeeCode: rowElement.code,
+              // plannedOutput: rowElement.plannedOutput,
               startTime: rowElement.startTime,
               endTime: rowElement.endTime,
               remark: rowElement.remark,
@@ -886,7 +783,7 @@ export class ProductionOrderService {
                   fileId: processRouteList.dataValues.fileId,
                   startTime: order.dataValues.startTime,
                   endTime: order.dataValues.endTime,
-                  planCount: order.dataValues.plannedOutput,
+                  // planCount: order.dataValues.plannedOutput,
                 },
                 { transaction }
               )
@@ -1183,336 +1080,148 @@ export class ProductionOrderService {
   }
 
   public async asyncKingdee() {
-    // let filterString = await KingdeeeService.buildFilterString([
-    //   { key: 'FPrdOrgId.FNumber', type: 'string', value: '102' },
-    //   { key: 'FWorkshopID.FName', type: 'string', value: '线束车间' },
-    // ])
-    let filterString = `FDate>='2025-03-25' and FDocumentStatus='C' and FStatus='4' and FBillType = '123f39178eb2424c8449f992e1fff1ee'`
-    let data = await KingdeeeService.getList(
-      'PRD_MO',
-      'FTreeEntity_FEntryId,FID,FBillNo,FRowId,FWorkShopID,FWorkshopID.FName,FPlanStartDate,FPlanFinishDate,FMaterialId,FMaterialId.FMasterID,FQty,FBomId,FRoutingId,FSrcBillType,FSrcBillNo,FTreeEntity_FSEQ,FBillType.FName,FStatus,FDocumentStatus',
-      filterString
-    )
-    // return data
-    const dataMap = data.reduce((map, item) => {
-      map[item.FBillNo] = item
-      return map
-    }, {} as Record<string, any>)
+    // 生产订单 同步
+    {
+      const { formID, dbModel, keys, redisKey, detailTypes, detailKeys, dbModelDetail, filterString } = K3Mapping['PRD_MO']
 
-    console.log(11111, dataMap)
-    console.log(22222, data)
+      let data = await KingdeeeService.getListV2(formID, keys.map(v => v[1]).join(','), filterString)
 
-    let mate = []
-    let code
-    //按规则创建编码
-    const date = new Date()
-    const year = date.getFullYear().toString().substring(2)
-    const month = date.getMonth().toString().padStart(2, '0')
-    for (const item of data) {
-      //C=已审核 4=开工 不满足条件就跳过
-      // if (item.FDocumentStatus != 'C' || item.FStatus != '4') continue
-      if (code) {
-        const oldNO = code
-        const lastFourChars = oldNO.length >= 4 ? oldNO.slice(-4) : '0'.repeat(4 - oldNO.length) + oldNO
-        let num = parseInt(lastFourChars)
-        num++
-        let newNO = num.toString().padStart(4, '0')
-
-        code = 'SCDD' + year + month + newNO
-      } else {
-        const temp1 = await ProductionOrder.findOne({
-          order: [['id', 'DESC']],
-          where: { code: { [Op.like]: `SCGD${year}${month}%` } },
-        })
-
-        if (temp1) {
-          const oldNO = temp1.code
-          const lastFourChars = oldNO.length >= 4 ? oldNO.slice(-4) : '0'.repeat(4 - oldNO.length) + oldNO
-          let num = parseInt(lastFourChars)
-          num++
-          let newNO = num.toString().padStart(4, '0')
-
-          code = 'SCDD' + year + month + newNO
-        } else {
-          code = 'SCDD' + year + month + '0001'
-        }
-      }
-      let topMaterialId
-      // if (item.FSrcBillType && item.FSrcBillType.length > 0 && item.FSrcBillType === 'PRD_MO' && item['FWorkshopID.FName'] === '线束车间') {
-      const parentOrder = dataMap[item.FSrcBillNo]
-      if (parentOrder) {
-        topMaterialId = parentOrder.FMaterialId // 从上级单据中直接获取物料 ID
-      }
-
-      let temp = {
-        id: item.FBillNo + String(item['FTreeEntity.FEntryId']),
-        kingdeeCode: item.FBillNo,
-        kingdeeRow: item.FRowId,
-        bomId: item.FBomId ? item.FBomId : null,
-        code: code,
-        topMaterialId: topMaterialId ? topMaterialId : null,
-        FStatus: item.FStatus,
-        plannedOutput: item.FQty,
-        startTime: item.FPlanStartDate,
-        endTime: item.FPlanFinishDate,
-        fid: item.FID,
-        fseq: item.FTreeEntity_FSEQ,
-        billType: item['FBillType.FName'],
-      }
-      mate.push(temp)
-    }
-    for (let i = 0; i < mate.length; i += 100) {
-      let batch = mate.slice(i, i + 100)
-      // console.log(batch)
-      //查询bom是否存在不存在就过滤保存
-      const bomIds = _.uniq(batch.map(item => item.bomId)).filter(id => id !== null)
-      if (bomIds.length) {
-        const existingBoms = await BOM.findAll({
-          where: { id: bomIds },
-          attributes: ['id'],
-        })
-        const existingBomIds = existingBoms.map(bom => bom.id)
-        batch = batch.filter(item => existingBomIds.includes(item.bomId))
-      }
-      let result = await ProductionOrder.bulkCreate(batch, {
-        updateOnDuplicate: ['id', 'kingdeeCode','code', 'FStatus', 'plannedOutput', 'startTime', 'endTime', 'fid', 'salesOrderCode', 'billType'],
+      // 外键0判Null
+      data.map(v => {
+        if (v.FSaleOrderId == 0) delete v.FSaleOrderId
+        return v
       })
 
-      // 手动获取 id
-      if (result.some(record => record.id === null)) {
-        result = await ProductionOrder.findAll({
-          where: {
-            kingdeeCode: batch.map(item => item.kingdeeCode),
-          },
-        })
-      }
-
-      // 批量获取最新的生产订单数据字段
-      const productionOrderIds = result.map(po => po.id)
-      const freshProductionOrders = await ProductionOrder.findAll({
-        where: { id: productionOrderIds },
-        attributes: ['id', 'plannedOutput', 'startTime', 'endTime', 'schedulingStatus'],
-      })
-
-      // 创建到现有映射
-      const productionOrderMap = new Map()
-      freshProductionOrders.forEach(po => {
-        productionOrderMap.set(po.id, po)
-      })
-
-      for (const productionOrder of result) {
-        // 使用映射获取最新数据，避免重复数据库查询
-        const freshProductionOrder = productionOrderMap.get(productionOrder.id) || productionOrder
-
-        const route = await ProcessRoute.findOne({
-          where: { status: true },
-          include: [
-            {
-              association: 'processRouteList',
-              include: [
-                {
-                  //工序自带的不良品项
-                  association: 'process',
-                  include: [
-                    {
-                      association: 'processItem',
-                      attributes: ['id', 'name'],
-                    },
-                    {
-                      association: 'processDept',
-                      attributes: ['id', 'name'],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        })
-        if (route && route.dataValues.processRouteList && route.dataValues.processRouteList.length > 0) {
-          const existingPops = await POP.findAll({
-            where: { productionOrderId: freshProductionOrder.id },
-          })
-          for (const processRouteList of route.dataValues.processRouteList) {
-            const existingPop = existingPops.find(v => v.processId === processRouteList.processId)
-            if (existingPop) {
-              // 更新已存在的工序任务，使用最新的生产订单数据
-              await existingPop.update({
-                reportRatio: processRouteList.reportRatio,
-                isReport: processRouteList.isReport,
-                isOutsource: processRouteList.isOutsource,
-                isInspection: processRouteList.isInspection,
-                sort: processRouteList.sort,
-                planCount: freshProductionOrder.plannedOutput,
-                goodCount: existingPop.goodCount,
-                badCount: existingPop.badCount,
-                fileId: processRouteList.fileId,
-                ...(freshProductionOrder.schedulingStatus == '已排产' ? {} : { startTime: freshProductionOrder.startTime, endTime: freshProductionOrder.endTime }),
-              })
-            } else if (existingPops.length == 0) {
-              //如果已经创建或就不会创建新的工序绑定
-              const pro = await POP.create({
-                productionOrderId: freshProductionOrder.id,
-                processId: processRouteList.processId,
-                reportRatio: processRouteList.reportRatio,
-                isReport: processRouteList.isReport,
-                isOutsource: processRouteList.isOutsource,
-                isInspection: processRouteList.isInspection,
-                sort: processRouteList.sort,
-                planCount: freshProductionOrder.plannedOutput,
-                goodCount: 0,
-                badCount: 0,
-                fileId: processRouteList.fileId,
-                startTime: freshProductionOrder.startTime,
-                endTime: freshProductionOrder.endTime,
-              })
-              for (const dept of processRouteList.dataValues.process.dataValues.processDept) {
-                await POD.create({ popId: pro.id, deptId: dept.id })
-              }
-              for (const item of processRouteList.dataValues.process.dataValues.processItem) {
-                await POI.create({ popId: pro.id, defectiveItemId: item.id })
-              }
-            }
+      data = KingdeeeService.parseKingdeeDataByMapping(data, keys)
+      await dbModel.bulkCreate(data, { updateOnDuplicate: keys.map(v => v[2]) as (keyof ProductionOrder)[] })
+      console.log('同步生产订单完成')
+      if (detailTypes) {
+        // 读取金蝶接口方式
+        let detailData = await KingdeeeService.getListV2(formID, detailKeys.map(v => v[1]).join(','), filterString)
+        detailData = KingdeeeService.parseKingdeeDataByMapping(detailData, detailKeys)
+        let cacheOrder = { key: '', value: 1 }
+        detailData = detailData.map(v => {
+          if (cacheOrder.key !== v.orderCode) {
+            cacheOrder.key = v.orderCode
+            cacheOrder.value = 1
           }
-        }
-      }
-    }
+          v.orderCode += `-${cacheOrder.value.toString().padStart(2, '0')}`
+          cacheOrder.value += 1
 
-    // let filterString2 = await KingdeeeService.buildFilterString([
-    //   { key: 'FWorkshopID.FName', type: 'string', value: '线束车间' },
-    // ])
-    let filterString2 = "FCreateDate>='2025-03-25' and FMoEntryStatus='4' and FMOType.FName = '汇报入库-普通生产'"
-    data = await KingdeeeService.getList(
-      'PRD_PPBOM',
-      'FMOEntryID,FID,FBillNo,FMaterialID.FMasterID,FBOMID,FWorkshopID,FWorkshopID.FName,FUnitID,FMOBillNO,FQty,FMOEntrySeq,FDocumentStatus,FDescription',
-      filterString2
-    )
-    mate = []
-    let unitList = await ApiDict.findAll({
-      where: { name: '单位', xtName: '金蝶' },
-      attributes: ['fid', 'code', 'content'],
-    })
-    for (const item of data) {
-      let unitName = null
-      for (const unit of unitList) {
-        if (unit.fid == item.FBaseUnitId) {
-          unitName = unit.content
-        }
-      }
-      let temp = {
-        id: item.FID,
-        productionOrderId: item.FMOBillNO + item.FMOEntryID,
-        code: item.FBillNo,
-        materialId: item['FMaterialID.FMasterID'],
-        bomId: item.FBOMID,
-        workShopId: item.FWorkshopID,
-        unit: unitName,
-        count: item.FQty,
-        orderRowNum: item.FMOEntrySeq,
-        remark: item.FDescription,
-      }
-      mate.push(temp)
-    }
-    // console.log(mate)
-    for (let i = 0; i < mate.length; i += 100) {
-      let batch = mate.slice(i, i + 100)
-      //查询bom是否存在不存在就过滤保存
-      const bomIds = _.uniq(batch.map(item => item.bomId)).filter(id => id !== null)
-      if (bomIds.length) {
-        const existingBoms = await BOM.findAll({
-          where: { id: bomIds },
-          attributes: ['id'],
+          return v
         })
-        const existingBomIds = existingBoms.map(bom => bom.id)
-        batch = batch.filter(item => existingBomIds.includes(item.bomId))
+        await dbModelDetail.bulkCreate(detailData, { updateOnDuplicate: detailKeys.map(v => v[2]) as (keyof ProductionOrderDetail)[] })
+        console.log('同步生产订单明细完成')
       }
-      let result = await POB.bulkCreate(batch, {
-        updateOnDuplicate: ['id', 'productionOrderId', 'code', 'materialId', 'bomId', 'workShopId', 'unit', 'count', 'orderRowNum', 'remark'],
-        // ignoreDuplicates: true,
-      })
     }
 
-    data = await KingdeeeService.getList(
-      'PRD_PPBOM',
-      'FEntity_FEntryId,FID,FBillNo,FReplaceGroup,FMaterialID2.FMasterID,FUseRate,FMaterialType,FNumerator,FDenominator,FUnitID2,FMustQty,FIssueType,FTranslateQty,FPickedQty,FRePickedQty,FNoPickedQty,FACTUALPICKQTY',
-      filterString2
-    )
-    // 分组数据
-    const groupByFBillNo = (data: any[][]) => {
-      return data.reduce((groups, row) => {
-        const billNo = row['FBillNo']
-        if (!groups[billNo]) {
-          groups[billNo] = []
-        }
-        groups[billNo].push(row)
-        return groups
-      }, {} as Record<string, any[]>)
-    }
-    const groupedData = groupByFBillNo(data)
-    mate = []
-    for (const groupedDataKey in groupedData) {
-      const rows = groupedData[groupedDataKey]
-      for (const item of rows) {
-        let temp
-        let unitName = null
-        for (const unit of unitList) {
-          if (unit.fid == item.FBaseUnitId) {
-            unitName = unit.content
-          }
-        }
-        temp = {
-          id: item.FEntity_FEntryId,
-          pobId: item.FID,
-          item: item.FReplaceGroup,
-          materialId: item['FMaterialID2.FMasterID'],
-          ratio: item.FUseRate,
-          type: item.FMaterialType,
-          numerator: item.FNumerator,
-          denominator: item.FDenominator,
-          sendCount: item.FMustQty,
-          method: item.FIssueType,
-          transferCount: item.FTranslateQty,
-          receivedCount: item.FPickedQty,
-          unclaimedCount: item.FNoPickedQty,
-          replaceCount: item.FRePickedQty,
-          actualReceived: item.FACTUALPICKQTY,
-        }
-        mate.push(temp)
-      }
-    }
-    for (let i = 0; i < mate.length; i += 100) {
-      let batch = mate.slice(i, i + 100)
-      //查询pob是否存在不存在就过滤保存
-      const pobIdIds = _.uniq(batch.map(item => item.pobId)).filter(id => id !== null)
-      if (pobIdIds.length) {
-        const existingBoms = await POB.findAll({
-          where: { id: pobIdIds },
-          attributes: ['id'],
-        })
-        const existingBomIds = existingBoms.map(bom => bom.id)
-        batch = batch.filter(item => existingBomIds.includes(item.pobId))
-      }
-      let result = await POBD.bulkCreate(batch, {
-        updateOnDuplicate: [
-          'id',
-          'pobId',
-          'item',
-          'materialId',
-          'ratio',
-          'type',
-          'numerator',
-          'denominator',
-          'sendCount',
-          'method',
-          'transferCount',
-          'receivedCount',
-          'unclaimedCount',
-          'replaceCount',
-          'actualReceived',
-        ],
-      })
+    //  排产计划时间
+    {
+      //   // 批量获取最新的生产订单数据字段
+      //   const productionOrderIds = result.map(po => po.id)
+      //   const freshProductionOrders = await ProductionOrder.findAll({
+      //     where: { id: productionOrderIds },
+      //     attributes: ['id', 'plannedOutput', 'startTime', 'endTime', 'schedulingStatus'],
+      //   })
+      //   // 创建到现有映射
+      //   const productionOrderMap = new Map()
+      //   freshProductionOrders.forEach(po => {
+      //     productionOrderMap.set(po.id, po)
+      //   })
+      //   for (const productionOrder of result) {
+      //     // 使用映射获取最新数据，避免重复数据库查询
+      //     const freshProductionOrder = productionOrderMap.get(productionOrder.id) || productionOrder
+      //     const route = await ProcessRoute.findOne({
+      //       where: { status: true },
+      //       include: [
+      //         {
+      //           association: 'processRouteList',
+      //           include: [
+      //             {
+      //               //工序自带的不良品项
+      //               association: 'process',
+      //               include: [
+      //                 {
+      //                   association: 'processItem',
+      //                   attributes: ['id', 'name'],
+      //                 },
+      //                 {
+      //                   association: 'processDept',
+      //                   attributes: ['id', 'name'],
+      //                 },
+      //               ],
+      //             },
+      //           ],
+      //         },
+      //       ],
+      //     })
+      //     if (route && route.dataValues.processRouteList && route.dataValues.processRouteList.length > 0) {
+      //       const existingPops = await POP.findAll({
+      //         where: { productionOrderId: freshProductionOrder.id },
+      //       })
+      //       for (const processRouteList of route.dataValues.processRouteList) {
+      //         const existingPop = existingPops.find(v => v.processId === processRouteList.processId)
+      //         if (existingPop) {
+      //           // 更新已存在的工序任务，使用最新的生产订单数据
+      //           await existingPop.update({
+      //             reportRatio: processRouteList.reportRatio,
+      //             isReport: processRouteList.isReport,
+      //             isOutsource: processRouteList.isOutsource,
+      //             isInspection: processRouteList.isInspection,
+      //             sort: processRouteList.sort,
+      //             planCount: freshProductionOrder.plannedOutput,
+      //             goodCount: existingPop.goodCount,
+      //             badCount: existingPop.badCount,
+      //             fileId: processRouteList.fileId,
+      //             ...(freshProductionOrder.schedulingStatus == '已排产' ? {} : { startTime: freshProductionOrder.startTime, endTime: freshProductionOrder.endTime }),
+      //           })
+      //         } else if (existingPops.length == 0) {
+      //           //如果已经创建或就不会创建新的工序绑定
+      //           const pro = await POP.create({
+      //             productionOrderId: freshProductionOrder.id,
+      //             processId: processRouteList.processId,
+      //             reportRatio: processRouteList.reportRatio,
+      //             isReport: processRouteList.isReport,
+      //             isOutsource: processRouteList.isOutsource,
+      //             isInspection: processRouteList.isInspection,
+      //             sort: processRouteList.sort,
+      //             planCount: freshProductionOrder.plannedOutput,
+      //             goodCount: 0,
+      //             badCount: 0,
+      //             fileId: processRouteList.fileId,
+      //             startTime: freshProductionOrder.startTime,
+      //             endTime: freshProductionOrder.endTime,
+      //           })
+      //           for (const dept of processRouteList.dataValues.process.dataValues.processDept) {
+      //             await POD.create({ popId: pro.id, deptId: dept.id })
+      //           }
+      //           for (const item of processRouteList.dataValues.process.dataValues.processItem) {
+      //             await POI.create({ popId: pro.id, defectiveItemId: item.id })
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // }
     }
 
-    return { data: true }
+    // 生产用料清单 同步
+    {
+      const { formID, dbModel, keys, redisKey, detailTypes, detailKeys, dbModelDetail, filterString, pageSize } = K3Mapping['PRD_PPBOM']
+      let data = await KingdeeeService.getListV2(formID, keys.map(v => v[1]).join(','), filterString)
+      data = KingdeeeService.parseKingdeeDataByMapping(data, keys)
+      await dbModel.bulkCreate(data, { updateOnDuplicate: keys.map(v => v[2]) as (keyof POB)[] })
+      console.log('同步生产用料清单完成')
+      if (detailTypes) {
+        // 读取金蝶接口方式
+        let detailData = await KingdeeeService.getListV2(formID, detailKeys.map(v => v[1]).join(','), filterString, pageSize, 0)
+        detailData = KingdeeeService.parseKingdeeDataByMapping(detailData, detailKeys)
+        await dbModelDetail.bulkCreate(detailData, { updateOnDuplicate: detailKeys.map(v => v[2]) as (keyof POBDetail)[] })
+        console.log('同步生产用料清单明细完成')
+      }
+    }
+
+    return { code: 200, message: '同步成功', data: true }
   }
 
   async findAllPOB(dto: POBPaginationDto, pagination: Pagination, user) {
@@ -1557,25 +1266,25 @@ export class ProductionOrderService {
     const result = await ProductionOrder.findPagination<ProductionOrder>(options)
     let data = []
     for (const datum of result.data) {
-      for (const bom of datum.dataValues.boms) {
-        for (const item of bom.dataValues.items) {
-          if (item.dataValues.material) {
-            let temp = {
-              id: item.dataValues.material.id,
-              materialId: item.dataValues.material.id,
-              name: item.dataValues.material.materialName,
-              code: item.dataValues.material.code,
-              spec: item.dataValues.material.spec,
-              unit: item.dataValues.material.unit,
-              pobCode: bom.code,
-            }
-            //判断data是否已存在temp
-            if (!data.some(item => item.id === temp.id)) {
-              data.push(temp)
-            }
-          }
-        }
-      }
+      // for (const bom of datum.dataValues.boms) {
+      //   for (const item of bom.dataValues.items) {
+      //     if (item.dataValues.material) {
+      //       let temp = {
+      //         id: item.dataValues.material.id,
+      //         materialId: item.dataValues.material.id,
+      //         name: item.dataValues.material.materialName,
+      //         code: item.dataValues.material.code,
+      //         spec: item.dataValues.material.spec,
+      //         unit: item.dataValues.material.unit,
+      //         pobCode: bom.kingdeeCode,
+      //       }
+      //       //判断data是否已存在temp
+      //       if (!data.some(item => item.id === temp.id)) {
+      //         data.push(temp)
+      //       }
+      //     }
+      //   }
+      // }
     }
 
     return data

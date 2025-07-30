@@ -56,11 +56,6 @@ export enum TEAM_TYPE {
   inspection = '质检',
 }
 
-export enum STORAGE_TYPE {
-  report = '123f39178eb2424c8449f992e1fff1ee', //汇报入库
-  production = '281783bb73244d178d41ce550d877af0', //生产入库
-}
-
 export enum OUTER_SALES_ORDER_STATUES {
   notProduced = '未生产', //订单中的生产订单无一个开工
   inProduction = '生产中', //订单中的生产订单有一个开工

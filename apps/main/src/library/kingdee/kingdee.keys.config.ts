@@ -178,8 +178,34 @@ export const K3Mapping = {
       },
     ],
   },
-}
-let a = 'FSaleOrderEntry_FEntryID,FID,FMaterialId.FMasterID,FQty,FUnitID.FName,F_ora_Qty,FTaxPrice,FPrice,FAmount,F_ora_BaseProperty_qtr,FBomId,FDeliveryDate'
+  PRD_MO: {
+    formID: 'PRD_MO',
+    remark: '生产订单',
+    dbModel: ProductionOrder,
+    filterString: `FDocumentStatus='C' and FStatus='4'`,
+    redisKey: info.appName + 'kingdee:production_order',
+    keys: [
+      ['金蝶ID', 'FID', 'id'],
+      ['销售订单id', 'FSaleOrderId', 'salesOrderId'],
+      ['金蝶编码', 'FBillNo', 'kingdeeCode'],
+      ['单据日期', 'FDate', 'orderDate'],
+      ['单据类型', 'FBillType.FName', 'billType'],
+      ['单据状态', 'FDocumentStatus', 'status', v => convertExtends(v, 'FDocumentStatus')],
+    ],
+    detailTypes: true, //是否存在详情
+    dbModelDetail: ProductionOrderDetail,
+    detailKeys: [
+      ['ID', 'FTreeEntity_FEntryId', 'id'],
+      ['生产订单Id', 'FID', 'productionOrderId'],
+      ['物料编码id', 'FMaterialId', 'materialId'],
+      ['计划产出 (数量)', 'FQty', 'plannedOutput'],
+      ['计划开工时间', 'FPlanStartDate', 'startTime'],
+      ['计划完工时间', 'FPlanFinishDate', 'endTime'],
+      ['生产车间', 'FWorkShopID.FName', 'workShop'],
+      ['产品订单编号', 'FBillNo', 'orderCode'],
+      ['金蝶原始数据', '', 'jsonData'],
+    ],
+  },
 export const K3DictMapping = [
   {
     name: '岗位信息',

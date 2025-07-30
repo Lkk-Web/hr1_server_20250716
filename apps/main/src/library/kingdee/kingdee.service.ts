@@ -300,7 +300,7 @@ export class KingdeeeService {
       },
     }
     const url = `${kingdeeServiceConfig.K3_IP}/k3cloud/Kingdee.BOS.WebApi.ServicesStub.DynamicFormService.BillQuery.common.kdsvc`
-    const pageSize = Limit || 200
+    const pageSize = Limit || 10000
     const param = {
       data: {
         FormId: FormId, // 需要查询表单的ID
@@ -370,7 +370,7 @@ export class KingdeeeService {
         obj[newKey] = func ? func(value) : value
       })
 
-      dictKey.forEach((v, index) => {
+      dictKey?.forEach((v, index) => {
         let newKey = row[v]
         let val
         dictDataList[index].forEach(dict => {
