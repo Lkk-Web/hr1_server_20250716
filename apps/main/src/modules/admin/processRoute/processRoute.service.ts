@@ -295,7 +295,15 @@ export class ProcessRouteService {
               //工序自带的不良品项
               association: 'process',
               attributes: ['id', 'processName'],
+              include: [
+                {
+                  association: 'children',
+                  attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt', 'isChild', 'parentId'],
+                  required: false,
+                },
+              ],
             },
+
             // {
             //   association: 'file',
             //   attributes: ['id', 'name', 'versionCode', 'url'],

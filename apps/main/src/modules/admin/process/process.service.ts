@@ -36,7 +36,7 @@ export class ProcessService {
   public async create(dto: CProcessDto, loadModel) {
     if (dto.processName) {
       const temp = await Process.findOne({ where: { processName: dto.processName } })
-      if (temp) {
+      if (temp && !dto.isChild) {
         throw new HttpException('同名工序已存在', 400)
       }
     }
