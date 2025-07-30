@@ -1,5 +1,6 @@
 import { info, kingdeeServiceConfig } from '@common/config'
-import { ApiDict, BOM, BomDetail, Customer, Material, SalesOrder, SalesOrderDetail, Supplier, Organize, User } from '@model/index'
+import { ApiDict, BOM, BomDetail, Customer, Material, SalesOrder, SalesOrderDetail, Supplier, Organize, User, ProductionOrder, POB, POBDetail } from '@model/index'
+import { ProductionOrderDetail } from '@model/production/productionOrderDetail.model'
 import _ = require('lodash')
 
 export const K3Mapping = {
@@ -135,13 +136,12 @@ export const K3Mapping = {
     detailKeys: [],
     dict: [],
   },
-  BD_SALESORDER: {
+  SAL_SALESORDER: {
     formID: 'SAL_SaleOrder',
     dbModel: SalesOrder,
     filterString: `FDocumentStatus='C' and FSaleOrgId='${kingdeeServiceConfig.K3_ORG_ID}' and FBillTypeID='eacb50844fc84a10b03d7b841f3a6278'`,
-    redisKey: info.appName + 'kingdee:bd_sales_order',
+    redisKey: info.appName + 'kingdee:sales_order',
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FID', 'id'],
       ['编码', 'FBillNo', 'code'],
       ['日期', 'FDate', 'orderDate'],
@@ -152,6 +152,7 @@ export const K3Mapping = {
       // ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
     detailTypes: true, //是否存在详情
+    dbModelDetail: SalesOrderDetail,
     detailKeys: [
       ['ID', 'FSaleOrderEntry_FEntryID', 'id'],
       ['销售订单id', 'FID', 'salesOrderId'],
@@ -167,7 +168,6 @@ export const K3Mapping = {
       ['备注', 'FEntryNote', 'remark'],
       ['金蝶原始数据', '', 'jsonData'],
     ],
-    dbModelDetail: SalesOrderDetail,
     dict: [
       {
         name: '单据类型',
@@ -206,6 +206,39 @@ export const K3Mapping = {
       ['金蝶原始数据', '', 'jsonData'],
     ],
   },
+  PRD_PPBOM: {
+    formID: 'PRD_PPBOM',
+    remark: '生产用料清单',
+    dbModel: POB,
+    filterString: `FCreateDate>='2025-05-25' and FMoEntryStatus='4' and FMOType.FName = '汇报入库-普通生产'`,
+    redisKey: info.appName + 'kingdee:production_POB',
+    pageSize: 1000,
+    keys: [
+      ['金蝶ID', 'FID', 'id'],
+      ['工单id', 'FMOEntryID', 'productionOrderDetailId'],
+      ['金蝶编码', 'FBillNo', 'kingdeeCode'],
+      ['物料Id', 'FMaterialID.FMasterID', 'materialId'],
+      ['bomId', 'FBOMID', 'bomId'],
+      ['数量', 'FQty', 'quantity'],
+      ['单据状态', 'FMoEntryStatus', 'status'],
+    ],
+    detailTypes: true, //是否存在详情
+    dbModelDetail: POBDetail,
+    detailKeys: [
+      ['ID', 'FEntity_FEntryId', 'id'],
+      ['用料清单Id', 'FID', 'pobId'],
+      ['子项物料编码id', 'FMaterialID2.FMasterID', 'materialId'],
+      ['项次', 'FReplaceGroup', 'item'],
+      ['使用比例', 'FUseRate', 'ratio'],
+      ['分子', 'FNumerator', 'numerator'],
+      ['应发数量', 'FMustQty', 'sendCount'],
+      ['已领数量', 'FPickedQty', 'receivedCount'],
+      ['未领数量', 'FNoPickedQty', 'unclaimedCount'],
+      ['金蝶原始数据', '', 'jsonData'],
+    ],
+  },
+}
+
 export const K3DictMapping = [
   {
     name: '岗位信息',

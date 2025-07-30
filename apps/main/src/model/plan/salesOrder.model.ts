@@ -2,6 +2,7 @@ import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, Table } from
 import { BaseDate } from '@model/shared/baseDate'
 import { Customer } from '@model/base/customer.model'
 import { SalesOrderDetail } from '@model/plan/salesOrderDetail.model'
+import { ProductionOrder } from '@model/production/productionOrder.model'
 
 @Table({ tableName: 'plan_sales_order', freezeTableName: true, timestamps: true, comment: '销售订单表' })
 export class SalesOrder extends BaseDate<SalesOrder> {
@@ -61,6 +62,9 @@ export class SalesOrder extends BaseDate<SalesOrder> {
 
   @BelongsTo(() => Customer)
   customer: Customer
+
+  @HasMany(() => ProductionOrder)
+  productionOrder: ProductionOrder
 
   @HasMany(() => SalesOrderDetail)
   details: SalesOrderDetail[]
