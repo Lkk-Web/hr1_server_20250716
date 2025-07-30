@@ -83,7 +83,7 @@ export class ProductionReportTwoService {
 
         // 第二步：判断是否存在物料模板
         const mat = await InspectionTemplateMat.findOne({
-          where: { materialId: task.order.dataValues.bom.materialId },
+          // where: { materialId: task.order.dataValues.bom.materialId },
         })
 
         if (!mat) {
@@ -99,7 +99,7 @@ export class ProductionReportTwoService {
           if (!generalTemplate) {
             return {
               message: `物料未配置检验模板且不存在${inspectionType}通用模板`,
-              data: [task.order.dataValues.bom.materialId],
+              // data: [task.order.dataValues.bom.materialId],
             }
           }
         }
@@ -109,7 +109,7 @@ export class ProductionReportTwoService {
     // 获取配置信息
     const configs = await PerformanceConfig.findAll({
       where: {
-        materialId: tasks.map(item => item.order.bom.materialId),
+        // materialId: tasks.map(item => item.order.bom.materialId),
         processId,
       },
     })
@@ -123,20 +123,20 @@ export class ProductionReportTwoService {
       const task = tasks[i]
       const temp = dto.process.find(v => v.id === task.id)
 
-      const config = configs.find(item => item.materialId === task.order.bom.materialId)
+      // const config = configs.find(item => item.materialId === task.order.bom.materialId)
 
       // 创建生产报告
       const result = await ProductionReport.create({
         reportDurationHours: 0,
         reportDurationMinutes: 0,
-        unit: task.order.bom.parentMaterial.unit,
+        // unit: task.order.bom.parentMaterial.unit,
         goodCount: task.isInspection ? 0 : temp.reportQuantity,
         badCount: 0,
         startTime: task.actualStartTime || date,
         endTime: date,
-        accountingType: config ? config.pricingMethod : '计时',
-        goodCountPrice: config ? config.goodCountPrice : 0,
-        badCountPrice: config ? config.badCountPrice : 0,
+        // accountingType: config ? config.pricingMethod : '计时',
+        // goodCountPrice: config ? config.goodCountPrice : 0,
+        // badCountPrice: config ? config.badCountPrice : 0,
         taskId: task.id,
         processId,
         productionOrderId: task.productionOrderId,
@@ -249,7 +249,7 @@ export class ProductionReportTwoService {
 
     // 第二步：判断是否存在物料模板
     const mat = await InspectionTemplateMat.findOne({
-      where: { materialId: task.order.bom.materialId },
+      // where: { materialId: task.order.bom.materialId },
     })
 
     if (mat) {
@@ -310,7 +310,7 @@ export class ProductionReportTwoService {
         badCount: 0,
         templateId: inspectItems.id,
         ttId: inspectItems.ttId,
-        materialId: task.order.bom.parentMaterial.id,
+        // materialId: task.order.bom.parentMaterial.id,
       })
 
       const itemsData = inspectItems.dataValues.items.map(item => ({

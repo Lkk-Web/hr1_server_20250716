@@ -242,12 +242,12 @@ export class YieldStatisticsService {
         goodNumber = value.tasks[i].goodCount + goodNumber
       }
       const temp: any = {
-        bomCode: value.bom.parentMaterial.code,
-        bomName: value.bom.parentMaterial.materialName,
-        bomSpec: value.bom.parentMaterial.spec,
+        // bomCode: value.bom.parentMaterial.code,
+        // bomName: value.bom.parentMaterial.materialName,
+        // bomSpec: value.bom.parentMaterial.spec,
         remark: value.remark,
-        attr: value.bom.parentMaterial.attribute,
-        unit: value.bom.parentMaterial.unit,
+        // attr: value.bom.parentMaterial.attribute,
+        // unit: value.bom.parentMaterial.unit,
         goodCount: goodNumber,
         badCount: badNumber,
       }

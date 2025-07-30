@@ -92,7 +92,7 @@ export class ProductionReportService {
     if (dto.isInspection) {
       //匹配物料
       const mat = await InspectionTemplateMat.findOne({
-        where: { materialId: order.dataValues.bom.materialId },
+        // where: { materialId: order.dataValues.bom.materialId },
       })
       if (!mat) {
         return {
@@ -314,7 +314,7 @@ export class ProductionReportService {
                       await PRODetail.create(
                         {
                           proId: pro.id,
-                          materialId: order1.dataValues.bom.dataValues.parentMaterial.dataValues.id,
+                          // materialId: order1.dataValues.bom.dataValues.parentMaterial.dataValues.id,
                           // pendCount: order1.plannedOutput,
                           checkedCount: 0,
                           checkoutCount: 0,
@@ -327,7 +327,7 @@ export class ProductionReportService {
                       await ExportOrderDetail.create(
                         {
                           exportOrderId: exportOrder.id,
-                          materialId: order1.dataValues.bom.dataValues.parentMaterial.dataValues.id,
+                          // materialId: order1.dataValues.bom.dataValues.parentMaterial.dataValues.id,
                           // pendCount: order1.plannedOutput,
                           checkedCount: 0,
                           checkoutCount: 0,
@@ -507,7 +507,7 @@ export class ProductionReportService {
 
               //匹配物料
               const mat = await InspectionTemplateMat.findOne({
-                where: { materialId: order.dataValues.bom.dataValues.parentMaterial.id },
+                // where: { materialId: order.dataValues.bom.dataValues.parentMaterial.id },
                 transaction,
               })
               let array = []
@@ -549,7 +549,7 @@ export class ProductionReportService {
                     goodCount: 0,
                     badCount: 0,
                     templateId: inspectItems.id,
-                    materialId: order.dataValues.bom.dataValues.parentMaterial.id,
+                    // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
                   },
                   { transaction }
                 )
@@ -1089,7 +1089,7 @@ export class ProductionReportService {
     const result = await ProductionReport.findOne(options)
     const temp = await PerformanceConfig.findOne({
       where: {
-        materialId: result.dataValues.order.dataValues.bom.dataValues.materialId,
+        // materialId: result.dataValues.order.dataValues.bom.dataValues.materialId,
         processId: result.dataValues.processId,
       },
     })
@@ -1252,10 +1252,10 @@ export class ProductionReportService {
       result.data = result.data.map(v => {
         const datum = v.toJSON() as ProductionReport
         // 查找PerformanceConfig
-        const temp = allPerformanceConfigs.find(config => config.materialId === datum.order.bom.materialId && config.processId === datum.processId)
-        if (temp) {
-          datum.performanceConfig = temp
-        }
+        // const temp = allPerformanceConfigs.find(config => config.materialId === datum.order.bom.materialId && config.processId === datum.processId)
+        // if (temp) {
+        //   datum.performanceConfig = temp
+        // }
 
         // 计算processProgress
         const count = allProductionReports.filter(report => report.taskId === datum.taskId && report.createdAt < datum.createdAt).reduce((sum, report) => sum + report.goodCount, 0)

@@ -58,7 +58,7 @@ export class ProductionOrderService {
       const [perList, tasks] = await Promise.all([
         PerformanceConfig.findAll({
           where: {
-            materialId: result.data.map(item => item.bom.materialId),
+            // materialId: result.data.map(item => item.bom.materialId),
             processId,
           },
         }),

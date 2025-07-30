@@ -108,7 +108,7 @@ export class ProductionOrderService {
     for (const process of result.processes) {
       const temp = await PerformanceConfig.findOne({
         where: {
-          materialId: result.bom.materialId,
+          // materialId: result.bom.materialId,
           processId: process.processId,
         },
       })
@@ -256,7 +256,7 @@ export class ProductionOrderService {
       for (const process of datum.processes) {
         const temp = await PerformanceConfig.findOne({
           where: {
-            materialId: datum.bom.materialId,
+            // materialId: datum.bom.materialId,
             processId: process.processId,
           },
         })

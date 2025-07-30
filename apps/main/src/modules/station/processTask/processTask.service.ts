@@ -97,7 +97,7 @@ export class ProcessTaskService {
         {
           association: 'materials',
           attributes: ['id', 'name', 'code', 'spec'],
-          where: { id: result.dataValues.order.dataValues.bom.dataValues.parentMaterial.dataValues.id },
+          // where: { id: result.dataValues.order.dataValues.bom.dataValues.parentMaterial.dataValues.id },
           through: { attributes: [] },
         },
       ],
@@ -131,7 +131,7 @@ export class ProcessTaskService {
 
     const temp = await PerformanceConfig.findOne({
       where: {
-        materialId: result.dataValues.order.dataValues.bom.dataValues.materialId,
+        // materialId: result.dataValues.order.dataValues.bom.dataValues.materialId,
         processId: result.processId,
       },
     })

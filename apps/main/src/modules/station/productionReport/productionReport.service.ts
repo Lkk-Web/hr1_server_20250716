@@ -62,7 +62,7 @@ export class ProductionReportService {
     })
     const config = await PerformanceConfig.findOne({
       where: {
-        materialId: order.dataValues.bom.dataValues.materialId,
+        // materialId: order.dataValues.bom.dataValues.materialId,
         processId: dto.processId,
       },
     })
@@ -88,7 +88,7 @@ export class ProductionReportService {
               ...dto,
               reportDurationHours: 0,
               reportDurationMinutes: 0,
-              unit: order.dataValues.bom.dataValues.parentMaterial.unit,
+              // unit: order.dataValues.bom.dataValues.parentMaterial.unit,
               goodCount: dto.reportQuantity,
               badCount: 0,
               startTime: new Date(moment().format('YYYY-MM-DD HH:mm:ss')),
@@ -376,7 +376,7 @@ export class ProductionReportService {
 
               //匹配物料
               const mat = await InspectionTemplateMat.findOne({
-                where: { materialId: order.dataValues.bom.dataValues.parentMaterial.id },
+                // where: { materialId: order.dataValues.bom.dataValues.parentMaterial.id },
                 transaction,
               })
               let array = []
@@ -945,7 +945,7 @@ export class ProductionReportService {
     const result = await ProductionReport.findOne(options)
     const temp = await PerformanceConfig.findOne({
       where: {
-        materialId: result.dataValues.order.dataValues.bom.dataValues.materialId,
+        // materialId: result.dataValues.order.dataValues.bom.dataValues.materialId,
         processId: result.dataValues.processId,
       },
     })
@@ -1146,7 +1146,7 @@ export class ProductionReportService {
             let per = await Performance.findOne({ where: { userId: perUser.id } })
             let config = await PerformanceConfig.findOne({
               where: {
-                materialId: order.dataValues.bom.materialId,
+                // materialId: order.dataValues.bom.materialId,
                 processId: report.processId,
               },
             })
@@ -1176,7 +1176,7 @@ export class ProductionReportService {
                 const temp = await PerformanceDetailed.findOne({
                   where: {
                     productionReportId: id,
-                    materialId: order.dataValues.bom.materialId,
+                    // materialId: order.dataValues.bom.materialId,
                     processId: report.processId,
                     performanceId: per.id,
                     productionOrderId: report.productionOrderId,
@@ -1186,7 +1186,7 @@ export class ProductionReportService {
                 if (!temp) {
                   await PerformanceDetailed.create({
                     productionReportId: id,
-                    materialId: order.dataValues.bom.dataValues.parentMaterial.id,
+                    // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
                     processId: report.processId,
                     performanceId: per.id,
                     productionOrderId: report.productionOrderId,
@@ -1224,7 +1224,7 @@ export class ProductionReportService {
                 const temp = await PerformanceDetailed.findOne({
                   where: {
                     productionReportId: id,
-                    materialId: order.dataValues.bom.materialId,
+                    // materialId: order.dataValues.bom.materialId,
                     processId: report.processId,
                     performanceId: per.id,
                     productionOrderId: report.productionOrderId,
@@ -1234,7 +1234,7 @@ export class ProductionReportService {
                   //生成绩效明细
                   await PerformanceDetailed.create({
                     productionReportId: id,
-                    materialId: order.dataValues.bom.dataValues.parentMaterial.id,
+                    // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
                     processId: report.processId,
                     performanceId: per.id,
                     productionOrderId: report.productionOrderId,
@@ -1283,7 +1283,7 @@ export class ProductionReportService {
               let per = await Performance.findOne({ where: { userId: perUser.id } })
               let config = await PerformanceConfig.findOne({
                 where: {
-                  materialId: order.dataValues.bom.dataValues.materialId,
+                  // materialId: order.dataValues.bom.dataValues.materialId,
                   processId: report.dataValues.processId,
                 },
               })
