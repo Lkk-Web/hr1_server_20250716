@@ -149,5 +149,5 @@ export enum TableNames {
   物料BOM = 'BD_BOM',
   供应商 = 'BD_SUPPLIER',
   客户 = 'BD_CUSTOMER',
-  销售订单 = 'BD_SALESORDER',
+  销售订单 = 'SAL_SALESORDER',
 }

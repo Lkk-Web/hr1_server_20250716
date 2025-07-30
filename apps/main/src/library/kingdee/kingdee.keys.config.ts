@@ -148,8 +148,8 @@ export const K3Mapping = {
       ['客户id', 'FCustId', 'customerId'],
       ['审核日期', 'FApproveDate', 'approveDate'],
       ['审核人', 'FApproverId', 'approveById'],
+      ['单据类型', 'FBillTypeID.FName', 'types'],
       ['单据状态', 'FDocumentStatus', 'dataStatus', v => convertExtends(v, 'FDocumentStatus')],
-      // ['禁用状态', 'FForbidStatus', 'status', v => !convertBool(convertExtends(v, 'FForbidStatus'))],
     ],
     detailTypes: true, //是否存在详情
     dbModelDetail: SalesOrderDetail,
@@ -167,15 +167,6 @@ export const K3Mapping = {
       ['要货日期', 'FDeliveryDate', 'deliveryDate'],
       ['备注', 'FEntryNote', 'remark'],
       ['金蝶原始数据', '', 'jsonData'],
-    ],
-    dict: [
-      {
-        name: '单据类型',
-        key: 'FBillTypeID', //金蝶字段名称
-        fieldName: 'types', //数据库对应表字段名称
-        keyName: 'fid', //字典表对应key字段名称
-        valueName: 'content', //字典表对应值字段名称
-      },
     ],
   },
   PRD_MO: {

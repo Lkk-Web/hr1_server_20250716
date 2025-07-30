@@ -362,23 +362,12 @@ export class KingdeeeService {
     // 将 fieldKeys 字符串分割成字段数组
     // 迭代数据数组，将每个子数组转换成对象
     return data.map(row => {
-      const obj = {}
+      let obj = {}
 
       detailKeys.map(field => {
         let [, key, newKey, func] = field
         let value = row[key.includes('_') ? key.replace('_', '.') : key]
         obj[newKey] = func ? func(value) : value
-      })
-
-      dictKey?.forEach((v, index) => {
-        let newKey = row[v]
-        let val
-        dictDataList[index].forEach(dict => {
-          if (dict[0] == newKey) {
-            val = dict[1]
-          }
-        })
-        obj[dictFieldKey[index]] = val
       })
 
       // 保留金蝶数据
