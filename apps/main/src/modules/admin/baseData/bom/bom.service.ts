@@ -113,7 +113,6 @@ export class BomService {
     // 获取子 BOM 子项
     const children = await BomDetail.findAll({
       where: { bomId: bom.id }, // 找到当前 BOM 的子项
-      attributes: ['id', 'sort', 'bomId', 'materialId', 'spec', 'attr', 'unit', 'quantity', 'feedProcessId', 'figureNumber', 'subBomCode'], // 正确的字段
       include: [
         {
           association: 'parentMaterial', // 对应定义的 material 关联
@@ -128,7 +127,6 @@ export class BomService {
         // 查找是否还有对应的子 BOM
         const childBom = await BOM.findOne({
           where: { materialId: child.materialId }, // 找到当前 BOM 的子项
-          attributes: ['id', 'code', 'materialId', 'spec', 'attr', 'unit', 'quantity', 'orderNo', 'figureNumber', 'remark', 'version', 'status', 'formData'],
         })
         if (childBom) {
           return await this.getBomWithChildren(childBom) // 递归获取子 BOM
@@ -154,7 +152,6 @@ export class BomService {
       where: { parentId: 0 },
       pagination,
       order: [['id', 'DESC']],
-      attributes: ['id', 'code', 'materialId', 'spec', 'attr', 'unit', 'quantity', 'orderNo', 'figureNumber', 'remark', 'version', 'status', 'formData'],
       include: [
         {
           association: 'parentMaterial',
@@ -292,10 +289,7 @@ export class BomService {
               version = 'v1'
             }
             if (!temp) {
-              temp = await BOM.create(
-                { materialId: material.id, remark: trim(rowElement.remark), parentId: 0, version},
-                { transaction }
-              )
+              temp = await BOM.create({ materialId: material.id, remark: trim(rowElement.remark), parentId: 0, version }, { transaction })
             }
 
             if (rowElement.subMaterialCode) {
@@ -310,10 +304,7 @@ export class BomService {
                 bomFailed++
                 throw new HttpException('未有报错文案,请完善报错清单文档', 400)
               }
-              await BOM.create(
-                { parentId: temp.id, materialId: sub.id, remark: trim(rowElement.remark), version: parentBOM.version },
-                { transaction }
-              )
+              await BOM.create({ parentId: temp.id, materialId: sub.id, remark: trim(rowElement.remark), version: parentBOM.version }, { transaction })
             }
           } else {
             bomFailed++

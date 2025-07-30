@@ -98,36 +98,10 @@ export class MaterialService {
 
   public async find(id: number, loadModel) {
     const options: FindOptions = {
-      attributes: [
-        'id',
-        'code',
-        'attr',
-        'category',
-        'name',
-        'createdAt',
-        'spec',
-        'updatedAt',
-        'unit',
-        'status',
-        'remark',
-        'formData',
-        'k3DrawingNo',
-        'k3StandardDrawingNo',
-        'k3Meterial',
-        'k3AuxUinit',
-        'k3Color',
-        'k3DataStatus',
-        'minimumInventory',
-        'maximumInventory',
-        'safetyInventory',
-        'quantity',
-        'batNumber',
-      ],
       where: { id },
       include: [
         {
           association: 'processRoute',
-          attributes: ['id', 'name', 'materialId'],
           where: { status: true },
           required: false,
         },

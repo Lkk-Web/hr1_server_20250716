@@ -119,11 +119,11 @@ export class SalesOrderService {
         },
         {
           association: 'details',
-          attributes: ['id', 'materialId', 'bomId', 'unitPrice', 'unit', 'quantity', 'amount', 'oraQty', 'k3StandardDrawingNo', 'deliveryDate'],
+          attributes: ['id', 'materialId', 'bomId', 'unitPrice', 'unit', 'quantity', 'amount', 'deliveryDate'],
           include: [
             {
               association: 'material',
-              attributes: ['id', 'code', 'materialName', 'spec', 'attribute', 'unit', 'quantity'],
+              attributes: ['id', 'code', 'materialName', 'spec', 'attribute', 'unit'],
             },
           ],
         },
