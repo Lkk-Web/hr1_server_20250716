@@ -7,7 +7,7 @@ export class FindPaginationDto {
   @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
   pageSize?: string
 
-  @ApiProperty({ type: String, description: '工单编码', required: false })
+  @ApiProperty({ type: String, description: '销售订单编码', required: false })
   code: string
 
   @ApiProperty({ type: String, description: '金蝶编码', required: false })

@@ -357,6 +357,7 @@ export class ProductionOrderService {
         {
           association: 'salesOrder',
           attributes: ['id', 'code'],
+          where: {},
         },
         {
           association: 'productionOrderDetail',
@@ -369,12 +370,12 @@ export class ProductionOrderService {
             {
               association: 'material',
               required: true,
-          // include: [
-          //   {
+              // include: [
+              //   {
               //     association: 'boms',
               //     required: false,
-          //   },
-          // ],
+              //   },
+              // ],
               where: {},
             },
           ],
@@ -452,11 +453,12 @@ export class ProductionOrderService {
         [Op.like]: `%${dto.kingdeeCode}%`,
       }
     }
-    // if (dto.code) {
-    //   options.where['code'] = {
-    //     [Op.like]: `%${dto.code}%`,
-    //   }
-    // }
+
+    if (dto.code) {
+      options.include[0].where['code'] = {
+        [Op.like]: `%${dto.code}%`,
+      }
+    }
 
     // if (dto.name) {
     //   options.include[0].include[0].where['name'] = {
@@ -476,11 +478,11 @@ export class ProductionOrderService {
     //   }
     // }
 
-    // if (dto.materialCode) {
-    //   options.include[0].include[0].where['code'] = {
-    //     [Op.like]: `%${dto.materialCode}%`,
-    //   }
-    // }
+    if (dto.materialCode) {
+      options.include[1].include[0].where['code'] = {
+        [Op.like]: `%${dto.materialCode}%`,
+      }
+    }
 
     // if (dto.isDept) {
     //   if (user) {
