@@ -9,7 +9,7 @@ import { InspectionForm } from '@model/quantity/inspectionForm.model'
 import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 import { PadRegisterDto, PadRegisterUserDto, PickingOutboundDto } from './productionReport.dto'
-import { PROCESS_TASK_STATUS, STORAGE_TYPE } from '@common/enum'
+import { PROCESS_TASK_STATUS } from '@common/enum'
 import { Aide } from '@library/utils/aide'
 import { ReportUserDuration } from '@model/production/reportUserDuration.model'
 import { ReportUser } from '@model/production/reportUser.model'
@@ -295,7 +295,7 @@ export class ProductionReportTwoService {
       const form = await InspectionForm.create({
         code: ipqcCode,
         type: inspectItems.type,
-        originCode: task.order.code,
+        originCode: task.order.kingdeeCode,
         originType: '报工检验单',
         inspectionAt: new Date(moment(date).format('YYYY-MM-DD HH:mm:ss')),
         processId: result.processId,
@@ -363,13 +363,13 @@ export class ProductionReportTwoService {
   public async produceStore(dto: PickingOutboundDto, transaction: Transaction = null) {
     try {
       let order = await ProductionOrder.findOne({ where: { id: dto.orderId } })
-      if (!order || !order.fseq) {
-        console.log('生产订单不存在或没有对应的金蝶行号')
-        return {
-          message: '生产订单不存在或没有对应的金蝶行号',
-          state: false,
-        }
-      }
+      // if (!order || !order.fseq) {
+      //   console.log('生产订单不存在或没有对应的金蝶行号')
+      //   return {
+      //     message: '生产订单不存在或没有对应的金蝶行号',
+      //     state: false,
+      //   }
+      // }
       //检测是否为最后一道工序
       if (dto.taskId) {
         const tempTask = await ProcessTask.findOne({ where: { id: dto.taskId + 1, productionOrderId: dto.orderId }, attributes: ['id', 'goodCount'] })
@@ -384,23 +384,23 @@ export class ProductionReportTwoService {
           //最后一道工序判断是否结束工单
           //存在事务未提交的情况查询不出新数据
           const goodCount = transaction ? task.goodCount + dto.goodCount : task.goodCount
-          console.log('判断良品数：', goodCount, order.plannedOutput)
-          if (goodCount == order.plannedOutput) {
-            const actualOutput = order.actualOutput + dto.goodCount
-            await order.update(
-              {
-                actualOutput,
-                ...(actualOutput == order.plannedOutput
-                  ? {
-                      status: '已结束',
-                      actualEndTime: new Date(),
-                      currentProcess: null,
-                    }
-                  : {}),
-              },
-              { transaction }
-            )
-          }
+          // console.log('判断良品数：', goodCount, order.plannedOutput)
+          // if (goodCount == order.plannedOutput) {
+          //   const actualOutput = order.actualOutput + dto.goodCount
+          //   await order.update(
+          //     {
+          //       actualOutput,
+          //       ...(actualOutput == order.plannedOutput
+          //         ? {
+          //             status: '已结束',
+          //             actualEndTime: new Date(),
+          //             currentProcess: null,
+          //           }
+          //         : {}),
+          //     },
+          //     { transaction }
+          //   )
+          // }
         }
       }
       // order.FStatus = "已入库"
@@ -408,9 +408,9 @@ export class ProductionReportTwoService {
       // 审核对应生产领料单
       //下推生成生产汇报单
       let oData = {
-        Ids: [order.fid],
+        Ids: [order.id],
         Numbers: '',
-        EntryIds: order.fseq,
+        // EntryIds: order.fseq,
         RuleId: '',
         TargetBillTypeId: '',
         TargetOrgId: 0,
@@ -428,25 +428,25 @@ export class ProductionReportTwoService {
       //查询生产入库单对应明细id
       let data = await KingdeeeService.getList('PRD_MORPT', 'FID,FEntity_FEntryID,FMoBillNo,FMoEntrySeq', `FID=${hbid}`)
       let mx = []
-      const temp = data.find(v => v.FMoEntrySeq == order.fseq)
-      if (!temp)
-        return {
-          message: '未找到对应行号',
-          data: {
-            data,
-            fseq: order.fseq,
-          },
-          state: false,
-        }
-      mx.push({
-        FEntryID: temp.FEntity_FEntryID,
-        /*"FStockId": {
-          "FNumber": orderDetail.warehouse.code
-        },*/
-        FFinishQty: dto.goodCount + dto.badCount,
-        FQuaQty: dto.goodCount,
-        FFailQty: dto.badCount,
-      })
+      // const temp = data.find(v => v.FMoEntrySeq == order.fseq)
+      // if (!temp)
+      //   return {
+      //     message: '未找到对应行号',
+      //     data: {
+      //       data,
+      //       // fseq: order.fseq,
+      //     },
+      //     state: false,
+      //   }
+      // mx.push({
+      //   FEntryID: temp.FEntity_FEntryID,
+      //   /*"FStockId": {
+      //     "FNumber": orderDetail.warehouse.code
+      //   },*/
+      //   FFinishQty: dto.goodCount + dto.badCount,
+      //   FQuaQty: dto.goodCount,
+      //   FFailQty: dto.badCount,
+      // })
       //保存对应生产汇报单
       let morptData = {
         Model: {
@@ -466,7 +466,7 @@ export class ProductionReportTwoService {
       await KingdeeeService.submit('PRD_MORPT', morptSubmit)
       //审核对应生产汇报单
       await KingdeeeService.audit('PRD_MORPT', morptSubmit)
-      if (order.billType == STORAGE_TYPE.report) {
+      if (order.billType.indexOf('汇报入库') > 0) {
         //下推生产汇报单生成对应生产入库单
         let morptPush = {
           Ids: `${hbid}`,
@@ -495,11 +495,11 @@ export class ProductionReportTwoService {
 
         //审核对应生产入库单
         await KingdeeeService.audit('PRD_INSTOCK', rkSubmit)
-      } else if (order.billType == STORAGE_TYPE.production) {
+      } else if (order.billType.indexOf('生产入库') > 0) {
         let productionData = {
-          Ids: [order.fid],
+          Ids: [order.id],
           Numbers: '',
-          EntryIds: order.fseq,
+          // EntryIds: order.fseq,
           RuleId: '',
           TargetBillTypeId: '',
           TargetOrgId: 0,

@@ -700,7 +700,7 @@ export class MiService {
       let actualOutput = 0
 
       for (const order of orders) {
-        planCount += Number(order.plannedOutput)
+        // planCount += Number(order.plannedOutput)
         actualOutput += Number(order.actualOutput)
       }
 
@@ -735,9 +735,9 @@ export class MiService {
 
       let overTimeOrderCount = 0
       for (const productionOrder of overTimeOrder) {
-        if (productionOrder.plannedOutput > productionOrder.actualOutput) {
-          overTimeOrderCount++
-        }
+        // if (productionOrder.plannedOutput > productionOrder.actualOutput) {
+        //   overTimeOrderCount++
+        // }
       }
 
       let goods = 0
@@ -880,11 +880,11 @@ export class MiService {
       })
 
       const formatOrder = orders1.map(order => ({
-        code: order.code,
+        code: order.kingdeeCode,
         name: order.dataValues.bom.dataValues.parentMaterial.dataValues.materialName,
-        planCount: order.plannedOutput,
+        // planCount: order.plannedOutput,
         actualOutput: order.actualOutput,
-        doneRate: Number(order.plannedOutput) ? ((Number(order.actualOutput) / Number(order.plannedOutput)) * 100).toFixed(2) : 0.0,
+        // doneRate: Number(order.plannedOutput) ? ((Number(order.actualOutput) / Number(order.plannedOutput)) * 100).toFixed(2) : 0.0,
       }))
 
       return {
@@ -900,13 +900,13 @@ export class MiService {
     }
     // if (user1 && user1?.role?.name === '车间主任')
     else {
-      const planCount = await ProductionOrder.sum('plannedOutput', {
-        where: {
-          endTime: {
-            [Op.between]: [startTime, endTime],
-          },
-        },
-      })
+      // const planCount = await ProductionOrder.sum('plannedOutput', {
+      //   where: {
+      //     endTime: {
+      //       [Op.between]: [startTime, endTime],
+      //     },
+      //   },
+      // })
 
       const actualOutput = await ProductionOrder.sum('actualOutput', {
         where: {
@@ -926,9 +926,9 @@ export class MiService {
 
       let overTimeOrderCount = 0
       for (const productionOrder of overTimeOrder) {
-        if (productionOrder.plannedOutput > productionOrder.actualOutput) {
-          overTimeOrderCount++
-        }
+        // if (productionOrder.plannedOutput > productionOrder.actualOutput) {
+        //   overTimeOrderCount++
+        // }
       }
 
       let goods = 0
@@ -1222,15 +1222,15 @@ export class MiService {
       })
 
       const formatOrder = orders.map(order => ({
-        code: order.code,
+        code: order.kingdeeCode,
         name: order.dataValues.bom.dataValues.parentMaterial.dataValues.materialName,
-        planCount: order.plannedOutput,
+        // planCount: order.plannedOutput,
         actualOutput: order.actualOutput,
-        doneRate: Number(order.plannedOutput) ? ((Number(order.actualOutput) / Number(order.plannedOutput)) * 100).toFixed(2) : 0.0,
+        // doneRate: Number(order.plannedOutput) ? ((Number(order.actualOutput) / Number(order.plannedOutput)) * 100).toFixed(2) : 0.0,
       }))
 
       return {
-        planCount: planCount ? planCount : 0, //计划数量
+        // planCount: planCount ? planCount : 0, //计划数量
         actualOutput: actualOutput ? actualOutput : 0, //完成数量
         overTimeOrderCount: overTimeOrderCount ? overTimeOrderCount : 0, //超期未完成工单数
         badRate, //不良品率
@@ -1785,13 +1785,13 @@ export class MiService {
     //本日
     let startTime = moment().startOf('day').format('YYYY-MM-DD HH:mm:ss')
     let endTime = moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')
-    let planCount = await ProductionOrder.sum('plannedOutput', {
-      where: {
-        endTime: {
-          [Op.between]: [startTime, endTime],
-        },
-      },
-    })
+    // let planCount = await ProductionOrder.sum('plannedOutput', {
+    //   where: {
+    //     endTime: {
+    //       [Op.between]: [startTime, endTime],
+    //     },
+    //   },
+    // })
 
     let actualOutput = await ProductionOrder.sum('actualOutput', {
       where: {
@@ -1811,9 +1811,9 @@ export class MiService {
 
     let overTimeOrderCount = 0
     for (const productionOrder of overTimeOrder) {
-      if (productionOrder.plannedOutput > productionOrder.actualOutput) {
-        overTimeOrderCount++
-      }
+      // if (productionOrder.plannedOutput > productionOrder.actualOutput) {
+      //   overTimeOrderCount++
+      // }
     }
 
     let goods = 0
@@ -1833,7 +1833,7 @@ export class MiService {
     let badRate = goods + bads ? ((bads / (goods + bads)) * 100).toFixed(2) : '0.00'
 
     const today = {
-      planCount: planCount ? planCount : 0, //计划数量
+      // planCount: planCount ? planCount : 0, //计划数量
       actualOutput: actualOutput ? actualOutput : 0, //完成数量
       overTimeOrderCount: overTimeOrderCount ? overTimeOrderCount : 0, //超期未完成工单数
       badRate, //不良品率
@@ -1842,13 +1842,13 @@ export class MiService {
     //本月
     startTime = moment().startOf('month').format('YYYY-MM-DD HH:mm:ss')
     endTime = moment().endOf('month').format('YYYY-MM-DD HH:mm:ss')
-    planCount = await ProductionOrder.sum('plannedOutput', {
-      where: {
-        endTime: {
-          [Op.between]: [startTime, endTime],
-        },
-      },
-    })
+    // planCount = await ProductionOrder.sum('plannedOutput', {
+    //   where: {
+    //     endTime: {
+    //       [Op.between]: [startTime, endTime],
+    //     },
+    //   },
+    // })
 
     actualOutput = await ProductionOrder.sum('actualOutput', {
       where: {
@@ -1868,9 +1868,9 @@ export class MiService {
 
     overTimeOrderCount = 0
     for (const productionOrder of overTimeOrder) {
-      if (productionOrder.plannedOutput > productionOrder.actualOutput) {
-        overTimeOrderCount++
-      }
+      // if (productionOrder.plannedOutput > productionOrder.actualOutput) {
+      //   overTimeOrderCount++
+      // }
     }
 
     goods = 0
@@ -1890,7 +1890,7 @@ export class MiService {
     badRate = goods + bads ? ((bads / (goods + bads)) * 100).toFixed(2) : '0.00'
 
     const thisMonth = {
-      planCount: planCount ? planCount : 0, //计划数量
+      // planCount: planCount ? planCount : 0, //计划数量
       actualOutput: actualOutput ? actualOutput : 0, //完成数量
       overTimeOrderCount: overTimeOrderCount ? overTimeOrderCount : 0, //超期未完成工单数
       badRate, //不良品率

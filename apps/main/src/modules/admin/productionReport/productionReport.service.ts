@@ -315,7 +315,7 @@ export class ProductionReportService {
                         {
                           proId: pro.id,
                           materialId: order1.dataValues.bom.dataValues.parentMaterial.dataValues.id,
-                          pendCount: order1.plannedOutput,
+                          // pendCount: order1.plannedOutput,
                           checkedCount: 0,
                           checkoutCount: 0,
                           // warehouseId: 105311,
@@ -328,7 +328,7 @@ export class ProductionReportService {
                         {
                           exportOrderId: exportOrder.id,
                           materialId: order1.dataValues.bom.dataValues.parentMaterial.dataValues.id,
-                          pendCount: order1.plannedOutput,
+                          // pendCount: order1.plannedOutput,
                           checkedCount: 0,
                           checkoutCount: 0,
                           // warehouseId: 105311,
@@ -532,7 +532,7 @@ export class ProductionReportService {
                   {
                     code: ipqcCode,
                     type: inspectItems.type,
-                    originCode: order.code,
+                    originCode: order.kingdeeCode,
                     inspectionAt: new Date(moment(date).format('YYYY-MM-DD HH:mm:ss')),
                     createdUserId: user.id,
                     updatedUserId: user.id,

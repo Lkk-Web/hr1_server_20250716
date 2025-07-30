@@ -440,12 +440,11 @@ export class DefectiveItemDetailService {
       console.log(badNumber1)
 
       const temp: any = {
-        productionOrderCode: value.order.code,
+        // productionOrderCode: value.order.code,
         bomCode: value.order.bom.parentMaterial.code,
         materialName: value.order.bom.parentMaterial.materialName,
         materialSpec: value.order.bom.parentMaterial.spec,
         unit: value.order.bom.parentMaterial.unit,
-        productionOrderNum: value.order.plannedOutput,
 
         productionOrderStatus: value.order.status,
 

@@ -177,7 +177,7 @@ export class WorkCenterService {
     //批量创建、更新
     await WorkCenterOfPOP.bulkCreate(ScheduleList, { updateOnDuplicate: ['id', 'POPId', 'workCenterId'] })
 
-    await ProductionOrder.update({ schedulingStatus: '已排产' }, { where: { id: productionOrderId } })
+    // await ProductionOrder.update({ schedulingStatus: '已排产' }, { where: { id: productionOrderId } })
 
     return {
       message: '排产成功',

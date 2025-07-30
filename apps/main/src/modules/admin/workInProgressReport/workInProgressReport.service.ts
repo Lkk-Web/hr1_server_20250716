@@ -338,12 +338,12 @@ export class WorkInProgressReportService {
         unClearCountThree = planCountThree - goodCountThree - processCountThree
       }
       const temp: any = {
-        productionOrderCode: value.code,
+        productionOrderCode: value.kingdeeCode,
         bomCode: value.bom.parentMaterial.code,
         bomName: value.bom.parentMaterial.materialName,
         bomSpec: value.bom.parentMaterial.spec,
         status: value.status,
-        planCount: value.plannedOutput,
+        // planCount: value.plannedOutput,
         goodCount: value.actualOutput,
         planCountOne: planCountOne,
         goodCountOne: goodCountOne,

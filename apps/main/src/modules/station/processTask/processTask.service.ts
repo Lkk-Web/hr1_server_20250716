@@ -336,7 +336,7 @@ export class ProcessTaskService {
     const task = await ProcessTask.findOne({
       where: { id: dto.id },
       attributes: ['id'],
-      include: [{ association: 'order', attributes: ['code'] }],
+      include: [{ association: 'order', attributes: ['kingdeeCode'] }],
     })
     if (!task) Aide.throwException(400011)
     await Notify.create({
@@ -344,7 +344,7 @@ export class ProcessTaskService {
       content: dto.content,
       scene: dto.scene,
       teamId: dto.teamId,
-      topic: `${task.order.code}生产工单${dto.scene == NOTIFY_SCENE.PAD_M_O ? '缺料' : '申请领料'}，请及时处理，谢谢！`,
+      topic: `${task.order.kingdeeCode}生产工单${dto.scene == NOTIFY_SCENE.PAD_M_O ? '缺料' : '申请领料'}，请及时处理，谢谢！`,
       name: `${req.team.name}/${req.process.processName}`,
     })
     return true
