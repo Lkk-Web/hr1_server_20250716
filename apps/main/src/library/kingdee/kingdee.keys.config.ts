@@ -194,6 +194,7 @@ export const K3Mapping = {
       ['计划完工时间', 'FPlanFinishDate', 'endTime'],
       ['生产车间', 'FWorkShopID.FName', 'workShop'],
       ['产品订单编号', 'FBillNo', 'orderCode'],
+      ['排产状态', '', 'splitStatus'],
       ['金蝶原始数据', '', 'jsonData'],
     ],
   },

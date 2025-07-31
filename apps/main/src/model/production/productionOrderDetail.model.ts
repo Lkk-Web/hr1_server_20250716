@@ -35,7 +35,7 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
 
   // 拆单状态
   @Column({
-    comment: '拆单状态 (未排产, 排产中, 已排产)',
+    comment: '排产状态 (未排产, 排产中, 已排产)',
     type: DataType.ENUM('未排产', '排产中', '已排产'),
     allowNull: false, // 必填项
     defaultValue: '未排产',

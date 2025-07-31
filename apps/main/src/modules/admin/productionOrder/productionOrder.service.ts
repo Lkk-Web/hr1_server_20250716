@@ -1003,8 +1003,8 @@ export class ProductionOrderService {
       }
 
       // 3. 检查拆单状态
-      if (productionOrderDetail.splitStatus === '已拆单') {
-        throw new Error('该订单详情已经拆单，不能重复拆单')
+      if (productionOrderDetail.splitStatus === '已排产') {
+        throw new Error('该订单详情已经排产，不能重复排产')
       }
 
       // 4. 生成ProductionOrderTask拆单编号 (ordercode-01格式)
