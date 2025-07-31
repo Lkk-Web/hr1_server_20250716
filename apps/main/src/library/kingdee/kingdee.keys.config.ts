@@ -71,7 +71,7 @@ export const K3Mapping = {
   BD_BOM: {
     formID: 'ENG_BOM',
     dbModel: BOM,
-    filterString: `FDocumentStatus='C' and FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}' and FCreateDate>='2025-05-25'`,
+    filterString: `FDocumentStatus='C' and FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
     redisKey: info.appName + 'kingdee:bd_sys_user',
     // pageSize:1000,
     keys: [

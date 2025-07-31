@@ -39,6 +39,7 @@ export * from './salesOrder/salesOrder.module'
 
 //生产执行
 export * from './productionOrder/productionOrder.module'
+export * from './productionOrderTask/productionOrderTask.module'
 export * from './processTask/processTask.module'
 export * from './productionOutsourcing/productionOutsourcing.module'
 

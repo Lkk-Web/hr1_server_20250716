@@ -22,7 +22,7 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
     type: DataType.STRING(50),
     allowNull: false,
   })
-  declare originalOrderDetailId: string
+  declare productionOrderDetailId: string
 
   @ForeignKey(() => Material)
   @Column({
@@ -141,8 +141,8 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
   })
   declare createdBy: string
 
-  @BelongsTo(() => ProductionOrderDetail, 'originalOrderDetailId')
-  declare originalOrderDetail: ProductionOrderDetail
+  @BelongsTo(() => ProductionOrderDetail, 'productionOrderDetailId')
+  declare productionOrderDetail: ProductionOrderDetail
 
   @BelongsTo(() => Material, 'materialId')
   declare material: Material

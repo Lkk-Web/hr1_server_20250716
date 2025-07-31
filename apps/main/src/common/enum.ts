@@ -76,3 +76,11 @@ export enum ProductionOrderTaskStatus {
   CANCELLED = '已取消',
   COMPLETED = '已完成',
 }
+
+/** 产品序列号状态枚举 */
+export enum ProductSerialStatus {
+  NOT_STARTED = '未开始',
+  IN_PROGRESS = '执行中',
+  COMPLETED = '已完成',
+  SCRAPPED = '已报废',
+}

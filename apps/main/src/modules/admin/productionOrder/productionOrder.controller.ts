@@ -11,7 +11,7 @@ import { OpenAuthorize } from '@core/decorator/metaData'
 import { deleteIdsDto } from '@common/dto'
 import { FileUploadDto } from '@modules/file/file.dto'
 
-@ApiTags('生产工单')
+@ApiTags('生产订单')
 @ApiBearerAuth()
 @AdminAuth('productionOrder')
 export class ProductionOrderController {
