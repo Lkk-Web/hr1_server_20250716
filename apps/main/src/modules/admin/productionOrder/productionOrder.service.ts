@@ -1104,7 +1104,7 @@ export class ProductionOrderService {
       await productionOrderDetail.update(
         {
           actualOutput: productionOrderDetail.actualOutput + splitQuantity,
-          splitStatus: productionOrderDetail.actualOutput + splitQuantity == productionOrderDetail.plannedOutput ? '已拆单' : '拆单中',
+          splitStatus: productionOrderDetail.actualOutput + splitQuantity == productionOrderDetail.plannedOutput ? '已排产' : '排产中',
         },
         { transaction }
       )

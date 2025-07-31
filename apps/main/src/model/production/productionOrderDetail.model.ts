@@ -35,10 +35,10 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
 
   // 拆单状态
   @Column({
-    comment: '拆单状态 (未拆单, 拆单中, 已拆单)',
-    type: DataType.ENUM('未拆单', '拆单中', '已拆单'),
+    comment: '拆单状态 (未排产, 排产中, 已排产)',
+    type: DataType.ENUM('未排产', '排产中', '已排产'),
     allowNull: false, // 必填项
-    defaultValue: '未拆单',
+    defaultValue: '未排产',
   })
   declare splitStatus: string
 
