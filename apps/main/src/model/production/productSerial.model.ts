@@ -1,0 +1,102 @@
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
+import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
+import { BaseModel } from '@model/shared/base.model'
+import { ProductSerialStatus } from '@common/enum'
+
+/** 产品序列号表 */
+@Table({ tableName: `product_serial`, freezeTableName: true, timestamps: true, comment: '产品序列号表' })
+export class ProductSerial extends BaseModel<ProductSerial> {
+  // 产品序列号
+  @Column({
+    comment: '产品序列号',
+    type: DataType.STRING(100),
+    allowNull: false,
+    unique: true,
+  })
+  declare serialNumber: string
+
+  @ForeignKey(() => ProductionOrderTask)
+  @Column({
+    comment: '生产订单任务ID',
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare productionOrderTaskId: number
+
+  // 状态
+  @Column({
+    comment: '状态',
+    type: DataType.ENUM(...Object.values(ProductSerialStatus)),
+    allowNull: false,
+    defaultValue: ProductSerialStatus.NOT_STARTED,
+  })
+  declare status: ProductSerialStatus
+
+  // 数量（固定为1）
+  @Column({
+    comment: '数量（固定为1）',
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+  })
+  declare quantity: number
+
+  // 当前工序ID
+  @ForeignKey(() => ProcessTask)
+  @Column({
+    comment: '当前工序任务ID',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare currentProcessTaskId: number
+
+  // 工序进度（JSON格式存储各工序的完成状态）
+  @Column({
+    comment: '工序进度（JSON格式：[{processTaskId: string, processName: string, status: string, startTime: Date, endTime: Date, actualStartTime: Date, actualEndTime: Date}]）',
+    type: DataType.JSON,
+    allowNull: true,
+  })
+  declare processProgress: Array<{
+    processTaskId: number
+    processName: string
+    status: string
+    startTime: Date
+    endTime: Date
+    actualStartTime?: Date
+    actualEndTime?: Date
+    sort: number
+  }>
+
+  // 质量状态
+  @Column({
+    comment: '质量状态（合格、不合格、待检）',
+    type: DataType.ENUM('合格', '不合格', '待检'),
+    allowNull: false,
+    defaultValue: '待检',
+  })
+  declare qualityStatus: string
+
+  // 备注
+  @Column({
+    comment: '备注',
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  declare remark: string
+
+  // 创建人
+  @Column({
+    comment: '创建人',
+    type: DataType.STRING(50),
+    allowNull: true,
+  })
+  declare createdBy: string
+
+  // 关联关系
+  @BelongsTo(() => ProductionOrderTask, 'productionOrderTaskId')
+  declare productionOrderTask: ProductionOrderTask
+
+  @BelongsTo(() => ProcessTask, 'currentProcessTaskId')
+  declare currentProcessTask: ProcessTask
+}

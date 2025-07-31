@@ -25,7 +25,8 @@ import { POBDetail } from '@model/production/POBDetail.model'
 // import { SENTENCE } from '@common/enum'
 import { deleteIdsDto } from '@common/dto'
 import { BomService } from '../baseData/bom/bom.service'
-import { PROCESS_TASK_STATUS, ProductionOrderTaskStatus } from '@common/enum'
+import { PROCESS_TASK_STATUS, ProductionOrderTaskStatus, ProductSerialStatus } from '@common/enum'
+import { ProductSerial } from '@model/production/productSerial.model'
 import moment = require('moment')
 import dayjs = require('dayjs')
 import _ = require('lodash')
@@ -972,7 +973,21 @@ export class ProductionOrderService {
 
     try {
       // 1. 查找生产订单详情
-      const productionOrderDetail = await ProductionOrderDetail.findByPk(productionOrderDetailId, { transaction })
+      const productionOrderDetail = await ProductionOrderDetail.findByPk(productionOrderDetailId, {
+        include: [
+          {
+            association: 'material',
+            include: [
+              {
+                association: 'boms',
+                where: { materialId: { [Op.col]: 'ProductionOrderDetail.materialId' } },
+                required: false,
+              },
+            ],
+          },
+        ],
+        transaction,
+      })
 
       if (!productionOrderDetail) {
         throw new Error('生产订单详情不存在')
@@ -992,7 +1007,7 @@ export class ProductionOrderService {
         throw new Error('该订单详情已经拆单，不能重复拆单')
       }
 
-      // 4. 生成新的拆单编号 (ordercode-01格式)
+      // 4. 生成ProductionOrderTask拆单编号 (ordercode-01格式)
       const existingSplitOrders = await ProductionOrderTask.findAll({
         where: {
           orderCode: {
@@ -1014,11 +1029,11 @@ export class ProductionOrderService {
       }
 
       const newOrderCode = `${productionOrderDetail.orderCode}-${nextSequence.toString().padStart(2, '0')}`
-      // 5. 创建新的拆单记录
+
       const newSplitOrder = await ProductionOrderTask.create(
         {
           orderCode: newOrderCode,
-          originalOrderDetailId: productionOrderDetailId,
+          productionOrderDetailId: productionOrderDetailId,
           materialId: productionOrderDetail.materialId,
           splitQuantity: splitQuantity,
           status: ProductionOrderTaskStatus.NOT_STARTED,
@@ -1034,6 +1049,56 @@ export class ProductionOrderService {
         },
         { transaction }
       )
+
+      // 5. 根据group规则生成产品序列号
+      const productSerials = []
+
+      let startSequence = 1
+      const group = productionOrderDetail.material.boms[0].group
+
+      // if (group === '0101') {
+      const currentYear = new Date().getFullYear().toString()
+      const yearPrefix = `${currentYear}`
+
+      const existingSerials = await ProductSerial.findAll({
+        where: {
+          serialNumber: {
+            [Op.like]: `${group}-${yearPrefix}%`,
+          },
+        },
+        order: [['serialNumber', 'DESC']],
+        limit: 1,
+        transaction,
+      })
+
+      if (existingSerials.length > 0) {
+        startSequence = parseInt(existingSerials[0].serialNumber.slice(-5)) + 1
+      }
+      // }
+
+      for (let i = 0; i < splitQuantity; i++) {
+        let serialNumber: string
+        // if (group === '0101') {
+        const currentYear = new Date().getFullYear().toString() //2025
+        const sequenceNumber = (startSequence + i).toString().padStart(4, '0') //0001
+        serialNumber = `${group}-${currentYear}2${sequenceNumber}`
+        // }
+
+        const productSerial = await ProductSerial.create(
+          {
+            serialNumber: serialNumber,
+            productionOrderTaskId: newSplitOrder.id,
+            status: ProductSerialStatus.NOT_STARTED,
+            quantity: 1,
+            qualityStatus: '待检',
+            processProgress: [], // 初始化为空数组，后续根据工艺路线填充
+            createdBy: user?.userName || 'system',
+            // remark: `序列号${i}/${splitQuantity}`,
+          },
+          { transaction }
+        )
+        productSerials.push(productSerial)
+      }
 
       // 6. 更新原生产订单详情的计划产出数量
       await productionOrderDetail.update(
@@ -1062,6 +1127,13 @@ export class ProductionOrderService {
             remark: newSplitOrder.remark,
             createdBy: user?.userName || 'system',
           },
+          productSerials: productSerials.map(serial => ({
+            id: serial.id,
+            serialNumber: serial.serialNumber,
+            status: serial.status,
+            quantity: serial.quantity,
+            qualityStatus: serial.qualityStatus,
+          })),
         },
       }
     } catch (error) {

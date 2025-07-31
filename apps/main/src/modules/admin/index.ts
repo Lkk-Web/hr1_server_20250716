@@ -41,6 +41,7 @@ export * from './salesOrder/salesOrder.module'
 export * from './productionOrder/productionOrder.module'
 export * from './productionOrderTask/productionOrderTask.module'
 export * from './processTask/processTask.module'
+export * from './productSerial/productSerial.module'
 export * from './productionOutsourcing/productionOutsourcing.module'
 
 //生产报工
