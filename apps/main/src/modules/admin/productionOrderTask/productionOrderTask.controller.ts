@@ -16,7 +16,6 @@ export class ProductionOrderTaskController {
   @Get('findPagination')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '分页查询生产订单任务' })
-  @OpenAuthorize()
   async findPagination(@Query() dto: FindProductionOrderTaskDto, @CurrentPage() pagination: Pagination) {
     return await this.productionOrderTaskService.findPagination(dto, pagination)
   }
@@ -25,7 +24,6 @@ export class ProductionOrderTaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '查询生产订单任务详情' })
   @ApiParam({ name: 'id', description: '任务ID' })
-  @OpenAuthorize()
   async findOne(@Param('id') id: string) {
     return await this.productionOrderTaskService.findOne(id)
   }
@@ -34,7 +32,6 @@ export class ProductionOrderTaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '更新生产订单任务' })
   @ApiParam({ name: 'id', description: '任务ID' })
-  @OpenAuthorize()
   async update(@Param('id') id: string, @Body() dto: UpdateProductionOrderTaskDto) {
     return await this.productionOrderTaskService.update(id, dto)
   }
@@ -43,7 +40,6 @@ export class ProductionOrderTaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '生产订单任务操作' })
   @ApiParam({ name: 'id', description: '任务ID' })
-  @OpenAuthorize()
   async action(@Param('id') id: string, @Body() dto: ProductionOrderTaskActionDto) {
     return await this.productionOrderTaskService.action(id, dto)
   }
@@ -52,7 +48,6 @@ export class ProductionOrderTaskController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '删除生产订单任务' })
   @ApiParam({ name: 'id', description: '任务ID' })
-  @OpenAuthorize()
   async delete(@Param('id') id: string) {
     return await this.productionOrderTaskService.delete(id)
   }

@@ -1,20 +1,21 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common'
-import { ApiTags, ApiOperation, ApiParam, ApiQuery } from '@nestjs/swagger'
+import { ApiTags, ApiOperation, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger'
 import { ProductSerialService } from './productSerial.service'
 import { FindProductSerialDto, UpdateProductSerialDto, UpdateProcessProgressDto } from './productSerial.dto'
 import { CurrentPage } from '@core/decorator/request'
 import { Pagination } from '@common/interface'
 import { OpenAuthorize } from '@core/decorator/metaData'
+import { AdminAuth } from '@core/decorator/controller'
 
-@ApiTags('产品序列号管理')
-@Controller('productSerial')
+@ApiTags('产品序列号')
+@ApiBearerAuth()
+@AdminAuth('productSerial')
 export class ProductSerialController {
   constructor(private readonly productSerialService: ProductSerialService) {}
 
   @Get('findPagination')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '分页查询产品序列号' })
-  @OpenAuthorize()
   async findPagination(@Query() dto: FindProductSerialDto, @CurrentPage() pagination: Pagination) {
     return await this.productSerialService.findPagination(dto, pagination)
   }
@@ -23,7 +24,6 @@ export class ProductSerialController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '查询产品序列号详情' })
   @ApiParam({ name: 'id', description: '序列号ID' })
-  @OpenAuthorize()
   async findOne(@Param('id') id: string) {
     return await this.productSerialService.findOne(id)
   }
@@ -41,7 +41,6 @@ export class ProductSerialController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '更新产品序列号' })
   @ApiParam({ name: 'id', description: '序列号ID' })
-  @OpenAuthorize()
   async update(@Param('id') id: string, @Body() dto: UpdateProductSerialDto) {
     return await this.productSerialService.update(id, dto)
   }
@@ -50,7 +49,6 @@ export class ProductSerialController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '更新工序进度' })
   @ApiParam({ name: 'id', description: '序列号ID' })
-  @OpenAuthorize()
   async updateProcessProgress(@Param('id') id: string, @Body() dto: UpdateProcessProgressDto) {
     return await this.productSerialService.updateProcessProgress(id, dto)
   }
@@ -58,7 +56,6 @@ export class ProductSerialController {
   @Post('batchUpdateStatus')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '批量更新产品序列号状态' })
-  @OpenAuthorize()
   async batchUpdateStatus(@Body() dto: { ids: string[]; status: string }) {
     await this.productSerialService.batchUpdateStatus(dto.ids, dto.status as any)
     return { message: '批量更新成功' }
@@ -68,7 +65,6 @@ export class ProductSerialController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '删除产品序列号' })
   @ApiParam({ name: 'id', description: '序列号ID' })
-  @OpenAuthorize()
   async delete(@Param('id') id: string) {
     await this.productSerialService.delete(id)
     return { message: '删除成功' }
