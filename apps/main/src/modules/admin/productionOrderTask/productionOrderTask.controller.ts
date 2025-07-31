@@ -44,11 +44,11 @@ export class ProductionOrderTaskController {
     return await this.productionOrderTaskService.action(id, dto)
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '删除生产订单任务' })
-  @ApiParam({ name: 'id', description: '任务ID' })
-  async delete(@Param('id') id: string) {
-    return await this.productionOrderTaskService.delete(id)
-  }
+  // @Delete(':id')
+  // @HttpCode(HttpStatus.OK)
+  // @ApiOperation({ summary: '删除生产订单任务' })
+  // @ApiParam({ name: 'id', description: '任务ID' })
+  // async delete(@Param('id') id: string) {
+  //   return await this.productionOrderTaskService.delete(id)
+  // }
 }

@@ -1,8 +1,9 @@
-import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { Material } from '@model/base/material.model'
 import { ProductionOrderDetail } from '@model/production/productionOrderDetail.model'
 import { ProductionOrderTaskStatus } from '@common/enum'
 import { BaseModel } from '@model/shared/base.model'
+import { ProductSerial } from './productSerial.model'
 
 /** 生产订单任务表 */
 @Table({ tableName: `production_order_task`, freezeTableName: true, timestamps: true, comment: '生产订单任务表' })
@@ -146,4 +147,7 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
 
   @BelongsTo(() => Material, 'materialId')
   declare material: Material
+
+  @HasMany(() => ProductSerial)
+  declare productSerials: ProductSerial[]
 }

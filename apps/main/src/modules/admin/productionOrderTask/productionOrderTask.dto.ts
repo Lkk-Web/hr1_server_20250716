@@ -23,10 +23,10 @@ export class FindProductionOrderTaskDto {
   @IsString()
   workShop?: string
 
-  @ApiProperty({ description: '原订单编码', required: false })
+  @ApiProperty({ description: '订单详情编码', required: false })
   @IsOptional()
   @IsString()
-  originalOrderCode?: string
+  productionOrderDetailCode?: string
 }
 
 export class UpdateProductionOrderTaskDto {

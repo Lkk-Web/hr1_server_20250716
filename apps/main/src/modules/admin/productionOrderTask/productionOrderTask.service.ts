@@ -15,7 +15,7 @@ import { User } from '@model/auth/user'
 export class ProductionOrderTaskService {
   constructor(
     @InjectModel(ProductionOrderTask)
-    private readonly productionOrderTaskModel: typeof ProductionOrderTask,
+    private readonly productionOrderTaskModel: typeof ProductionOrderTask
   ) {}
 
   /**
@@ -23,57 +23,37 @@ export class ProductionOrderTaskService {
    */
   async findPagination(dto: FindProductionOrderTaskDto, pagination: Pagination) {
     const { current, pageSize } = pagination
-    const { orderCode, status, workShop, materialName, originalOrderCode } = dto
+    const { orderCode, status, workShop, materialName, productionOrderDetailCode } = dto
 
     const options: FindPaginationOptions = {
       where: {},
       include: [
         {
-          model: ProductionOrder,
-          as: 'productionOrder',
+          association: 'productionOrderDetail',
           required: false,
           where: {},
           include: [
             {
-              model: ProductionOrderDetail,
-              as: 'productionOrderDetail',
+              association: 'material',
               required: false,
               where: {},
-              include: [
-                {
-                  model: Material,
-                  as: 'material',
-                  required: false,
-                  where: {}
-                }
-              ]
-            }
-          ]
+            },
+          ],
         },
         {
-          model: ProductionOrderDetail,
-          as: 'originalOrderDetail',
+          association: 'productSerials',
           required: false,
-          include: [
-            {
-              model: Material,
-              as: 'material',
-              required: false,
-              where: {}
-            }
-          ]
-        }
+          where: {},
+        },
       ],
       order: [['id', 'DESC']],
       offset: (current - 1) * pageSize,
-      limit: pageSize
+      limit: pageSize,
     }
 
     // 主表条件
     if (orderCode) {
-      options.where[Op.or] = [
-        { orderCode: { [Op.like]: `%${orderCode}%` } }
-      ]
+      options.where['orderCode'] = { [Op.like]: `%${orderCode}%` }
     }
 
     if (status) {
@@ -81,35 +61,18 @@ export class ProductionOrderTaskService {
     }
 
     if (workShop) {
-      options.where['workShop'] = { [Op.like]: `%${workShop}%` }
+      options.include[0].where['workShop'] = { [Op.like]: `%${workShop}%` }
     }
 
-    // 生产订单条件
-    if (originalOrderCode) {
-      options.include[0].where['orderCode'] = { [Op.like]: `%${originalOrderCode}%` }
+    // 生产订单明细条件
+    if (productionOrderDetailCode) {
+      options.include[0].where['orderCode'] = { [Op.like]: `%${productionOrderDetailCode}%` }
     }
 
     // 物料条件
     if (materialName) {
-      // 在原始订单详情的物料中搜索
-      options.include[1].include[0].where['materialName'] = { [Op.like]: `%${materialName}%` }
-      
-      // 同时在生产订单详情的物料中搜索
-      options.include[0].include[0].include[0].where['materialName'] = { [Op.like]: `%${materialName}%` }
-    }
-
-    // 清理空的where条件
-    if (Object.keys(options.include[0].where).length === 0) {
-      delete options.include[0].where
-    }
-    if (Object.keys(options.include[0].include[0].where).length === 0) {
-      delete options.include[0].include[0].where
-    }
-    if (Object.keys(options.include[0].include[0].include[0].where).length === 0) {
-      delete options.include[0].include[0].include[0].where
-    }
-    if (Object.keys(options.include[1].include[0].where).length === 0) {
-      delete options.include[1].include[0].where
+      // 生产订单详情的物料中搜索
+      options.include[0].include[1].where['materialName'] = { [Op.like]: `%${materialName}%` }
     }
 
     const result = await this.productionOrderTaskModel.findAndCountAll(options)
@@ -119,7 +82,7 @@ export class ProductionOrderTaskService {
       current,
       pageSize,
       total: result.count,
-      pageCount: Math.ceil(result.count / pageSize)
+      pageCount: Math.ceil(result.count / pageSize),
     }
   }
 
@@ -130,16 +93,35 @@ export class ProductionOrderTaskService {
     const task = await this.productionOrderTaskModel.findByPk(id, {
       include: [
         {
-          association: 'productionOrder',
-          attributes: ['id', 'orderCode', 'materialId', 'planCount', 'status'],
+          association: 'productionOrderDetail',
+          required: false,
+          where: {},
+          include: [
+            {
+              association: 'material',
+              required: false,
+              where: {},
+              include: [
+                {
+                  association: 'boms',
+                  required: false,
+                  where: {},
+                  include: [
+                    {
+                      association: 'bomDetails',
+                      required: false,
+                      where: {},
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
         {
-          association: 'originalOrderDetail',
-          attributes: ['id', 'materialId', 'planCount', 'completedCount'],
-        },
-        {
-          association: 'material',
-          attributes: ['id', 'materialName', 'code', 'spec', 'unit'],
+          association: 'productSerials',
+          required: false,
+          where: {},
         },
       ],
     })
