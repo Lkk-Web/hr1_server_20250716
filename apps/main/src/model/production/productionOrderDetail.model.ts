@@ -33,15 +33,6 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
   })
   declare materialId: number
 
-  // 状态
-  @Column({
-    comment: '状态 (未开始, 执行中, 已暂停, 已取消, 已完成)',
-    type: DataType.STRING(10),
-    allowNull: false, // 必填项
-    defaultValue: '未开始',
-  })
-  declare status: string
-
   // 拆单状态
   @Column({
     comment: '拆单状态 (未拆单, 拆单中, 已拆单)',
@@ -92,22 +83,6 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
   })
   declare actualOutput: number
 
-  // // 实际开始时间
-  // @Column({
-  //   comment: '实际开始时间',
-  //   type: DataType.DATE,
-  //   allowNull: true, // 可选项
-  // })
-  // declare actualStartTime: Date
-
-  // // 实际结束时间
-  // @Column({
-  //   comment: '实际结束时间',
-  //   type: DataType.DATE,
-  //   allowNull: true, // 可选项
-  // })
-  // declare actualEndTime: Date
-
   // 累计工时
   @Column({
     comment: '累计工时',
@@ -115,14 +90,6 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
     allowNull: true, // 可选项
   })
   declare totalWorkingHours: number
-
-  // 当前工序
-  @Column({
-    comment: '当前工序',
-    type: DataType.STRING(50),
-    allowNull: true, // 可选项
-  })
-  declare currentProcess: string
 
   @Column({
     comment: '备注',
