@@ -23,10 +23,10 @@ export class FindProductSerialDto {
   @IsString()
   qualityStatus?: string
 
-  @ApiProperty({ description: '订单编码', required: false })
+  @ApiProperty({ description: '生产订单编码', required: false })
   @IsOptional()
   @IsString()
-  orderCode?: string
+  kingdeeCode?: string
 }
 
 export class UpdateProductSerialDto {

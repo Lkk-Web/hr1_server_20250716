@@ -18,7 +18,7 @@ export class ProductSerialService {
    * 分页查询产品序列号
    */
   async findPagination(dto: FindProductSerialDto, pagination: { current: number; pageSize: number }) {
-    const { serialNumber, productionOrderTaskId, status, qualityStatus, orderCode } = dto
+    const { serialNumber, productionOrderTaskId, status, qualityStatus, kingdeeCode } = dto
     const { current, pageSize } = pagination
 
     const whereCondition: any = {}
@@ -48,6 +48,14 @@ export class ProductSerialService {
             association: 'material',
             attributes: ['id', 'materialName', 'code', 'spec', 'unit'],
           },
+          {
+            association: 'productionOrderDetail',
+            include: [
+              {
+                association: 'productionOrder',
+              },
+            ],
+          },
         ],
       },
       {
@@ -64,9 +72,9 @@ export class ProductSerialService {
     ]
 
     // 如果有订单编码条件，添加到关联查询中
-    if (orderCode) {
-      includeConditions[0].where = {
-        orderCode: { [Op.like]: `%${orderCode}%` },
+    if (kingdeeCode) {
+      includeConditions[0].include[1].include[0].where = {
+        kingdeeCode: { [Op.like]: `%${kingdeeCode}%` },
       }
     }
 
@@ -99,6 +107,14 @@ export class ProductSerialService {
             {
               association: 'material',
               attributes: ['id', 'materialName', 'code', 'spec', 'unit'],
+            },
+            {
+              association: 'productionOrderDetail',
+              include: [
+                {
+                  association: 'productionOrder',
+                },
+              ],
             },
           ],
         },
