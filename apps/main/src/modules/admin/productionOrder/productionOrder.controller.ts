@@ -3,7 +3,7 @@ import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common'
 import { AdminAuth } from '@core/decorator/controller'
 import { ProductionOrderService } from './productionOrder.service'
-import { actionDto, CProductionOrderDTO, ERPFindPaginationDto, FindPaginationDto, pobDto, POBPaginationDto, priorityDto } from './productionOrder.dto'
+import { actionDto, CProductionOrderDTO, ERPFindPaginationDto, FindPaginationDto, pobDto, POBPaginationDto, priorityDto, ProductionOrderTaskDto } from './productionOrder.dto'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
@@ -26,29 +26,9 @@ export class ProductionOrderController {
     return result
   }
 
-  @ApiOperation({ summary: '创建' })
-  @HttpCode(HttpStatus.OK)
-  @Post('/')
-  async create(@Body() dto: CProductionOrderDTO, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.create(dto, loadModel)
-    return result
-  }
-  //
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOperation({ summary: '修改' })
-  // @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
-  // @Put(':id')
-  // async edit(@Body() dto: UProductionOrderDTO, @Param() params, @Req() req) {
-  //   let { factoryCode, loadModel } = req
-  //   const { id } = params
-  //   const result = await this.service.edit(dto, id, loadModel)
-  //   return result
-  // }
-
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '删除' })
-  @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
+  @ApiParam({ name: 'id', required: true, description: 'id', type: String })
   @Delete(':id')
   async delete(@Param() params, @Req() req) {
     let { factoryCode, loadModel } = req
@@ -82,15 +62,6 @@ export class ProductionOrderController {
   @Get('findPagination')
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     const result = await this.service.findPagination(dto, pagination, req.user)
-    return result
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '获取部门不同工单数量' })
-  @Get('getOrderCount')
-  async getOrderCount(@Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.getOrderCount(req.user, loadModel)
     return result
   }
 
@@ -149,6 +120,14 @@ export class ProductionOrderController {
   @Get('findAllPOB')
   async findAllPOB(@Query() dto: POBPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     const result = await this.service.findAllPOB(dto, pagination, req.user)
+    return result
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '拆单接口 - 将生产订单详情中的计划数进行拆分，生成ProductionOrderTask单据' })
+  @Post('splitOrder')
+  async splitOrder(@Body() dto: ProductionOrderTaskDto, @Req() req) {
+    const result = await this.service.splitOrder(dto.productionOrderDetailId, dto.splitQuantity, dto.remark, req.user)
     return result
   }
 }

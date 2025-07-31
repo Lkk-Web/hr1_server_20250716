@@ -67,6 +67,7 @@ export * from './plan/salesOrderDetail.model'
 //生产执行 production
 export * from './production/productionOrder.model'
 export * from './production/productionOrderDetail.model'
+export * from './production/productionOrderTask.model'
 export * from './production/POP.model'
 export * from './production/PODmodel'
 export * from './production/POI.model'

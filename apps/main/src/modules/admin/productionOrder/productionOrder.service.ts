@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { actionDto, CProductionOrderDTO, ERPFindPaginationDto, FindPaginationDto, pobDto, POBPaginationDto, priorityDto } from './productionOrder.dto'
-import { FindOptions, Op, or, where } from 'sequelize'
+import { FindOptions, Op, or, where, Sequelize } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Material } from '@model/base/material.model'
 import { POP } from '@model/production/POP.model'
@@ -11,6 +11,7 @@ import { POD } from '@model/production/PODmodel'
 import { POI } from '@model/production/POI.model'
 import { POB } from '@model/production/POB.model'
 import { ProcessTask } from '@model/production/processTask.model'
+import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { Aide, JsExclKey } from '@library/utils/aide'
 import { ProcessRoute } from '@model/process/processRoute.model'
@@ -24,7 +25,7 @@ import { POBDetail } from '@model/production/POBDetail.model'
 // import { SENTENCE } from '@common/enum'
 import { deleteIdsDto } from '@common/dto'
 import { BomService } from '../baseData/bom/bom.service'
-import { PROCESS_TASK_STATUS } from '@common/enum'
+import { PROCESS_TASK_STATUS, ProductionOrderTaskStatus } from '@common/enum'
 import moment = require('moment')
 import dayjs = require('dayjs')
 import _ = require('lodash')
@@ -41,239 +42,9 @@ export class ProductionOrderService {
     private bomService: BomService
   ) {}
 
-  public async create(dto: CProductionOrderDTO, loadModel) {
-    const sequelize = PerformanceConfig.sequelize
-    return sequelize
-      .transaction(async transaction => {
-        try {
-          if (!dto.code || dto.code.length === 0) {
-            const temp2 = await ProductionOrder.findOne({ order: [['id', 'DESC']] })
-            if (temp2) {
-              const oldNO = temp2.kingdeeCode
-              const lastFourChars = oldNO.length >= 4 ? oldNO.slice(-4) : '0'.repeat(4 - oldNO.length) + oldNO
-              let num = parseInt(lastFourChars)
-              num++
-              let newNO = num.toString().padStart(4, '0')
-              const date = new Date()
-              const year = date.getFullYear().toString().slice(2)
-              let temp = date.getMonth() + 1
-              const mouth = temp.toString().padStart(2, '0')
-              dto.code = 'GD' + year + mouth + newNO
-            } else {
-              const date = new Date()
-              const year = date.getFullYear().toString().slice(2)
-              let temp1 = date.getMonth() + 1
-              const mouth = temp1.toString().padStart(2, '0')
-              dto.code = 'GD' + year + mouth + '0001'
-            }
-          }
-
-          const temp = await ProductionOrder.findOne({ where: { kingdeeCode: dto.code } })
-          if (temp) {
-            throw new HttpException('已存在相同编号的生产工单！', 400)
-          }
-          const result = await ProductionOrder.create(
-            {
-              kingdeeCode: dto.code,
-              // plannedOutput: dto.plannedOutput,
-              startTime: dto.startTime,
-              endTime: dto.endTime,
-              actualOutput: dto.actualOutput,
-              priority: dto.priority,
-              remark: dto.remark,
-            },
-            { transaction }
-          )
-          //创建工序任务
-          if (dto.processes) {
-            for (const process of dto.processes) {
-              const temp = await Process.findByPk(process.processId)
-              if (!temp) {
-                throw new HttpException('所选ID为:' + process.processId + '的工序不存在', 400)
-              }
-              const pro = await POP.create(
-                {
-                  productionOrderId: result.id,
-                  processId: process.processId,
-                  reportRatio: process.reportRatio,
-                  isReport: process.isReport,
-                  isOutsource: process.isOutsource,
-                  isInspection: process.isInspection,
-                  sort: process.sort,
-                  planCount: process.planCount,
-                  goodCount: process.goodCount,
-                  badCount: process.badCount,
-                  fileId: process.fileId,
-                  startTime: process.startTime,
-                  endTime: process.endTime,
-                },
-                { transaction }
-              )
-              //创建部门关联
-              if (process.deptsId) {
-                for (const deptsIdElement of process.deptsId) {
-                  const dept = await Organize.findByPk(deptsIdElement)
-                  if (dept) {
-                    await POD.create({ popId: pro.id, deptId: deptsIdElement }, { transaction })
-                  } else {
-                    throw new HttpException('新增生产工单失败!ID为:' + deptsIdElement + '的部门不存在', 400)
-                  }
-                }
-              }
-              //创建不良品项关联
-              if (process.items) {
-                for (const item of process.items) {
-                  const defectiveItem = await DefectiveItem.findByPk(item)
-                  if (defectiveItem) {
-                    await POI.create({ popId: pro.id, defectiveItemId: item }, { transaction })
-                  } else {
-                    throw new HttpException('新增生产工单失败!ID为:' + item + '的不良品项不存在', 400)
-                  }
-                }
-              }
-            }
-          }
-          //创建用料清单
-          if (dto.boms) {
-            for (const bom of dto.boms) {
-              const temp = await Material.findByPk(bom.materialId)
-              if (!temp) {
-                throw new HttpException('所选ID为:' + bom.materialId + '的物料不存在', 400)
-              }
-              await POB.create({ productionOrderDetailId: dto.code, kingdeeCode: `PPBO${dto.code}`, ...bom }, { transaction })
-            }
-          }
-
-          return result.id
-        } catch (error) {
-          // 如果出现错误，Sequelize 将自动回滚事务
-          throw error
-        }
-      })
-      .then(async id => {
-        const findDto = {
-          kingdeeCode: dto.code,
-        }
-        return this.find(id, loadModel, findDto)
-      })
-      .catch(e => {
-        throw e
-      })
-  }
-
-  // public async edit(dto: UProductionOrderDTO, id: number, loadModel) {
-  //   let productionOrder = await ProductionOrder.findOne({ where: { id } })
-  //   if (!productionOrder) {
-  //     throw new HttpException('数据不存在', 400006)
-  //   }
-  //   if (dto.code != productionOrder.code) {
-  //     productionOrder = await ProductionOrder.findOne({ where: { code: dto.code } })
-  //     if (productionOrder) {
-  //       throw new HttpException('已存在相同编号生产工单,无法修改', 400)
-  //     }
-  //   }
-  //   const sequelize = ProductionOrder.sequelize
-  //   return sequelize
-  //     .transaction(async transaction => {
-  //       try {
-  //         await productionOrder.update(
-  //           {
-  //             code: dto.code,
-  //             bomId: dto.bomId,
-  //             salesOrderId: dto.salesOrderId,
-  //             plannedOutput: dto.plannedOutput,
-  //             startTime: dto.startTime,
-  //             endTime: dto.endTime,
-  //             actualOutput: dto.actualOutput,
-  //             priority: dto.priority,
-  //             remark: dto.remark,
-  //           },
-  //           { transaction }
-  //         )
-  //         //删除依赖关系
-  //         const process = await POP.findAll({ where: { productionOrderId: id } })
-  //         for (const process1 of process) {
-  //           await POD.destroy({ where: { popId: process1.id }, transaction })
-  //           await POI.destroy({ where: { popId: process1.id }, transaction })
-  //         }
-  //         await POP.destroy({ where: { productionOrderId: id }, transaction })
-  //         await POB.destroy({ where: { productionOrderId: id }, transaction })
-  //
-  //         //创建工序任务
-  //         if (dto.processes) {
-  //           for (const process of dto.processes) {
-  //             const temp = await Process.findByPk(process.processId)
-  //             if (!temp) {
-  //               throw new HttpException('所选ID为:' + process.processId + '的工序不存在', 400)
-  //             }
-  //             const pro = await POP.create(
-  //               {
-  //                 productionOrderId: id,
-  //                 processId: process.processId,
-  //                 reportRatio: process.reportRatio,
-  //                 isReport: process.isReport,
-  //                 isOutsource: process.isOutsource,
-  //                 isInspection: process.isInspection,
-  //                 sort: process.sort,
-  //                 planCount: process.planCount,
-  //                 goodCount: process.goodCount,
-  //                 badCount: process.badCount,
-  //                 fileId: process.fileId,
-  //                 startTime: process.startTime,
-  //                 endTime: process.startTime,
-  //               },
-  //               { transaction }
-  //             )
-  //             //创建部门关联
-  //             if (process.deptsId) {
-  //               for (const deptsIdElement of process.deptsId) {
-  //                 const dept = await SYSOrg.findByPk(deptsIdElement)
-  //                 if (dept) {
-  //                   await POD.create({ popId: pro.id, deptId: deptsIdElement }, { transaction })
-  //                 } else {
-  //                   throw new HttpException('新增生产工单失败!ID为:' + deptsIdElement + '的部门不存在', 400)
-  //                 }
-  //               }
-  //             }
-  //             //创建不良品项关联
-  //             if (process.items) {
-  //               for (const item of process.items) {
-  //                 const defectiveItem = await DefectiveItem.findByPk(item)
-  //                 if (defectiveItem) {
-  //                   await POI.create({ popId: pro.id, defectiveItemId: item }, { transaction })
-  //                 } else {
-  //                   throw new HttpException('新增生产工单失败!ID为:' + item + '的不良品项不存在', 400)
-  //                 }
-  //               }
-  //             }
-  //           }
-  //         }
-  //         //创建用料清单
-  //         if (dto.boms) {
-  //           for (const bom of dto.boms) {
-  //             const temp = await Material.findByPk(bom.materialId)
-  //             if (!temp) {
-  //               throw new HttpException('所选ID为:' + bom.materialId + '的物料不存在', 400)
-  //             }
-  //             await POB.create({ productionOrderId: id, ...bom }, { transaction })
-  //           }
-  //         }
-  //
-  //         return id
-  //       } catch (e) { }
-  //     })
-  //     .then(async id => {
-  //       return this.find(id, loadModel)
-  //     })
-  //     .catch(e => {
-  //       throw e
-  //     })
-  // }
-  //
   public async delete(id: number, loadModel) {
     const productOrder = await ProductionOrder.findByPk(id, { attributes: ['id', 'status'] })
     if (!productOrder) Aide.throwException(400, '生产工单不存在')
-    if (!['未开始', '已取消'].includes(productOrder.status)) Aide.throwException(400, '当前状态不允许删除')
     const transaction = await PerformanceConfig.sequelize.transaction()
     try {
       //删除依赖关系
@@ -285,9 +56,9 @@ export class ProductionOrderService {
       await POBDetail.destroy({ where: { pobId: pobs.map(v => v.id) }, transaction })
       await POP.destroy({ where: { productionOrderId: id }, transaction })
       await POB.destroy({ where: { productionOrderDetailId: id }, transaction })
-      const result = await productOrder.destroy({ transaction })
+      await productOrder.destroy({ transaction })
       await transaction.commit()
-      return result
+      return { code: 200, message: '删除成功' }
     } catch (e) {
       await transaction.rollback()
       throw e
@@ -864,101 +635,6 @@ export class ProductionOrderService {
     })
   }
 
-  public async getOrderCount(user, loadModel) {
-    let temp: User
-    if (user) {
-      temp = await User.findByPk(user.id)
-      const options: FindOptions = {
-        where: { status: { [Op.in]: ['未开始', '执行中'] } },
-        include: [
-          {
-            association: 'material',
-            attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
-            where: {},
-          },
-          {
-            association: 'processes',
-            include: [
-              {
-                association: 'process',
-                attributes: ['id', 'processName'],
-              },
-              {
-                association: 'depts',
-                attributes: ['id', 'name'],
-                where: { id: temp.departmentId },
-              },
-              {
-                association: 'items',
-                attributes: ['id', 'name'],
-              },
-            ],
-          },
-          {
-            association: 'boms',
-            include: [
-              {
-                association: 'material',
-                attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
-              },
-              {
-                association: 'feedProcess',
-                attributes: ['id', 'processName'],
-              },
-            ],
-          },
-        ],
-      }
-      const notDo = await ProductionOrder.count(options)
-      const options1: FindOptions = {
-        where: { status: { [Op.eq]: '已结束' } },
-        include: [
-          {
-            association: 'material',
-            attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
-            where: {},
-          },
-          {
-            association: 'processes',
-            include: [
-              {
-                association: 'process',
-                attributes: ['id', 'processName'],
-              },
-              {
-                association: 'depts',
-                attributes: ['id', 'name'],
-                where: { id: temp.departmentId },
-              },
-              {
-                association: 'items',
-                attributes: ['id', 'name'],
-              },
-            ],
-          },
-          {
-            association: 'boms',
-            include: [
-              {
-                association: 'material',
-                attributes: ['id', 'materialName', 'code', 'spec', 'attribute', 'unit'],
-              },
-              {
-                association: 'feedProcess',
-                attributes: ['id', 'processName'],
-              },
-            ],
-          },
-        ],
-      }
-      const done = await ProductionOrder.count(options1)
-
-      return new ResultVO({ notDo, done })
-    } else {
-      throw new HttpException('未查询到用户', 400)
-    }
-  }
-
   async changePriority(dto: priorityDto, id, loadModel) {
     const order = await ProductionOrder.findByPk(id)
     if (order) {
@@ -1289,6 +965,109 @@ export class ProductionOrderService {
     }
 
     return data
+  }
+
+  async splitOrder(productionOrderDetailId: string, splitQuantity: number, remark?: string, user?: any) {
+    const transaction = await ProductionOrder.sequelize.transaction()
+
+    try {
+      // 1. 查找生产订单详情
+      const productionOrderDetail = await ProductionOrderDetail.findByPk(productionOrderDetailId, { transaction })
+
+      if (!productionOrderDetail) {
+        throw new Error('生产订单详情不存在')
+      }
+
+      // 2. 验证拆分数量
+      if (splitQuantity <= 0) {
+        throw new Error('拆分数量必须大于0')
+      }
+
+      if (splitQuantity > productionOrderDetail.plannedOutput - productionOrderDetail.actualOutput) {
+        throw new Error('拆分数量不能大于计划产出数量')
+      }
+
+      // 3. 检查拆单状态
+      if (productionOrderDetail.splitStatus === '已拆单') {
+        throw new Error('该订单详情已经拆单，不能重复拆单')
+      }
+
+      // 4. 生成新的拆单编号 (ordercode-01格式)
+      const existingSplitOrders = await ProductionOrderTask.findAll({
+        where: {
+          orderCode: {
+            [Op.like]: `${productionOrderDetail.orderCode}-%`,
+          },
+        },
+        order: [['orderCode', 'DESC']],
+        transaction,
+      })
+
+      let nextSequence = 1
+      if (existingSplitOrders.length > 0) {
+        const lastDashIndex = existingSplitOrders[0].orderCode.lastIndexOf('-')
+        const sequenceStr = existingSplitOrders[0].orderCode.substring(lastDashIndex + 1)
+        const sequenceNum = parseInt(sequenceStr, 10)
+        if (!isNaN(sequenceNum)) {
+          nextSequence = sequenceNum + 1
+        }
+      }
+
+      const newOrderCode = `${productionOrderDetail.orderCode}-${nextSequence.toString().padStart(2, '0')}`
+      // 5. 创建新的拆单记录
+      const newSplitOrder = await ProductionOrderTask.create(
+        {
+          orderCode: newOrderCode,
+          originalOrderDetailId: productionOrderDetailId,
+          materialId: productionOrderDetail.materialId,
+          splitQuantity: splitQuantity,
+          status: ProductionOrderTaskStatus.NOT_STARTED,
+          startTime: productionOrderDetail.startTime,
+          endTime: productionOrderDetail.endTime,
+          workShop: productionOrderDetail.workShop,
+          priority: '无',
+          remark: remark || `从订单${productionOrderDetail.orderCode}拆分而来，拆分数量：${splitQuantity}`,
+          createdBy: user?.userName || 'system',
+          actualOutput: 0,
+          goodCount: 0,
+          badCount: 0,
+        },
+        { transaction }
+      )
+
+      // 6. 更新原生产订单详情的计划产出数量
+      await productionOrderDetail.update(
+        {
+          actualOutput: productionOrderDetail.actualOutput + splitQuantity,
+          splitStatus: productionOrderDetail.actualOutput + splitQuantity == productionOrderDetail.plannedOutput ? '已拆单' : '拆单中',
+        },
+        { transaction }
+      )
+
+      await transaction.commit()
+
+      return {
+        code: 200,
+        message: '拆单成功',
+        data: {
+          originalOrder: {
+            orderCode: productionOrderDetail.orderCode,
+            remain_quantity: productionOrderDetail.plannedOutput - productionOrderDetail.actualOutput,
+          },
+          newSplitOrder: {
+            id: newSplitOrder.id,
+            orderCode: newOrderCode,
+            splitQuantity: splitQuantity,
+            status: newSplitOrder.status,
+            remark: newSplitOrder.remark,
+            createdBy: user?.userName || 'system',
+          },
+        },
+      }
+    } catch (error) {
+      await transaction.rollback()
+      throw error
+    }
   }
 
   async ERPCodeSelect(dto: ERPFindPaginationDto, pagination: Pagination, user) {

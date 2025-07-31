@@ -67,3 +67,12 @@ export enum NOTIFY_TYPE {
   routingEdit = '301', // 工艺流程卡修改
   sopCreate = '300', // 工艺图纸sop与工艺路线
 }
+
+/** 生产订单任务状态枚举 */
+export enum ProductionOrderTaskStatus {
+  NOT_STARTED = '未开始',
+  IN_PROGRESS = '执行中',
+  PAUSED = '已暂停',
+  CANCELLED = '已取消',
+  COMPLETED = '已完成',
+}

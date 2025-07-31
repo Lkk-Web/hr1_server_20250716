@@ -199,6 +199,19 @@ export class BomDto {
   batNumber?: boolean
 }
 
+export class ProductionOrderTaskDto {
+  @ApiProperty({ type: String, description: '生产订单详情ID', required: true })
+  @IsNotEmpty({ message: '生产订单详情ID不能为空' })
+  productionOrderDetailId: string
+
+  @ApiProperty({ type: Number, description: '拆分数量', required: true })
+  @IsNotEmpty({ message: '拆分数量不能为空' })
+  splitQuantity: number
+
+  @ApiProperty({ type: String, description: '备注', required: false })
+  remark?: string
+}
+
 export class CProductionOrderDTO {
   @ApiProperty({ type: String, description: '工单编号', required: false })
   code: string
