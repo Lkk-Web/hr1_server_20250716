@@ -53,6 +53,13 @@ export class BomDetail extends BaseDate<BomDetail> {
   declare materialName: string
 
   @Column({
+    comment: '物料编码',
+    type: DataType.STRING(50),
+    allowNull: true,
+  })
+  declare materialCode: string
+
+  @Column({
     comment: '物料属性',
     type: DataType.STRING(50),
     allowNull: true,

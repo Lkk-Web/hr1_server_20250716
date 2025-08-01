@@ -32,6 +32,7 @@ async function bootstrap() {
     // await User.sync({ alter: true, force: false })
   } catch (e) {
     console.log(e)
+    throw e
   }
 
   // this.app.use(helmet());

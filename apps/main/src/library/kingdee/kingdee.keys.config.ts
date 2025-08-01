@@ -72,7 +72,7 @@ export const K3Mapping = {
     formID: 'ENG_BOM',
     dbModel: BOM,
     filterString: `FDocumentStatus='C' and FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
-    redisKey: info.appName + 'kingdee:bd_sys_user',
+    redisKey: info.appName + 'kingdee:bd_bom',
     // pageSize:1000,
     keys: [
       // k3name,k3key,dbFieldName,转化函数
@@ -93,6 +93,7 @@ export const K3Mapping = {
       ['子项单位', 'FUNITID.FName', 'unit'],
       ['子项物料规格', 'FCHILDITEMMODEL', 'spec'],
       ['子项物料名称', 'FCHILDITEMNAME', 'materialName'],
+      ['子项物料编码', 'FMATERIALIDCHILD.FNumber', 'materialCode'],
       ['子项物料属性', 'FCHILDITEMPROPERTY', 'attribute', v => convertExtends(v, 'FErpClsID')],
       ['父项BOM ID', 'FID', 'bomId'],
       ['编码', 'FNumber', 'code'],
