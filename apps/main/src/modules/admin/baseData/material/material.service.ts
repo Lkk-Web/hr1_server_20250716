@@ -137,7 +137,7 @@ export class MaterialService {
       }
     }
     if (dto.default) {
-      options.where[Op.or] = [{ name: { [Op.like]: `%${dto.default}%` } }, { code: { [Op.like]: `%${dto.default}%` } }]
+      options.where[Op.or] = [{ materialName: { [Op.like]: `%${dto.default}%` } }, { code: { [Op.like]: `%${dto.default}%` } }]
     }
     if (dto.name) {
       options.where['name'] = {

@@ -102,7 +102,7 @@ export class ProductSerialService {
       include: [
         {
           association: 'productionOrderTask',
-          attributes: ['id', 'orderCode', 'splitQuantity', 'status', 'materialId'],
+          attributes: ['id', 'orderCode', 'splitQuantity', 'materialId'],
           include: [
             {
               association: 'material',
