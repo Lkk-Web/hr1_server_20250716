@@ -309,21 +309,21 @@ export class InspectionFormService {
                   }
                 ),
                 //创建生产汇报单
-                this.productionReportTwoService.produceStore(
-                  {
-                    orderId: productionReport.productionOrderId,
-                    goodCount: info.goodCount,
-                    badCount: info.badCount,
-                    taskId: productionReport.taskId,
-                  },
-                  transaction
-                ),
+                // this.productionReportTwoService.produceStore(
+                //   {
+                //     orderId: productionReport.productionOrderId,
+                //     goodCount: info.goodCount,
+                //     badCount: info.badCount,
+                //     taskId: productionReport.taskId,
+                //   },
+                //   transaction
+                // ),
                 info.goodCount
                   ? ProcessTask.update(
                       {
                         receptionCount: Sequelize.literal(`receptionCount+${info.goodCount}`),
                       },
-                      { where: { id: productionReport.taskId + 1, productionOrderId: productionReport.productionOrderId } }
+                      { where: { id: productionReport.taskId + 1, serialId: productionReport.productionOrderId } }
                     )
                   : null,
               ])
@@ -403,7 +403,7 @@ export class InspectionFormService {
   public async createReworkInspectionForm(oldTask: ProcessTask, workCount: number, processId: number, productionOrderId, transaction: Transaction) {
     let task = await ProcessTask.create(
       {
-        productionOrderId,
+        serialId: productionOrderId,
         processId,
         reportRatio: oldTask.reportRatio,
         planCount: workCount,

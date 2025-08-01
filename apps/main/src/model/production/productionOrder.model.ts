@@ -125,7 +125,4 @@ export class ProductionOrder extends StrBaseModel<ProductionOrder> {
 
   @HasMany(() => ProductionOrderDetail)
   declare productionOrderDetail: ProductionOrderDetail[]
-
-  @HasMany(() => ProcessTask)
-  declare tasks: ProcessTask[]
 }

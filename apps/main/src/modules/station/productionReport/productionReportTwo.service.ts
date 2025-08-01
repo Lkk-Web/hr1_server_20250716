@@ -74,7 +74,7 @@ export class ProductionReportTwoService {
         const nextTask = await ProcessTask.findOne({
           where: {
             id: task.id + 1,
-            productionOrderId: task.productionOrderId,
+            serialId: task.serialId,
           },
           attributes: ['id'],
         })
@@ -139,7 +139,6 @@ export class ProductionReportTwoService {
         // badCountPrice: config ? config.badCountPrice : 0,
         taskId: task.id,
         processId,
-        productionOrderId: task.productionOrderId,
         processStatus: PROCESS_TASK_STATUS.finish,
         reportQuantity: temp.reportQuantity,
         processProgress: '100',
@@ -161,12 +160,12 @@ export class ProductionReportTwoService {
       // 处理下一道工序
       const [nextPop, allPops] = await Promise.all([
         POP.findOne({
-          where: { productionOrderId: task.productionOrderId, id: pop.id + 1 },
+          where: { productionOrderId: task.serialId, id: pop.id + 1 },
           order: [['id', 'ASC']],
           include: [{ association: 'process', attributes: ['id', 'processName'] }],
         }),
         POP.findAll({
-          where: { productionOrderId: task.productionOrderId },
+          where: { productionOrderId: task.serialId },
           order: [['id', 'ASC']],
         }),
       ])
@@ -177,7 +176,7 @@ export class ProductionReportTwoService {
           await ProductionOrder.update(
             { currentProcess: nextPop.dataValues.process.processName },
             {
-              where: { id: task.productionOrderId },
+              where: { id: task.serialId },
             }
           )
         }
@@ -194,11 +193,8 @@ export class ProductionReportTwoService {
       // 处理订单完成状态
       if (!task.isInspection && allPops[allPops.length - 1].dataValues.processId === processId) {
         if (!task.isInspection) {
-          await task.order.update({
-            actualOutput: task.order.actualOutput + temp.reportQuantity,
-          })
           await this.produceStore({
-            orderId: task.productionOrderId,
+            serialId: task.serialId,
             goodCount: temp.reportQuantity,
             badCount: 0,
           })
@@ -238,7 +234,7 @@ export class ProductionReportTwoService {
     const nextTask = await ProcessTask.findOne({
       where: {
         id: task.id + 1,
-        productionOrderId: task.productionOrderId,
+        serialId: task.serialId,
       },
       attributes: ['id'],
     })
@@ -295,7 +291,6 @@ export class ProductionReportTwoService {
       const form = await InspectionForm.create({
         code: ipqcCode,
         type: inspectItems.type,
-        originCode: task.order.kingdeeCode,
         originType: '报工检验单',
         inspectionAt: new Date(moment(date).format('YYYY-MM-DD HH:mm:ss')),
         processId: result.processId,
@@ -362,7 +357,7 @@ export class ProductionReportTwoService {
   //创建生产汇报单
   public async produceStore(dto: PickingOutboundDto, transaction: Transaction = null) {
     try {
-      let order = await ProductionOrder.findOne({ where: { id: dto.orderId } })
+      // let order = await ProductionOrder.findOne({ where: { id: dto.orderId } })
       // if (!order || !order.fseq) {
       //   console.log('生产订单不存在或没有对应的金蝶行号')
       //   return {
@@ -372,7 +367,7 @@ export class ProductionReportTwoService {
       // }
       //检测是否为最后一道工序
       if (dto.taskId) {
-        const tempTask = await ProcessTask.findOne({ where: { id: dto.taskId + 1, productionOrderId: dto.orderId }, attributes: ['id', 'goodCount'] })
+        const tempTask = await ProcessTask.findOne({ where: { id: dto.taskId + 1, serialId: dto.serialId }, attributes: ['id', 'goodCount'] })
         if (tempTask) {
           console.log('当前工序不是最后一道工序')
           return {
@@ -408,7 +403,7 @@ export class ProductionReportTwoService {
       // 审核对应生产领料单
       //下推生成生产汇报单
       let oData = {
-        Ids: [order.id],
+        Ids: [dto.serialId],
         Numbers: '',
         // EntryIds: order.fseq,
         RuleId: '',
@@ -466,100 +461,100 @@ export class ProductionReportTwoService {
       await KingdeeeService.submit('PRD_MORPT', morptSubmit)
       //审核对应生产汇报单
       await KingdeeeService.audit('PRD_MORPT', morptSubmit)
-      if (order.billType.indexOf('汇报入库') > 0) {
-        //下推生产汇报单生成对应生产入库单
-        let morptPush = {
-          Ids: `${hbid}`,
-          Numbers: [],
-          EntryIds: '',
-          RuleId: '',
-          TargetBillTypeId: '',
-          TargetOrgId: 0,
-          TargetFormId: 'PRD_INSTOCK',
-          IsEnableDefaultRule: 'true',
-          IsDraftWhenSaveFail: 'true',
-          CustomParams: {},
-        }
-        let morpt = await KingdeeeService.push('PRD_MORPT', morptPush)
-        console.log('汇报入库单生成', JSON.stringify(morpt))
+      // if (order.billType.indexOf('汇报入库') > 0) {
+      //   //下推生产汇报单生成对应生产入库单
+      //   let morptPush = {
+      //     Ids: `${hbid}`,
+      //     Numbers: [],
+      //     EntryIds: '',
+      //     RuleId: '',
+      //     TargetBillTypeId: '',
+      //     TargetOrgId: 0,
+      //     TargetFormId: 'PRD_INSTOCK',
+      //     IsEnableDefaultRule: 'true',
+      //     IsDraftWhenSaveFail: 'true',
+      //     CustomParams: {},
+      //   }
+      //   let morpt = await KingdeeeService.push('PRD_MORPT', morptPush)
+      //   console.log('汇报入库单生成', JSON.stringify(morpt))
 
-        //解析生产入库单id
-        let rkid = morpt.Result.ResponseStatus.SuccessEntitys[0].Id
-        //保存对应生产入库单，暂无
-        let rkSubmit = {
-          Ids: `${rkid}`,
-          IgnoreInterationFlag: 'true',
-        }
-        //提交对应生产入库单
-        await KingdeeeService.submit('PRD_INSTOCK', rkSubmit)
+      //   //解析生产入库单id
+      //   let rkid = morpt.Result.ResponseStatus.SuccessEntitys[0].Id
+      //   //保存对应生产入库单，暂无
+      //   let rkSubmit = {
+      //     Ids: `${rkid}`,
+      //     IgnoreInterationFlag: 'true',
+      //   }
+      //   //提交对应生产入库单
+      //   await KingdeeeService.submit('PRD_INSTOCK', rkSubmit)
 
-        //审核对应生产入库单
-        await KingdeeeService.audit('PRD_INSTOCK', rkSubmit)
-      } else if (order.billType.indexOf('生产入库') > 0) {
-        let productionData = {
-          Ids: [order.id],
-          Numbers: '',
-          // EntryIds: order.fseq,
-          RuleId: '',
-          TargetBillTypeId: '',
-          TargetOrgId: 0,
-          TargetFormId: 'PRD_INSTOCK',
-          IsEnableDefaultRule: 'true',
-          IsDraftWhenSaveFail: 'true',
-          CustomParams: {},
-        }
-        //SCP_InStock
-        //STK_InStock
-        let productionLod = await KingdeeeService.push('PRD_MO', productionData)
-        console.log('生产入库单生成', JSON.stringify(productionLod))
-        //解析生产入库单id
-        let { Id: rkid, EntryIds } = productionLod.Result.ResponseStatus.SuccessEntitys[0]
-        const dataInst = await KingdeeeService.getList(
-          'PRD_INSTOCK',
-          'FID,FEntity_FEntryID,FMoBillNo,FMoEntrySeq,FMaterialId.FNumber,FInStockType,FUnitID.FNumber,FBaseUnitId.FNumber,FOwnerTypeId,FStockId.FNumber,FStockStatusId.FNumber',
-          `FID=${rkid}`
-        )
-        const dataOne = dataInst[0]
-        // console.log("查询信息",JSON.stringify(dataInst))
-        let morptData1 = {
-          Model: {
-            FID: rkid,
-            FEntity: [
-              {
-                FEntryID: dataOne['FEntity_FEntryID'],
-                FMustQty: dto.goodCount,
-                FRealQty: dto.goodCount,
-                FStockStatusId: {
-                  FNumber: dataOne['FStockStatusId.FNumber'],
-                },
-                FStockId: {
-                  FNumber: '03',
-                },
-                FOwnerTypeId: dataOne.FOwnerTypeId,
-                FBaseUnitId: { FNumber: dataOne['FBaseUnitId.FNumber'] },
-                FUnitID: { FNumber: dataOne['FUnitID.FNumber'] },
-                FInStockType: dataOne.FInStockType,
-                FMaterialId: { FNumber: dataOne['FMaterialId.FNumber'] },
-                FMoBillNo: dataOne.FMoBillNo,
-              },
-            ],
-          },
-        }
-        // console.log("生产入库单数据",JSON.stringify(morptData1))
-        const inboundSave = await KingdeeeService.save('PRD_INSTOCK', morptData1)
-        console.log('生产入库单保存', JSON.stringify(inboundSave))
+      //   //审核对应生产入库单
+      //   await KingdeeeService.audit('PRD_INSTOCK', rkSubmit)
+      // } else if (order.billType.indexOf('生产入库') > 0) {
+      //   let productionData = {
+      //     Ids: [order.id],
+      //     Numbers: '',
+      //     // EntryIds: order.fseq,
+      //     RuleId: '',
+      //     TargetBillTypeId: '',
+      //     TargetOrgId: 0,
+      //     TargetFormId: 'PRD_INSTOCK',
+      //     IsEnableDefaultRule: 'true',
+      //     IsDraftWhenSaveFail: 'true',
+      //     CustomParams: {},
+      //   }
+      //   //SCP_InStock
+      //   //STK_InStock
+      //   let productionLod = await KingdeeeService.push('PRD_MO', productionData)
+      //   console.log('生产入库单生成', JSON.stringify(productionLod))
+      //   //解析生产入库单id
+      //   let { Id: rkid, EntryIds } = productionLod.Result.ResponseStatus.SuccessEntitys[0]
+      //   const dataInst = await KingdeeeService.getList(
+      //     'PRD_INSTOCK',
+      //     'FID,FEntity_FEntryID,FMoBillNo,FMoEntrySeq,FMaterialId.FNumber,FInStockType,FUnitID.FNumber,FBaseUnitId.FNumber,FOwnerTypeId,FStockId.FNumber,FStockStatusId.FNumber',
+      //     `FID=${rkid}`
+      //   )
+      //   const dataOne = dataInst[0]
+      //   // console.log("查询信息",JSON.stringify(dataInst))
+      //   let morptData1 = {
+      //     Model: {
+      //       FID: rkid,
+      //       FEntity: [
+      //         {
+      //           FEntryID: dataOne['FEntity_FEntryID'],
+      //           FMustQty: dto.goodCount,
+      //           FRealQty: dto.goodCount,
+      //           FStockStatusId: {
+      //             FNumber: dataOne['FStockStatusId.FNumber'],
+      //           },
+      //           FStockId: {
+      //             FNumber: '03',
+      //           },
+      //           FOwnerTypeId: dataOne.FOwnerTypeId,
+      //           FBaseUnitId: { FNumber: dataOne['FBaseUnitId.FNumber'] },
+      //           FUnitID: { FNumber: dataOne['FUnitID.FNumber'] },
+      //           FInStockType: dataOne.FInStockType,
+      //           FMaterialId: { FNumber: dataOne['FMaterialId.FNumber'] },
+      //           FMoBillNo: dataOne.FMoBillNo,
+      //         },
+      //       ],
+      //     },
+      //   }
+      //   // console.log("生产入库单数据",JSON.stringify(morptData1))
+      //   const inboundSave = await KingdeeeService.save('PRD_INSTOCK', morptData1)
+      //   console.log('生产入库单保存', JSON.stringify(inboundSave))
 
-        //保存对应生产入库单，暂无
-        let rkSubmit = {
-          Ids: `${rkid}`,
-          IgnoreInterationFlag: 'true',
-        }
-        //提交对应生产入库单
-        // await KingdeeeService.submit('PRD_INSTOCK', rkSubmit)
+      //   //保存对应生产入库单，暂无
+      //   let rkSubmit = {
+      //     Ids: `${rkid}`,
+      //     IgnoreInterationFlag: 'true',
+      //   }
+      //   //提交对应生产入库单
+      //   // await KingdeeeService.submit('PRD_INSTOCK', rkSubmit)
 
-        //审核对应生产入库单
-        // await KingdeeeService.audit('PRD_INSTOCK', rkSubmit)
-      }
+      //   //审核对应生产入库单
+      //   // await KingdeeeService.audit('PRD_INSTOCK', rkSubmit)
+      // }
       return {
         message: '生产汇报单生成成功',
         state: true,

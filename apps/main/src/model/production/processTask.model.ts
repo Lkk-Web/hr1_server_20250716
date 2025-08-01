@@ -1,7 +1,6 @@
 import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Process } from '@model/process/process.model'
-import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Organize } from '@model/auth/organize'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { User } from '@model/auth/user'
@@ -9,17 +8,19 @@ import { ProcessTaskUser } from '@model/production/processTaskUser.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
+import { ProductSerial } from './productSerial.model'
+import { ProductionOrder } from './productionOrder.model'
 
 @Table({ tableName: `production_process_task`, timestamps: true, freezeTableName: true, comment: '工序任务单表' })
 export class ProcessTask extends BaseDate<ProcessTask> {
-  //工单ID
-  @ForeignKey(() => ProductionOrder)
+  //产品序列号id
+  @ForeignKey(() => ProductSerial)
   @Column({
-    comment: '工单id',
-    type: DataType.STRING(255),
+    comment: '产品序列号id',
+    type: DataType.INTEGER,
     allowNull: true, // 必填项
   })
-  declare productionOrderId: string
+  declare serialId: number
 
   @ForeignKey(() => Process)
   // 工序名称
@@ -167,8 +168,8 @@ export class ProcessTask extends BaseDate<ProcessTask> {
   })
   declare reportQuantity: number
 
-  @BelongsTo(() => ProductionOrder)
-  declare order: ProductionOrder
+  @BelongsTo(() => ProductSerial)
+  declare serial: ProductSerial
 
   @BelongsTo(() => Process)
   declare process: Process

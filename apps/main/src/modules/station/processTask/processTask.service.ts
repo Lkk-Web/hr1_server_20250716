@@ -344,7 +344,6 @@ export class ProcessTaskService {
       content: dto.content,
       scene: dto.scene,
       teamId: dto.teamId,
-      topic: `${task.order.kingdeeCode}生产工单${dto.scene == NOTIFY_SCENE.PAD_M_O ? '缺料' : '申请领料'}，请及时处理，谢谢！`,
       name: `${req.team.name}/${req.process.processName}`,
     })
     return true

@@ -348,7 +348,7 @@ export class PickingOutboundDto {
     description: '生产工单id',
     required: false,
   })
-  orderId?: string;
+  serialId?: number;
 
   @ApiProperty({
     type: Number,

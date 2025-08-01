@@ -23,13 +23,12 @@ export class ProcessTaskService {
   ) {}
 
   public async create(dto: CProcessTaskDto, loadModel) {
-    const temp = await ProcessTask.findOne({ where: { productionOrderId: dto.productionOrderId, processId: dto.processId } })
+    const temp = await ProcessTask.findOne({ where: { serialId: dto.productionOrderId, processId: dto.processId } })
     if (temp) {
       throw new HttpException('该工单下此条工序已有工序任务单', 400)
     }
 
     const result = await ProcessTask.create({
-      productionOrderId: dto.productionOrderId,
       processId: dto.processId,
       reportRatio: dto.reportRatio,
       planCount: dto.planCount,
@@ -51,15 +50,14 @@ export class ProcessTaskService {
     if (!processTask) {
       throw new HttpException('数据不存在', 400006)
     }
-    if (dto.productionOrderId != processTask.dataValues.productionOrderId) {
-      const temp = await ProcessTask.findOne({ where: { productionOrderId: dto.productionOrderId, processId: dto.processId } })
+    if (dto.serialId != processTask.dataValues.serialId) {
+      const temp = await ProcessTask.findOne({ where: { serialId: dto.serialId, processId: dto.processId } })
       if (temp) {
         throw new HttpException('该工单下此条工序已有工序任务单', 400)
       }
     }
 
     await processTask.update({
-      productionOrderId: dto.productionOrderId,
       processId: dto.processId,
       reportRatio: dto.reportRatio,
       planCount: dto.planCount,

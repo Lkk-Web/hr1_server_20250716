@@ -237,10 +237,10 @@ export class YieldStatisticsService {
     result.forEach(value => {
       let badNumber = 0
       let goodNumber = 0
-      for (let i = 0; i < value.tasks.length; i++) {
-        badNumber = value.tasks[i].badCount + badNumber
-        goodNumber = value.tasks[i].goodCount + goodNumber
-      }
+      // for (let i = 0; i < value.tasks.length; i++) {
+      //   badNumber = value.tasks[i].badCount + badNumber
+      //   goodNumber = value.tasks[i].goodCount + goodNumber
+      // }
       const temp: any = {
         // bomCode: value.bom.parentMaterial.code,
         // bomName: value.bom.parentMaterial.materialName,

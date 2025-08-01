@@ -638,7 +638,7 @@ export class ProductionReportService {
     }
     let task = await ProcessTask.findAll({
       where: {
-        productionOrderId: productionReport.productionOrderId,
+        serialId: productionReport.productionOrderId,
         processId: productionReport.processId,
       },
     })

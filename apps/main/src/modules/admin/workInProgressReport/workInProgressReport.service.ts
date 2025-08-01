@@ -316,27 +316,27 @@ export class WorkInProgressReportService {
       let planCountThree = 0
       let goodCountThree = 0
       let badCountThree = 0
-      if (value.tasks[0]) {
-        planCountOne = value.tasks[0].planCount
-        goodCountOne = value.tasks[0].goodCount
-        badCountOne = value.tasks[0].badCount
-        processCountOne = value.tasks[0].reportRatio * planCountOne
-        unClearCountOne = planCountOne - goodCountOne - processCountOne
-      }
-      if (value.tasks[1]) {
-        planCountTwo = value.tasks[1].planCount
-        goodCountTwo = value.tasks[1].goodCount
-        badCountTwo = value.tasks[1].badCount
-        processCountTwo = goodCountOne - value.tasks[1].reportRatio * planCountTwo
-        unClearCountTwo = planCountTwo - goodCountTwo - processCountTwo
-      }
-      if (value.tasks[2]) {
-        planCountThree = value.tasks[2].planCount
-        goodCountThree = value.tasks[2].goodCount
-        badCountThree = value.tasks[2].badCount
-        processCountThree = goodCountTwo - value.tasks[2].reportRatio * planCountThree
-        unClearCountThree = planCountThree - goodCountThree - processCountThree
-      }
+      // if (value.tasks[0]) {
+      //   planCountOne = value.tasks[0].planCount
+      //   goodCountOne = value.tasks[0].goodCount
+      //   badCountOne = value.tasks[0].badCount
+      //   processCountOne = value.tasks[0].reportRatio * planCountOne
+      //   unClearCountOne = planCountOne - goodCountOne - processCountOne
+      // }
+      // if (value.tasks[1]) {
+      //   planCountTwo = value.tasks[1].planCount
+      //   goodCountTwo = value.tasks[1].goodCount
+      //   badCountTwo = value.tasks[1].badCount
+      //   processCountTwo = goodCountOne - value.tasks[1].reportRatio * planCountTwo
+      //   unClearCountTwo = planCountTwo - goodCountTwo - processCountTwo
+      // }
+      // if (value.tasks[2]) {
+      //   planCountThree = value.tasks[2].planCount
+      //   goodCountThree = value.tasks[2].goodCount
+      //   badCountThree = value.tasks[2].badCount
+      //   processCountThree = goodCountTwo - value.tasks[2].reportRatio * planCountThree
+      //   unClearCountThree = planCountThree - goodCountThree - processCountThree
+      // }
       const temp: any = {
         productionOrderCode: value.kingdeeCode,
         // bomCode: value.bom.parentMaterial.code,

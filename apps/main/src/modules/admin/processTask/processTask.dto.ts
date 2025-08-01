@@ -185,11 +185,11 @@ export class CProcessTaskDto {
 
 export class UProcessTaskDto {
   @ApiProperty({
-    description: '工单ID',
+    description: '序列号ID',
     type: String,
     required: true,
   })
-  productionOrderId: string
+  serialId: number
 
   @ApiProperty({
     description: '工序ID',

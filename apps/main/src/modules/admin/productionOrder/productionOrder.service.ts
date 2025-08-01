@@ -334,7 +334,7 @@ export class ProductionOrderService {
         }
         if (dto.type == '开始') {
           if (order.status != '未开始') {
-            // throw new HttpException('该操作只能对”未开始“状态工单操作，谢谢！', 400)
+            // throw new HttpException('该操作只能对"未开始"状态工单操作，谢谢！', 400)
             continue
           }
           await ProductionOrder.update({ status: '执行中' }, { where: { id: number } })
@@ -344,7 +344,7 @@ export class ProductionOrderService {
           }
           // await pop.update({ status: '执行中' })
 
-          await ProcessTask.destroy({ where: { productionOrderId: order.id } })
+          await ProcessTask.destroy({ where: { serialId: order.id } })
           //创建工序任务单
           order = await this.find(number, loadModel, { kingdeeCode: order.kingdeeCode })
           // console.log(order)
@@ -362,7 +362,6 @@ export class ProductionOrderService {
           for (let i = 0; i < order.processes.length; i++) {
             const process = order.processes[i]
             let task = await ProcessTask.create({
-              productionOrderId: order.id,
               processId: process.processId,
               reportRatio: process.reportRatio,
               planCount: process.planCount,
@@ -385,37 +384,37 @@ export class ProductionOrderService {
           }
         } else if (dto.type == '结束') {
           if (order.status != '执行中') {
-            throw new HttpException('该操作只能对”执行中“状态工单操作，谢谢！', 400)
+            throw new HttpException('该操作只能对"执行中"状态工单操作，谢谢！', 400)
           }
           await ProductionOrder.update({ status: '已结束' }, { where: { id: number } })
-          await ProcessTask.update({ status: '已结束' }, { where: { productionOrderId: number } })
+          await ProcessTask.update({ status: '已结束' }, { where: { serialId: number } })
         } else if (dto.type == '取消') {
           // @ts-ignore
           if (order.status != '未开始' && order.status != '执行中') {
-            throw new HttpException('该操作只能对“未开始”、“执行中”状态工单操作，谢谢！', 400)
+            throw new HttpException('该操作只能对"未开始"、"执行中"状态工单操作，谢谢！', 400)
           }
           await ProductionOrder.update({ status: '已取消' }, { where: { id: number } })
-          await ProcessTask.update({ status: '已结束' }, { where: { productionOrderId: number } })
+          await ProcessTask.update({ status: '已结束' }, { where: { serialId: number } })
         } else if (dto.type == '撤回') {
           // @ts-ignore
           if (order.status == '未开始') {
-            throw new HttpException('该工单已为最初始的“未开始”状态，无法操作撤回，谢谢！', 400)
+            throw new HttpException('该工单已为最初始的"未开始"状态，无法操作撤回，谢谢！', 400)
           }
           if (order.status == '已取消') {
             await ProductionOrder.update({ status: '已结束' }, { where: { id: number } })
-            await ProcessTask.update({ status: '已结束' }, { where: { productionOrderId: number } })
+            await ProcessTask.update({ status: '已结束' }, { where: { serialId: number } })
           } else if (order.status == '已结束') {
             throw new HttpException('已产生相关业务数据,不允许撤回', 400)
             // await ProductionOrder.update({ status: '执行中' }, { where: { id: number } })
             // await ProcessTask.update({ status: '执行中' }, { where: { productionOrderId: number } })
           } else if (order.status == '执行中') {
-            const tasks = await ProcessTask.findAll({ where: { productionOrderId: order.id }, attributes: ['id', 'status'] })
+            const tasks = await ProcessTask.findAll({ where: { serialId: order.id }, attributes: ['id', 'status'] })
             if (tasks.find(v => v.status != '未开始')) {
               throw new HttpException('已产生相关业务数据,不允许撤回', 400)
             }
             await ProductionOrder.update({ status: '未开始' }, { where: { id: number } })
             await ProcessTaskDept.destroy({ where: { taskId: tasks.map(v => v.id) } })
-            await ProcessTask.destroy({ where: { productionOrderId: order.id } })
+            await ProcessTask.destroy({ where: { serialId: order.id } })
           }
         }
       }
@@ -1056,6 +1055,10 @@ export class ProductionOrderService {
       let startSequence = 1
       const group = productionOrderDetail.material.boms[0].group
 
+      if (productionOrderDetail.material.processRouteId == null) {
+        throw new Error('当前产品需绑定工艺路线')
+      }
+
       // if (group === '0101') {
       const currentYear = new Date().getFullYear().toString()
       const yearPrefix = `${currentYear}`
@@ -1098,6 +1101,56 @@ export class ProductionOrderService {
           { transaction }
         )
         productSerials.push(productSerial)
+      }
+
+      //依据 序列单拆单productSerial  工序任务单production_process_task  productionOrderDetail.materialId.processRouteId 中 工艺路线生产对应的工序任务单
+      {
+        const material = await Material.findByPk(productionOrderDetail.materialId, {
+          include: [
+            {
+              association: 'processRoute',
+              include: [
+                {
+                  association: 'processRouteList',
+                  include: [
+                    {
+                      association: 'process',
+                      attributes: ['id', 'processName'],
+                    },
+                  ],
+                  order: [['sort', 'ASC']],
+                },
+              ],
+            },
+          ],
+          transaction,
+        })
+
+        if (!material || !material.processRoute) {
+          throw new Error('物料未关联工艺路线或工艺路线不存在')
+        }
+
+        for (const productSerial of productSerials) {
+          for (const routeProcess of material.processRoute.processRouteList) {
+            // 创建工序任务单
+            await ProcessTask.create(
+              {
+                serialId: productSerial.id,
+                processId: routeProcess.processId,
+                reportRatio: routeProcess.reportRatio,
+                isOutsource: routeProcess.isOutsource,
+                isInspection: routeProcess.isInspection,
+                planCount: 1, // 每个序列号对应一个产品
+                status: PROCESS_TASK_STATUS.notStart,
+                startTime: new Date(),
+                endTime: new Date(),
+                receptionCount: routeProcess.sort,
+                priority: '无',
+              },
+              { transaction }
+            )
+          }
+        }
       }
 
       // 6. 更新原生产订单详情的计划产出数量

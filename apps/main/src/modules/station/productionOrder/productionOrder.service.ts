@@ -64,7 +64,7 @@ export class ProductionOrderService {
         }),
         ProcessTask.findAll({
           where: {
-            productionOrderId: result.data.map(item => item.id),
+            serialId: result.data.map(item => item.id),
             processId,
             ...(dto.currentProcess == 1
               ? {
@@ -102,12 +102,11 @@ export class ProductionOrderService {
       result.data = result.data.map(item => {
         item = item.toJSON()
 
-        item.tasks = tasks.filter(task => task.productionOrderId == item.id)
-        item.tasks = item.tasks.map(task => {
-          task = task.toJSON()
-          task.process.performanceConfig = perList.find(per => per.processId == task.processId)
-          return task
-        })
+        // item.tasks = item.tasks.map(task => {
+        //   task = task.toJSON()
+        //   task.process.performanceConfig = perList.find(per => per.processId == task.processId)
+        //   return task
+        // })
         return item
       })
     }
