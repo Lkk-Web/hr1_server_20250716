@@ -50,6 +50,15 @@ export class Process extends BaseDate<Process> {
   })
   declare isOut: boolean
 
+  // 排序字段
+  @Column({
+    comment: '排序字段',
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+  })
+  declare sort: number
+
   // 添加父子关系关联
   @BelongsTo(() => Process, { foreignKey: 'parentId', as: 'parent' })
   declare parent: Process

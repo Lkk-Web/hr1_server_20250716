@@ -149,6 +149,11 @@ export class ProcessService {
           where: {},
         },
         {
+          association: 'parent',
+          attributes: ['id', 'processName'],
+          required: false,
+        },
+        {
           association: 'children',
           attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
           required: false,
@@ -177,7 +182,7 @@ export class ProcessService {
         },
         {
           association: 'children',
-          attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt', 'isChild', 'parentId'],
+          attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt', 'isChild', 'parentId', 'sort'],
           required: false,
           include: [
             {
@@ -185,8 +190,22 @@ export class ProcessService {
               attributes: ['id', 'name'],
               required: false,
             },
+            {
+              association: 'parent',
+              attributes: ['id', 'processName'],
+              required: false,
+            },
           ],
+          order: [
+            ['sort', 'ASC'],
+            ['id', 'ASC'],
+          ],
+          separate: true,
         },
+      ],
+      order: [
+        ['sort', 'ASC'],
+        ['id', 'ASC'],
       ],
     }
     if (dto.processName) {

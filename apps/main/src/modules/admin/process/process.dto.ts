@@ -90,6 +90,15 @@ export class CProcessDto {
   isChild: number
 
   @ApiProperty({
+    name: 'sort',
+    required: false,
+    description: '排序字段',
+    type: Number,
+    default: 0,
+  })
+  sort?: number
+
+  @ApiProperty({
     name: 'defectiveItems',
     required: false,
     description: '不良品项列表，可选项',
@@ -138,6 +147,15 @@ export class UProcessDto {
     example: 1.0,
   })
   reportRatio: number
+
+  @ApiProperty({
+    name: 'sort',
+    required: false,
+    description: '排序字段',
+    type: Number,
+    default: 1,
+  })
+  sort?: number
 
   @ApiProperty({
     name: 'defectiveItems',
