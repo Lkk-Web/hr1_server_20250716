@@ -16,9 +16,6 @@ export class FindPaginationDto {
   @ApiProperty({ type: String, description: '状态 (未开始, 执行中, 已暂停, 已取消, 未完成, 已完成)', required: false })
   status: string
 
-  @ApiProperty({ type: String, description: '状态 (未排产, 已排产)', required: false })
-  schedulingStatus: string
-
   @ApiProperty({ type: String, description: '产品名称', required: false })
   name: string
 

@@ -158,16 +158,15 @@ export class WorkCenterService {
   }
 
   public async schedule(dto: ScheduleDto, loadModel) {
-    const { ScheduleList, productionOrderId } = dto
+    const { ScheduleList, productionOrderTaskId } = dto
 
-    const productionOrder = await POP.findAll({ where: { productionOrderId } })
-    if (ScheduleList.length != productionOrder.length) throw new HttpException('请填写完整排产数据', 400)
+    const productionOrderTask = await POP.findAll({ where: { productionOrderTaskId } })
+    if (ScheduleList.length != productionOrderTask.length) throw new HttpException('请填写完整排产数据', 400)
 
     ScheduleList.map(async (i, v) => {
       const { startTime, endTime, POPId } = i
       if (startTime > endTime) throw new HttpException('开始时间不能大于结束时间', 400)
       // 工单工序
-
       const pop = await POP.findOne({ where: { id: POPId } })
       await pop.update({ startTime, endTime })
       // 有工序任务单需要更改执行时间
@@ -177,7 +176,7 @@ export class WorkCenterService {
     //批量创建、更新
     await WorkCenterOfPOP.bulkCreate(ScheduleList, { updateOnDuplicate: ['id', 'POPId', 'workCenterId'] })
 
-    // await ProductionOrder.update({ schedulingStatus: '已排产' }, { where: { id: productionOrderId } })
+    // await productionOrderTask.update({ schedulingStatus: '已排程' }, { where: { productionOrderTaskId } })
 
     return {
       message: '排产成功',

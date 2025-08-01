@@ -105,17 +105,17 @@ export class ProductionOrderService {
       ],
     }
     const result = await ProductionOrder.findOne(options)
-    for (const process of result.processes) {
-      const temp = await PerformanceConfig.findOne({
-        where: {
-          // materialId: result.bom.materialId,
-          processId: process.processId,
-        },
-      })
-      if (temp) {
-        process.setDataValue('performanceConfig', temp)
-      }
-    }
+    // for (const process of result.processes) {
+    //   const temp = await PerformanceConfig.findOne({
+    //     where: {
+    //       // materialId: result.bom.materialId,
+    //       processId: process.processId,
+    //     },
+    //   })
+    //   if (temp) {
+    //     process.setDataValue('performanceConfig', temp)
+    //   }
+    // }
 
     return result
   }
@@ -253,17 +253,17 @@ export class ProductionOrderService {
 
     const result = await ProductionOrder.findPagination<ProductionOrder>(options)
     for (const datum of result.data) {
-      for (const process of datum.processes) {
-        const temp = await PerformanceConfig.findOne({
-          where: {
-            // materialId: datum.bom.materialId,
-            processId: process.processId,
-          },
-        })
-        if (temp) {
-          process.setDataValue('performanceConfig', temp)
-        }
-      }
+      // for (const process of datum.processes) {
+      //   const temp = await PerformanceConfig.findOne({
+      //     where: {
+      //       // materialId: datum.bom.materialId,
+      //       processId: process.processId,
+      //     },
+      //   })
+      //   if (temp) {
+      //     process.setDataValue('performanceConfig', temp)
+      //   }
+      // }
     }
     const options1: FindPaginationOptions = {
       where: { status: { [Op.in]: ['未开始', '执行中'] } },

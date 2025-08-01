@@ -344,7 +344,7 @@ export class WorkInProgressReportService {
         // bomSpec: value.bom.parentMaterial.spec,
         status: value.status,
         // planCount: value.plannedOutput,
-        goodCount: value.actualOutput,
+        // goodCount: value.actualOutput,
         planCountOne: planCountOne,
         goodCountOne: goodCountOne,
         badCountOne: badCountOne,

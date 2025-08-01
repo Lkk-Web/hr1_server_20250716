@@ -237,5 +237,5 @@ export class ScheduleDto {
   ScheduleList: ScheduleList[]
 
   @ApiProperty({ description: '工单Id', type: String, required: true })
-  productionOrderId: string
+  productionOrderTaskId: string
 }

@@ -6,6 +6,7 @@ import { Performance } from './performance.model'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { User } from '@model/auth/user'
 import { ProductionReport } from '@model/production/productionReport.model'
+import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
 
 /** 绩效工资明细 */
 @Table({ tableName: `performance_detailed`, freezeTableName: true, timestamps: true, comment: '绩效工资明细表' })
@@ -44,13 +45,13 @@ export class PerformanceDetailed extends BaseDate<PerformanceDetailed> {
   @BelongsTo(() => Performance)
   declare performance: Performance
 
-  @ForeignKey(() => ProductionOrder)
+  @ForeignKey(() => ProductionOrderTask)
   @Column({
     comment: '工单id',
-    type: DataType.STRING(255),
+    type: DataType.INTEGER,
     allowNull: true, // 必填项
   })
-  declare productionOrderId: string
+  declare productionOrderTaskId: number
 
   @ForeignKey(() => User)
   @Column({
@@ -116,8 +117,8 @@ export class PerformanceDetailed extends BaseDate<PerformanceDetailed> {
   @BelongsTo(() => Process)
   declare process: Process
 
-  @BelongsTo(() => ProductionOrder)
-  declare productionOrder: ProductionOrder
+  @BelongsTo(() => ProductionOrderTask)
+  declare productionOrderTask: ProductionOrderTask
 
   @BelongsTo(() => User)
   declare user: User

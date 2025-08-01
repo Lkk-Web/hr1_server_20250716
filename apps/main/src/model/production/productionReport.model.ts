@@ -9,17 +9,18 @@ import { ProcessTask } from '@model/production/processTask.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { Team } from '@model/schedule/team.model'
 import { ReportUser } from '@model/production/reportUser.model'
+import { ProductionOrderTask } from './productionOrderTask.model'
 
 @Table({ tableName: `production_report`, timestamps: true, comment: '生产报工表' })
 export class ProductionReport extends BaseDate<ProductionReport> {
   //工单ID
-  @ForeignKey(() => ProductionOrder)
+  @ForeignKey(() => ProductionOrderTask)
   @Column({
     comment: '工单id',
-    type: DataType.STRING(255),
+    type: DataType.INTEGER,
     allowNull: true, // 必填项
   })
-  declare productionOrderId: string
+  declare productionOrderTaskId: number
 
   @ForeignKey(() => Process)
   @Column({
@@ -239,8 +240,8 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   })
   declare teamId: number
 
-  @BelongsTo(() => ProductionOrder, { foreignKey: 'productionOrderId', constraints: false, foreignKeyConstraint: false })
-  order: ProductionOrder
+  @BelongsTo(() => ProductionOrderTask, { foreignKey: 'productionOrderTaskId', constraints: false, foreignKeyConstraint: false })
+  order: ProductionOrderTask
 
   @BelongsTo(() => Process)
   process: Process

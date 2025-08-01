@@ -1,9 +1,10 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { Material } from '@model/base/material.model'
 import { ProductionOrderDetail } from '@model/production/productionOrderDetail.model'
-import { ProductionOrderTaskStatus } from '@common/enum'
+import { ProductionOrderTaskStatus, SchedulingStatus } from '@common/enum'
 import { BaseModel } from '@model/shared/base.model'
 import { ProductSerial } from './productSerial.model'
+import { POP } from './POP.model'
 
 /** 生产订单任务表 */
 @Table({ tableName: `production_order_task`, freezeTableName: true, timestamps: true, comment: '生产订单任务表' })
@@ -41,14 +42,14 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
   })
   declare splitQuantity: number
 
-  // 状态
+  // 排程状态
   @Column({
-    comment: '状态',
-    type: DataType.ENUM(...Object.values(ProductionOrderTaskStatus)),
+    comment: '排程状态',
+    type: DataType.ENUM(...Object.values(SchedulingStatus)),
     allowNull: false,
-    defaultValue: ProductionOrderTaskStatus.NOT_STARTED,
+    defaultValue: SchedulingStatus.NOT_SCHEDULED,
   })
-  declare status: ProductionOrderTaskStatus
+  declare schedulingStatus: SchedulingStatus
 
   // 计划开始时间
   @Column({
@@ -150,4 +151,7 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
 
   @HasMany(() => ProductSerial)
   declare productSerials: ProductSerial[]
+
+  @HasMany(() => POP)
+  declare processes: POP[]
 }

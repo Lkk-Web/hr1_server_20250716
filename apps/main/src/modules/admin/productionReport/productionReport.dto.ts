@@ -80,13 +80,12 @@ export class ItemsDto {
 }
 
 export class CProductionReportDto {
-
   @ApiProperty({
     description: '工单ID',
-    type: String,
+    type: Number,
     required: true,
   })
-  productionOrderId: string
+  productionOrderTaskId: number
 
   @ApiProperty({
     description: '工序ID',
@@ -151,7 +150,6 @@ export class CProductionReportDto {
   })
   reportQuantity: number
 
-
   @ApiProperty({
     description: '良品数',
     type: Number,
@@ -198,7 +196,7 @@ export class CProductionReportDto {
     name: 'goodCountPrice',
     required: false,
     description: '良品单价（分）',
-    type: Number
+    type: Number,
   })
   goodCountPrice?: number
 
@@ -206,7 +204,7 @@ export class CProductionReportDto {
     name: 'badCountPrice',
     required: false,
     description: '不良品单价（分）',
-    type: Number
+    type: Number,
   })
   badCountPrice: number
 
@@ -231,20 +229,19 @@ export class CProductionReportDto {
     required: false,
     description: '是否进行质检',
   })
-  isInspection: boolean;
+  isInspection: boolean
 
   @ApiProperty({ required: false, description: '校验类型', type: String })
   type: string
 }
 
 export class UProductionReportDto {
-
   @ApiProperty({
-    description: '工单ID',
-    type: String,
+    description: '工单任务单ID',
+    type: Number,
     required: true,
   })
-  productionOrderId: string
+  productionOrderTaskId: number
 
   @ApiProperty({
     description: '工序ID',
@@ -309,7 +306,6 @@ export class UProductionReportDto {
   })
   reportQuantity: number
 
-
   @ApiProperty({
     description: '良品数',
     type: Number,
@@ -356,7 +352,7 @@ export class UProductionReportDto {
     name: 'goodCountPrice',
     required: false,
     description: '良品单价（分）',
-    type: Number
+    type: Number,
   })
   goodCountPrice?: number
 
@@ -364,7 +360,7 @@ export class UProductionReportDto {
     name: 'badCountPrice',
     required: false,
     description: '不良品单价（分）',
-    type: Number
+    type: Number,
   })
   badCountPrice: number
 
@@ -392,7 +388,7 @@ export class UProductionReportDto {
     required: false,
     description: '是否进行质检',
   })
-  isInspection: boolean;
+  isInspection: boolean
 }
 
 export class batchDto {

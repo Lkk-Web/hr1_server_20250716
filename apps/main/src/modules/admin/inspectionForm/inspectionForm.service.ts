@@ -272,7 +272,7 @@ export class InspectionFormService {
                   { association: 'task', required: true },
                   { association: 'order', attributes: [], where: { code: form.originCode } },
                 ],
-                attributes: ['id', 'productionOrderId', 'processId', 'taskId'],
+                attributes: ['id', 'productionOrderTaskId', 'processId', 'taskId'],
               }),
             ])
 
@@ -304,7 +304,7 @@ export class InspectionFormService {
                     badCount: Sequelize.literal(`badCount+${info.badCount}`),
                   },
                   {
-                    where: { productionOrderId: productionReport.productionOrderId, processId: productionReport.processId },
+                    where: { productionOrderTaskId: productionReport.productionOrderTaskId, processId: productionReport.processId },
                     transaction,
                   }
                 ),
@@ -323,13 +323,13 @@ export class InspectionFormService {
                       {
                         receptionCount: Sequelize.literal(`receptionCount+${info.goodCount}`),
                       },
-                      { where: { id: productionReport.taskId + 1, serialId: productionReport.productionOrderId } }
+                      { where: { id: productionReport.taskId + 1, serialId: productionReport.productionOrderTaskId } }
                     )
                   : null,
               ])
 
               // 工序返工
-              /*const handle = {
+              const handle = {
                 processId:0,
                 workCount:0,
               }
@@ -345,8 +345,8 @@ export class InspectionFormService {
 
               //创建工序单
               if(handle.processId&&handle.workCount){
-                await this.createReworkInspectionForm(productionReport.task,handle.workCount,handle.processId,productionReport.productionOrderId,transaction)
-              }*/
+                await this.createReworkInspectionForm(productionReport.task,handle.workCount,handle.processId,productionReport.productionOrderTaskId,transaction)
+              }
             }
           } else if (dto.status === '取消审核') {
             await InspectionForm.update(
@@ -400,10 +400,10 @@ export class InspectionFormService {
   }
 
   //创建返工工序单
-  public async createReworkInspectionForm(oldTask: ProcessTask, workCount: number, processId: number, productionOrderId, transaction: Transaction) {
+  public async createReworkInspectionForm(oldTask: ProcessTask, workCount: number, processId: number, productionOrderTaskId, transaction: Transaction) {
     let task = await ProcessTask.create(
       {
-        serialId: productionOrderId,
+        serialId: productionOrderTaskId,
         processId,
         reportRatio: oldTask.reportRatio,
         planCount: workCount,
@@ -431,7 +431,7 @@ export class InspectionFormService {
       ),
       POP.create(
         {
-          productionOrderId: productionOrderId,
+          productionOrderTaskId: productionOrderTaskId,
           processId,
           processTaskId: task.id,
           reportRatio: oldPop.reportRatio,

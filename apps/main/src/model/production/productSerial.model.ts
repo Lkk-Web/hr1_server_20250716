@@ -99,4 +99,7 @@ export class ProductSerial extends BaseModel<ProductSerial> {
 
   @BelongsTo(() => ProcessTask, 'currentProcessTaskId')
   declare currentProcessTask: ProcessTask
+
+  @HasMany(() => ProcessTask)
+  declare tasks: ProcessTask[]
 }

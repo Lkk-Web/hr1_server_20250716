@@ -58,14 +58,14 @@ export class WorkCenterController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '排产' })
+  @ApiOperation({ summary: '排程' })
   @Post('schedule')
   async schedule(@Body() dto: ScheduleDto, @Req() req) {
     return await this.service.schedule(dto, req.loadModel)
   }
 
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '排产列表' })
+  @ApiOperation({ summary: '排程列表' })
   @Get('findPagination/Schedule')
   async findPaginationSchedule(@Query() dto: FindPaginationScheduleDto, @CurrentPage() pagination: Pagination, @Req() req) {
     return await this.service.findPaginationSchedule(dto, pagination)

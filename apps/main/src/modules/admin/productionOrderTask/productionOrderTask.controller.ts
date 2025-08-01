@@ -41,7 +41,7 @@ export class ProductionOrderTaskController {
   @ApiOperation({ summary: '生产订单任务操作' })
   @ApiParam({ name: 'id', description: '任务ID' })
   async action(@Param('id') id: string, @Body() dto: ProductionOrderTaskActionDto) {
-    return await this.productionOrderTaskService.action(id, dto)
+    // return await this.productionOrderTaskService.action(id, dto)
   }
 
   // @Delete(':id')

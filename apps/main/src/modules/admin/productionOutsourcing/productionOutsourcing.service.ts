@@ -221,14 +221,14 @@ export class ProductionOutsourcingService {
                   )
                   //是否为最后一道工序
                   const pops = await POP.findAll({
-                    where: { productionOrderId: outSouce.productionOrderId },
+                    where: { productionOrderTaskId: outSouce.productionOrderId },
                     order: [['id', 'ASC']],
                     transaction,
                   })
                   if (pops[pops.length - 1].dataValues.processId === outSouce.processId) {
                     if (!task.actualStartTime) {
                       await task.update({ actualStartTime: formattedDate }, { transaction })
-                      await order.update({ actualOutput: order.actualOutput + outSouce.goodCount, actualStartTime: formattedDate }, { transaction })
+                      // await order.update({ actualOutput: order.actualOutput + outSouce.goodCount, actualStartTime: formattedDate }, { transaction })
                       //更新生产工单下面的工序列表数量
                       const pop = await POP.findOne({ where: { processTaskId: outSouce.taskId }, transaction })
                       await POP.update(
@@ -240,7 +240,7 @@ export class ProductionOutsourcingService {
                         { where: { processTaskId: outSouce.taskId }, transaction }
                       )
                     } else if (task.actualStartTime) {
-                      await order.update({ actualOutput: order.actualOutput + outSouce.goodCount }, { transaction })
+                      // await order.update({ actualOutput: order.actualOutput + outSouce.goodCount }, { transaction })
                       //更新生产工单下面的工序列表数量
                       const pop = await POP.findOne({ where: { processTaskId: outSouce.taskId }, transaction })
                       await POP.update(
@@ -262,14 +262,14 @@ export class ProductionOutsourcingService {
                   )
                   //是否为最后一道工序
                   const pops = await POP.findAll({
-                    where: { productionOrderId: outSouce.productionOrderId },
+                    where: { productionOrderTaskId: outSouce.productionOrderId },
                     order: [['id', 'ASC']],
                     transaction,
                   })
                   if (pops[pops.length - 1].dataValues.processId === outSouce.processId) {
                     if (!task.actualStartTime) {
                       await task.update({ actualStartTime: formattedDate, actualEndTime: formattedDate }, { transaction })
-                      await order.update({ status: '已结束', actualOutput: order.actualOutput + outSouce.goodCount, actualEndTime: formattedDate }, { transaction })
+                      // await order.update({ status: '已结束', actualOutput: order.actualOutput + outSouce.goodCount, actualEndTime: formattedDate }, { transaction })
                       //更新生产工单下面的工序列表数量
                       const pop = await POP.findOne({ where: { processTaskId: outSouce.taskId }, transaction })
                       await POP.update(
@@ -284,7 +284,7 @@ export class ProductionOutsourcingService {
                       )
                     } else if (task.actualStartTime) {
                       await task.update({ actualEndTime: formattedDate }, { transaction })
-                      await order.update({ status: '已结束', actualOutput: order.actualOutput + outSouce.goodCount, actualEndTime: formattedDate }, { transaction })
+                      // await order.update({ status: '已结束', actualOutput: order.actualOutput + outSouce.goodCount, actualEndTime: formattedDate }, { transaction })
                       //更新生产工单下面的工序列表数量
                       const pop = await POP.findOne({ where: { processTaskId: outSouce.taskId }, transaction })
                       await POP.update(
@@ -301,7 +301,7 @@ export class ProductionOutsourcingService {
                   } else {
                     if (!task.actualStartTime) {
                       await ProcessTask.update({ actualStartTime: formattedDate, actualEndTime: formattedDate }, { where: { id: task.id }, transaction })
-                      await order.update({ status: '已结束', actualOutput: order.actualOutput + outSouce.goodCount, actualStartTime: formattedDate }, { transaction })
+                      // await order.update({ status: '已结束', actualOutput: order.actualOutput + outSouce.goodCount, actualStartTime: formattedDate }, { transaction })
                       //更新生产工单下面的工序列表数量
                       const pop = await POP.findOne({ where: { processTaskId: outSouce.taskId }, transaction })
                       await POP.update(
@@ -316,7 +316,7 @@ export class ProductionOutsourcingService {
                       )
                     } else if (task.actualStartTime) {
                       await ProcessTask.update({ actualEndTime: formattedDate }, { where: { id: task.id }, transaction })
-                      await order.update({ status: '已结束', actualOutput: order.actualOutput + outSouce.goodCount }, { transaction })
+                      // await order.update({ status: '已结束', actualOutput: order.actualOutput + outSouce.goodCount }, { transaction })
                       //更新生产工单下面的工序列表数量
                       const pop = await POP.findOne({ where: { processTaskId: outSouce.taskId }, transaction })
                       await POP.update(
@@ -331,7 +331,7 @@ export class ProductionOutsourcingService {
                     }
                     //工序完成开启下一道工序
                     const pops = await POP.findAll({
-                      where: { productionOrderId: outSouce.productionOrderId },
+                      where: { productionOrderTaskId: outSouce.productionOrderId },
                       order: [['id', 'ASC']],
                       transaction,
                     })
@@ -354,18 +354,18 @@ export class ProductionOutsourcingService {
                       await popTemp.update({ status: '执行中' }, { transaction })
                       //更新当前工序
                       popTemp = await POP.findOne({
-                        where: { productionOrderId: outSouce.productionOrderId, status: '执行中' },
+                        where: { productionOrderTaskId: outSouce.productionOrderId, status: '执行中' },
                         order: [['id', 'ASC']],
                         include: [{ association: 'process', attributes: ['id', 'processName'] }],
                         transaction,
                       })
-                      await ProductionOrder.update(
-                        { currentProcess: popTemp.dataValues.process.processName },
-                        {
-                          where: { id: outSouce.productionOrderId },
-                          transaction,
-                        }
-                      )
+                      // await ProductionOrder.update(
+                      //   { currentProcess: popTemp.dataValues.process.processName },
+                      //   {
+                      //     where: { id: outSouce.productionOrderId },
+                      //     transaction,
+                      //   }
+                      // )
                     }
                   }
                 }
@@ -403,7 +403,7 @@ export class ProductionOutsourcingService {
                 },
                 { transaction }
               )
-              const pop = await POP.findOne({ where: { productionOrderId: outSouce.productionOrderId, processId: outSouce.processId }, transaction })
+              const pop = await POP.findOne({ where: { productionOrderTaskId: outSouce.productionOrderId, processId: outSouce.processId }, transaction })
               await pop.update(
                 {
                   status: '执行中',
@@ -416,16 +416,16 @@ export class ProductionOutsourcingService {
               //如果是最后一道工序需要减去工单的产出数
               //是否为最后一道工序
               const pops = await POP.findAll({
-                where: { productionOrderId: outSouce.productionOrderId },
+                where: { productionOrderTaskId: outSouce.productionOrderId },
                 order: [['id', 'ASC']],
                 transaction,
               })
               if (pops[pops.length - 1].dataValues.processId === outSouce.processId) {
-                await order.update({ status: '执行中', actualOutput: Number(order.actualOutput) - Number(outSouce.goodCount), actualEndTime: null }, { transaction })
+                // await order.update({ status: '执行中', actualOutput: Number(order.actualOutput) - Number(outSouce.goodCount), actualEndTime: null }, { transaction })
               } else {
                 //工序完成开启下一道工序
                 const pops = await POP.findAll({
-                  where: { productionOrderId: outSouce.productionOrderId },
+                  where: { productionOrderTaskId: outSouce.productionOrderId },
                   order: [['id', 'ASC']],
                   transaction,
                 })
@@ -448,18 +448,18 @@ export class ProductionOutsourcingService {
                   await popTemp.update({ status: '执行中' }, { transaction })
                   //更新当前工序
                   popTemp = await POP.findOne({
-                    where: { productionOrderId: outSouce.productionOrderId, status: '执行中' },
+                    where: { productionOrderTaskId: outSouce.productionOrderId, status: '执行中' },
                     order: [['id', 'ASC']],
                     include: [{ association: 'process', attributes: ['id', 'processName'] }],
                     transaction,
                   })
-                  await ProductionOrder.update(
-                    { currentProcess: popTemp.dataValues.process.processName },
-                    {
-                      where: { id: outSouce.productionOrderId },
-                      transaction,
-                    }
-                  )
+                  // await ProductionOrder.update(
+                  //   { currentProcess: popTemp.dataValues.process.processName },
+                  //   {
+                  //     where: { id: outSouce.productionOrderId },
+                  //     transaction,
+                  //   }
+                  // )
                 }
               }
               return this.find(id, loadModel)

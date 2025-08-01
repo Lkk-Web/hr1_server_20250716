@@ -409,31 +409,31 @@ export class MiService {
   async productionStatistics(orders: ProductionOrder[], startTime, endTime) {
     let statistics = []
     for (const order of orders) {
-      const pop = order.dataValues.processes[order.dataValues.processes.length - 1]
-      if (pop && pop.dataValues.processTaskId) {
-        let productionCount = 0
-        let totalProductionCount = 0
-        const report = await ProductionReport.findAll({
-          where: {
-            taskId: {
-              [Op.eq]: pop.dataValues.processTaskId,
-            },
-            endTime: {
-              [Op.between]: [startTime, endTime],
-            },
-          },
-        })
-        for (const productionReport of report) {
-          productionCount += Number(productionReport.dataValues.goodCount)
-          totalProductionCount += Number(productionReport.dataValues.reportQuantity)
-        }
-        statistics.push({
-          // name: order.dataValues.bom.dataValues.parentMaterial.materialName,
-          productionCount,
-          totalProductionCount,
-          goodRate: totalProductionCount != 0 ? ((Number(productionCount) / Number(totalProductionCount)) * 100).toFixed(2) : '0.00',
-        })
-      }
+      // const pop = order.dataValues.processes[order.dataValues.processes.length - 1]
+      // if (pop && pop.dataValues.processTaskId) {
+      //   let productionCount = 0
+      //   let totalProductionCount = 0
+      //   const report = await ProductionReport.findAll({
+      //     where: {
+      //       taskId: {
+      //         [Op.eq]: pop.dataValues.processTaskId,
+      //       },
+      //       endTime: {
+      //         [Op.between]: [startTime, endTime],
+      //       },
+      //     },
+      //   })
+      //   for (const productionReport of report) {
+      //     productionCount += Number(productionReport.dataValues.goodCount)
+      //     totalProductionCount += Number(productionReport.dataValues.reportQuantity)
+      //   }
+      //   statistics.push({
+      //     // name: order.dataValues.bom.dataValues.parentMaterial.materialName,
+      //     productionCount,
+      //     totalProductionCount,
+      //     goodRate: totalProductionCount != 0 ? ((Number(productionCount) / Number(totalProductionCount)) * 100).toFixed(2) : '0.00',
+      //   })
+      // }
     }
     return statistics
   }
@@ -669,9 +669,9 @@ export class MiService {
     } else if (user1 && (user1?.role?.name === '生产人员' || user1?.role?.name == '班组长')) {
       const orders = await ProductionOrder.findAll({
         where: {
-          startTime: {
-            [Op.between]: [startTime, endTime],
-          },
+          // startTime: {
+          //   [Op.between]: [startTime, endTime],
+          // },
         },
         include: [
           {
@@ -701,14 +701,14 @@ export class MiService {
 
       for (const order of orders) {
         // planCount += Number(order.plannedOutput)
-        actualOutput += Number(order.actualOutput)
+        // actualOutput += Number(order.actualOutput)
       }
 
       const overTimeOrder = await ProductionOrder.findAll({
         where: {
-          endTime: {
-            [Op.lt]: startTime,
-          },
+          // endTime: {
+          //   [Op.lt]: startTime,
+          // },
         },
         include: [
           {
@@ -859,9 +859,9 @@ export class MiService {
 
       const orders1 = await ProductionOrder.findAll({
         where: {
-          endTime: {
-            [Op.between]: [startTime, endTime],
-          },
+          // endTime: {
+          //   [Op.between]: [startTime, endTime],
+          // },
         },
         include: [
           {
@@ -883,7 +883,7 @@ export class MiService {
         code: order.kingdeeCode,
         // name: order.dataValues.bom.dataValues.parentMaterial.dataValues.materialName,
         // planCount: order.plannedOutput,
-        actualOutput: order.actualOutput,
+        // actualOutput: order.actualOutput,
         // doneRate: Number(order.plannedOutput) ? ((Number(order.actualOutput) / Number(order.plannedOutput)) * 100).toFixed(2) : 0.0,
       }))
 
@@ -908,19 +908,19 @@ export class MiService {
       //   },
       // })
 
-      const actualOutput = await ProductionOrder.sum('actualOutput', {
-        where: {
-          endTime: {
-            [Op.between]: [startTime, endTime],
-          },
-        },
-      })
+      // const actualOutput = await ProductionOrder.sum('actualOutput', {
+      //   where: {
+      //     endTime: {
+      //       [Op.between]: [startTime, endTime],
+      //     },
+      //   },
+      // })
 
       const overTimeOrder = await ProductionOrder.findAll({
         where: {
-          endTime: {
-            [Op.lt]: startTime,
-          },
+          // endTime: {
+          //   [Op.lt]: startTime,
+          // },
         },
       })
 
@@ -1201,9 +1201,9 @@ export class MiService {
 
       const orders = await ProductionOrder.findAll({
         where: {
-          endTime: {
-            [Op.between]: [startTime, endTime],
-          },
+          // endTime: {
+          //   [Op.between]: [startTime, endTime],
+          // },
         },
         include: [
           {
@@ -1225,13 +1225,13 @@ export class MiService {
         code: order.kingdeeCode,
         // name: order.dataValues.bom.dataValues.parentMaterial.dataValues.materialName,
         // planCount: order.plannedOutput,
-        actualOutput: order.actualOutput,
+        // actualOutput: order.actualOutput,
         // doneRate: Number(order.plannedOutput) ? ((Number(order.actualOutput) / Number(order.plannedOutput)) * 100).toFixed(2) : 0.0,
       }))
 
       return {
         // planCount: planCount ? planCount : 0, //计划数量
-        actualOutput: actualOutput ? actualOutput : 0, //完成数量
+        // actualOutput: actualOutput ? actualOutput : 0, //完成数量
         overTimeOrderCount: overTimeOrderCount ? overTimeOrderCount : 0, //超期未完成工单数
         badRate, //不良品率
         formatOrder,
@@ -1793,19 +1793,19 @@ export class MiService {
     //   },
     // })
 
-    let actualOutput = await ProductionOrder.sum('actualOutput', {
-      where: {
-        endTime: {
-          [Op.between]: [startTime, endTime],
-        },
-      },
-    })
+    // let actualOutput = await ProductionOrder.sum('actualOutput', {
+    //   where: {
+    //     endTime: {
+    //       [Op.between]: [startTime, endTime],
+    //     },
+    //   },
+    // })
 
     let overTimeOrder = await ProductionOrder.findAll({
       where: {
-        endTime: {
-          [Op.lt]: startTime,
-        },
+        // endTime: {
+        //   [Op.lt]: startTime,
+        // },
       },
     })
 
@@ -1834,7 +1834,7 @@ export class MiService {
 
     const today = {
       // planCount: planCount ? planCount : 0, //计划数量
-      actualOutput: actualOutput ? actualOutput : 0, //完成数量
+      // actualOutput: actualOutput ? actualOutput : 0, //完成数量
       overTimeOrderCount: overTimeOrderCount ? overTimeOrderCount : 0, //超期未完成工单数
       badRate, //不良品率
     }
@@ -1850,19 +1850,19 @@ export class MiService {
     //   },
     // })
 
-    actualOutput = await ProductionOrder.sum('actualOutput', {
-      where: {
-        endTime: {
-          [Op.between]: [startTime, endTime],
-        },
-      },
-    })
+    // actualOutput = await ProductionOrder.sum('actualOutput', {
+    //   where: {
+    //     endTime: {
+    //       [Op.between]: [startTime, endTime],
+    //     },
+    //   },
+    // })
 
     overTimeOrder = await ProductionOrder.findAll({
       where: {
-        endTime: {
-          [Op.lt]: startTime,
-        },
+        // endTime: {
+        //   [Op.lt]: startTime,
+        // },
       },
     })
 
@@ -1891,7 +1891,7 @@ export class MiService {
 
     const thisMonth = {
       // planCount: planCount ? planCount : 0, //计划数量
-      actualOutput: actualOutput ? actualOutput : 0, //完成数量
+      // actualOutput: actualOutput ? actualOutput : 0, //完成数量
       overTimeOrderCount: overTimeOrderCount ? overTimeOrderCount : 0, //超期未完成工单数
       badRate, //不良品率
     }

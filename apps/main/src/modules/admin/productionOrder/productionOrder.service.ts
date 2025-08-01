@@ -49,13 +49,13 @@ export class ProductionOrderService {
     const transaction = await PerformanceConfig.sequelize.transaction()
     try {
       //删除依赖关系
-      const process = await POP.findAll({ where: { productionOrderId: id }, attributes: ['id'] })
+      const process = await POP.findAll({ where: { productionOrderTaskId: id }, attributes: ['id'] })
       const pobs = await POB.findAll({ where: { productionOrderDetailId: id }, attributes: ['id'] })
       await POD.destroy({ where: { popId: process.map(v => v.id) }, transaction })
       await POI.destroy({ where: { popId: process.map(v => v.id) }, transaction })
       await WorkCenterOfPOP.destroy({ where: { POPId: process.map(v => v.id) }, transaction })
       await POBDetail.destroy({ where: { pobId: pobs.map(v => v.id) }, transaction })
-      await POP.destroy({ where: { productionOrderId: id }, transaction })
+      await POP.destroy({ where: { productionOrderTaskId: id }, transaction })
       await POB.destroy({ where: { productionOrderDetailId: id }, transaction })
       await productOrder.destroy({ transaction })
       await transaction.commit()
@@ -338,9 +338,9 @@ export class ProductionOrderService {
             continue
           }
           await ProductionOrder.update({ status: '执行中' }, { where: { id: number } })
-          let pop = await POP.findOne({ where: { productionOrderId: number }, order: [['id', 'ASC']] })
+          let pop = await POP.findOne({ where: { productionOrderTaskId: number }, order: [['id', 'ASC']] })
           if (pop) {
-            POP.update({ status: '执行中' }, { where: { productionOrderId: number } })
+            POP.update({ status: '执行中' }, { where: { productionOrderTaskId: number } })
           }
           // await pop.update({ status: '执行中' })
 
@@ -349,39 +349,39 @@ export class ProductionOrderService {
           order = await this.find(number, loadModel, { kingdeeCode: order.kingdeeCode })
           // console.log(order)
           pop = await POP.findOne({
-            where: { productionOrderId: number, status: '执行中' },
+            where: { productionOrderTaskId: number, status: '执行中' },
             order: [['id', 'ASC']],
             include: [{ association: 'process', attributes: ['id', 'processName'] }],
           })
           // console.log(pop)
           if (pop) {
-            await ProductionOrder.update({ currentProcess: pop.dataValues.process.processName }, { where: { id: number } })
+            // await ProductionOrder.update({ currentProcess: pop.dataValues.process.processName }, { where: { id: number } })
           }
           let count = 0
 
-          for (let i = 0; i < order.processes.length; i++) {
-            const process = order.processes[i]
-            let task = await ProcessTask.create({
-              processId: process.processId,
-              reportRatio: process.reportRatio,
-              planCount: process.planCount,
-              isOutsource: process.isOutsource,
-              isInspection: process.isInspection,
-              status: PROCESS_TASK_STATUS.notStart,
-              priority: '无',
-              startTime: process.startTime,
-              endTime: process.endTime,
-              receptionCount: i == 0 ? process.planCount : 0,
-            })
-            for (const dept of process.depts) {
-              await ProcessTaskDept.create({ taskId: task.id, deptId: dept.id })
-            }
-            await POP.update({ processTaskId: task.dataValues.id }, { where: { id: process.id } })
-            const date: Date = new Date()
-            const formattedDate = moment(date, 'YYYY-MM-DD HH:mm:ss').toDate()
-            await ProductionOrder.update({ actualStartTime: formattedDate }, { where: { id: number } })
-            count++
-          }
+          // for (let i = 0; i < order.processes.length; i++) {
+          //   const process = order.processes[i]
+          //   let task = await ProcessTask.create({
+          //     processId: process.processId,
+          //     reportRatio: process.reportRatio,
+          //     planCount: process.planCount,
+          //     isOutsource: process.isOutsource,
+          //     isInspection: process.isInspection,
+          //     status: PROCESS_TASK_STATUS.notStart,
+          //     priority: '无',
+          //     startTime: process.startTime,
+          //     endTime: process.endTime,
+          //     receptionCount: i == 0 ? process.planCount : 0,
+          //   })
+          //   for (const dept of process.depts) {
+          //     await ProcessTaskDept.create({ taskId: task.id, deptId: dept.id })
+          //   }
+          //   await POP.update({ processTaskId: task.dataValues.id }, { where: { id: process.id } })
+          //   const date: Date = new Date()
+          //   const formattedDate = moment(date, 'YYYY-MM-DD HH:mm:ss').toDate()
+          //   await ProductionOrder.update({ actualStartTime: formattedDate }, { where: { id: number } })
+          //   count++
+          // }
         } else if (dto.type == '结束') {
           if (order.status != '执行中') {
             throw new HttpException('该操作只能对"执行中"状态工单操作，谢谢！', 400)
@@ -483,9 +483,9 @@ export class ProductionOrderService {
             continue
           }
           //创建生产工单
-          const order = await ProductionOrder.create(
+          const order = await ProductionOrderTask.create(
             {
-              kingdeeCode: rowElement.code,
+              // kingdeeCode: rowElement.code,
               // plannedOutput: rowElement.plannedOutput,
               startTime: rowElement.startTime,
               endTime: rowElement.endTime,
@@ -546,7 +546,7 @@ export class ProductionOrderService {
             for (const processRouteList of route.dataValues.processRouteList) {
               const pop = await POP.create(
                 {
-                  productionOrderId: order.id,
+                  productionOrderTaskId: order.id,
                   processId: processRouteList.dataValues.processId,
                   reportRatio: processRouteList.dataValues.reportRatio,
                   isReport: processRouteList.dataValues.isReport,
@@ -1035,7 +1035,7 @@ export class ProductionOrderService {
           productionOrderDetailId: productionOrderDetailId,
           materialId: productionOrderDetail.materialId,
           splitQuantity: splitQuantity,
-          status: ProductionOrderTaskStatus.NOT_STARTED,
+          // status: ProductionOrderTaskStatus.NOT_STARTED,
           startTime: productionOrderDetail.startTime,
           endTime: productionOrderDetail.endTime,
           workShop: productionOrderDetail.workShop,
@@ -1176,7 +1176,7 @@ export class ProductionOrderService {
             id: newSplitOrder.id,
             orderCode: newOrderCode,
             splitQuantity: splitQuantity,
-            status: newSplitOrder.status,
+            // status: newSplitOrder.status,
             remark: newSplitOrder.remark,
             createdBy: user?.userName || 'system',
           },

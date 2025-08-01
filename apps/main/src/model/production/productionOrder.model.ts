@@ -47,63 +47,6 @@ export class ProductionOrder extends StrBaseModel<ProductionOrder> {
   })
   declare priority: string
 
-  // 计划开始时间
-  @Column({
-    comment: '计划开始时间',
-    type: DataType.DATE,
-    allowNull: true, // 可选项
-  })
-  declare startTime: Date
-
-  // 计划结束时间
-  @Column({
-    comment: '计划结束时间',
-    type: DataType.DATE,
-    allowNull: true, // 可选项
-  })
-  declare endTime: Date
-
-  // 实际产出
-  @Column({
-    comment: '实际产出 (数量)',
-    type: DataType.INTEGER,
-    allowNull: true, // 可选项
-    defaultValue: 0,
-  })
-  declare actualOutput: number
-
-  // 实际开始时间
-  @Column({
-    comment: '实际开始时间',
-    type: DataType.DATE,
-    allowNull: true, // 可选项
-  })
-  declare actualStartTime: Date
-
-  // 实际结束时间
-  @Column({
-    comment: '实际结束时间',
-    type: DataType.DATE,
-    allowNull: true, // 可选项
-  })
-  declare actualEndTime: Date
-
-  // 累计工时
-  @Column({
-    comment: '累计工时',
-    type: DataType.INTEGER,
-    allowNull: true, // 可选项
-  })
-  declare totalWorkingHours: number
-
-  // 当前工序
-  @Column({
-    comment: '当前工序',
-    type: DataType.STRING(50),
-    allowNull: true, // 可选项
-  })
-  declare currentProcess: string
-
   @Column({
     comment: '备注',
     type: DataType.TEXT,
@@ -116,9 +59,6 @@ export class ProductionOrder extends StrBaseModel<ProductionOrder> {
     type: DataType.STRING,
   })
   declare billType: string
-
-  @HasMany(() => POP)
-  declare processes: POP[]
 
   @BelongsTo(() => SalesOrder)
   declare salesOrder: SalesOrder

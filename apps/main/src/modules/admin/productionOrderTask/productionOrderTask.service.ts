@@ -168,19 +168,19 @@ export class ProductionOrderTaskService {
     // 自动状态转换逻辑
     const updateData = { ...dto }
 
-    // 如果设置了实际开始时间且当前状态为待开始，自动转为执行中
-    if (dto.actualStartTime && task.status === ProductionOrderTaskStatus.NOT_STARTED) {
-      updateData.status = ProductionOrderTaskStatus.IN_PROGRESS
-    }
+    // // 如果设置了实际开始时间且当前状态为待开始，自动转为执行中
+    // if (dto.actualStartTime && task.status === ProductionOrderTaskStatus.NOT_STARTED) {
+    //   updateData.status = ProductionOrderTaskStatus.IN_PROGRESS
+    // }
 
-    // 如果设置了实际结束时间且当前状态为执行中，自动转为已完成
-    if (dto.actualEndTime && task.status === ProductionOrderTaskStatus.IN_PROGRESS) {
-      updateData.status = ProductionOrderTaskStatus.COMPLETED
-      // 如果没有设置实际产出，默认为良品数
-      if (!dto.actualOutput && dto.goodCount !== undefined) {
-        updateData.actualOutput = dto.goodCount
-      }
-    }
+    // // 如果设置了实际结束时间且当前状态为执行中，自动转为已完成
+    // if (dto.actualEndTime && task.status === ProductionOrderTaskStatus.IN_PROGRESS) {
+    //   updateData.status = ProductionOrderTaskStatus.COMPLETED
+    //   // 如果没有设置实际产出，默认为良品数
+    //   if (!dto.actualOutput && dto.goodCount !== undefined) {
+    //     updateData.actualOutput = dto.goodCount
+    //   }
+    // }
 
     await task.update(updateData)
     return await this.findOne(id)
@@ -189,74 +189,74 @@ export class ProductionOrderTaskService {
   /**
    * 生产订单任务操作（开始、暂停、恢复、取消、完成）
    */
-  async action(id: string, dto: ProductionOrderTaskActionDto): Promise<{ message: string }> {
-    const task = await this.productionOrderTaskModel.findByPk(id)
+  // async action(id: string, dto: ProductionOrderTaskActionDto): Promise<{ message: string }> {
+  //   const task = await this.productionOrderTaskModel.findByPk(id)
 
-    if (!task) {
-      throw new HttpException('生产订单任务不存在', 404)
-    }
+  //   if (!task) {
+  //     throw new HttpException('生产订单任务不存在', 404)
+  //   }
 
-    const { action, remark } = dto
-    const updateData: any = { remark }
+  //   const { action, remark } = dto
+  //   const updateData: any = { remark }
 
-    switch (action) {
-      case 'start':
-        if (task.status !== ProductionOrderTaskStatus.NOT_STARTED) {
-          throw new HttpException('只有待开始状态的任务可以开始', 400)
-        }
-        updateData.status = ProductionOrderTaskStatus.IN_PROGRESS
-        updateData.actualStartTime = new Date()
-        break
+  //   switch (action) {
+  //     case 'start':
+  //       if (task.status !== ProductionOrderTaskStatus.NOT_STARTED) {
+  //         throw new HttpException('只有待开始状态的任务可以开始', 400)
+  //       }
+  //       updateData.status = ProductionOrderTaskStatus.IN_PROGRESS
+  //       updateData.actualStartTime = new Date()
+  //       break
 
-      case 'pause':
-        if (task.status !== ProductionOrderTaskStatus.IN_PROGRESS) {
-          throw new HttpException('只有执行中状态的任务可以暂停', 400)
-        }
-        updateData.status = ProductionOrderTaskStatus.PAUSED
-        break
+  //     case 'pause':
+  //       if (task.status !== ProductionOrderTaskStatus.IN_PROGRESS) {
+  //         throw new HttpException('只有执行中状态的任务可以暂停', 400)
+  //       }
+  //       updateData.status = ProductionOrderTaskStatus.PAUSED
+  //       break
 
-      case 'resume':
-        if (task.status !== ProductionOrderTaskStatus.PAUSED) {
-          throw new HttpException('只有暂停状态的任务可以恢复', 400)
-        }
-        updateData.status = ProductionOrderTaskStatus.IN_PROGRESS
-        break
+  //     case 'resume':
+  //       if (task.status !== ProductionOrderTaskStatus.PAUSED) {
+  //         throw new HttpException('只有暂停状态的任务可以恢复', 400)
+  //       }
+  //       updateData.status = ProductionOrderTaskStatus.IN_PROGRESS
+  //       break
 
-      case 'cancel':
-        if (![ProductionOrderTaskStatus.NOT_STARTED, ProductionOrderTaskStatus.IN_PROGRESS, ProductionOrderTaskStatus.PAUSED].includes(task.status)) {
-          throw new HttpException('该状态的任务无法取消', 400)
-        }
-        updateData.status = ProductionOrderTaskStatus.CANCELLED
-        break
+  //     case 'cancel':
+  //       if (![ProductionOrderTaskStatus.NOT_STARTED, ProductionOrderTaskStatus.IN_PROGRESS, ProductionOrderTaskStatus.PAUSED].includes(task.status)) {
+  //         throw new HttpException('该状态的任务无法取消', 400)
+  //       }
+  //       updateData.status = ProductionOrderTaskStatus.CANCELLED
+  //       break
 
-      case 'complete':
-        if (task.status !== ProductionOrderTaskStatus.IN_PROGRESS) {
-          throw new HttpException('只有执行中状态的任务可以完成', 400)
-        }
-        updateData.status = ProductionOrderTaskStatus.COMPLETED
-        updateData.actualEndTime = new Date()
-        // 如果没有设置实际产出，默认为计划数量
-        if (!task.actualOutput) {
-          updateData.actualOutput = task.splitQuantity
-        }
-        break
+  //     case 'complete':
+  //       if (task.status !== ProductionOrderTaskStatus.IN_PROGRESS) {
+  //         throw new HttpException('只有执行中状态的任务可以完成', 400)
+  //       }
+  //       updateData.status = ProductionOrderTaskStatus.COMPLETED
+  //       updateData.actualEndTime = new Date()
+  //       // 如果没有设置实际产出，默认为计划数量
+  //       if (!task.actualOutput) {
+  //         updateData.actualOutput = task.splitQuantity
+  //       }
+  //       break
 
-      default:
-        throw new HttpException('无效的操作类型', 400)
-    }
+  //     default:
+  //       throw new HttpException('无效的操作类型', 400)
+  //   }
 
-    await task.update(updateData)
+  //   await task.update(updateData)
 
-    const actionNames = {
-      start: '开始',
-      pause: '暂停',
-      resume: '恢复',
-      cancel: '取消',
-      complete: '完成',
-    }
+  //   const actionNames = {
+  //     start: '开始',
+  //     pause: '暂停',
+  //     resume: '恢复',
+  //     cancel: '取消',
+  //     complete: '完成',
+  //   }
 
-    return { message: `任务${actionNames[action]}成功` }
-  }
+  //   return { message: `任务${actionNames[action]}成功` }
+  // }
 
   /**
    * 删除生产订单任务
@@ -268,10 +268,10 @@ export class ProductionOrderTaskService {
       throw new HttpException('生产订单任务不存在', 404)
     }
 
-    // 只有待开始状态的任务可以删除
-    if (task.status !== ProductionOrderTaskStatus.NOT_STARTED) {
-      throw new HttpException('只有待开始状态的任务可以删除', 400)
-    }
+    // // 只有待开始状态的任务可以删除
+    // if (task.status !== ProductionOrderTaskStatus.NOT_STARTED) {
+    //   throw new HttpException('只有待开始状态的任务可以删除', 400)
+    // }
 
     await task.destroy()
     return { message: '删除成功' }

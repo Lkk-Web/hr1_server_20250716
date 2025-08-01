@@ -858,34 +858,34 @@ export class MiService {
   async productionStatistics(orders: ProductionOrder[], startTime, endTime) {
     let statistics = []
     for (const order of orders) {
-      const pop = order.dataValues.processes[order.dataValues.processes.length - 1]
-      if (pop && pop.dataValues.processTaskId) {
-        let productionCount = 0
-        let totalProductionCount = 0
-        const report = await ProductionReport.findAll({
-          where: {
-            taskId: {
-              [Op.eq]: pop.dataValues.processTaskId,
-            },
-            endTime: {
-              [Op.between]: [startTime, endTime],
-            },
+      // const pop = order.dataValues.processes[order.dataValues.processes.length - 1]
+      // if (pop && pop.dataValues.processTaskId) {
+      let productionCount = 0
+      let totalProductionCount = 0
+      const report = await ProductionReport.findAll({
+        where: {
+          taskId: {
+            // [Op.eq]: pop.dataValues.processTaskId,
           },
-        })
-        for (const productionReport of report) {
-          console.log(productionReport)
-          productionCount += Number(productionReport.dataValues.goodCount)
-          totalProductionCount += Number(productionReport.dataValues.reportQuantity)
-        }
-        //产品名                                                   良品数           总数                  良品率
-        statistics.push({
-          // name: order.dataValues.bom.dataValues.parentMaterial.materialName,
-          productionCount,
-          totalProductionCount,
-          goodRate: totalProductionCount !== 0 && totalProductionCount != null ? ((productionCount / totalProductionCount) * 100).toFixed(2) : '0.00',
-        })
+          endTime: {
+            [Op.between]: [startTime, endTime],
+          },
+        },
+      })
+      for (const productionReport of report) {
+        console.log(productionReport)
+        productionCount += Number(productionReport.dataValues.goodCount)
+        totalProductionCount += Number(productionReport.dataValues.reportQuantity)
       }
+      //产品名                                                   良品数           总数                  良品率
+      statistics.push({
+        // name: order.dataValues.bom.dataValues.parentMaterial.materialName,
+        productionCount,
+        totalProductionCount,
+        goodRate: totalProductionCount !== 0 && totalProductionCount != null ? ((productionCount / totalProductionCount) * 100).toFixed(2) : '0.00',
+      })
     }
+    // }
     return statistics
   }
 

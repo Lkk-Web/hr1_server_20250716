@@ -160,12 +160,12 @@ export class ProductionReportTwoService {
       // 处理下一道工序
       const [nextPop, allPops] = await Promise.all([
         POP.findOne({
-          where: { productionOrderId: task.serialId, id: pop.id + 1 },
+          where: { productionOrderTaskId: task.serialId, id: pop.id + 1 },
           order: [['id', 'ASC']],
           include: [{ association: 'process', attributes: ['id', 'processName'] }],
         }),
         POP.findAll({
-          where: { productionOrderId: task.serialId },
+          where: { productionOrderTaskId: task.serialId },
           order: [['id', 'ASC']],
         }),
       ])
@@ -173,12 +173,12 @@ export class ProductionReportTwoService {
       if (nextPop) {
         if (nextPop.status == '未开始') {
           await nextPop.update({ status: '执行中' })
-          await ProductionOrder.update(
-            { currentProcess: nextPop.dataValues.process.processName },
-            {
-              where: { id: task.serialId },
-            }
-          )
+          // await ProductionOrder.update(
+          //   { currentProcess: nextPop.dataValues.process.processName },
+          //   {
+          //     where: { id: task.serialId },
+          //   }
+          // )
         }
         //更新接收数
         if (!task.isInspection && nextPop.processTaskId)

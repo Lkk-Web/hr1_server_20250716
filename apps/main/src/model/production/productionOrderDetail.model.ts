@@ -83,13 +83,6 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
   })
   declare actualOutput: number
 
-  // 累计工时
-  @Column({
-    comment: '累计工时',
-    type: DataType.INTEGER,
-    allowNull: true, // 可选项
-  })
-  declare totalWorkingHours: number
 
   @Column({
     comment: '备注',
@@ -111,12 +104,7 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
   @BelongsTo(() => ProductionOrder, 'productionOrderId')
   declare productionOrder: ProductionOrder
 
-  // @HasMany(() => POP)
-  // declare processes: POP[]
-
   @HasMany(() => POB)
   declare boms: POB[]
 
-  // @HasMany(() => ProcessTask)
-  // declare tasks: ProcessTask[]
 }

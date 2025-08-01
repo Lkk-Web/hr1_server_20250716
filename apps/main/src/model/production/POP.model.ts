@@ -1,6 +1,5 @@
 import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Process } from '@model/process/process.model'
 import { Organize } from '@model/auth/organize'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
@@ -11,17 +10,18 @@ import { ProcessTask } from '@model/production/processTask.model'
 import { FileList } from '@model/document/FileList.model'
 import { WorkCenterOfPOP } from '@model/base/workCenterOfPOP.model'
 import { WorkCenter } from '@model/base/workCenter.model'
+import { ProductionOrderTask } from './productionOrderTask.model'
 
 @Table({ tableName: `production_POP`, freezeTableName: true, timestamps: true, comment: '生产工单工序关联表' })
 export class POP extends BaseDate<POP> {
   //工单ID
-  @ForeignKey(() => ProductionOrder)
+  @ForeignKey(() => ProductionOrderTask)
   @Column({
     comment: '工单Id',
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: false, // 必填项
   })
-  declare productionOrderId: string
+  declare productionOrderTaskId: number
 
   @ForeignKey(() => Process)
   @Column({
@@ -164,8 +164,8 @@ export class POP extends BaseDate<POP> {
   @BelongsTo(() => FileList)
   file: FileList
 
-  @BelongsTo(() => ProductionOrder)
-  productionOrder: ProductionOrder
+  @BelongsTo(() => ProductionOrderTask)
+  productionOrderTask: ProductionOrderTask
 
   @BelongsToMany(() => Organize, { through: () => POD, uniqueKey: 'POP_pod_so_unique', foreignKey: 'popId', otherKey: 'deptId' })
   depts: Organize[]

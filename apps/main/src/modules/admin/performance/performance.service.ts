@@ -137,7 +137,7 @@ export class PerformanceService {
     if (result.data.length) {
       let prList = result.data.filter(v => v.productionReport).map(v => v.productionReport)
       const orders = await ProductionOrder.findAll({
-        where: { id: _.uniq(prList.map(v => v.productionOrderId)) },
+        where: { id: _.uniq(prList.map(v => v.productionOrderTaskId)) },
         attributes: ['id', 'code'],
         include: [{ association: 'bom', attributes: ['spec', 'attr'], include: [{ association: 'parentMaterial', attributes: ['code', 'name'] }] }],
       })
@@ -145,7 +145,7 @@ export class PerformanceService {
       result.data = result.data.map(v => {
         v = v.toJSON()
         if (v.productionReport) {
-          v.productionReport.order = orders.find(item => item.id == v.productionReport.productionOrderId)
+          // v.productionReport.order = orders.find(item => item.id == v.productionReport.productionOrderId)
         }
         return v
       })
@@ -183,7 +183,7 @@ export class PerformanceService {
         序号: i + 1,
         部门名称: statistic.find(temp => teamUsers.find(vv => vv.teamId == temp.teamId && vv.userId == v.userDuration.userId))?.name || '-',
         员工姓名: v.userDuration.user.userName,
-        工单编号: v.productionReport?.order?.kingdeeCode || '',
+        // 工单编号: v.productionReport?.order?.kingdeeCode || '',
         // 产品编号: v.productionReport?.order?.bom.parentMaterial.code || '',
         // 产品名称: v.productionReport?.order?.bom.parentMaterial.materialName || '',
         工序: v.productionReport?.process.processName || '',

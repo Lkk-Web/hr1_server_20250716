@@ -446,7 +446,7 @@ export class DefectiveItemDetailService {
         // materialSpec: value.order.bom.parentMaterial.spec,
         // unit: value.order.bom.parentMaterial.unit,
 
-        productionOrderStatus: value.order.status,
+        // productionOrderStatus: value.order.status,
 
         poStartAt: dayjs(value.order.startTime).format('YYYY-MM-DD'),
         poEndAt: dayjs(value.order.endTime).format('YYYY-MM-DD'),

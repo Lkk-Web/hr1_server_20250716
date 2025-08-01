@@ -77,6 +77,11 @@ export enum ProductionOrderTaskStatus {
   COMPLETED = '已完成',
 }
 
+export enum SchedulingStatus {
+  NOT_SCHEDULED = '未排程',
+  SCHEDULED = '已排程',
+}
+
 /** 产品序列号状态枚举 */
 export enum ProductSerialStatus {
   NOT_STARTED = '未开始',
