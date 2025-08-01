@@ -38,6 +38,17 @@ export class ProductionOrderTaskService {
               required: false,
               where: {},
             },
+            {
+              association: 'productionOrder',
+              required: false,
+              where: {},
+              include: [
+                {
+                  association: 'salesOrder',
+                  attributes: ['code'],
+                },
+              ],
+            },
           ],
         },
         {
@@ -113,6 +124,17 @@ export class ProductionOrderTaskService {
                       where: {},
                     },
                   ],
+                },
+              ],
+            },
+            {
+              association: 'productionOrder',
+              required: false,
+              where: {},
+              include: [
+                {
+                  association: 'salesOrder',
+                  attributes: ['code'],
                 },
               ],
             },
