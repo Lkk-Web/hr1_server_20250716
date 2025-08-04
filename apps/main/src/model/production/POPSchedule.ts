@@ -1,7 +1,5 @@
-import { Table, Column, DataType, ForeignKey, HasMany, BelongsTo } from 'sequelize-typescript'
+import { Table, Column, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
-import { WorkShop } from '../base/workShop.model'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
 import { Process } from '@model/process/process.model'
 /** 车间 */

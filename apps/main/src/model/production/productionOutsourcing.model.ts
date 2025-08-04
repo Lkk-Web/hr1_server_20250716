@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Material, Process, ProductionProcessTask, ProductionOrder, Supplier, User } from '..'
+import { Material, Process, ProcessTask, ProductionOrder, Supplier, User } from '..'
 
 @Table({ tableName: `production_outsourcing`, timestamps: true, comment: '工序委外' })
 export class ProductionOutsourcing extends BaseDate<ProductionOutsourcing> {
@@ -36,7 +36,7 @@ export class ProductionOutsourcing extends BaseDate<ProductionOutsourcing> {
   })
   declare processId: number
 
-  @ForeignKey(() => ProductionProcessTask)
+  @ForeignKey(() => ProcessTask)
   @Column({
     comment: '工序任务单ID',
     type: DataType.INTEGER,
@@ -155,8 +155,8 @@ export class ProductionOutsourcing extends BaseDate<ProductionOutsourcing> {
   @BelongsTo(() => Process, { foreignKey: 'processId', constraints: false, foreignKeyConstraint: false })
   process: Process
 
-  @BelongsTo(() => ProductionProcessTask, { foreignKey: 'taskId', constraints: false, foreignKeyConstraint: false })
-  task: ProductionProcessTask
+  @BelongsTo(() => ProcessTask, { foreignKey: 'taskId', constraints: false, foreignKeyConstraint: false })
+  task: ProcessTask
 
   @BelongsTo(() => User, { foreignKey: 'auditorId', constraints: false, foreignKeyConstraint: false })
   auditor: User

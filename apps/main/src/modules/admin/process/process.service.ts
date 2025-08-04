@@ -16,7 +16,7 @@ import { deleteIdsDto } from '@common/dto'
 import { ProcessRoute } from '@model/process/processRoute.model'
 import { ProcessDept } from '@model/process/processDept.model'
 import { trim } from 'lodash'
-import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { ResultVO } from '@common/resultVO'
 import { ProcessRouteList } from '@model/process/processRouteList.model'
 import { ProductionReport } from '@model/production/productionReport.model'
@@ -116,7 +116,7 @@ export class ProcessService {
   public async delete(id: number, loadModel) {
     const route = await ProcessRouteList.findOne({ where: { processId: id } })
     const schedule = await POPSchedule.findOne({ where: { processId: id } })
-    const task = await ProductionProcessTask.findOne({ where: { processId: id } })
+    const task = await ProcessTask.findOne({ where: { processId: id } })
     const report = await ProductionReport.findOne({ where: { processId: id } })
     if (route || schedule || task || report) {
       throw new HttpException('该工序已存在后续业务数据（如工艺路线、工单\\任务单\\报工等），不允许删除！', 400)

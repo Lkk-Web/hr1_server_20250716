@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
-import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { BaseModel } from '@model/shared/base.model'
 import { ProductSerialStatus } from '@common/enum'
 
@@ -43,7 +43,7 @@ export class ProductSerial extends BaseModel<ProductSerial> {
   declare quantity: number
 
   // 当前工序ID
-  @ForeignKey(() => ProductionProcessTask)
+  @ForeignKey(() => ProcessTask)
   @Column({
     comment: '当前工序任务ID',
     type: DataType.INTEGER,
@@ -97,9 +97,9 @@ export class ProductSerial extends BaseModel<ProductSerial> {
   @BelongsTo(() => ProductionOrderTask, 'productionOrderTaskId')
   declare productionOrderTask: ProductionOrderTask
 
-  @BelongsTo(() => ProductionProcessTask, 'currentProcessTaskId')
-  declare currentProcessTask: ProductionProcessTask
+  @BelongsTo(() => ProcessTask, 'currentProcessTaskId')
+  declare currentProcessTask: ProcessTask
 
-  @HasMany(() => ProductionProcessTask)
-  declare processTasks: ProductionProcessTask[]
+  @HasMany(() => ProcessTask)
+  declare processTasks: ProcessTask[]
 }

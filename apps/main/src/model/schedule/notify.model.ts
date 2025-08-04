@@ -2,7 +2,7 @@ import { BelongsTo, Column, CreatedAt, DataType, ForeignKey, Table } from 'seque
 import { User } from '@model/auth/user'
 import { BaseModel } from '@model/shared/base.model'
 import { NOTIFY_SCENE } from '@common/enum'
-import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { Team } from '@model/schedule/team.model'
 
 /** 班组 */
@@ -28,7 +28,7 @@ export class Notify extends BaseModel<Notify> {
   })
   declare name: string
 
-  @ForeignKey(() => ProductionProcessTask)
+  @ForeignKey(() => ProcessTask)
   @Column({
     comment: '工序任务单id',
     type: DataType.INTEGER,
@@ -69,6 +69,6 @@ export class Notify extends BaseModel<Notify> {
   @BelongsTo(() => Team)
   declare team: Team
 
-  @BelongsTo(() => ProductionProcessTask)
-  declare processTask: ProductionProcessTask
+  @BelongsTo(() => ProcessTask)
+  declare processTask: ProcessTask
 }
