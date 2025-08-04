@@ -10,7 +10,6 @@ export const K3Mapping = {
     filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
     redisKey: info.appName + 'kingdee:bd_sys_org',
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FDEPTID', 'id'],
       ['编码', 'FNumber', 'code'],
       ['名称', 'FName', 'shortName'],
@@ -28,7 +27,6 @@ export const K3Mapping = {
     filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
     redisKey: info.appName + 'kingdee:bd_sys_user',
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FID', 'id'],
       ['员工姓名', 'FNumber', 'userCode'],
       ['员工编码', 'FName', 'userName'],
@@ -53,7 +51,6 @@ export const K3Mapping = {
     filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
     redisKey: info.appName + 'kingdee:bd_material',
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FMasterID', 'id'],
       ['编码', 'FNumber', 'code'],
       ['名称', 'FName', 'materialName'],
@@ -75,7 +72,6 @@ export const K3Mapping = {
     redisKey: info.appName + 'kingdee:bd_bom',
     // pageSize:1000,
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FID', 'id'],
       ['编码', 'FNumber', 'code'],
       ['物料id', 'FMATERIALID.FMasterID', 'materialId'],
@@ -109,7 +105,6 @@ export const K3Mapping = {
     filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
     redisKey: info.appName + 'kingdee:bd_supplier',
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FSupplierId', 'id'],
       ['供应商编码', 'FNumber', 'code'],
       ['供应商名称', 'FName', 'fullName'],
@@ -126,7 +121,6 @@ export const K3Mapping = {
     filterString: `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
     redisKey: info.appName + 'kingdee:bd_customer',
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['ID', 'FCUSTID', 'id'],
       ['客户编码', 'FNumber', 'code'],
       ['客户名称', 'FName', 'fullName'],
@@ -238,7 +232,6 @@ export const K3DictMapping = [
     formID: 'HR_ORG_HRPOST',
     dbModel: ApiDict,
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['金蝶id', 'FPOSTID', 'fid'],
       ['编码', 'FNumber', 'code'],
       ['岗位名称', 'FName', 'content'],
@@ -251,7 +244,6 @@ export const K3DictMapping = [
     formID: 'BD_MATERIALCATEGORY',
     dbModel: ApiDict,
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['金蝶id', 'FCATEGORYID', 'fid'],
       ['编码', 'FNumber', 'code'],
       ['类别名称', 'FName', 'content'],
@@ -262,7 +254,6 @@ export const K3DictMapping = [
     formID: 'BD_UNIT',
     dbModel: ApiDict,
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['金蝶id', 'FUNITID', 'fid'],
       ['编码', 'FNumber', 'code'],
       ['单位名称', 'FName', 'content'],
@@ -273,7 +264,6 @@ export const K3DictMapping = [
     formID: 'BOS_BillType',
     dbModel: ApiDict,
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['金蝶id', 'FBILLTYPEID', 'fid'],
       ['编码', 'FNumber', 'code'],
       ['单据名称', 'FName', 'content'],
@@ -285,7 +275,6 @@ export const K3DictMapping = [
     formID: 'BD_NEWSTAFF',
     dbModel: ApiDict,
     keys: [
-      // k3name,k3key,dbFieldName,转化函数
       ['金蝶id', 'FSTAFFID', 'fid'],
       ['员工名称', 'FName', 'code'],
       ['所属部门', 'FDept', 'content'],

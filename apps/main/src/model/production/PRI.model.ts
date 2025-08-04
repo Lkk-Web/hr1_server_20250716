@@ -1,7 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { DefectiveItem } from '@model/quantity/defectiveItem.model'
-import { POP } from '@model/production/POP.model'
 import { ProductionReport } from '@model/production/productionReport.model'
 
 @Table({ tableName: `production_PRI`, freezeTableName: true, timestamps: true, comment: '生产报工不良品项关联表' })

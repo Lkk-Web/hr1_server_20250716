@@ -10,9 +10,11 @@ import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
 import { ProductSerial } from './productSerial.model'
 import { ProductionOrder } from './productionOrder.model'
+import { FileList } from '@model/document/FileList.model'
+import { ProductionOrderTask } from './productionOrderTask.model'
 
 @Table({ tableName: `production_process_task`, timestamps: true, freezeTableName: true, comment: '工序任务单表' })
-export class ProcessTask extends BaseDate<ProcessTask> {
+export class ProductionProcessTask extends BaseDate<ProductionProcessTask> {
   //产品序列号id
   @ForeignKey(() => ProductSerial)
   @Column({
@@ -22,6 +24,15 @@ export class ProcessTask extends BaseDate<ProcessTask> {
   })
   declare serialId: number
 
+  //产品序列号id
+  @ForeignKey(() => ProductionOrderTask)
+  @Column({
+    comment: '工单任务id',
+    type: DataType.INTEGER,
+    allowNull: true, // 必填项
+  })
+  declare productionOrderTaskId: number
+
   @ForeignKey(() => Process)
   // 工序名称
   @Column({
@@ -30,6 +41,29 @@ export class ProcessTask extends BaseDate<ProcessTask> {
     allowNull: false,
   })
   declare processId: number
+
+  @Column({
+    comment: 'sort',
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare sort: number
+
+  @Column({
+    comment: '是否报工',
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  })
+  declare isReport: boolean
+
+  @ForeignKey(() => FileList)
+  @Column({
+    comment: 'fileId',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare fileId: number
 
   // 报工数比例
   @Column({
@@ -173,6 +207,12 @@ export class ProcessTask extends BaseDate<ProcessTask> {
 
   @BelongsTo(() => Process)
   declare process: Process
+
+  @BelongsTo(() => FileList)
+  file: FileList
+
+  @BelongsTo(() => ProductionOrderTask)
+  productionOrderTask: ProductionOrderTask
 
   @BelongsToMany(() => Organize, { through: () => ProcessTaskDept, uniqueKey: 'ProcessTask_ptd_so_unique', foreignKey: 'taskId', otherKey: 'deptId' })
   declare depts: Organize[]

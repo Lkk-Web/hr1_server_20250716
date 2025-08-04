@@ -3,7 +3,7 @@ import { DATA_STATUS } from '@common/constant'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
-import { ProcessTask } from '@model/production/processTask.model'
+import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
 import { Process, ProcessDept } from '..'
 // import { UserDepartment } from '@model/userDepartment.model'
 
@@ -63,8 +63,8 @@ export class Organize extends BaseDate<Organize> {
   // @HasMany(() => UserDepartment)
   // declare deptUsers: UserDepartment[];
 
-  @BelongsToMany(() => ProcessTask, { through: () => ProcessTaskDept, uniqueKey: 'SYSOrg_ptd_pt_unique', foreignKey: 'deptId', otherKey: 'taskId' })
-  processTasks: ProcessTask[]
+  @BelongsToMany(() => ProductionProcessTask, { through: () => ProcessTaskDept, uniqueKey: 'SYSOrg_ptd_pt_unique', foreignKey: 'deptId', otherKey: 'taskId' })
+  processTasks: ProductionProcessTask[]
   //     foreignKey
 
   @BelongsToMany(() => Process, { through: () => ProcessDept, uniqueKey: 'so_process_pd_unique', foreignKey: 'deptId', otherKey: 'processId' })

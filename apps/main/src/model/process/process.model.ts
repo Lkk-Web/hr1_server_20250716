@@ -6,7 +6,7 @@ import { ProcessItems } from '@model/process/processItems.model'
 import { ProcessDept } from '@model/process/processDept.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { TeamProcess } from '@model/schedule/teamProcess.model'
-import { ProcessTask } from '@model/production/processTask.model'
+import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
 
 /** 工序表 */
 @Table({ tableName: `process`, freezeTableName: true, timestamps: true, comment: '工序表' })
@@ -77,8 +77,8 @@ export class Process extends BaseDate<Process> {
   @HasMany(() => ProcessDept)
   declare processDeptList: ProcessDept[]
 
-  @HasMany(() => ProcessTask)
-  declare tasks: ProcessTask[]
+  @HasMany(() => ProductionProcessTask)
+  declare tasks: ProductionProcessTask[]
 
   @HasOne(() => TeamProcess)
   declare teamProcess: TeamProcess

@@ -1,9 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { Material } from '@model/base/material.model'
-import { POP } from '@model/production/POP.model'
 import { POB } from '@model/production/POB.model'
-import { ProcessTask } from '@model/production/processTask.model'
-import { SalesOrder } from '@model/plan/salesOrder.model'
 import { StrBaseModel } from '@model/shared/strBase.model'
 import { ProductionOrder } from './productionOrder.model'
 
@@ -83,7 +80,6 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
   })
   declare actualOutput: number
 
-
   @Column({
     comment: '备注',
     type: DataType.TEXT,
@@ -106,5 +102,4 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
 
   @HasMany(() => POB)
   declare boms: POB[]
-
 }

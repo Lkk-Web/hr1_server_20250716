@@ -5,7 +5,7 @@ import { Process } from '@model/process/process.model'
 import { User } from '@model/auth/user'
 import { PRI } from '@model/production/PRI.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
-import { ProcessTask } from '@model/production/processTask.model'
+import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { Team } from '@model/schedule/team.model'
 import { ReportUser } from '@model/production/reportUser.model'
@@ -30,7 +30,7 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   })
   declare processId: number
 
-  @ForeignKey(() => ProcessTask)
+  @ForeignKey(() => ProductionProcessTask)
   @Column({
     comment: '工序任务单ID',
     type: DataType.INTEGER,
@@ -246,8 +246,8 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   @BelongsTo(() => Process)
   process: Process
 
-  @BelongsTo(() => ProcessTask, { foreignKey: 'taskId', constraints: false, foreignKeyConstraint: false })
-  task: ProcessTask
+  @BelongsTo(() => ProductionProcessTask, { foreignKey: 'taskId', constraints: false, foreignKeyConstraint: false })
+  task: ProductionProcessTask
 
   @BelongsTo(() => User, 'productUserId')
   productUser: User

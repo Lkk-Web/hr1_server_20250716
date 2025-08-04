@@ -9,23 +9,11 @@ import { ProductionOutsourcing } from '@model/production/productionOutsourcing.m
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { CheckOrder } from '@model/equipment/checkOrder.model'
 import moment = require('moment')
-import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
-import { User } from '@model/auth/user'
 import { Paging } from '@library/utils/paging'
-import { FileList } from '@model/document/FileList.model'
 import dayjs = require('dayjs')
-import { ProcessTask } from '@model/production/processTask.model'
+import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
 import { ProductionOrder } from '@model/production/productionOrder.model'
-import { POP } from '@model/production/POP.model'
-import { POD } from '@model/production/PODmodel'
-import { POI } from '@model/production/POI.model'
-import { POB } from '@model/production/POB.model'
-import { Process } from '@model/process/process.model'
-import { Organize } from '@model/auth/organize'
-import { DefectiveItem } from '@model/quantity/defectiveItem.model'
-import { Material } from '@model/base/material.model'
 import { auditDto } from '../productionReport/productionReport.dto'
 
 @Injectable()

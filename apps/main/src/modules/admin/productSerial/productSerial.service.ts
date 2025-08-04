@@ -2,7 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { ProductSerial } from '@model/production/productSerial.model'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
-import { ProcessTask } from '@model/production/processTask.model'
+import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
 import { Op, Transaction } from 'sequelize'
 import { FindProductSerialDto, UpdateProductSerialDto, UpdateProcessProgressDto } from './productSerial.dto'
 import { ProductSerialStatus } from '@common/enum'
@@ -172,7 +172,7 @@ export class ProductSerialService {
       }
     } else {
       // 添加新记录（这种情况一般不会发生，因为工序进度应该在创建时初始化）
-      const processTask = await ProcessTask.findByPk(dto.processTaskId, {
+      const processTask = await ProductionProcessTask.findByPk(dto.processTaskId, {
         include: [{ association: 'process', attributes: ['processName'] }],
       })
 

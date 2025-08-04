@@ -1,10 +1,10 @@
 import { Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
-import { ProcessTask } from './processTask.model'
+import { ProductionProcessTask } from './productionProcessTask.model'
 import { BaseModel } from '@model/shared/base.model'
 
 @Table({ tableName: `production_process_task_log`, timestamps: false, freezeTableName: true, comment: '工序任务单日志' })
 export class ProcessTaskLog extends BaseModel<ProcessTaskLog> {
-  @ForeignKey(() => ProcessTask)
+  @ForeignKey(() => ProductionProcessTask)
   @Column({
     comment: '工序任务单id',
     type: DataType.INTEGER,

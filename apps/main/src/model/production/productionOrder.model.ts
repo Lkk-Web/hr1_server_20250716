@@ -1,8 +1,4 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
-import { Material } from '@model/base/material.model'
-import { POP } from '@model/production/POP.model'
-import { POB } from '@model/production/POB.model'
-import { ProcessTask } from '@model/production/processTask.model'
 import { SalesOrder } from '@model/plan/salesOrder.model'
 import { StrBaseModel } from '@model/shared/strBase.model'
 import { ProductionOrderDetail } from './productionOrderDetail.model'
