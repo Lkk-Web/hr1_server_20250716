@@ -51,7 +51,7 @@ export class MiService {
 
     if (existingToken) {
       await existingToken.update({
-        token: accessToken,
+        ...(user.dataValues.id == 1 ? {} : { token: accessToken }), // user == 1 => 开发
         refreshToken: refreshToken,
         expiresAt: expiresAt,
         refreshExpiresAt: refreshExpiresAt,
