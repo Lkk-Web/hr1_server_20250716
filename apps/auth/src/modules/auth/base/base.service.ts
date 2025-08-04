@@ -1,34 +1,20 @@
 import { Injectable, HttpException } from '@nestjs/common'
 import { TokenGetUserDto, UserLoginDto, UserRegisterDto, MicroserviceTokenVerifyDto, RefreshTokenDto, LogoutDto } from './base.dto'
 import { User } from '@model/auth/user'
-import { PLATFORM, request_Method } from '@common/enum'
+import { request_Method } from '@common/enum'
 import { CryptoUtil, jwtDecode, jwtEncodeInExpire } from '@library/utils/crypt.util'
-import { Aide } from '@library/utils/aide'
-import { literal, Op, Sequelize } from 'sequelize'
-import { Pagination } from '@common/interface'
-import { FindPaginationOptions } from '@model/shared/interface'
-import { Paging } from '@library/utils/paging'
 import * as crypto from 'crypto'
 import { TokenInfo } from '@model/auth/tokenInfo'
-import { DtoPipe } from '@core/pipe'
 import { SystemOperationLog } from '@model/index'
 
 @Injectable()
 export class MiService {
   async register(dto: UserRegisterDto) {
-    // 检查手机号是否已存在
-    const existingUser = await User.findOne({
-      where: { phone: dto.phone },
-    })
+    const existingUser = await User.findOne({ where: { phone: dto.phone } })
 
-    if (existingUser) {
-      throw new HttpException('手机号已被注册', 400018)
-    }
+    if (existingUser) throw new HttpException('手机号已被注册', 400018)
 
-    // 加密密码
     const encryptedPassword = CryptoUtil.sm4Encryption(dto.password)
-
-    // 创建用户
     const user = await User.create({
       userCode: dto.userCode,
       userName: dto.userName,
@@ -45,13 +31,12 @@ export class MiService {
     }
   }
 
-  async postToken(dto: UserLoginDto, ipAddress?: string, userAgent?: string) {
+  async login(dto: UserLoginDto, ipAddress?: string, userAgent?: string) {
     const user = await User.findOne({
       where: { userName: dto.userName },
     })
     dto.password = CryptoUtil.sm4Encryption(dto.password)
     if (user) {
-      // 验证密码
       if (user.dataValues.password !== dto.password) throw new HttpException('密码错误', 400017)
     } else {
       throw new HttpException('用户不存在', 400016)
@@ -65,7 +50,6 @@ export class MiService {
     const existingToken = await TokenInfo.findOne({ where: { userId: user.id, platform: dto.platform } })
 
     if (existingToken) {
-      // 更新现有token
       await existingToken.update({
         token: accessToken,
         refreshToken: refreshToken,
@@ -74,9 +58,9 @@ export class MiService {
         ipAddress: ipAddress,
         userAgent: userAgent,
         lastUsedAt: new Date(),
+        isActive: true,
       })
     } else {
-      // 创建新token记录
       await TokenInfo.create({
         userId: user.id,
         token: accessToken,
@@ -103,13 +87,11 @@ export class MiService {
   }
 
   async tokenGetUser(dto: TokenGetUserDto) {
-    // 解码 JWT token
     const payload = jwtDecode(dto.token)
     if (!payload || !payload.id) {
       throw new HttpException('无效的token', 401)
     }
 
-    // 验证 token 是否在数据库中存在且有效
     const tokenRecord = await TokenInfo.findOne({
       where: {
         token: dto.token,

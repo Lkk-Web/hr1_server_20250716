@@ -24,10 +24,10 @@ export class MiController {
   @ApiOperation({ summary: '登录' })
   @OpenAuthorize()
   @Post('login')
-  async postToken(@Body(new CensorParamPipe()) dto: UserLoginDto, @Req() req: any) {
+  async login(@Body(new CensorParamPipe()) dto: UserLoginDto, @Req() req: any) {
     const ipAddress = req.ip || req.connection.remoteAddress
     const userAgent = req.headers['user-agent']
-    return await this.service.postToken(dto, ipAddress, userAgent)
+    return await this.service.login(dto, ipAddress, userAgent)
   }
 
   @ApiOperation({ summary: '根据token获取用户信息' })
