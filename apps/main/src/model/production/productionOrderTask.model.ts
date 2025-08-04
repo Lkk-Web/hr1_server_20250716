@@ -4,10 +4,9 @@ import { ProductionOrderDetail } from '@model/production/productionOrderDetail.m
 import { ProductionOrderTaskStatus, SchedulingStatus } from '@common/enum'
 import { BaseModel } from '@model/shared/base.model'
 import { ProductSerial } from './productSerial.model'
-import { POP } from './POP.model'
 
 /** 生产订单任务表 */
-@Table({ tableName: `production_order_task`, freezeTableName: true, timestamps: true, comment: '生产订单任务表' })
+@Table({ tableName: `production_order_task`, freezeTableName: true, timestamps: true, comment: '生产订单任务表 - 含多个产品序列号' })
 export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
   // 拆单编号
   @Column({
@@ -151,7 +150,4 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
 
   @HasMany(() => ProductSerial)
   declare productSerials: ProductSerial[]
-
-  @HasMany(() => POP)
-  declare processes: POP[]
 }

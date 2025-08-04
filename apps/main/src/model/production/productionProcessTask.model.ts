@@ -9,11 +9,9 @@ import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
 import { ProductSerial } from './productSerial.model'
-import { ProductionOrder } from './productionOrder.model'
 import { FileList } from '@model/document/FileList.model'
-import { ProductionOrderTask } from './productionOrderTask.model'
 
-@Table({ tableName: `production_process_task`, timestamps: true, freezeTableName: true, comment: '工序任务单表' })
+@Table({ tableName: `production_process_task`, timestamps: true, freezeTableName: true, comment: '工序任务单表 - 关联产品序列号' })
 export class ProductionProcessTask extends BaseDate<ProductionProcessTask> {
   //产品序列号id
   @ForeignKey(() => ProductSerial)
@@ -23,15 +21,6 @@ export class ProductionProcessTask extends BaseDate<ProductionProcessTask> {
     allowNull: true, // 必填项
   })
   declare serialId: number
-
-  //产品序列号id
-  @ForeignKey(() => ProductionOrderTask)
-  @Column({
-    comment: '工单任务id',
-    type: DataType.INTEGER,
-    allowNull: true, // 必填项
-  })
-  declare productionOrderTaskId: number
 
   @ForeignKey(() => Process)
   // 工序名称
@@ -210,9 +199,6 @@ export class ProductionProcessTask extends BaseDate<ProductionProcessTask> {
 
   @BelongsTo(() => FileList)
   file: FileList
-
-  @BelongsTo(() => ProductionOrderTask)
-  productionOrderTask: ProductionOrderTask
 
   @BelongsToMany(() => Organize, { through: () => ProcessTaskDept, uniqueKey: 'ProcessTask_ptd_so_unique', foreignKey: 'taskId', otherKey: 'deptId' })
   declare depts: Organize[]

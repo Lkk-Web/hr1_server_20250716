@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
-import { ProcessTask } from '@model/production/processTask.model'
+import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
 import { BaseModel } from '@model/shared/base.model'
 import { ProductSerialStatus } from '@common/enum'
 
@@ -43,7 +43,7 @@ export class ProductSerial extends BaseModel<ProductSerial> {
   declare quantity: number
 
   // 当前工序ID
-  @ForeignKey(() => ProcessTask)
+  @ForeignKey(() => ProductionProcessTask)
   @Column({
     comment: '当前工序任务ID',
     type: DataType.INTEGER,
@@ -53,12 +53,12 @@ export class ProductSerial extends BaseModel<ProductSerial> {
 
   // 工序进度（JSON格式存储各工序的完成状态）
   @Column({
-    comment: '工序进度（JSON格式：[{processTaskId: string, processName: string, status: string, startTime: Date, endTime: Date, actualStartTime: Date, actualEndTime: Date}]）',
+    comment: '工序进度（JSON格式：[{serialId: string, processName: string, status: string, startTime: Date, endTime: Date, actualStartTime: Date, actualEndTime: Date}]）',
     type: DataType.JSON,
     allowNull: true,
   })
   declare processProgress: Array<{
-    processTaskId: number
+    serialId: number
     processName: string
     status: string
     startTime: Date
@@ -97,9 +97,9 @@ export class ProductSerial extends BaseModel<ProductSerial> {
   @BelongsTo(() => ProductionOrderTask, 'productionOrderTaskId')
   declare productionOrderTask: ProductionOrderTask
 
-  @BelongsTo(() => ProcessTask, 'currentProcessTaskId')
-  declare currentProcessTask: ProcessTask
+  @BelongsTo(() => ProductionProcessTask, 'currentProcessTaskId')
+  declare currentProcessTask: ProductionProcessTask
 
-  @HasMany(() => ProcessTask)
-  declare tasks: ProcessTask[]
+  @HasMany(() => ProductionProcessTask)
+  declare processTasks: ProductionProcessTask[]
 }
