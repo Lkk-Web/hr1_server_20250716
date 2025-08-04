@@ -6,11 +6,10 @@ import { actionDto, CProductionOrderDTO, ERPFindPaginationDto, FindPaginationDto
 import { FindOptions, Op, or, where, Sequelize } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Material } from '@model/base/material.model'
-import { POP } from '@model/production/POP.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { POD } from '@model/production/PODmodel'
 import { POI } from '@model/production/POI.model'
 import { POB } from '@model/production/POB.model'
-import { ProcessTask } from '@model/production/processTask.model'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { Aide, JsExclKey } from '@library/utils/aide'
@@ -18,7 +17,7 @@ import { ProcessRoute } from '@model/process/processRoute.model'
 import { User } from '@model/auth/user'
 import { ResultVO } from '@common/resultVO'
 import { BOM } from '@model/base/bom.model'
-import { ApiDict, DefectiveItem, PerformanceConfig, Process, Organize, WarehouseMaterial, WorkCenterOfPOP } from '@model/index'
+import { ApiDict, DefectiveItem, PerformanceConfig, Process, Organize, WarehouseMaterial, POPSchedule } from '@model/index'
 import { Paging } from '@library/utils/paging'
 import { KingdeeeService } from '@library/kingdee'
 import { POBDetail } from '@model/production/POBDetail.model'
@@ -49,13 +48,13 @@ export class ProductionOrderService {
     const transaction = await PerformanceConfig.sequelize.transaction()
     try {
       //删除依赖关系
-      const process = await POP.findAll({ where: { productionOrderTaskId: id }, attributes: ['id'] })
+      const process = await ProcessTask.findAll({ where: { id: id }, attributes: ['id'] })
       const pobs = await POB.findAll({ where: { productionOrderDetailId: id }, attributes: ['id'] })
-      await POD.destroy({ where: { popId: process.map(v => v.id) }, transaction })
-      await POI.destroy({ where: { popId: process.map(v => v.id) }, transaction })
-      await WorkCenterOfPOP.destroy({ where: { POPId: process.map(v => v.id) }, transaction })
+      await POD.destroy({ where: { processTaskId: process.map(v => v.id) }, transaction })
+      await POI.destroy({ where: { processTaskId: process.map(v => v.id) }, transaction })
+      await POPSchedule.destroy({ where: { productionOrderTaskId: process.map(v => v.id) }, transaction })
       await POBDetail.destroy({ where: { pobId: pobs.map(v => v.id) }, transaction })
-      await POP.destroy({ where: { productionOrderTaskId: id }, transaction })
+      await ProcessTask.destroy({ where: { id: id }, transaction })
       await POB.destroy({ where: { productionOrderDetailId: id }, transaction })
       await productOrder.destroy({ transaction })
       await transaction.commit()
@@ -170,7 +169,7 @@ export class ProductionOrderService {
         //   //     'endTime',
         //   //     'actualStartTime',
         //   //     'actualEndTime',
-        //   //     'processTaskId',
+        //   //     'serialId',
         //   //     'isInspection',
         //   //     'reportQuantity',
         //   //   ],
@@ -338,9 +337,9 @@ export class ProductionOrderService {
             continue
           }
           await ProductionOrder.update({ status: '执行中' }, { where: { id: number } })
-          let pop = await POP.findOne({ where: { productionOrderTaskId: number }, order: [['id', 'ASC']] })
+          let pop = await ProcessTask.findOne({ where: { id: number }, order: [['id', 'ASC']] })
           if (pop) {
-            POP.update({ status: '执行中' }, { where: { productionOrderTaskId: number } })
+            ProcessTask.update({ status: '执行中' }, { where: { id: number } })
           }
           // await pop.update({ status: '执行中' })
 
@@ -348,8 +347,8 @@ export class ProductionOrderService {
           //创建工序任务单
           order = await this.find(number, loadModel, { kingdeeCode: order.kingdeeCode })
           // console.log(order)
-          pop = await POP.findOne({
-            where: { productionOrderTaskId: number, status: '执行中' },
+          pop = await ProcessTask.findOne({
+            where: { id: number, status: '执行中' },
             order: [['id', 'ASC']],
             include: [{ association: 'process', attributes: ['id', 'processName'] }],
           })
@@ -376,7 +375,7 @@ export class ProductionOrderService {
           //   for (const dept of process.depts) {
           //     await ProcessTaskDept.create({ taskId: task.id, deptId: dept.id })
           //   }
-          //   await POP.update({ processTaskId: task.dataValues.id }, { where: { id: process.id } })
+          //   await ProductionProcessTask.update({ serialId: task.dataValues.id }, { where: { id: process.id } })
           //   const date: Date = new Date()
           //   const formattedDate = moment(date, 'YYYY-MM-DD HH:mm:ss').toDate()
           //   await ProductionOrder.update({ actualStartTime: formattedDate }, { where: { id: number } })
@@ -459,7 +458,7 @@ export class ProductionOrderService {
     // 将当前Sheet的数据转换为JSON
     const json = await Aide.excelToJson(buffer, mapper)
 
-    const sequelize = POP.sequelize
+    const sequelize = ProcessTask.sequelize
     return sequelize.transaction(async transaction => {
       try {
         // 遍历每行数据并保存到数据库
@@ -544,9 +543,9 @@ export class ProductionOrderService {
 
           if (route.dataValues.processRouteList) {
             for (const processRouteList of route.dataValues.processRouteList) {
-              const pop = await POP.create(
+              const pop = await ProcessTask.create(
                 {
-                  productionOrderTaskId: order.id,
+                  id: order.id,
                   processId: processRouteList.dataValues.processId,
                   reportRatio: processRouteList.dataValues.reportRatio,
                   isReport: processRouteList.dataValues.isReport,
@@ -560,10 +559,10 @@ export class ProductionOrderService {
                 { transaction }
               )
               for (const proElement of processRouteList.dataValues.process.dataValues.processItem) {
-                await POI.create({ popId: pop.id, defectiveItemId: proElement.dataValues.id }, { transaction })
+                await POI.create({ processTaskId: pop.id, defectiveItemId: proElement.dataValues.id }, { transaction })
               }
               for (const proElement of processRouteList.dataValues.process.dataValues.processDept) {
-                await POD.create({ popId: pop.id, deptId: proElement.dataValues.id }, { transaction })
+                await POD.create({ processTaskId: pop.id, deptId: proElement.dataValues.id }, { transaction })
               }
             }
             // //创建用料清单
@@ -833,7 +832,7 @@ export class ProductionOrderService {
       //       ],
       //     })
       //     if (route && route.dataValues.processRouteList && route.dataValues.processRouteList.length > 0) {
-      //       const existingPops = await POP.findAll({
+      //       const existingPops = await ProductionProcessTask.findAll({
       //         where: { productionOrderId: freshProductionOrder.id },
       //       })
       //       for (const processRouteList of route.dataValues.processRouteList) {
@@ -854,7 +853,7 @@ export class ProductionOrderService {
       //           })
       //         } else if (existingPops.length == 0) {
       //           //如果已经创建或就不会创建新的工序绑定
-      //           const pro = await POP.create({
+      //           const pro = await ProductionProcessTask.create({
       //             productionOrderId: freshProductionOrder.id,
       //             processId: processRouteList.processId,
       //             reportRatio: processRouteList.reportRatio,
@@ -1090,7 +1089,7 @@ export class ProductionOrderService {
         const productSerial = await ProductSerial.create(
           {
             serialNumber: serialNumber,
-            productionOrderTaskId: newSplitOrder.id,
+            id: newSplitOrder.id,
             status: ProductSerialStatus.NOT_STARTED,
             quantity: 1,
             qualityStatus: '待检',
