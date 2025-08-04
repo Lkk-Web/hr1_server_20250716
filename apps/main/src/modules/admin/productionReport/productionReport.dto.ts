@@ -53,7 +53,7 @@ export class FindPaginationDto {
     required: false,
     description: '时间类型(本月,本周)',
   })
-  timeType: string;
+  timeType: string
 
   @ApiProperty({
     description: '计件方式 (计件 / 计时)',
@@ -68,7 +68,6 @@ export class FindPaginationDto {
     required: false,
   })
   auditStatus: string
-
 }
 
 export class ItemsDto {
