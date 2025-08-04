@@ -5,12 +5,13 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { WorkShop } from '@model/base/workShop.model'
-import { CWorkShopDto, FindPaginationDto, UWorkShopDto } from './workShop.dto'
+import { CWorkShopDto, FindPaginationDto, FindPaginationScheduleDto, ScheduleDto, UWorkShopDto } from './workShop.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Paging } from '@library/utils/paging'
-import { Supplier } from '@model/base/supplier.model'
+import { ProductionOrderTask, POPSchedule } from '@model/index'
+import { SchedulingStatus } from '@common/enum'
 
 @Injectable()
 export class WorkShopService {
@@ -91,6 +92,122 @@ export class WorkShopService {
     }
     // @ts-ignore
     const result = await Paging.diyPaging(WorkShop, pagination, options)
+    return result
+  }
+
+  public async schedule(dto: ScheduleDto, loadModel) {
+    const { ScheduleList, productionOrderTaskId } = dto
+    const transaction = await this.sequelize.transaction()
+
+    try {
+      const processTask = await ProductionOrderTask.findOne({
+        where: { id: productionOrderTaskId },
+        include: [
+          {
+            association: 'material',
+            include: [
+              {
+                association: 'processRoute',
+                include: [
+                  {
+                    association: 'processRouteList',
+                    include: [
+                      {
+                        association: 'process',
+                        attributes: ['id', 'processName'],
+                      },
+                    ],
+                    order: [['sort', 'ASC']],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        transaction,
+      })
+
+      if (!processTask) throw new HttpException('生产订单任务不存在', 400)
+
+      if (!processTask.material?.processRoute?.processRouteList) throw new HttpException('该物料未配置工艺路线', 400)
+
+      const processRouteList = processTask.material.processRoute.processRouteList
+
+      if (ScheduleList.length !== processRouteList.length) throw new HttpException(`排程数据数量不匹配，工艺路线包含${processRouteList.length}个工序`, 400)
+
+      if (processTask.schedulingStatus == SchedulingStatus.SCHEDULED) {
+        // map 为并发的异步操作，会导致事务失效
+        for (const v of ScheduleList) {
+          if (v.startTime > v.endTime) throw new HttpException('排程开始时间不能大于结束时间', 400)
+          const temp = await POPSchedule.findOne({ where: { processId: v.processId, productionOrderTaskId } })
+          if (!temp) throw new HttpException('排程不存在,无法修改', 400)
+          v['id'] = temp.dataValues.id
+          v['productionOrderTaskId'] = productionOrderTaskId
+        }
+      } else {
+        // 未排程
+        for (const v of ScheduleList) {
+          if (v.startTime > v.endTime) throw new HttpException('排程开始时间不能大于结束时间', 400)
+          v['productionOrderTaskId'] = productionOrderTaskId
+        }
+      }
+
+      await POPSchedule.bulkCreate(ScheduleList, {
+        updateOnDuplicate: ['id', 'startTime', 'endTime', 'processId', 'productionOrderTaskId'],
+        transaction,
+      })
+
+      await ProductionOrderTask.update({ schedulingStatus: SchedulingStatus.SCHEDULED }, { where: { id: productionOrderTaskId }, transaction })
+
+      await transaction.commit()
+    } catch (error) {
+      await transaction.rollback()
+      throw new HttpException(error.message || '排程失败', 400)
+    }
+
+    return {
+      code: 200,
+      message: '排程成功',
+    }
+  }
+
+  public async findPaginationSchedule(dto: FindPaginationScheduleDto, pagination: Pagination) {
+    const options: FindPaginationOptions = {
+      where: {},
+      attributes: { exclude: ['createdAt', 'updatedAt'] },
+      pagination,
+      // order: [
+      //   ['pop', 'id', 'DESC'],
+      //   ['id', 'DESC'],
+      // ],
+      include: [
+        {
+          association: 'productionOrderTask',
+          // attributes: ['id', 'orderCode', 'splitQuantity'],
+          where: {},
+        },
+        {
+          association: 'process',
+          // attributes: ['id', 'processName'],
+        },
+      ],
+    }
+
+    // 添加时间范围筛选：筛选在指定开始时间和结束时间范围内的记录
+    if (dto.startTime && dto.endTime) {
+      // 筛选startTime >= dto.startTime 且 endTime <= dto.endTime 的记录
+      options.where['startTime'] = { [Op.lte]: new Date(dto.endTime).toISOString() }
+      options.where['endTime'] = { [Op.gte]: new Date(dto.startTime).toISOString() }
+    } else if (dto.startTime) {
+      // 只有开始时间，筛选startTime >= dto.startTime的记录
+      options.where['startTime'] = { [Op.gte]: new Date(dto.startTime).toISOString() }
+    } else if (dto.endTime) {
+      // 只有结束时间，筛选endTime <= dto.endTime的记录
+      options.where['endTime'] = { [Op.lte]: new Date(dto.endTime).toISOString() }
+    }
+
+    const result = await Paging.diyPaging(POPSchedule, pagination, options)
+
     return result
   }
 }

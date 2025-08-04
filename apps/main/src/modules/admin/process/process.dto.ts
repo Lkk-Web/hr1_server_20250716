@@ -83,13 +83,6 @@ export class CProcessDto {
   isOut: boolean
 
   @ApiProperty({
-    required: false,
-    description: '是否为子工序',
-    type: Number,
-  })
-  isChild: number
-
-  @ApiProperty({
     name: 'sort',
     required: false,
     description: '排序字段',
@@ -115,13 +108,6 @@ export class UProcessDto {
     type: String,
   })
   processName: string
-
-  @ApiProperty({
-    required: false,
-    description: '是否为子工序',
-    type: Number,
-  })
-  isChild: number
 
   @ApiProperty({
     name: 'parentId',
