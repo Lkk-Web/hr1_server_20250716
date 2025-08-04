@@ -5,7 +5,7 @@ import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize-typescript'
-import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { ProductionOrderPageDto } from './productionOrder.dto'
 import { ProductionOrder } from '@model/production/productionOrder.model'
@@ -62,7 +62,7 @@ export class ProductionOrderService {
             processId,
           },
         }),
-        ProductionProcessTask.findAll({
+        ProcessTask.findAll({
           where: {
             serialId: result.data.map(item => item.id),
             processId,

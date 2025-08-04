@@ -15,7 +15,7 @@ export class BomController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '物料清单' })
   @Get('material/list')
-  @OpenCache({ ttl: 60000 * 3, isQuery: (v: materialListDto) => v.processTaskId })
+  @OpenCache({ ttl: 60000 * 3, isQuery: (v: materialListDto) => v.serialId })
   async materialList(@Query() dto: materialListDto) {
     const result = await this.service.materialList(dto)
     return result

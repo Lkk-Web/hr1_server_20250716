@@ -56,7 +56,7 @@ export class FindPaginationDto {
     required: false,
     description: '时间类型(本月,本周)',
   })
-  timeType: string;
+  timeType: string
 
   @ApiProperty({
     description: '计件方式 (计件 / 计时)',
@@ -71,7 +71,6 @@ export class FindPaginationDto {
     required: false,
   })
   auditStatus: string
-
 }
 
 export class ItemsDto {
@@ -296,65 +295,62 @@ export class auditDto {
   ids?: number[]
 }
 
-export class PadRegisterUserDto{
+export class PadRegisterUserDto {
   @ApiProperty({ description: '工人id', type: Number })
-  @IsNumber({},{message:"工人id必须为数字"})
+  @IsNumber({}, { message: '工人id必须为数字' })
   userId: number
 
   @ApiProperty({ description: '所用时长 单位/s', type: Number })
-  @IsNumber({},{message:"所用时长必须为数字"})
+  @IsNumber({}, { message: '所用时长必须为数字' })
   duration: number
 }
 
-export class PadProcessDto{
+export class PadProcessDto {
   @ApiProperty({ description: '工序任务单id', type: Number })
-  @IsNumber({},{message:"工序任务单id必须为数字"})
+  @IsNumber({}, { message: '工序任务单id必须为数字' })
   id: number
 
   @ApiProperty({ description: '报工数量', type: Number })
-  @IsNumber({},{message:"报工数量必须为数字"})
-  @Min(1,{message:"报工数量必须大于0"})
+  @IsNumber({}, { message: '报工数量必须为数字' })
+  @Min(1, { message: '报工数量必须大于0' })
   reportQuantity: number
 }
 
 export class PadRegisterDto {
   @ApiProperty({ description: '工序配置数组', type: [PadProcessDto] })
-  @Type(()=>PadProcessDto)
+  @Type(() => PadProcessDto)
   @ValidateNested({ each: true })
-  @IsArrayLength({min:1},{message:"工序配置必须是数组且长度大于0"})
+  @IsArrayLength({ min: 1 }, { message: '工序配置必须是数组且长度大于0' })
   process: PadProcessDto[]
 
   @ApiProperty({ description: '做工人配置', type: [PadRegisterUserDto] })
-  @Type(()=>PadRegisterUserDto)
+  @Type(() => PadRegisterUserDto)
   @ValidateNested({ each: true })
-  @IsArrayLength({min:1},{message:"做工人配置必须是数组且长度大于0"})
+  @IsArrayLength({ min: 1 }, { message: '做工人配置必须是数组且长度大于0' })
   config: PadRegisterUserDto[]
-
 }
 
-
 export class PickingOutboundDto {
-
   @ApiProperty({
     type: String,
     description: '生产工单id',
     required: false,
   })
-  serialId?: number;
+  serialId?: number
 
   @ApiProperty({
     type: Number,
     description: '良品数',
     required: false,
   })
-  goodCount: number;
+  goodCount: number
 
   @ApiProperty({
     type: Number,
     description: '不良品数',
     required: false,
   })
-  badCount: number;
+  badCount: number
 
   taskId?: number // 当前工序任务单ID 检测是否为最后一工序
 }

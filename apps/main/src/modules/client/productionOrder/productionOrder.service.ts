@@ -54,7 +54,6 @@ export class ProductionOrderService {
             'endTime',
             'actualStartTime',
             'actualEndTime',
-            'processTaskId',
           ],
           required: false,
           include: [
@@ -167,7 +166,6 @@ export class ProductionOrderService {
             'endTime',
             'actualStartTime',
             'actualEndTime',
-            'processTaskId',
           ],
           include: [
             {

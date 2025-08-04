@@ -6,7 +6,7 @@ import { BaseModel } from '@model/shared/base.model'
 import { ProductSerial } from './productSerial.model'
 
 /** 生产订单任务表 */
-@Table({ tableName: `production_order_task`, freezeTableName: true, timestamps: true, comment: '生产订单任务表 - 含多个产品序列号' })
+@Table({ tableName: `production_order_task`, freezeTableName: true, timestamps: true, comment: '生产工单表 - 排产 -含多个产品序列号' })
 export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
   // 拆单编号
   @Column({

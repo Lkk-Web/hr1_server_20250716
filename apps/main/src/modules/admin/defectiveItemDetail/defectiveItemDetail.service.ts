@@ -448,8 +448,8 @@ export class DefectiveItemDetailService {
 
         // productionOrderStatus: value.order.status,
 
-        poStartAt: dayjs(value.order.startTime).format('YYYY-MM-DD'),
-        poEndAt: dayjs(value.order.endTime).format('YYYY-MM-DD'),
+        // poStartAt: dayjs(value.order.startTime).format('YYYY-MM-DD'),
+        // poEndAt: dayjs(value.order.endTime).format('YYYY-MM-DD'),
 
         processName: value.process.processName,
         ptStartTime: dayjs(value.task.startTime).format('YYYY-MM-DD'),

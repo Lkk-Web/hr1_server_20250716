@@ -1,27 +1,16 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { ProductionOrder } from '@model/production/productionOrder.model'
 import { Process } from '@model/process/process.model'
 import { User } from '@model/auth/user'
 import { PRI } from '@model/production/PRI.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
-import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { Team } from '@model/schedule/team.model'
 import { ReportUser } from '@model/production/reportUser.model'
-import { ProductionOrderTask } from './productionOrderTask.model'
 
-@Table({ tableName: `production_report`, timestamps: true, comment: '生产报工表' })
+@Table({ tableName: `production_report`, timestamps: true, comment: '生产报工表 - 序列号 - 工序' })
 export class ProductionReport extends BaseDate<ProductionReport> {
-  //工单ID
-  @ForeignKey(() => ProductionOrderTask)
-  @Column({
-    comment: '工单id',
-    type: DataType.INTEGER,
-    allowNull: true, // 必填项
-  })
-  declare productionOrderTaskId: number
-
   @ForeignKey(() => Process)
   @Column({
     comment: '工序Id',
@@ -30,13 +19,13 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   })
   declare processId: number
 
-  @ForeignKey(() => ProductionProcessTask)
+  @ForeignKey(() => ProcessTask)
   @Column({
     comment: '工序任务单ID',
     type: DataType.INTEGER,
     allowNull: false,
   })
-  declare taskId: number
+  declare processTaskId: number
 
   @Column({
     comment: '工序状态（未开始，执行中,已结束）',
@@ -240,14 +229,12 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   })
   declare teamId: number
 
-  @BelongsTo(() => ProductionOrderTask, { foreignKey: 'productionOrderTaskId', constraints: false, foreignKeyConstraint: false })
-  order: ProductionOrderTask
 
   @BelongsTo(() => Process)
   process: Process
 
-  @BelongsTo(() => ProductionProcessTask, { foreignKey: 'taskId', constraints: false, foreignKeyConstraint: false })
-  task: ProductionProcessTask
+  @BelongsTo(() => ProcessTask, { foreignKey: 'taskId', constraints: false, foreignKeyConstraint: false })
+  task: ProcessTask
 
   @BelongsTo(() => User, 'productUserId')
   productUser: User

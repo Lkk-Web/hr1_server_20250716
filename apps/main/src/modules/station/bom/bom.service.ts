@@ -19,7 +19,7 @@ export class BomService {
 
   public async materialList(dto: materialListDto) {
     // Find the process task with its related order and BOM
-    const processTask = await ProcessTask.findByPk(dto.processTaskId, {
+    const processTask = await ProcessTask.findByPk(dto.serialId, {
       include: [
         {
           association: 'order',

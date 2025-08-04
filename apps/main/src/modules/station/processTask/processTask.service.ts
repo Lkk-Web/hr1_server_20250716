@@ -340,7 +340,7 @@ export class ProcessTaskService {
     })
     if (!task) Aide.throwException(400011)
     await Notify.create({
-      processTaskId: dto.id,
+      serialId: dto.id,
       content: dto.content,
       scene: dto.scene,
       teamId: dto.teamId,

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { ProductionReport } from '@model/production/productionReport.model'
 import { Op, Transaction } from 'sequelize'
 import { ProductionOrder } from '@model/production/productionOrder.model'
-import { POP } from '@model/production/POP.model'
 import { ProcessTask } from '@model/production/processTask.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { InspectionForm } from '@model/quantity/inspectionForm.model'
@@ -137,7 +136,7 @@ export class ProductionReportTwoService {
         // accountingType: config ? config.pricingMethod : '计时',
         // goodCountPrice: config ? config.goodCountPrice : 0,
         // badCountPrice: config ? config.badCountPrice : 0,
-        taskId: task.id,
+        processTaskId: task.id,
         processId,
         processStatus: PROCESS_TASK_STATUS.finish,
         reportQuantity: temp.reportQuantity,
@@ -149,7 +148,7 @@ export class ProductionReportTwoService {
       const isEnd = temp.reportQuantity + task.reportQuantity >= task.planCount
 
       // 更新POP
-      const pop = await POP.findOne({ where: { processTaskId: task.id } })
+      const pop = await ProcessTask.findOne({ where: { id: task.id } })
       await pop.update({
         goodCount: task.isInspection ? pop.goodCount : pop.goodCount + temp.reportQuantity,
         reportQuantity: pop.reportQuantity + temp.reportQuantity,
@@ -159,13 +158,13 @@ export class ProductionReportTwoService {
 
       // 处理下一道工序
       const [nextPop, allPops] = await Promise.all([
-        POP.findOne({
-          where: { productionOrderTaskId: task.serialId, id: pop.id + 1 },
+        ProcessTask.findOne({
+          where: { serialId: task.serialId, id: pop.id + 1 },
           order: [['id', 'ASC']],
           include: [{ association: 'process', attributes: ['id', 'processName'] }],
         }),
-        POP.findAll({
-          where: { productionOrderTaskId: task.serialId },
+        ProcessTask.findAll({
+          where: { serialId: task.serialId },
           order: [['id', 'ASC']],
         }),
       ])
@@ -181,12 +180,12 @@ export class ProductionReportTwoService {
           // )
         }
         //更新接收数
-        if (!task.isInspection && nextPop.processTaskId)
+        if (!task.isInspection && nextPop.id)
           await ProcessTask.update(
             {
               receptionCount: temp.reportQuantity + task.goodCount,
             },
-            { where: { id: nextPop.processTaskId } }
+            { where: { id: nextPop.id } }
           )
       }
 
@@ -338,7 +337,7 @@ export class ProductionReportTwoService {
     tasks.forEach(task => {
       const taskDuration = this.calculateTotalDuration(task)
       const percentage = taskDuration / totalDuration
-      const productionReport = productionReports.find(v => v.taskId === task.id)
+      const productionReport = productionReports.find(v => v.processTaskId === task.id)
 
       if (productionReport) {
         userDurations.forEach(ud => {
