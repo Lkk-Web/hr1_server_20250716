@@ -5,7 +5,6 @@ export * from './baseData/material/material.module'
 export * from './baseData/bom/bom.module'
 export * from './supplier/supplier.module'
 export * from './workShop/workShop.module'
-export * from './workCenter/workCenter.module'
 export * from './warehouse/warehouse.module'
 export * from './customer/customer.module'
 

@@ -160,7 +160,7 @@ export class ProductSerialService {
     let processProgress = productSerial.processProgress || []
 
     // 查找对应的工序进度记录
-    const existingProgressIndex = processProgress.findIndex(progress => progress.processTaskId === dto.processTaskId)
+    const existingProgressIndex = processProgress.findIndex(progress => progress.serialId === dto.processTaskId)
 
     if (existingProgressIndex >= 0) {
       // 更新现有记录
@@ -171,14 +171,14 @@ export class ProductSerialService {
         actualEndTime: dto.actualEndTime || processProgress[existingProgressIndex].actualEndTime,
       }
     } else {
-      // 添加新记录（这种情况一般不会发生，因为工序进度应该在创建时初始化）
+      // 添加新记录
       const processTask = await ProductionProcessTask.findByPk(dto.processTaskId, {
         include: [{ association: 'process', attributes: ['processName'] }],
       })
 
       if (processTask) {
         processProgress.push({
-          processTaskId: dto.processTaskId,
+          serialId: productSerial.id,
           processName: processTask.process.processName,
           status: dto.status,
           startTime: processTask.startTime,
@@ -190,7 +190,7 @@ export class ProductSerialService {
       }
     }
 
-    // 更新产品序列号
+    // 更新产品序列号 工序进度
     await productSerial.update({
       processProgress,
       currentProcessTaskId: dto.processTaskId,
