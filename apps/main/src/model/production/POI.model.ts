@@ -12,7 +12,7 @@ export class POI extends BaseDate<POI> {
     type: DataType.INTEGER,
     allowNull: false, // 必填项
   })
-  declare productionProcessTaskId: number
+  declare processTaskId: number
 
   @ForeignKey(() => DefectiveItem)
   @Column({

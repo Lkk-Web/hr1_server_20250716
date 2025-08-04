@@ -70,7 +70,7 @@ export class WorkShopController {
 
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '排程列表' })
-  @Get('findPagination/Schedule')
+  @Get('findPagination/schedule')
   async findPaginationSchedule(@Query() dto: FindPaginationScheduleDto, @CurrentPage() pagination: Pagination, @Req() req) {
     return await this.service.findPaginationSchedule(dto, pagination)
   }

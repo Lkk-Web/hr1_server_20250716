@@ -2,7 +2,7 @@ import { Injectable, HttpException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { ProductSerial } from '@model/production/productSerial.model'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
-import { ProductionProcessTask } from '@model/production/productionProcessTask.model'
+import { ProcessTask } from '@model/production/processTask.model'
 import { Op, Transaction } from 'sequelize'
 import { FindProductSerialDto, UpdateProductSerialDto, UpdateProcessProgressDto } from './productSerial.dto'
 import { ProductSerialStatus } from '@common/enum'
@@ -172,7 +172,7 @@ export class ProductSerialService {
       }
     } else {
       // 添加新记录
-      const processTask = await ProductionProcessTask.findByPk(dto.processTaskId, {
+      const processTask = await ProcessTask.findByPk(dto.processTaskId, {
         include: [{ association: 'process', attributes: ['processName'] }],
       })
 

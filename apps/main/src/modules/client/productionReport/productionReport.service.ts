@@ -619,7 +619,7 @@ export class ProductionReportService {
     //编辑报工数量之前减去上一次报工的数量再写入本次数量
     let pop = await ProcessTask.findAll({
       where: {
-        id: productionReport.productSerialId,
+        id: productionReport.task.serialId,
         processId: productionReport.processId,
       },
     })
@@ -637,7 +637,7 @@ export class ProductionReportService {
     }
     let task = await ProcessTask.findAll({
       where: {
-        serialId: productionReport.productSerialId,
+        serialId: productionReport.task.serialId,
         processId: productionReport.processId,
       },
     })

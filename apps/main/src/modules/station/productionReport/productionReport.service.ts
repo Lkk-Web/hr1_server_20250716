@@ -823,7 +823,7 @@ export class ProductionReportService {
     //编辑报工数量之前减去上一次报工的数量再写入本次数量
     let pop = await ProcessTask.findAll({
       where: {
-        serialId: productionReport.productSerialId,
+        serialId: productionReport.task.serialId,
         processId: productionReport.processId,
       },
     })
@@ -841,7 +841,7 @@ export class ProductionReportService {
     }
     let task = await ProcessTask.findAll({
       where: {
-        serialId: productionReport.productSerialId,
+        serialId: productionReport.task.serialId,
         processId: productionReport.processId,
       },
     })
@@ -963,7 +963,7 @@ export class ProductionReportService {
         },
       },
     })
-    const order = await ProductionOrder.findByPk(result.productSerialId)
+    const order = await ProductionOrder.findByPk(result.task.serialId)
     let count = 0
     for (const record of records) {
       count += record.goodCount
@@ -1121,7 +1121,7 @@ export class ProductionReportService {
             { where: { id } }
           )
           if (dto.status === '已审核') {
-            const order = await ProductionOrder.findByPk(report.productSerialId, {
+            const order = await ProductionOrder.findByPk(report.task.serialId, {
               include: [
                 {
                   association: 'bom',
@@ -1178,7 +1178,7 @@ export class ProductionReportService {
                     // materialId: order.dataValues.bom.materialId,
                     processId: report.processId,
                     performanceId: per.id,
-                    id: report.productSerialId,
+                    id: report.task.serialId,
                     userId: perUser.id,
                   },
                 })
@@ -1188,7 +1188,7 @@ export class ProductionReportService {
                     // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
                     processId: report.processId,
                     performanceId: per.id,
-                    id: report.productSerialId,
+                    id: report.task.serialId,
                     userId: perUser.id,
                     goodCount: report.goodCount,
                     badCount: report.badCount,
@@ -1226,7 +1226,7 @@ export class ProductionReportService {
                     // materialId: order.dataValues.bom.materialId,
                     processId: report.processId,
                     performanceId: per.id,
-                    id: report.productSerialId,
+                    id: report.task.serialId,
                   },
                 })
                 if (!temp) {
@@ -1236,7 +1236,7 @@ export class ProductionReportService {
                     // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
                     processId: report.processId,
                     performanceId: per.id,
-                    id: report.productSerialId,
+                    id: report.task.serialId,
                     userId: perUser.id,
                     goodCount: report.goodCount,
                     badCount: report.badCount,
@@ -1260,7 +1260,7 @@ export class ProductionReportService {
               }
             }
           } else if (dto.status === '取消审核') {
-            const order = await ProductionOrder.findByPk(report.productSerialId, {
+            const order = await ProductionOrder.findByPk(report.task.serialId, {
               include: [
                 {
                   association: 'bom',

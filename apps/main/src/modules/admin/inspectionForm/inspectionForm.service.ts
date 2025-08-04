@@ -13,7 +13,6 @@ import { ProductionReport } from '@model/production/productionReport.model'
 import { ProcessTask } from '@model/production/processTask.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
-import { POP } from '@model/production/POP.model'
 import { ProductionReportTwoService } from '@modules/station/productionReport/productionReportTwo.service'
 import { User } from '@model/auth/user'
 import { InspectionFormBy } from '@model/quantity/inspectionFormBy.model'
@@ -292,19 +291,19 @@ export class InspectionFormService {
                     badCount: Sequelize.literal(`badCount+${info.badCount}`),
                   },
                   {
-                    where: { id: productionReport.taskId },
+                    where: { id: productionReport.processTaskId },
                     transaction,
                   }
                 ),
               ])
               await Promise.all([
-                POP.update(
+                ProcessTask.update(
                   {
                     goodCount: Sequelize.literal(`goodCount+${info.goodCount}`),
                     badCount: Sequelize.literal(`badCount+${info.badCount}`),
                   },
                   {
-                    where: { productionOrderTaskId: productionReport.productionOrderTaskId, processId: productionReport.processId },
+                    where: { id: productionReport.processTaskId, processId: productionReport.processId },
                     transaction,
                   }
                 ),
@@ -323,29 +322,29 @@ export class InspectionFormService {
                       {
                         receptionCount: Sequelize.literal(`receptionCount+${info.goodCount}`),
                       },
-                      { where: { id: productionReport.taskId + 1, serialId: productionReport.productionOrderTaskId } }
+                      { where: { id: productionReport.processTaskId + 1 } }
                     )
                   : null,
               ])
 
               // 工序返工
               const handle = {
-                processId:0,
-                workCount:0,
+                processId: 0,
+                workCount: 0,
               }
               for (let i = 0; i < form.infos.length; i++) {
                 const info = form.infos[i]
                 console.log(info)
-                if(info.results[0].processId){
+                if (info.results[0].processId) {
                   handle.processId = info.results[0].processId
                   handle.workCount = info.results[0].count
-                  break;
+                  break
                 }
               }
 
               //创建工序单
-              if(handle.processId&&handle.workCount){
-                await this.createReworkInspectionForm(productionReport.task,handle.workCount,handle.processId,productionReport.productionOrderTaskId,transaction)
+              if (handle.processId && handle.workCount) {
+                await this.createReworkInspectionForm(productionReport.task, handle.workCount, handle.processId, productionReport.task.serialId, transaction)
               }
             }
           } else if (dto.status === '取消审核') {
@@ -400,10 +399,10 @@ export class InspectionFormService {
   }
 
   //创建返工工序单
-  public async createReworkInspectionForm(oldTask: ProcessTask, workCount: number, processId: number, productionOrderTaskId, transaction: Transaction) {
+  public async createReworkInspectionForm(oldTask: ProcessTask, workCount: number, processId: number, serialId, transaction: Transaction) {
     let task = await ProcessTask.create(
       {
-        serialId: productionOrderTaskId,
+        serialId: serialId,
         processId,
         reportRatio: oldTask.reportRatio,
         planCount: workCount,
@@ -419,8 +418,8 @@ export class InspectionFormService {
     )
     const [oldDepts, oldPop] = await Promise.all([
       ProcessTaskDept.findAll({ where: { taskId: oldTask.id } }),
-      POP.findOne({
-        where: { processTaskId: oldTask.id, processId: oldTask.processId },
+      ProcessTask.findOne({
+        where: { id: oldTask.id, processId: oldTask.processId },
       }),
     ])
 
@@ -429,11 +428,10 @@ export class InspectionFormService {
         oldDepts.map(v => ({ taskId: task.id, deptId: v.deptId })),
         { transaction }
       ),
-      POP.create(
+      ProcessTask.create(
         {
-          productionOrderTaskId: productionOrderTaskId,
           processId,
-          processTaskId: task.id,
+          serialId: oldPop.serialId,
           reportRatio: oldPop.reportRatio,
           isReport: oldPop.isReport,
           isInspection: oldPop.isInspection,

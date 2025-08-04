@@ -12,7 +12,7 @@ export class POD extends BaseDate<POD> {
     type: DataType.INTEGER,
     allowNull: false, // 必填项
   })
-  declare productionProcessTaskId: number
+  declare processTaskId: number
 
   @ForeignKey(() => Organize)
   @Column({

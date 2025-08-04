@@ -136,11 +136,11 @@ export class PerformanceService {
 
     if (result.data.length) {
       let prList = result.data.filter(v => v.productionReport).map(v => v.productionReport)
-      const orders = await ProductionOrder.findAll({
-        where: { id: _.uniq(prList.map(v => v.productionOrderTaskId)) },
-        attributes: ['id', 'code'],
-        include: [{ association: 'bom', attributes: ['spec', 'attr'], include: [{ association: 'parentMaterial', attributes: ['code', 'name'] }] }],
-      })
+      // const orders = await ProductionOrder.findAll({
+      //   where: { id: _.uniq(prList.map(v => v.productSerialId)) },
+      //   attributes: ['id', 'kingdeeCode'],
+      //   include: [{ association: 'bom', attributes: ['spec', 'attr'], include: [{ association: 'parentMaterial', attributes: ['code', 'name'] }] }],
+      // })
 
       result.data = result.data.map(v => {
         v = v.toJSON()
