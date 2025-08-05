@@ -86,6 +86,7 @@ function swaggerStart(app: INestApplication, options: SwaggerStartOptions) {
     const document = SwaggerModule.createDocument(app, config, documentOptions)
     const prefix = options.path.replace(/\//, '_')
     SwaggerModule.setup(`doc/${options.path}`, app, document, {
+      customSiteTitle: `${options.title}`,
       customCss: `.swagger-ui .model-box-control, .swagger-ui .models-control, .swagger-ui .opblock-summary-control {
         all: inherit;
         border-bottom: 0;
