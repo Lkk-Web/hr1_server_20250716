@@ -1,8 +1,9 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
+import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Role } from '@model/auth/role'
-import { Organize } from '@model/auth/organize'
-import { TeamUser } from '@model/schedule/teamUser.model'
+import { Role } from './role'
+import { Organize } from './organize'
+import { Team } from './team'
+import { TeamUser } from './teamUser.model'
 
 @Table({ tableName: `auth_user`, freezeTableName: true, timestamps: true, comment: '用户员工表' })
 export class User extends BaseDate<User> {
@@ -23,7 +24,7 @@ export class User extends BaseDate<User> {
   // 手机号：必填项
   @Column({
     comment: '手机号',
-    type: DataType.STRING(20),
+    type: DataType.STRING(11),
     allowNull: true, // 必填项
   })
   declare phone: string
@@ -55,8 +56,8 @@ export class User extends BaseDate<User> {
   })
   declare email: string
 
-  // 默认部门
-  @ForeignKey(() => Organize) // 假设有部门表
+  // 部门
+  @ForeignKey(() => Organize)
   @Column({
     comment: '默认部门',
     type: DataType.INTEGER,
@@ -64,27 +65,14 @@ export class User extends BaseDate<User> {
   })
   declare departmentId: number
 
-  @BelongsTo(() => Organize)
-  declare department: Organize
-
-  @Column({
-    comment: '用户状态',
-    type: DataType.STRING(20),
-    allowNull: true,
-  })
-  declare state: string
-
   // 角色
-  @ForeignKey(() => Role) // 假设有角色表
+  @ForeignKey(() => Role)
   @Column({
     comment: '角色ID',
     type: DataType.INTEGER,
     allowNull: true,
   })
   declare roleId: number
-
-  @BelongsTo(() => Role)
-  declare role: Role
 
   // 状态：是否启用
   @Column({
@@ -96,22 +84,18 @@ export class User extends BaseDate<User> {
   declare status: boolean
 
   @Column({
-    comment: 'openId',
-    type: DataType.STRING,
-    allowNull: true,
-  })
-  declare openId: string
-
-  @Column({
     type: DataType.TEXT,
     allowNull: true,
     comment: '备注',
   })
   declare remark: string
 
-  @HasMany(() => TeamUser)
-  declare teamUsers: TeamUser[]
+  @BelongsTo(() => Organize)
+  declare department: Organize
 
-  @HasOne(() => TeamUser)
-  declare teamUser: TeamUser
+  @BelongsTo(() => Role)
+  declare role: Role
+
+  @BelongsToMany(() => Team, () => TeamUser)
+  declare team: Team[]
 }

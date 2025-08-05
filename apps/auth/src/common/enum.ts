@@ -12,10 +12,14 @@ export enum PLATFORM {
   dashboard = 'dashboard', // 看板端
 }
 
-
 export enum request_Method {
   GET = 'GET',
   POST = 'POST',
   PUT = 'PUT',
   DELETE = 'DELETE',
+}
+
+export enum TEAM_TYPE {
+  output = '生产',
+  inspection = '质检',
 }

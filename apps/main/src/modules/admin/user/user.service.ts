@@ -86,15 +86,15 @@ export class UserService {
   }
 
   public async syncUser(dto: SUserDto, loadModel) {
-    console.log(dto.phone)
-    let user = await User.findOne({ where: { phone: dto.phone } })
-    if (!user) {
-      throw new HttpException('数据不存在', 400006)
-    }
-    user = await User.findOne({ where: { phone: dto.phone, openId: dto.openId } })
-    if (!user) {
-      await User.update({ openId: dto.openId }, { where: { phone: dto.phone } })
-    }
+    // console.log(dto.phone)
+    // let user = await User.findOne({ where: { phone: dto.phone } })
+    // if (!user) {
+    //   throw new HttpException('数据不存在', 400006)
+    // }
+    // user = await User.findOne({ where: { phone: dto.phone, openId: dto.openId } })
+    // if (!user) {
+    //   await User.update({ openId: dto.openId }, { where: { phone: dto.phone } })
+    // }
     return true
   }
 

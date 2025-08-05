@@ -1,8 +1,10 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
+import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Role } from './role'
 import { TokenInfo } from './tokenInfo'
 import { Organize } from './organize'
+import { TeamUser } from './teamUser'
+import { Team } from './team'
 
 @Table({ tableName: `auth_user`, freezeTableName: true, timestamps: true, comment: '用户员工表' })
 export class User extends BaseDate<User> {
@@ -65,7 +67,7 @@ export class User extends BaseDate<User> {
   declare departmentId: number
 
   // 角色
-  @ForeignKey(() => Role) 
+  @ForeignKey(() => Role)
   @Column({
     comment: '角色ID',
     type: DataType.INTEGER,
@@ -97,4 +99,7 @@ export class User extends BaseDate<User> {
 
   @HasMany(() => TokenInfo)
   declare tokenInfo: TokenInfo[]
+
+  @BelongsToMany(() => Team, () => TeamUser)
+  declare team: Team[]
 }

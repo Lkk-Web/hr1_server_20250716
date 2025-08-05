@@ -3,7 +3,7 @@ import { User } from '@model/auth/user'
 import { BaseModel } from '@model/shared/base.model'
 import { NOTIFY_SCENE } from '@common/enum'
 import { ProcessTask } from '@model/production/processTask.model'
-import { Team } from '@model/schedule/team.model'
+import { Team } from '@model/auth/team'
 
 /** 班组 */
 @Table({ tableName: `schedule_notify`, freezeTableName: true, timestamps: true, updatedAt: false, comment: '班组表' })

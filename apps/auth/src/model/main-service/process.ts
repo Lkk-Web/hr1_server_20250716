@@ -1,12 +1,6 @@
 import { BelongsToMany, Column, DataType, HasMany, HasOne, Table, BelongsTo } from 'sequelize-typescript'
-import { Organize } from '@model/auth/organize'
-import { DefectiveItem } from '@model/quantity/defectiveItem.model'
 import { BaseDate } from '@model/shared/baseDate'
-import { ProcessItems } from '@model/process/processItems.model'
-import { ProcessDept } from '@model/process/processDept.model'
-import { PerformanceConfig } from '@model/performance/performanceConfig.model'
-import { TeamProcess } from '@model/auth/teamProcess.model'
-import { ProcessTask } from '@model/production/processTask.model'
+import { TeamProcess } from '@model/auth/teamProcess'
 
 /** 工序表 */
 @Table({ tableName: `process`, freezeTableName: true, timestamps: true, comment: '工序表' })
@@ -65,20 +59,6 @@ export class Process extends BaseDate<Process> {
 
   @HasMany(() => Process, { foreignKey: 'parentId', as: 'children' })
   declare children: Process[]
-
-  @BelongsToMany(() => Organize, { through: () => ProcessDept, uniqueKey: 'process_pd_so_unique', foreignKey: 'processId', otherKey: 'deptId' })
-  processDept: Organize[]
-
-  @BelongsToMany(() => DefectiveItem, { through: () => ProcessItems, uniqueKey: 'process_pi_di_unique', foreignKey: 'processId', otherKey: 'defectiveItemId' })
-  processItem: DefectiveItem[]
-
-  declare performanceConfig: PerformanceConfig
-
-  @HasMany(() => ProcessDept)
-  declare processDeptList: ProcessDept[]
-
-  @HasMany(() => ProcessTask)
-  declare tasks: ProcessTask[]
 
   @HasOne(() => TeamProcess)
   declare teamProcess: TeamProcess

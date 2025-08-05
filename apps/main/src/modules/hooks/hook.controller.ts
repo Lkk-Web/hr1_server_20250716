@@ -96,7 +96,6 @@ export class HookController {
     const user = await User.create({
       userCode: '10001',
       phone: str[0],
-      openId: str[1],
       userName: str[2],
       departmentId: 4,
       roleId: 1,

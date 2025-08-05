@@ -10,7 +10,7 @@ import { InstallLocation } from '@model/equipment/installLocation.model'
 import { InspectionPlan } from '@model/equipment/inspectionPlan.model'
 import { CheckStandard } from '@model/equipment/checkStandard.model'
 import { MaintenancePlan } from '@model/equipment/maintenancePlan.model'
-import { TeamEquipmentLedger } from '@model/schedule/teamEquipmentLedger.model'
+import { TeamEquipmentLedger } from '@model/auth/teamEquipmentLedger.model'
 
 @Table({ tableName: `equipment_ledger`, freezeTableName: true, timestamps: true, comment: '设备台账表' })
 export class EquipmentLedger extends BaseDate<EquipmentLedger> {

@@ -8,6 +8,10 @@ export * from './auth/roleMenu'
 export * from './auth/userRole'
 export * from './auth/roleOrganize'
 export * from './auth/user'
+export * from './auth/team'
+export * from './auth/teamUser.model'
+export * from './auth/teamEquipmentLedger.model'
+export * from './auth/teamProcess.model'
 
 // 基础资料 base
 export * from './base/material.model'
@@ -90,8 +94,6 @@ export * from './performance/manHour.model'
 export * from './performance/manHourProcess.model'
 
 //排班管理 schedule
-export * from './schedule/team.model'
-export * from './schedule/teamUser.model'
 export * from './schedule/shift.model'
 export * from './schedule/shiftPeriod.model'
 export * from './schedule/calendar.model'
@@ -99,8 +101,6 @@ export * from './schedule/calendarDetail.model'
 export * from './schedule/schedulePlan.model'
 export * from './schedule/schedulePlanShift.model'
 export * from './schedule/planShiftTeam.model'
-export * from './schedule/teamEquipmentLedger.model'
-export * from './schedule/teamProcess.model'
 export * from './schedule/notify.model'
 
 //库存管理 warehouse

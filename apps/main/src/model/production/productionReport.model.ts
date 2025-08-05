@@ -6,7 +6,7 @@ import { PRI } from '@model/production/PRI.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { ProcessTask } from '@model/production/processTask.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
-import { Team } from '@model/schedule/team.model'
+import { Team } from '@model/auth/team'
 import { ReportUser } from '@model/production/reportUser.model'
 
 @Table({ tableName: `production_report`, timestamps: true, comment: '生产报工表 - 序列号 - 工序' })
@@ -228,7 +228,6 @@ export class ProductionReport extends BaseDate<ProductionReport> {
     type: DataType.INTEGER,
   })
   declare teamId: number
-
 
   @BelongsTo(() => Process)
   process: Process

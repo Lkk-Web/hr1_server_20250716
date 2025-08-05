@@ -27,7 +27,7 @@ import { ExportOrder } from '@model/warehouse/exportOrder.model'
 import { ExportOrderDetail } from '@model/warehouse/exportOrderDetail.model'
 import { InspectionFormInfo } from '@model/quantity/inspectionFormInfo.model'
 import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
-import { Team } from '@model/schedule/team.model'
+import { Team } from '@model/auth/team'
 import { ReportUser } from '@model/production/reportUser.model'
 import moment = require('moment')
 
@@ -61,7 +61,6 @@ export class ProductionReportService {
   }
 
   public async create(dto: CProductionReportDto, user, loadModel) {
-
     const temp = await ProductionReport.findAll({ where: { processTaskId: dto.productionOrderTaskId, processId: dto.processId } })
     let order = await ProductionOrder.findByPk(dto.productionOrderTaskId, {
       include: [

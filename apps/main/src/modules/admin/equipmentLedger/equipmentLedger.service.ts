@@ -23,7 +23,7 @@ import { Material } from '@model/base/material.model'
 import { Paging } from '@library/utils/paging'
 import { MaintenanceOrder } from '@model/equipment/maintenanceOrder.model'
 import { ScrapOrder } from '@model/equipment/scrapOrder.model'
-import { TeamEquipmentLedger } from '@model/schedule/teamEquipmentLedger.model'
+import { TeamEquipmentLedger } from '@model/auth/teamEquipmentLedger.model'
 
 @Injectable()
 export class EquipmentLedgerService {

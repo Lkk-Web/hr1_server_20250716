@@ -1,9 +1,9 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Team } from '@model/schedule/team.model'
+import { Team } from '@model/auth/team'
 import { Process } from '@model/process/process.model'
 
-@Table({ tableName: `schedule_team_process`, freezeTableName: true, timestamps: true, comment: '班组与工序' })
+@Table({ tableName: `auth_team_process`, freezeTableName: true, timestamps: true, comment: '班组与工序' })
 export class TeamProcess extends BaseDate<TeamProcess> {
   @ForeignKey(() => Team)
   @Column({
