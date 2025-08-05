@@ -85,6 +85,8 @@ export * from './production/productionOutsourcing.model' //工序委外
 export * from './production/processTaskLog.model'
 export * from './production/reportUser.model'
 export * from './production/reportUserDuration.model'
+export * from './production/productionOrderTaskOfTeam.model'
+export * from './production/processPositionTask.model'
 
 //绩效管理 performance
 export * from './performance/performance.model'

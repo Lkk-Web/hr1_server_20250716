@@ -8,6 +8,8 @@ import { TeamEquipmentLedger } from '@model/auth/teamEquipmentLedger.model'
 import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 import { TeamProcess } from '@model/auth/teamProcess.model'
 import { TEAM_TYPE } from '@common/enum'
+import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
+import { ProductionOrderTaskTeam } from '@model/production/productionOrderTaskOfTeam.model'
 
 /** 班组 */
 @Table({ tableName: `auth_team`, freezeTableName: true, timestamps: true, comment: '班组表' })
@@ -95,4 +97,7 @@ export class Team extends BaseDate<Team> {
 
   @HasOne(() => TeamUser)
   declare teamUser: TeamUser
+
+  @BelongsToMany(() => ProductionOrderTask, () => ProductionOrderTaskTeam)
+  declare productionOrderTasks: ProductionOrderTask[]
 }

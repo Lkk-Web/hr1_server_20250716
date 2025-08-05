@@ -1,9 +1,11 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
+import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { Material } from '@model/base/material.model'
 import { ProductionOrderDetail } from '@model/production/productionOrderDetail.model'
 import { ProductionOrderTaskStatus, SchedulingStatus } from '@common/enum'
 import { BaseModel } from '@model/shared/base.model'
 import { ProductSerial } from './productSerial.model'
+import { ProductionOrderTaskTeam } from './productionOrderTaskOfTeam.model'
+import { Team } from '@model/auth/team'
 
 /** 生产订单任务表 */
 @Table({ tableName: `production_order_task`, freezeTableName: true, timestamps: true, comment: '生产工单表 - 排产 -含多个产品序列号' })
@@ -150,4 +152,7 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
 
   @HasMany(() => ProductSerial)
   declare productSerials: ProductSerial[]
+
+  @BelongsToMany(() => Team, () => ProductionOrderTaskTeam)
+  declare teams: Team[]
 }

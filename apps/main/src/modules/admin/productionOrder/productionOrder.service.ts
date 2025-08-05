@@ -17,7 +17,7 @@ import { ProcessRoute } from '@model/process/processRoute.model'
 import { User } from '@model/auth/user'
 import { ResultVO } from '@common/resultVO'
 import { BOM } from '@model/base/bom.model'
-import { ApiDict, DefectiveItem, PerformanceConfig, Process, Organize, WarehouseMaterial, POPSchedule } from '@model/index'
+import { ApiDict, DefectiveItem, PerformanceConfig, Process, Organize, WarehouseMaterial, POPSchedule, TeamProcess } from '@model/index'
 import { Paging } from '@library/utils/paging'
 import { KingdeeeService } from '@library/kingdee'
 import { POBDetail } from '@model/production/POBDetail.model'
@@ -33,6 +33,8 @@ import { log } from 'console'
 import { K3Mapping } from '@library/kingdee/kingdee.keys.config'
 import { kingdeeServiceConfig } from '@common/config'
 import { ProductionOrderDetail } from '@model/production/productionOrderDetail.model'
+import { ProductionOrderTaskTeam } from '@model/production/productionOrderTaskOfTeam.model'
+import { ProcessPositionTask } from '@model/production/processPositionTask.model'
 
 @Injectable()
 export class ProductionOrderService {
@@ -981,6 +983,14 @@ export class ProductionOrderService {
                 where: { materialId: { [Op.col]: 'ProductionOrderDetail.materialId' } },
                 required: false,
               },
+              {
+                association: 'processRoute',
+                include: [
+                  {
+                    association: 'processRouteList',
+                  },
+                ],
+              },
             ],
           },
         ],
@@ -1048,6 +1058,71 @@ export class ProductionOrderService {
         { transaction }
       )
 
+      //生产工单自动匹配绑定多个班组
+      {
+        try {
+          const processRoute = productionOrderDetail.material.processRoute.processRouteList
+
+          // 获取工艺路线中的所有工序及其子工序
+          const processWithChildren = await Process.findAll({
+            where: {
+              id: {
+                [Op.in]: processRoute.map(route => route.processId),
+              },
+            },
+            include: [
+              {
+                association: 'children',
+                attributes: ['id', 'processName'],
+              },
+            ],
+            transaction,
+          })
+
+          // 收集所有子工序ID
+          const childProcessIds = []
+          processWithChildren.forEach(process => {
+            if (process.children && process.children.length > 0) {
+              process.children.forEach(child => {
+                childProcessIds.push(child.id)
+              })
+            }
+          })
+
+          // 如果有子工序，查找匹配的班组
+          if (childProcessIds.length > 0) {
+            // 查找包含这些子工序的班组
+            const teamProcesses = await TeamProcess.findAll({
+              where: {
+                processId: {
+                  [Op.in]: childProcessIds,
+                },
+              },
+              attributes: ['teamId'],
+              group: ['teamId'],
+              transaction,
+            })
+
+            if (!teamProcesses) {
+              throw new Error('当前没有匹配的班组')
+            }
+
+            // 为每个匹配的班组创建关联
+            for (const tp of teamProcesses) {
+              await ProductionOrderTaskTeam.create(
+                {
+                  productionOrderTaskId: newSplitOrder.id,
+                  teamId: tp.teamId,
+                },
+                { transaction }
+              )
+            }
+          }
+        } catch (error) {
+          throw new Error('班组绑定失败')
+        }
+      }
+
       // 5. 根据group规则生成产品序列号
       const productSerials = []
 
@@ -1089,7 +1164,7 @@ export class ProductionOrderService {
         const productSerial = await ProductSerial.create(
           {
             serialNumber: serialNumber,
-            id: newSplitOrder.id,
+            productionOrderTaskId: newSplitOrder.id,
             status: ProductSerialStatus.NOT_STARTED,
             quantity: 1,
             qualityStatus: '待检',
@@ -1148,6 +1223,76 @@ export class ProductionOrderService {
               },
               { transaction }
             )
+          }
+        }
+      }
+      //自动生成工位任务单 子工序 工位任务单针对工艺路线中的子工序 工位任务单数量为 序列号 * 工艺路线中的工序中的子工序
+      {
+        for (const productSerial of productSerials) {
+          // 获取工艺路线中的所有工序
+          const material = await Material.findByPk(productionOrderDetail.materialId, {
+            include: [
+              {
+                association: 'processRoute',
+                include: [
+                  {
+                    association: 'processRouteList',
+                    include: [
+                      {
+                        association: 'process',
+                        include: [
+                          {
+                            association: 'children',
+                            attributes: ['id', 'processName', 'reportRatio', 'isOut'],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+            transaction,
+          })
+
+          if (!material || !material.processRoute) {
+            continue
+          }
+
+          // 获取已创建的工序任务单
+          const processTasks = await ProcessTask.findAll({
+            where: { serialId: productSerial.id },
+            include: [
+              {
+                association: 'process',
+                attributes: ['id', 'processName'],
+              },
+            ],
+            transaction,
+          })
+
+          // 为每个工序的子工序创建工位任务单
+          for (const routeProcess of material.processRoute.processRouteList) {
+            const processTask = processTasks.find(task => task.processId === routeProcess.processId)
+
+            if (!processTask || !routeProcess.process.children || routeProcess.process.children.length === 0) {
+              continue
+            }
+
+            // 为每个子工序创建工位任务单
+            for (const childProcess of routeProcess.process.children) {
+              await ProcessPositionTask.create(
+                {
+                  processTaskId: processTask.id,
+                  reportRatio: childProcess.reportRatio || 1,
+                  planCount: 1,
+                  status: PROCESS_TASK_STATUS.notStart,
+                  isOutsource: childProcess.isOut || false,
+                  isInspection: true,
+                },
+                { transaction }
+              )
+            }
           }
         }
       }

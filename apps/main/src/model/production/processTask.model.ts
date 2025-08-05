@@ -34,7 +34,6 @@ export class ProcessTask extends BaseDate<ProcessTask> {
   @Column({
     comment: 'sort',
     type: DataType.INTEGER,
-    allowNull: false,
   })
   declare sort: number
 
