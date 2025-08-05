@@ -1,7 +1,7 @@
 import { Injectable, HttpException } from '@nestjs/common'
 import { TokenGetUserDto, UserLoginDto, UserRegisterDto, MicroserviceTokenVerifyDto, RefreshTokenDto, LogoutDto } from './base.dto'
 import { User } from '@model/auth/user'
-import { request_Method } from '@common/enum'
+import { PLATFORM, request_Method } from '@common/enum'
 import { CryptoUtil, jwtDecode, jwtEncodeInExpire } from '@library/utils/crypt.util'
 import * as crypto from 'crypto'
 import { TokenInfo } from '@model/auth/tokenInfo'
@@ -111,7 +111,7 @@ export class MiService {
     }
 
     // 获取用户信息
-    const user = await User.findOne({
+    const options: any = {
       where: { id: payload.id },
       attributes: ['id', 'userCode', 'userName', 'phone', 'email', 'status'],
       include: [
@@ -136,8 +136,19 @@ export class MiService {
           required: false,
         },
       ],
-    })
+    }
 
+    // 工控屏登录 - 工序信息
+    if (tokenRecord.platform == PLATFORM.station) {
+      options.include.push({
+        association: 'team',
+        attributes: ['id', 'name'],
+        through: { attributes: [] },
+        include: [{ association: 'process', through: { attributes: [] } }],
+      })
+    }
+
+    const user = await User.findOne(options)
     if (!user) {
       throw new HttpException('用户不存在', 404)
     }
