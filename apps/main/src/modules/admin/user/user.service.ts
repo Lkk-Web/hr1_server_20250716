@@ -110,7 +110,7 @@ export class UserService {
   public async find(id: number, loadModel) {
     const options: FindOptions = {
       where: { id },
-      attributes: ['id', 'userCode', 'code', 'phone', 'userName', 'createdAt', 'station', 'updatedAt', 'email', 'departmentId', 'state', 'roleId', 'status', 'remark'],
+      attributes: ['id', 'userCode', 'code', 'phone', 'userName', 'createdAt', 'station', 'updatedAt', 'email', 'departmentId', 'roleId', 'status', 'remark'],
       include: [
         {
           association: 'department',
@@ -129,7 +129,7 @@ export class UserService {
   public async findPagination(dto: FindPaginationDto, pagination: Pagination, loadModel) {
     const options: FindPaginationOptions = {
       where: {},
-      attributes: ['id', 'userCode', 'code', 'phone', 'userName', 'createdAt', 'station', 'updatedAt', 'email', 'departmentId', 'state', 'roleId', 'status', 'remark'],
+      attributes: ['id', 'userCode', 'code', 'phone', 'userName', 'createdAt', 'station', 'updatedAt', 'email', 'departmentId', 'roleId', 'status', 'remark'],
       pagination,
       include: [
         {
