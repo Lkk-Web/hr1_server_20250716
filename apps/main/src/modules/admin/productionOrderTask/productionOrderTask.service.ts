@@ -42,6 +42,17 @@ export class ProductionOrderTaskService {
                     {
                       association: 'processRouteList',
                       attributes: { exclude: ['createdAt', 'updatedAt'] },
+                      include: [
+                        {
+                          association: 'process',
+                          required: false,
+                          include: [
+                            {
+                              association: 'children',
+                            },
+                          ],
+                        },
+                      ],
                     },
                   ],
                 },
