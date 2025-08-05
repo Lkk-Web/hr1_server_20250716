@@ -1,15 +1,10 @@
 import { Injectable, HttpException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
-import { ProductionOrder } from '@model/production/productionOrder.model'
-import { ProductionOrderDetail } from '@model/production/productionOrderDetail.model'
-import { Material } from '@model/base/material.model'
-import { Op, Transaction } from 'sequelize'
-import { FindProductionOrderTaskDto, UpdateProductionOrderTaskDto, ProductionOrderTaskActionDto } from './productionOrderTask.dto'
-import { ProductionOrderTaskStatus } from '@common/enum'
+import { Op } from 'sequelize'
+import { FindProductionOrderTaskDto, UpdateProductionOrderTaskDto } from './productionOrderTask.dto'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { User } from '@model/auth/user'
 
 @Injectable()
 export class ProductionOrderTaskService {
@@ -32,14 +27,29 @@ export class ProductionOrderTaskService {
           association: 'productionOrderDetail',
           required: false,
           where: {},
+          attributes: { exclude: ['createdAt', 'updatedAt'] },
           include: [
             {
               association: 'material',
               required: false,
               where: {},
+              attributes: { exclude: ['createdAt', 'updatedAt'] },
+              include: [
+                {
+                  association: 'processRoute',
+                  required: false,
+                  include: [
+                    {
+                      association: 'processRouteList',
+                      attributes: { exclude: ['createdAt', 'updatedAt'] },
+                    },
+                  ],
+                },
+              ],
             },
             {
               association: 'productionOrder',
+              attributes: { exclude: ['createdAt', 'updatedAt'] },
               required: false,
               where: {},
               include: [
@@ -57,6 +67,7 @@ export class ProductionOrderTaskService {
           where: {},
         },
       ],
+      attributes: { exclude: ['createdAt', 'updatedAt', 'productionOrderDetailId'] },
       order: [['id', 'DESC']],
       offset: (current - 1) * pageSize,
       limit: pageSize,

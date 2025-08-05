@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseModel } from '@model/shared/base.model'
 import { ProductionOrderTask } from './productionOrderTask.model'
-import { Team } from '@model/schedule/team.model'
+import { Team } from '@model/auth/team'
 
 /** 生产工单与班组关联表 */
 @Table({ tableName: `production_task_of_team`, freezeTableName: true, timestamps: true, comment: '生产工单任务与班组关联表' })
