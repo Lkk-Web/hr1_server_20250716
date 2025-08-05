@@ -6,4 +6,4 @@ import * as index from './index'
   providers: [],
   controllers: [],
 })
-export class PlatformAdminModule {}
+export class AdminModule {}

@@ -7,4 +7,4 @@ import * as index from './index'
   providers: [],
   exports: [],
 })
-export class PlatformPadModule { }
+export class StationModule { }

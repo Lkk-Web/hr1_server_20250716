@@ -13,8 +13,9 @@ import { HookModule } from '@modules/hooks/hook.module'
 import { SequelizeModule } from '@nestjs/sequelize'
 import * as ModelList from '@model/index'
 import { MicroserviceClientModule } from '@library/microserviceClient/microserviceClient.module'
-import { PlatformAdminModule } from '@modules/admin/admin.module'
+import { AdminModule } from '@modules/admin/admin.module'
 import { ServicesModule } from '@services/services.module'
+import { StationModule } from '@modules/station/station.module'
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { ServicesModule } from '@services/services.module'
 
     // TODO.添加业务板块
     PlatformClientModule,
-    PlatformAdminModule,
+    AdminModule,
+    StationModule,
   ],
   controllers: [AppController],
   exports: [DtoPipe, LogInterceptor, ExceptionCatchFilter, AbnormalFilter],

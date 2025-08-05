@@ -8,7 +8,7 @@ import { LoggerModule, LoggerProvider } from './library/logger'
 import { LogInterceptor } from '@core/interceptor/log'
 import { join } from 'path'
 import * as AdminModules from './modules/admin/index'
-import * as ClientModules from './modules/client/index'
+import * as StationModules from './modules/station/index'
 import { AbnormalFilter } from './core/filter/abnormalFilter'
 import { INestApplication } from '@nestjs/common'
 import { SwaggerDocumentOptions } from '@nestjs/swagger/dist/interfaces'
@@ -56,7 +56,7 @@ async function bootstrap() {
   // 创建接口文档
   if (configs.info.isDebug) {
     swaggerStart(app, { title: '管理端文档', path: 'admin', modules: AdminModules, desc: '' })
-    swaggerStart(app, { title: '用户端文档', path: 'client', modules: ClientModules, desc: '' })
+    swaggerStart(app, { title: '工控屏端文档', path: 'station', modules: StationModules, desc: '' })
   }
 
   // 启动
