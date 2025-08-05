@@ -90,7 +90,6 @@ export * from './performance/manHour.model'
 export * from './performance/manHourProcess.model'
 
 //排班管理 schedule
-export * from './schedule/teamType.model'
 export * from './schedule/team.model'
 export * from './schedule/teamUser.model'
 export * from './schedule/shift.model'
