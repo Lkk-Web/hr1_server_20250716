@@ -8,10 +8,10 @@ export class FindPaginationDto {
   @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
   pageSize?: string
 
-  @ApiProperty({ type: Number, required: false, description: '是否为外包工序',enum:[0,1] })
+  @ApiProperty({ type: Number, required: false, description: '是否为外包工序', enum: [0, 1] })
   isOut?: number
 
-  @ApiProperty({required: false, description: '班组类型', type: String,enum:TEAM_TYPE })
+  @ApiProperty({ required: false, description: '班组类型', type: String, enum: TEAM_TYPE })
   type: TEAM_TYPE
 
   @ApiProperty({
@@ -21,14 +21,6 @@ export class FindPaginationDto {
     example: '班组A',
   })
   name: string
-
-/*  @ApiProperty({
-    description: '班组类型',
-    type: String,
-    required: false,
-    example: '生产班组',
-  })
-  teamType: string*/
 
   @ApiProperty({
     description: '负责人',
@@ -55,14 +47,6 @@ export class CTeamDto {
     example: '班组A',
   })
   name: string
-
-/*  @ApiProperty({
-    description: '班组类型',
-    type: Number,
-    required: true,
-    example: 1,
-  })
-  teamTypeId: number*/
 
   @ApiProperty({
     description: '负责人 ID',
@@ -103,8 +87,8 @@ export class CTeamDto {
   })
   status: boolean
 
-  @ApiProperty({required: true, description: '班组类型', type: String,enum:TEAM_TYPE })
-  @IsEnum(TEAM_TYPE,{message:"班组类型错误"})
+  @ApiProperty({ required: true, description: '班组类型', type: String, enum: TEAM_TYPE })
+  @IsEnum(TEAM_TYPE, { message: '班组类型错误' })
   type: TEAM_TYPE
 
   @ApiProperty({ description: '是否为外包工序 默认false', type: Boolean })
@@ -144,14 +128,6 @@ export class UTeamDto {
   })
   name: string
 
-/*  @ApiProperty({
-    description: '班组类型',
-    type: Number,
-    required: true,
-    example: 1,
-  })
-  teamTypeId: number*/
-
   @ApiProperty({
     description: '负责人 ID',
     type: Number,
@@ -160,9 +136,9 @@ export class UTeamDto {
   })
   chargeId: number
 
-  @ApiProperty({required: false, description: '班组类型', type: String,enum:TEAM_TYPE })
+  @ApiProperty({ required: false, description: '班组类型', type: String, enum: TEAM_TYPE })
   @IsOptional()
-  @IsEnum(TEAM_TYPE,{message:"班组类型错误"})
+  @IsEnum(TEAM_TYPE, { message: '班组类型错误' })
   type: TEAM_TYPE
 
   @ApiProperty({ description: '是否为外包工序 默认false', type: Boolean })

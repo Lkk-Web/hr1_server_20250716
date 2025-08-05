@@ -1,7 +1,6 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
-import { TeamType } from '@model/schedule/teamType.model'
 import { Shift } from '@model/schedule/shift.model'
 /** 班次时间表 */
 @Table({ tableName: `schedule_shift_period`, freezeTableName: true, timestamps: true, comment: '班次时间表' })

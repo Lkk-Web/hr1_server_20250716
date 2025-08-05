@@ -60,7 +60,6 @@ export * from './trendsTemplate/trendsTemplate.module'
 
 //排班管理
 export * from './team/team.module'
-export * from './teamType/teamType.module'
 export * from './shift/shift.module'
 export * from './calendar/calendar.module'
 export * from './schedulePlan/schedulePlan.module'

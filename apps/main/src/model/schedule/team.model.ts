@@ -20,15 +20,6 @@ export class Team extends BaseDate<Team> {
   })
   declare name: string
 
-  // 班组类型
-  /*  @ForeignKey(() => TeamType)
-  @Column({
-    comment: '班组类型',
-    type: DataType.INTEGER,
-    allowNull: false, // 可选
-  })
-  declare teamTypeId: number*/
-
   @ForeignKey(() => User)
   // 负责人
   @Column({
@@ -77,9 +68,6 @@ export class Team extends BaseDate<Team> {
     defaultValue: false,
   })
   declare isOut: boolean
-
-  // @BelongsTo(() => TeamType)
-  // declare teamType: TeamType
 
   @BelongsTo(() => User)
   declare charge: User

@@ -19,20 +19,20 @@ export class TeamService {
     @InjectModel(Team)
     private teamModel: typeof Team,
     private sequelize: Sequelize
-  ) { }
+  ) {}
 
   public async create(dto: CTeamDto, loadModel) {
-    const temp = await Team.findOne({ where: { name: dto.name,type:dto.type },attributes:['id'] })
+    const temp = await Team.findOne({ where: { name: dto.name, type: dto.type }, attributes: ['id'] })
     if (temp) throw new HttpException('已存在同名班组', 400)
     const result = await Team.create(dto)
     if (dto.userIds?.length) {
-      await TeamUser.bulkCreate(dto.userIds.map(userId=>({teamId:result.id,userId})))
+      await TeamUser.bulkCreate(dto.userIds.map(userId => ({ teamId: result.id, userId })))
     }
-    if(dto.equipmentLedgerIds?.length){
-      await TeamEquipmentLedger.bulkCreate(dto.equipmentLedgerIds.map(equipmentLedgerId=>({teamId:result.id,equipmentLedgerId})))
+    if (dto.equipmentLedgerIds?.length) {
+      await TeamEquipmentLedger.bulkCreate(dto.equipmentLedgerIds.map(equipmentLedgerId => ({ teamId: result.id, equipmentLedgerId })))
     }
-    if(dto.processIds?.length){
-      await TeamProcess.bulkCreate(dto.processIds.map(processId=>({teamId:result.id,processId})))
+    if (dto.processIds?.length) {
+      await TeamProcess.bulkCreate(dto.processIds.map(processId => ({ teamId: result.id, processId })))
     }
     return result
   }
@@ -42,24 +42,24 @@ export class TeamService {
     if (!team) {
       throw new HttpException('数据不存在', 400006)
     }
-   if(dto.name&&dto.name!=team.name){
-     const temp = await Team.findOne({ where: { name: dto.name,type:team.type, id: { [Op.not]: id } },attributes:['id'] })
-     if (temp) throw new HttpException('已存在同名班组', 400)
-   }
+    if (dto.name && dto.name != team.name) {
+      const temp = await Team.findOne({ where: { name: dto.name, type: team.type, id: { [Op.not]: id } }, attributes: ['id'] })
+      if (temp) throw new HttpException('已存在同名班组', 400)
+    }
     await team.update(dto)
     //去除依赖关系
     //创建新的班组员工关系
     if (dto.userIds) {
       await TeamUser.destroy({ where: { teamId: id } })
-      await TeamUser.bulkCreate(dto.userIds.map(userId=>({teamId:team.id,userId})))
+      await TeamUser.bulkCreate(dto.userIds.map(userId => ({ teamId: team.id, userId })))
     }
-    if(dto.equipmentLedgerIds){
+    if (dto.equipmentLedgerIds) {
       await TeamEquipmentLedger.destroy({ where: { teamId: id } })
-      await TeamEquipmentLedger.bulkCreate(dto.equipmentLedgerIds.map(equipmentLedgerId=>({teamId:team.id,equipmentLedgerId})))
+      await TeamEquipmentLedger.bulkCreate(dto.equipmentLedgerIds.map(equipmentLedgerId => ({ teamId: team.id, equipmentLedgerId })))
     }
-    if(dto.processIds){
+    if (dto.processIds) {
       await TeamProcess.destroy({ where: { teamId: id } })
-      await TeamProcess.bulkCreate(dto.processIds.map(processId=>({teamId:team.id,processId})))
+      await TeamProcess.bulkCreate(dto.processIds.map(processId => ({ teamId: team.id, processId })))
     }
     team = await Team.findOne({ where: { id } })
     return team
@@ -95,27 +95,21 @@ export class TeamService {
     }
     let result = await Team.findOne(options)
     if (result) {
-      result = result.toJSON();
-      const [equipmentLedgers,process] = await Promise.all([
+      result = result.toJSON()
+      const [equipmentLedgers, process] = await Promise.all([
         TeamEquipmentLedger.findAll({
-          where:{teamId:id},
+          where: { teamId: id },
           attributes: ['id'],
-          include:[
-            {association:'equipmentLedger',attributes:['id', 'code', 'status'],include:[
-                {association:'equipment',attributes:['name']}
-              ]},
-          ]
+          include: [{ association: 'equipmentLedger', attributes: ['id', 'code', 'status'], include: [{ association: 'equipment', attributes: ['name'] }] }],
         }),
         TeamProcess.findAll({
-          where:{teamId:id},
+          where: { teamId: id },
           attributes: ['id'],
-          include:[
-            {association:'process',attributes:['id', 'processName']}
-          ]
-        })
-      ]);
-      result.equipmentLedgers = equipmentLedgers.map(item=>item.equipmentLedger)
-      result.process = process.map(item=>item.process)
+          include: [{ association: 'process', attributes: ['id', 'processName'] }],
+        }),
+      ])
+      result.equipmentLedgers = equipmentLedgers.map(item => item.equipmentLedger)
+      result.process = process.map(item => item.process)
     }
     return result
   }
@@ -150,11 +144,7 @@ export class TeamService {
         [Op.like]: `%${dto.name}%`,
       }
     }
-    /*if (dto.teamType) {
-      options.include[0].where['name'] = {
-        [Op.like]: `%${dto.teamType}%`,
-      }
-    }*/
+
     if (dto.chargeName) {
       options.include[1].where['userName'] = {
         [Op.like]: `%${dto.chargeName}%`,
@@ -165,14 +155,14 @@ export class TeamService {
         [Op.like]: `%${dto.workShopName}%`,
       }
     }
-    if(dto.type){
+    if (dto.type) {
       options.where['type'] = dto.type
     }
-    if (dto.isOut!=null) {
+    if (dto.isOut != null) {
       options.where['isOut'] = dto.isOut
     }
     // @ts-ignore
-    const result = await Paging.diyPaging(Team, pagination, options);
+    const result = await Paging.diyPaging(Team, pagination, options)
     return result
   }
 }
