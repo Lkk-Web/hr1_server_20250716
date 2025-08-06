@@ -3,7 +3,7 @@ import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { AdminAuth } from '@core/decorator/controller'
 import { WorkShopService } from './workShop.service'
-import { CWorkShopDto, FindPaginationDto, FindPaginationScheduleDto, ScheduleDto, UWorkShopDto } from './workShop.dto'
+import { CWorkShopDto, FindPaginationDto, FindPaginationScheduleDto, ScheduleDto, ScheduleDetailDto, UWorkShopDto } from './workShop.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
 
@@ -73,5 +73,12 @@ export class WorkShopController {
   @Get('findPagination/schedule')
   async findPaginationSchedule(@Query() dto: FindPaginationScheduleDto, @CurrentPage() pagination: Pagination, @Req() req) {
     return await this.service.findPaginationSchedule(dto, pagination)
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '查询排程详情' })
+  @Post('schedule/detail')
+  async getScheduleDetail(@Body() dto: ScheduleDetailDto) {
+    return await this.service.getScheduleDetail(dto.productionOrderTaskId)
   }
 }

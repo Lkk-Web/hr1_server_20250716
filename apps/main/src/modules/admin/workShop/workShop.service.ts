@@ -210,4 +210,101 @@ export class WorkShopService {
 
     return result
   }
+
+  public async getScheduleDetail(productionOrderTaskId: number) {
+    const productionOrderTask = await ProductionOrderTask.findOne({
+      where: { id: productionOrderTaskId },
+      attributes: ['id', 'orderCode', 'splitQuantity', 'schedulingStatus'],
+      include: [
+        {
+          association: 'material',
+          attributes: ['id', 'code', 'materialName'],
+          include: [
+            {
+              association: 'processRoute',
+              attributes: ['id', 'name'],
+              include: [
+                {
+                  association: 'processRouteList',
+                  attributes: ['id', 'processRouteId', 'processId', 'sort', 'reportRatio', 'isReport', 'isOutsource', 'isInspection'],
+                  include: [
+                    {
+                      association: 'process',
+                      attributes: ['id', 'processName'],
+                      include: [{ association: 'children' }],
+                    },
+                  ],
+                  order: [['sort', 'ASC']],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+
+    if (!productionOrderTask) {
+      throw new HttpException('生产订单任务不存在', 400)
+    }
+
+    // 查询该任务的所有排程信息
+    const scheduleList = await POPSchedule.findAll({
+      where: { productionOrderTaskId },
+      attributes: ['id', 'processId', 'startTime', 'endTime', 'createdAt', 'updatedAt'],
+      include: [
+        {
+          association: 'process',
+          attributes: ['id', 'processName'],
+        },
+      ],
+      order: [['id', 'ASC']],
+    })
+
+    const processRouteList = productionOrderTask.material?.processRoute?.processRouteList || []
+
+    // 将排程信息与工艺路线工序进行匹配
+    const scheduleDetail = processRouteList.map(routeProcess => {
+      const schedule = scheduleList.find(s => s.processId === routeProcess.processId)
+      let subProcesses
+      if (routeProcess.process?.children?.length > 0) {
+        subProcesses = routeProcess.process.children.map(child => {
+          const schedule = scheduleList.find(s => s.processId === child.id)
+          return {
+            id: child.id,
+            processName: child.processName,
+            sort: child.sort,
+            startTime: schedule?.startTime || null,
+            endTime: schedule?.endTime || null,
+          }
+        })
+      }
+      return {
+        processId: routeProcess.processId,
+        processName: routeProcess.process?.processName,
+        sort: routeProcess.sort,
+        startTime: schedule?.startTime || null,
+        endTime: schedule?.endTime || null,
+        subProcesses: subProcesses || null,
+      }
+    })
+
+    return {
+      productionOrderTask: {
+        id: productionOrderTask.id,
+        orderCode: productionOrderTask.orderCode,
+        splitQuantity: productionOrderTask.splitQuantity,
+        schedulingStatus: productionOrderTask.schedulingStatus,
+        material: {
+          id: productionOrderTask.material?.id,
+          materialCode: productionOrderTask.material?.code,
+          materialName: productionOrderTask.material?.materialName,
+          processRoute: {
+            id: productionOrderTask.material?.processRoute?.id,
+            processRouteName: productionOrderTask.material?.processRoute?.name,
+          },
+        },
+      },
+      scheduleDetail,
+    }
+  }
 }

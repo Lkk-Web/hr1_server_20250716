@@ -104,14 +104,6 @@ export class FindPaginationScheduleDto {
 
   @ApiProperty({ required: false, description: '结束时间' })
   endTime?: Date
-
-  // @ApiProperty({
-  //   description: '工作中心名称',
-  //   type: String,
-  //   required: false,
-  //   example: 'XXXX工作区',
-  // })
-  // name: string
 }
 
 export class ScheduleList {
@@ -135,6 +127,9 @@ export class ScheduleList {
     required: true,
   })
   processId: number
+
+  @ApiProperty({ description: '子工序', type: [ScheduleList], required: false })
+  subProcessList?: ScheduleList[]
 }
 
 export class ScheduleDto {
@@ -142,12 +137,23 @@ export class ScheduleDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ScheduleList)
-  ScheduleList: ScheduleList[]
+  scheduleList: ScheduleList[]
 
   @ApiProperty({
     description: '工单Id',
     type: Number,
     required: true,
   })
+  productionOrderTaskId: number
+}
+
+export class ScheduleDetailDto {
+  @ApiProperty({
+    description: '生产订单任务ID',
+    type: Number,
+    required: true,
+    example: 1,
+  })
+  @IsNotEmpty({ message: '生产订单任务ID不能为空' })
   productionOrderTaskId: number
 }
