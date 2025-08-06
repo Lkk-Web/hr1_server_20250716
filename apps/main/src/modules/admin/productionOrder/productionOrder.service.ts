@@ -905,7 +905,7 @@ export class ProductionOrderService {
         transaction,
       })
 
-      const processRoute = productionOrderDetail.material.processRoute.processRouteList //工艺路线
+      const processRoute = productionOrderDetail.material.processRoute?.processRouteList //工艺路线
 
       // 2. 校验
       {
