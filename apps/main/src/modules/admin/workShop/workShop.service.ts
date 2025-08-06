@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import _ = require('lodash')
 import { WorkShop } from '@model/base/workShop.model'
-import { CWorkShopDto, FindPaginationDto, FindPaginationScheduleDto, ScheduleDto, UWorkShopDto } from './workShop.dto'
+import { CWorkShopDto, FindPaginationDto, FindPaginationScheduleDto, ScheduleDto, ScheduleList, UWorkShopDto } from './workShop.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
@@ -96,7 +96,7 @@ export class WorkShopService {
   }
 
   public async schedule(dto: ScheduleDto, loadModel) {
-    const { ScheduleList, productionOrderTaskId } = dto
+    const { scheduleList, productionOrderTaskId } = dto
     const transaction = await this.sequelize.transaction()
 
     try {
@@ -133,29 +133,45 @@ export class WorkShopService {
 
       const processRouteList = processTask.material.processRoute.processRouteList
 
-      if (ScheduleList.length !== processRouteList.length) throw new HttpException(`排程数据数量不匹配，工艺路线包含${processRouteList.length}个工序`, 400)
+      if (scheduleList.length !== processRouteList.length) throw new HttpException(`排程数据数量不匹配，工艺路线包含${processRouteList.length}个工序`, 400)
 
+      let scheduleListData = scheduleList as ScheduleList[]
       if (processTask.schedulingStatus == SchedulingStatus.SCHEDULED) {
         // map 为并发的异步操作，会导致事务失效
-        for (const v of ScheduleList) {
-          if (v.startTime > v.endTime) throw new HttpException('排程开始时间不能大于结束时间', 400)
-          const temp = await POPSchedule.findOne({ where: { processId: v.processId, productionOrderTaskId } })
-          if (!temp) throw new HttpException('排程不存在,无法修改', 400)
-          v['id'] = temp.dataValues.id
-          v['productionOrderTaskId'] = productionOrderTaskId
+        const editSchedule = async (data: ScheduleList[]) => {
+          for (const v of data) {
+            if (v.startTime > v.endTime) throw new HttpException('排程开始时间不能大于结束时间', 400)
+            const temp = await POPSchedule.findOne({ where: { processId: v.processId, productionOrderTaskId } })
+            if (!temp) throw new HttpException('排程不存在,无法修改', 400)
+            v['id'] = temp.dataValues.id
+            v['productionOrderTaskId'] = productionOrderTaskId
+            if (v.subProcessList?.length > 0) await editSchedule(v.subProcessList) //递归
+          }
         }
+        await editSchedule(scheduleListData)
       } else {
         // 未排程
-        for (const v of ScheduleList) {
-          if (v.startTime > v.endTime) throw new HttpException('排程开始时间不能大于结束时间', 400)
-          v['productionOrderTaskId'] = productionOrderTaskId
+        const createSchedule = async (data: ScheduleList[]) => {
+          for (const v of data) {
+            if (v.startTime > v.endTime) throw new HttpException('排程开始时间不能大于结束时间', 400)
+            v['productionOrderTaskId'] = productionOrderTaskId
+            if (v.subProcessList?.length > 0) await createSchedule(v.subProcessList) //递归
+          }
+        }
+        await createSchedule(scheduleListData)
+      }
+
+      const createScheduleSql = async (data: ScheduleList[]) => {
+        await POPSchedule.bulkCreate(data, {
+          updateOnDuplicate: ['id', 'startTime', 'endTime', 'processId', 'productionOrderTaskId'],
+          transaction,
+        })
+        for (const v of data) {
+          if (v?.subProcessList?.length > 0) await createScheduleSql(v.subProcessList)
         }
       }
 
-      await POPSchedule.bulkCreate(ScheduleList, {
-        updateOnDuplicate: ['id', 'startTime', 'endTime', 'processId', 'productionOrderTaskId'],
-        transaction,
-      })
+      await createScheduleSql(scheduleListData)
 
       await ProductionOrderTask.update({ schedulingStatus: SchedulingStatus.SCHEDULED }, { where: { id: productionOrderTaskId }, transaction })
 
