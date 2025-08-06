@@ -204,6 +204,7 @@ export class WorkShopService {
         },
         {
           association: 'process',
+          where: { isChild: 0 },
           // attributes: ['id', 'processName'],
         },
       ],
