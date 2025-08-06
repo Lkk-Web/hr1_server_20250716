@@ -1060,8 +1060,8 @@ export class ProductionOrderService {
       }
 
       // 6. 依据工艺路线生成工序任务单 ProcessTask - 工序 * 序列号 和 工位任务单 ProcessPositionTask
-      const processTaskRecord = [] //工序记录
-      const processPositionTaskRecord = [] //工位记录
+      const processTaskRecord = [] //工序任务单记录
+      const processPositionTaskRecord = [] //工位任务单记录
       {
         for (const productSerial of productSerials) {
           for (const process of processRoute) {
