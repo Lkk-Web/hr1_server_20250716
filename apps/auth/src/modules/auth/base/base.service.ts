@@ -142,7 +142,7 @@ export class MiService {
     if (tokenRecord.platform == PLATFORM.station) {
       options.include.push({
         association: 'team',
-        attributes: ['id', 'name'],
+        attributes: ['name', 'chargeId'],
         through: { attributes: [] },
         include: [{ association: 'process', through: { attributes: [] } }],
       })
