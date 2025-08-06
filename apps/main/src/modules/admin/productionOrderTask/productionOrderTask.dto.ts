@@ -3,6 +3,25 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsOptional, IsString, IsNumber, IsDateString, IsIn, IsEnum } from 'class-validator'
 
 export class FindProductionOrderTaskDto {
+  @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
+  current?: string
+  @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
+  pageSize?: string
+
+  @ApiProperty({
+    description: '计划开始时间',
+    type: Date,
+    required: false,
+  })
+  startTime: Date
+
+  @ApiProperty({
+    description: '计划结束时间',
+    type: Date,
+    required: false,
+  })
+  endTime: Date
+
   @ApiProperty({ description: '任务编码', required: false })
   @IsOptional()
   @IsString()

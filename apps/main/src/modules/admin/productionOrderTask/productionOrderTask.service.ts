@@ -5,6 +5,8 @@ import { Op } from 'sequelize'
 import { FindProductionOrderTaskDto, UpdateProductionOrderTaskDto } from './productionOrderTask.dto'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
+import moment from 'moment'
+import { Paging } from '@library/utils/paging'
 
 @Injectable()
 export class ProductionOrderTaskService {
@@ -37,6 +39,7 @@ export class ProductionOrderTaskService {
               include: [
                 {
                   association: 'processRoute',
+                  attributes: { exclude: ['createdAt', 'updatedAt'] },
                   required: false,
                   include: [
                     {
@@ -45,10 +48,12 @@ export class ProductionOrderTaskService {
                       include: [
                         {
                           association: 'process',
+                          attributes: { exclude: ['createdAt', 'updatedAt'] },
                           required: false,
                           include: [
                             {
                               association: 'children',
+                              attributes: { exclude: ['createdAt', 'updatedAt'] },
                             },
                           ],
                         },
@@ -108,15 +113,21 @@ export class ProductionOrderTaskService {
       options.include[0].include[1].where['materialName'] = { [Op.like]: `%${materialName}%` }
     }
 
-    const result = await this.productionOrderTaskModel.findAndCountAll(options)
-
-    return {
-      data: result.rows,
-      current,
-      pageSize,
-      total: result.count,
-      pageCount: Math.ceil(result.count / pageSize),
+    if (dto.startTime) {
+      options.where['startTime'] = {
+        [Op.gte]: moment(dto.startTime).startOf('day').toISOString(),
+      }
     }
+
+    if (dto.endTime) {
+      options.where['endTime'] = {
+        [Op.lte]: moment(dto.endTime).endOf('day').toISOString(),
+      }
+    }
+
+    const result = await Paging.diyPaging(this.productionOrderTaskModel, pagination, options)
+
+    return result
   }
 
   /**
