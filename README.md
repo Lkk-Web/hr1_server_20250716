@@ -10,6 +10,10 @@
 cd /home/hr1_server_20250716 && git pull && npm run build && pm2 restart 18 && pm2 restart 19 && pm2 logs 18
 ```
 
+`权限接口文档`：https://s4.orbitsoft.cn/hr1-auth/doc/auth/
+`管理端接口文档`：https://s4.orbitsoft.cn/hr1/doc/admin
+`工控屏端接口文档`：https://s4.orbitsoft.cn/hr1/doc/station
+
 ### 技术栈
 
 - **框架**: NestJS 8.0.0+

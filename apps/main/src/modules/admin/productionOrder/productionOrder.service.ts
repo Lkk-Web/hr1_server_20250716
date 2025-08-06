@@ -143,81 +143,10 @@ export class ProductionOrderService {
             {
               association: 'material',
               required: true,
-              // include: [
-              //   {
-              //     association: 'boms',
-              //     required: false,
-              //   },
-              // ],
               where: {},
             },
           ],
         },
-        // {
-        //   // {
-        //   //   association: 'processes',
-        //   //   attributes: [
-        //   //     'id',
-        //   //     'productionOrderId',
-        //   //     'processId',
-        //   //     'reportRatio',
-        //   //     'reportRatio',
-        //   //     'isOutsource',
-        //   //     'sort',
-        //   //     'planCount',
-        //   //     'goodCount',
-        //   //     'badCount',
-        //   //     'startTime',
-        //   //     'endTime',
-        //   //     'actualStartTime',
-        //   //     'actualEndTime',
-        //   //     'serialId',
-        //   //     'isInspection',
-        //   //     'reportQuantity',
-        //   //   ],
-        //   //   include: [
-        //   //     {
-        //   //       association: 'process',
-        //   //       attributes: ['id', 'processName'],
-        //   //       include: [
-        //   //         {
-        //   //           association: 'children',
-        //   //           attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
-        //   //           required: false,
-        //   //         },
-        //   //       ],
-        //   //     },
-        //   //     {
-        //   //       association: 'workCenter',
-        //   //       // where: {},
-        //   //       attributes: ['id', 'name'],
-        //   //       through: {
-        //   //         attributes: ['id'],
-        //   //       },
-        //   //     },
-        //   //     {
-        //   //       association: 'depts',
-        //   //       attributes: ['id', 'name'],
-        //   //       through: {
-        //   //         attributes: [], // 隐藏中间表的数据
-        //   //       },
-        //   //     },
-        //   //     {
-        //   //       association: 'items',
-        //   //       attributes: ['id', 'name'],
-        //   //       through: {
-        //   //         attributes: [], // 隐藏中间表的数据
-        //   //       },
-        //   //     },
-        //   //     {
-        //   //       association: 'file',
-        //   //       attributes: ['id', 'name', 'versionCode', 'url'],
-        //   //       where: {},
-        //   //       required: false,
-        //   //     },
-        //   //   ],
-        //   // },
-        // },
       ],
     }
 
@@ -266,37 +195,6 @@ export class ProductionOrderService {
     //       }
     //     }
     //   }
-    // }
-
-    // if (dto.startTime) {
-    //   options.where['startTime'] = {
-    //     [Op.gte]: moment(dto.startTime).startOf('day').toISOString(),
-    //     [Op.lte]: moment(dto.startTime).endOf('day').toISOString(),
-    //   }
-    // }
-
-    // if (dto.endTime) {
-    //   options.where['endTime'] = {
-    //     [Op.gte]: moment(dto.endTime).startOf('day').toISOString(),
-    //     [Op.lte]: moment(dto.endTime).endOf('day').toISOString(),
-    //   }
-    // }
-
-    // // 工序排产
-    // if (dto.popStartTime && dto.popEndTime) {
-    //   // 筛选startTime >= dto.startTime 且 endTime <= dto.endTime 的记录
-    //   options.where['startTime'] = { [Op.gte]: dto.popStartTime }
-    //   options.where['endTime'] = { [Op.lte]: dto.popEndTime }
-    // } else if (dto.popStartTime) {
-    //   // 只有开始时间，筛选startTime >= dto.startTime的记录
-    //   options.where['startTime'] = { [Op.gte]: dto.popStartTime }
-    // } else if (dto.popEndTime) {
-    //   // 只有结束时间，筛选endTime <= dto.endTime的记录
-    //   options.where['endTime'] = { [Op.lte]: dto.popEndTime }
-    // }
-
-    // if (dto.schedulingStatus) {
-    //   options.where['schedulingStatus'] = dto.schedulingStatus
     // }
 
     const result = await ProductionOrder.findPagination<ProductionOrder>(options)
@@ -988,6 +886,16 @@ export class ProductionOrderService {
                 include: [
                   {
                     association: 'processRouteList',
+                    include: [
+                      {
+                        association: 'process',
+                        include: [
+                          {
+                            association: 'children',
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -997,307 +905,206 @@ export class ProductionOrderService {
         transaction,
       })
 
-      if (!productionOrderDetail) {
-        throw new Error('生产订单详情不存在')
-      }
+      const processRoute = productionOrderDetail.material.processRoute.processRouteList //工艺路线
 
-      // 2. 验证拆分数量
-      if (splitQuantity <= 0) {
-        throw new Error('拆分数量必须大于0')
-      }
+      // 2. 校验
+      {
+        if (!productionOrderDetail) {
+          throw new Error('生产订单详情不存在')
+        }
 
-      if (splitQuantity > productionOrderDetail.plannedOutput - productionOrderDetail.actualOutput) {
-        throw new Error('拆分数量不能大于计划产出数量')
-      }
+        if (splitQuantity <= 0) {
+          throw new Error('拆分数量必须大于0')
+        }
 
-      // 3. 检查拆单状态
-      if (productionOrderDetail.splitStatus === '已排产') {
-        throw new Error('该订单详情已经排产，不能重复排产')
-      }
+        if (splitQuantity > productionOrderDetail.plannedOutput - productionOrderDetail.actualOutput) {
+          throw new Error('拆分数量不能大于计划产出数量')
+        }
 
-      // 4. 生成ProductionOrderTask拆单编号 (ordercode-01格式)
-      const existingSplitOrders = await ProductionOrderTask.findAll({
-        where: {
-          orderCode: {
-            [Op.like]: `${productionOrderDetail.orderCode}-%`,
-          },
-        },
-        order: [['orderCode', 'DESC']],
-        transaction,
-      })
+        if (productionOrderDetail.splitStatus === '已排产') {
+          throw new Error('该订单详情已经排产，不能重复排产')
+        }
 
-      let nextSequence = 1
-      if (existingSplitOrders.length > 0) {
-        const lastDashIndex = existingSplitOrders[0].orderCode.lastIndexOf('-')
-        const sequenceStr = existingSplitOrders[0].orderCode.substring(lastDashIndex + 1)
-        const sequenceNum = parseInt(sequenceStr, 10)
-        if (!isNaN(sequenceNum)) {
-          nextSequence = sequenceNum + 1
+        if (!productionOrderDetail.material || !productionOrderDetail.material.processRoute) {
+          throw new Error('物料未关联工艺路线或工艺路线不存在')
         }
       }
 
-      const newOrderCode = `${productionOrderDetail.orderCode}-${nextSequence.toString().padStart(2, '0')}`
-
-      const newSplitOrder = await ProductionOrderTask.create(
-        {
-          orderCode: newOrderCode,
-          productionOrderDetailId: productionOrderDetailId,
-          materialId: productionOrderDetail.materialId,
-          splitQuantity: splitQuantity,
-          // status: ProductionOrderTaskStatus.NOT_STARTED,
-          startTime: productionOrderDetail.startTime,
-          endTime: productionOrderDetail.endTime,
-          workShop: productionOrderDetail.workShop,
-          priority: '无',
-          remark: remark || `从订单${productionOrderDetail.orderCode}拆分而来，拆分数量：${splitQuantity}`,
-          createdBy: user?.userName || 'system',
-          actualOutput: 0,
-          goodCount: 0,
-          badCount: 0,
-        },
-        { transaction }
-      )
-
-      //生产工单自动匹配绑定多个班组
+      // 3. 拆单 - 生成工单 ProductionOrderTask (编号ordercode-01格式)
       {
-        try {
-          const processRoute = productionOrderDetail.material.processRoute.processRouteList
+        const existingSplitOrders = await ProductionOrderTask.findAll({
+          where: {
+            orderCode: {
+              [Op.like]: `${productionOrderDetail.orderCode}-%`,
+            },
+          },
+          order: [['orderCode', 'DESC']],
+          transaction,
+        })
 
-          // 获取工艺路线中的所有工序及其子工序
-          const processWithChildren = await Process.findAll({
+        let nextSequence = 1
+        if (existingSplitOrders.length > 0) {
+          const lastDashIndex = existingSplitOrders[0].orderCode.lastIndexOf('-')
+          const sequenceStr = existingSplitOrders[0].orderCode.substring(lastDashIndex + 1)
+          const sequenceNum = parseInt(sequenceStr, 10)
+          if (!isNaN(sequenceNum)) {
+            nextSequence = sequenceNum + 1
+          }
+        }
+
+        var newOrderCode = `${productionOrderDetail.orderCode}-${nextSequence.toString().padStart(2, '0')}`
+
+        var productionOrderTask = await ProductionOrderTask.create(
+          {
+            orderCode: newOrderCode,
+            productionOrderDetailId: productionOrderDetailId,
+            materialId: productionOrderDetail.materialId,
+            splitQuantity: splitQuantity,
+            // status: ProductionOrderTaskStatus.NOT_STARTED,
+            startTime: productionOrderDetail.startTime,
+            endTime: productionOrderDetail.endTime,
+            workShop: productionOrderDetail.workShop,
+            priority: '无',
+            remark: remark || `从订单${productionOrderDetail.orderCode}拆分而来，拆分数量：${splitQuantity}`,
+            createdBy: user?.userName || 'system',
+            actualOutput: 0,
+            goodCount: 0,
+            badCount: 0,
+          },
+          { transaction }
+        )
+      }
+
+      // 4. 生产工单 ProductionOrderTask 根据工艺路线工序自动匹配绑定全部班组
+      {
+        // 收集所有子工序ID
+        const childProcessIds = []
+        processRoute.map(v => {
+          if (v.process.children && v.process.children.length > 0) {
+            v.process.children.forEach(child => {
+              childProcessIds.push(child.id)
+            })
+          }
+        })
+
+        // 如果有子工序，查找匹配的班组
+        if (childProcessIds.length > 0) {
+          const teamProcesses = await TeamProcess.findAll({
             where: {
-              id: {
-                [Op.in]: processRoute.map(route => route.processId),
+              processId: {
+                [Op.in]: childProcessIds,
               },
             },
-            include: [
-              {
-                association: 'children',
-                attributes: ['id', 'processName'],
-              },
-            ],
+            attributes: ['teamId'],
+            group: ['teamId'],
             transaction,
           })
 
-          // 收集所有子工序ID
-          const childProcessIds = []
-          processWithChildren.forEach(process => {
-            if (process.children && process.children.length > 0) {
-              process.children.forEach(child => {
-                childProcessIds.push(child.id)
-              })
-            }
-          })
+          if (!teamProcesses) throw new Error('当前没有匹配的班组')
 
-          // 如果有子工序，查找匹配的班组
-          if (childProcessIds.length > 0) {
-            // 查找包含这些子工序的班组
-            const teamProcesses = await TeamProcess.findAll({
-              where: {
-                processId: {
-                  [Op.in]: childProcessIds,
-                },
-              },
-              attributes: ['teamId'],
-              group: ['teamId'],
-              transaction,
-            })
-
-            if (!teamProcesses) {
-              throw new Error('当前没有匹配的班组')
-            }
-
-            // 为每个匹配的班组创建关联
-            for (const tp of teamProcesses) {
-              await ProductionOrderTaskTeam.create(
-                {
-                  productionOrderTaskId: newSplitOrder.id,
-                  teamId: tp.teamId,
-                },
-                { transaction }
-              )
-            }
+          // 为每个匹配的班组创建与工单关联
+          for (const tp of teamProcesses) {
+            await ProductionOrderTaskTeam.create({ productionOrderTaskId: productionOrderTask.id, teamId: tp.teamId }, { transaction })
           }
-        } catch (error) {
-          throw new Error('班组绑定失败')
         }
       }
 
       // 5. 根据group规则生成产品序列号
       const productSerials = []
-
-      let startSequence = 1
-      const group = productionOrderDetail.material.boms[0].group
-
-      if (productionOrderDetail.material.processRouteId == null) {
-        throw new Error('当前产品需绑定工艺路线')
-      }
-
-      // if (group === '0101') {
-      const currentYear = new Date().getFullYear().toString()
-      const yearPrefix = `${currentYear}`
-
-      const existingSerials = await ProductSerial.findAll({
-        where: {
-          serialNumber: {
-            [Op.like]: `${group}-${yearPrefix}%`,
-          },
-        },
-        order: [['serialNumber', 'DESC']],
-        limit: 1,
-        transaction,
-      })
-
-      if (existingSerials.length > 0) {
-        startSequence = parseInt(existingSerials[0].serialNumber.slice(-5)) + 1
-      }
-      // }
-
-      for (let i = 0; i < splitQuantity; i++) {
-        let serialNumber: string
-        // if (group === '0101') {
-        const currentYear = new Date().getFullYear().toString() //2025
-        const sequenceNumber = (startSequence + i).toString().padStart(4, '0') //0001
-        serialNumber = `${group}-${currentYear}2${sequenceNumber}`
-        // }
-
-        const productSerial = await ProductSerial.create(
-          {
-            serialNumber: serialNumber,
-            productionOrderTaskId: newSplitOrder.id,
-            status: ProductSerialStatus.NOT_STARTED,
-            quantity: 1,
-            qualityStatus: '待检',
-            processProgress: [], // 初始化为空数组，后续根据工艺路线填充
-            createdBy: user?.userName || 'system',
-            // remark: `序列号${i}/${splitQuantity}`,
-          },
-          { transaction }
-        )
-        productSerials.push(productSerial)
-      }
-
-      //依据 序列单拆单productSerial  工序任务单production_process_task  productionOrderDetail.materialId.processRouteId 中 工艺路线生产对应的工序任务单
       {
-        const material = await Material.findByPk(productionOrderDetail.materialId, {
-          include: [
-            {
-              association: 'processRoute',
-              include: [
-                {
-                  association: 'processRouteList',
-                  include: [
-                    {
-                      association: 'process',
-                      attributes: ['id', 'processName'],
-                    },
-                  ],
-                  order: [['sort', 'ASC']],
-                },
-              ],
+        let startSequence = 1
+        const group = productionOrderDetail.material.boms[0].group
+
+        // if (group === '0101') {
+        const currentYear = new Date().getFullYear().toString()
+        const yearPrefix = `${currentYear}`
+
+        const existingSerials = await ProductSerial.findAll({
+          where: {
+            serialNumber: {
+              [Op.like]: `${group}-${yearPrefix}%`,
             },
-          ],
+          },
+          order: [['serialNumber', 'DESC']],
+          limit: 1,
           transaction,
         })
 
-        if (!material || !material.processRoute) {
-          throw new Error('物料未关联工艺路线或工艺路线不存在')
+        if (existingSerials.length > 0) {
+          startSequence = parseInt(existingSerials[0].serialNumber.slice(-5)) + 1
         }
+        // }
 
+        for (let i = 0; i < splitQuantity; i++) {
+          let serialNumber: string
+          // if (group === '0101') {
+          const currentYear = new Date().getFullYear().toString() //2025
+          const sequenceNumber = (startSequence + i).toString().padStart(4, '0') //0001
+          serialNumber = `${group}-${currentYear}2${sequenceNumber}`
+          // }
+
+          const productSerial = await ProductSerial.create(
+            {
+              serialNumber: serialNumber,
+              productionOrderTaskId: productionOrderTask.id,
+              status: ProductSerialStatus.NOT_STARTED,
+              quantity: 1,
+              qualityStatus: '待检',
+              processProgress: [], // 初始化为空数组，后续根据工艺路线填充
+              createdBy: user?.userName || 'system',
+            },
+            { transaction }
+          )
+          productSerials.push(productSerial)
+        }
+      }
+
+      // 6. 依据工艺路线生成工序任务单 ProcessTask - 工序 * 序列号 和 工位任务单 ProcessPositionTask
+      const processTaskRecord = [] //工序记录
+      const processPositionTaskRecord = [] //工位记录
+      {
         for (const productSerial of productSerials) {
-          for (const routeProcess of material.processRoute.processRouteList) {
-            // 创建工序任务单
-            await ProcessTask.create(
+          for (const process of processRoute) {
+            const processTask = await ProcessTask.create(
               {
                 serialId: productSerial.id,
-                processId: routeProcess.processId,
-                reportRatio: routeProcess.reportRatio,
-                isOutsource: routeProcess.isOutsource,
-                isInspection: routeProcess.isInspection,
-                planCount: 1, // 每个序列号对应一个产品
+                processId: process.processId,
+                reportRatio: process.reportRatio,
+                isOutsource: process.isOutsource,
+                isInspection: process.isInspection,
+                receptionCount: process.sort,
+                planCount: 1,
                 status: PROCESS_TASK_STATUS.notStart,
                 startTime: new Date(),
                 endTime: new Date(),
-                receptionCount: routeProcess.sort,
                 priority: '无',
               },
               { transaction }
             )
-          }
-        }
-      }
-      //自动生成工位任务单 子工序 工位任务单针对工艺路线中的子工序 工位任务单数量为 序列号 * 工艺路线中的工序中的子工序
-      {
-        for (const productSerial of productSerials) {
-          // 获取工艺路线中的所有工序
-          const material = await Material.findByPk(productionOrderDetail.materialId, {
-            include: [
-              {
-                association: 'processRoute',
-                include: [
+            processTaskRecord.push(processTask.toJSON())
+            // 依据工艺路线子工序生成工位任务单 ProcessPositionTask - 序列号 * 工艺路线中的工序中的子工序
+            if (process.process.children) {
+              // 为每个子工序创建工位任务单
+              for (const childProcess of process.process.children) {
+                const processPositionTask = await ProcessPositionTask.create(
                   {
-                    association: 'processRouteList',
-                    include: [
-                      {
-                        association: 'process',
-                        include: [
-                          {
-                            association: 'children',
-                            attributes: ['id', 'processName', 'reportRatio', 'isOut'],
-                          },
-                        ],
-                      },
-                    ],
+                    processTaskId: processTask.id,
+                    reportRatio: childProcess.dataValues.reportRatio || 1,
+                    planCount: 1,
+                    status: PROCESS_TASK_STATUS.notStart,
+                    isOutsource: childProcess.dataValues.isOut || false,
+                    isInspection: true,
                   },
-                ],
-              },
-            ],
-            transaction,
-          })
-
-          if (!material || !material.processRoute) {
-            continue
-          }
-
-          // 获取已创建的工序任务单
-          const processTasks = await ProcessTask.findAll({
-            where: { serialId: productSerial.id },
-            include: [
-              {
-                association: 'process',
-                attributes: ['id', 'processName'],
-              },
-            ],
-            transaction,
-          })
-
-          // 为每个工序的子工序创建工位任务单
-          for (const routeProcess of material.processRoute.processRouteList) {
-            const processTask = processTasks.find(task => task.processId === routeProcess.processId)
-
-            if (!processTask || !routeProcess.process.children || routeProcess.process.children.length === 0) {
-              continue
-            }
-
-            // 为每个子工序创建工位任务单
-            for (const childProcess of routeProcess.process.children) {
-              await ProcessPositionTask.create(
-                {
-                  processTaskId: processTask.id,
-                  reportRatio: childProcess.reportRatio || 1,
-                  planCount: 1,
-                  status: PROCESS_TASK_STATUS.notStart,
-                  isOutsource: childProcess.isOut || false,
-                  isInspection: true,
-                },
-                { transaction }
-              )
+                  { transaction }
+                )
+                processPositionTaskRecord.push(processPositionTask.toJSON())
+              }
             }
           }
         }
       }
 
-      // 6. 更新原生产订单详情的计划产出数量
+      // 7. 更新原生产订单详情的计划产出数量
       await productionOrderDetail.update(
         {
           actualOutput: productionOrderDetail.actualOutput + splitQuantity,
@@ -1316,12 +1123,11 @@ export class ProductionOrderService {
             orderCode: productionOrderDetail.orderCode,
             remain_quantity: productionOrderDetail.plannedOutput - productionOrderDetail.actualOutput,
           },
-          newSplitOrder: {
-            id: newSplitOrder.id,
+          productionOrderTask: {
+            id: productionOrderTask.id,
             orderCode: newOrderCode,
             splitQuantity: splitQuantity,
-            // status: newSplitOrder.status,
-            remark: newSplitOrder.remark,
+            remark: productionOrderTask.remark,
             createdBy: user?.userName || 'system',
           },
           productSerials: productSerials.map(serial => ({
@@ -1331,6 +1137,8 @@ export class ProductionOrderService {
             quantity: serial.quantity,
             qualityStatus: serial.qualityStatus,
           })),
+          processTaskRecord,
+          processPositionTaskRecord,
         },
       }
     } catch (error) {
