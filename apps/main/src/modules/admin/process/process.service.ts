@@ -89,7 +89,7 @@ export class ProcessService {
         }
       }
     }
-    await process.update(dto)
+    await process.update({ ...dto, isChild: dto.parentId ? 1 : 0 })
     if (dto.defectiveItems) {
       await ProcessItems.destroy({ where: { processId: id } })
       await ProcessItems.bulkCreate(
