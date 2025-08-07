@@ -125,15 +125,17 @@ export class ProcessPositionTaskService {
       include: [
         {
           association: 'processTask',
-          attributes: ['id', 'processName', 'status', 'planCount'],
+          attributes: ['id', 'status', 'planCount'],
           where: {},
           required: false,
           include: [
             {
-              association: 'order',
-              attributes: ['id', 'code'],
-              where: {},
-              required: false,
+              association: 'process',
+              attributes: ['id', 'processName'],
+            },
+            {
+              association: 'serial',
+              attributes: ['id', 'serialNumber'],
             },
           ],
         },
@@ -287,7 +289,6 @@ export class ProcessPositionTaskService {
         {
           association: 'teams',
           where: { id: dto.teamId },
-          through: {},
           required: true,
           attributes: [],
         },
@@ -306,17 +307,20 @@ export class ProcessPositionTaskService {
           attributes: ['id', 'serialNumber', 'status'],
           include: [
             {
-              association: 'processTasks',
+              // association: 'processTasks',
+              model: ProcessTask,
+              as: 'processTasks',
               where: processTaskWhere,
               required: false,
-              attributes: ['id', 'status', 'planCount', 'goodCount', 'badCount'],
+              attributes: ['id', 'status'],
               include: [
                 {
                   association: 'process',
                   attributes: ['id', 'processName'],
                 },
                 {
-                  association: 'processPositionTasks',
+                  model: ProcessPositionTask,
+                  as: 'processPositionTasks',
                   where: positionTaskWhere,
                   required: false,
                   attributes: ['id', 'reportRatio', 'planCount', 'goodCount', 'badCount', 'status', 'isOutsource', 'isInspection'],
@@ -330,14 +334,15 @@ export class ProcessPositionTaskService {
               ],
             },
           ],
+          order: [
+            ['id', 'DESC'],
+            // ['productSerials', 'id', 'ASC'],
+            // ['productSerials', 'processTasks', 'id', 'ASC'],
+            // ['productSerials', 'processTasks', 'processPositionTasks', 'id', 'ASC'],
+          ],
         },
       ],
-      order: [
-        ['id', 'DESC'],
-        // ['productSerials', 'id', 'ASC'],
-        // ['productSerials', 'processTasks', 'id', 'ASC'],
-        // ['productSerials', 'processTasks', 'processPositionTasks', 'id', 'ASC'],
-      ],
+      attributes: ['id', 'orderCode', 'splitQuantity', 'startTime', 'endTime', 'priority', 'remark'],
     })
 
     return {
