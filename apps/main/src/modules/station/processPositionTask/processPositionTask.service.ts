@@ -7,11 +7,13 @@ import { Team } from '@model/auth/team'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
 import { ProductionOrderTaskTeam } from '@model/production/productionOrderTaskOfTeam.model'
 import { ProductSerial } from '@model/production/productSerial.model'
+import { ProcessLocate } from '@model/production/processLocate.model'
+import { ProcessLocateDetail } from '@model/production/processLocateDetail.model'
 import { Op, FindOptions, Sequelize } from 'sequelize'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { PROCESS_TASK_STATUS } from '@common/enum'
-import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto } from './processPositionTask.dto'
+import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto } from './processPositionTask.dto'
 import { Paging } from '@library/utils/paging'
 
 @Injectable()
@@ -58,28 +60,6 @@ export class ProcessPositionTaskService {
     }
 
     await task.destroy()
-    return true
-  }
-
-  /**
-   * 批量删除工位任务单
-   */
-  async batchDelete(dto: BatchOperationDto): Promise<boolean> {
-    throw new HttpException('暂未开放', 400)
-    // 检查所有任务的状态
-    const tasks = await ProcessPositionTask.findAll({
-      where: { id: { [Op.in]: dto.ids } },
-    })
-
-    const runningTasks = tasks.filter(task => task.status === PROCESS_TASK_STATUS.running)
-    if (runningTasks.length > 0) {
-      throw new HttpException('存在进行中的任务，无法删除', 400)
-    }
-
-    await ProcessPositionTask.destroy({
-      where: { id: { [Op.in]: dto.ids } },
-    })
-
     return true
   }
 
@@ -261,7 +241,15 @@ export class ProcessPositionTaskService {
    */
   async findByTeam(dto: FindByTeamDto) {
     // 验证班组是否存在
-    const team = await Team.findByPk(dto.teamId)
+    const team = await Team.findByPk(dto.teamId, {
+      include: [
+        {
+          association: 'users',
+          attributes: ['id', 'userName', 'userCode', 'departmentId'],
+          through: { attributes: [] },
+        },
+      ],
+    })
     if (!team) {
       throw new HttpException('班组不存在', 400)
     }
@@ -346,12 +334,7 @@ export class ProcessPositionTaskService {
     })
 
     return {
-      team: {
-        id: team.id,
-        name: team.name,
-        workShopId: team.workShopId,
-        status: team.status,
-      },
+      team,
       productionOrderTasks: result,
     }
   }
