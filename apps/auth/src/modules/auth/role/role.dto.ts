@@ -1,7 +1,8 @@
-import { IsNotEmpty } from 'class-validator'
+import { IsEnum, IsNotEmpty } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { Role } from '@model/auth/role'
 import { DATA_SCOPE_TYPE } from '@common/constant'
+import { ROLE_CODE } from '@common/enum'
 
 export class FindPaginationDto {
   @ApiProperty({ description: '角色名称', type: String, required: false })
@@ -33,6 +34,11 @@ export class RoleCreateDto {
   @ApiProperty({ description: '菜单Id集合', type: [Number], required: false })
   menus?: [number]
 
+  @ApiProperty({ name: 'code', required: true, description: '角色编码', enum: ROLE_CODE })
+  @IsNotEmpty({ message: '角色编码不能为空' })
+  @IsEnum(ROLE_CODE, { message: '无效的角色编码' })
+  code: ROLE_CODE
+
   @ApiProperty({ description: '数据权限范围类型（0全部 1本组织 2本部门及下级部门 3本部门 4自定义）', type: String })
   dataScopeType: string
 
@@ -55,6 +61,11 @@ export class RoleEditDto {
 
   @ApiProperty({ description: '菜单Id集合', type: [Number], required: false })
   menus?: [number]
+
+  @ApiProperty({ name: 'code', required: true, description: '角色编码', enum: ROLE_CODE })
+  @IsNotEmpty({ message: '角色编码不能为空' })
+  @IsEnum(ROLE_CODE, { message: '无效的角色编码' })
+  code: ROLE_CODE
 
   @ApiProperty({ description: '数据权限范围类型（0全部 1本组织 2本部门及下级部门 3本部门 4自定义）', type: String })
   dataScopeType: string
@@ -83,7 +94,6 @@ class MenuPower {
   @ApiProperty({ description: '部门ID', type: [Number] })
   depts: number[]
 }
-
 
 export class RoleMenuPowerDto {
   @ApiProperty({ description: '数组对象', type: [MenuPower] })

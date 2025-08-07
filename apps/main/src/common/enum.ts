@@ -89,3 +89,12 @@ export enum ProductSerialStatus {
   COMPLETED = '已完成',
   SCRAPPED = '已报废',
 }
+
+export enum ROLE_CODE {
+  SUPER_ADMIN = '0000',
+  ADMIN = '0001', // 管理员
+  MANAGE = '0002',  // 生产经理
+  OPERATOR = '0003',  // 班组长
+  PLANER = '0004',  // 计划员
+  USER = '0005',  // 员工/普通用户
+}

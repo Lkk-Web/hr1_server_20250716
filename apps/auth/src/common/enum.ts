@@ -23,3 +23,12 @@ export enum TEAM_TYPE {
   output = '生产',
   inspection = '质检',
 }
+
+export enum ROLE_CODE {
+  SUPER_ADMIN = '0000',
+  ADMIN = '0001',
+  MANAGE = '0002',
+  OPERATOR = '0003',
+  PLANER = '0004',
+  USER = '0005',
+}

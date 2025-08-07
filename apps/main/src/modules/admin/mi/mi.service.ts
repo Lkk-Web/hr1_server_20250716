@@ -30,6 +30,7 @@ import { STRUtil } from '@library/utils/str'
 import { ReportUser } from '@model/production/reportUser.model'
 import { Menu } from '@model/auth/menu'
 import moment = require('moment')
+import { ROLE_CODE } from '@common/enum'
 
 interface LoginDto {}
 
@@ -71,7 +72,7 @@ export class MiService {
     let permissions = []
     let users
     // 如果用户是管理员，则返回所有菜单
-    if (user1.dataValues.role && user1.dataValues.role.dataValues.code == 'admin') {
+    if (user1.dataValues.role && user1.dataValues.role.dataValues.code == ROLE_CODE.SUPER_ADMIN) {
       let menuList = await Menu.findAll({
         attributes: ['id', 'name', 'parentId', 'url', 'sort', 'types', 'icon', 'perms', 'status'],
       })
