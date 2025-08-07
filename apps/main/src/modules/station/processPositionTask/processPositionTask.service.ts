@@ -13,7 +13,7 @@ import { Op, FindOptions, Sequelize } from 'sequelize'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { PROCESS_TASK_STATUS } from '@common/enum'
-import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto } from './processPositionTask.dto'
+import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto, FindByOrderDto } from './processPositionTask.dto'
 import { Paging } from '@library/utils/paging'
 
 @Injectable()
@@ -287,46 +287,24 @@ export class ProcessPositionTaskService {
             {
               association: 'material',
               attributes: ['id', 'code', 'materialName'],
-            },
-          ],
-        },
-        {
-          association: 'productSerials',
-          attributes: ['id', 'serialNumber', 'status'],
-          include: [
-            {
-              // association: 'processTasks',
-              model: ProcessTask,
-              as: 'processTasks',
-              where: processTaskWhere,
-              required: false,
-              attributes: ['id', 'status'],
               include: [
                 {
-                  association: 'process',
-                  attributes: ['id', 'processName'],
-                },
-                {
-                  model: ProcessPositionTask,
-                  as: 'processPositionTasks',
-                  where: positionTaskWhere,
-                  required: true,
-                  attributes: ['id', 'reportRatio', 'planCount', 'goodCount', 'badCount', 'status', 'isOutsource', 'isInspection'],
+                  association: 'processRoute',
                   include: [
                     {
-                      association: 'user',
-                      attributes: ['id', 'userName', 'userCode'],
+                      association: 'processRouteList',
+                      attributes: ['id'],
+                      include: [
+                        {
+                          association: 'process',
+                          attributes: ['id', 'processName'],
+                        },
+                      ],
                     },
                   ],
                 },
               ],
             },
-          ],
-          order: [
-            ['id', 'DESC'],
-            // ['productSerials', 'id', 'ASC'],
-            // ['productSerials', 'processTasks', 'id', 'ASC'],
-            // ['productSerials', 'processTasks', 'processPositionTasks', 'id', 'ASC'],
           ],
         },
       ],
@@ -347,7 +325,7 @@ export class ProcessPositionTaskService {
 
     try {
       // 生成派工编号
-      const locateCode = dto.locateCode || `PL${Date.now()}`
+      const locateCode = dto.locateCode || `PG${Date.now()}`
 
       // 创建派工主表
       const processLocate = await ProcessLocate.create(
@@ -483,6 +461,112 @@ export class ProcessPositionTaskService {
     return {
       ...result.toJSON(),
       details,
+    }
+  }
+
+  /**
+   * 根据工单查找其下面的工序和工位任务单
+   */
+  async findByOrder(dto: FindByOrderDto) {
+    // 验证生产工单是否存在
+    const productionOrderTask = await ProductionOrderTask.findByPk(dto.productionOrderTaskId)
+    if (!productionOrderTask) {
+      throw new HttpException('生产工单不存在', 400)
+    }
+
+    // 构建工序任务查询条件
+    const processTaskWhere: any = {}
+    if (dto.processStatus !== undefined) {
+      processTaskWhere.status = dto.processStatus
+    }
+
+    // 构建工序任务查询条件
+    const processWhere: any = {}
+    if (dto.processName) {
+      processWhere.processName = { [Op.like]: `%${dto.processName}%` }
+    }
+
+    // 构建工位任务查询条件
+    const positionTaskWhere: any = {}
+    if (dto.positionStatus !== undefined) {
+      positionTaskWhere.status = dto.positionStatus
+    }
+
+    // 查询产品序列号及其关联的工序和工位任务
+    const productSerials = await ProductSerial.findAll({
+      where: {
+        productionOrderTaskId: dto.productionOrderTaskId,
+      },
+      attributes: ['id', 'serialNumber', 'status'],
+      include: [
+        {
+          model: ProcessTask,
+          as: 'processTasks',
+          where: processTaskWhere,
+          required: false,
+          include: [
+            {
+              where: processWhere,
+              association: 'process',
+              attributes: ['id', 'processName'],
+            },
+            {
+              model: ProcessPositionTask,
+              as: 'processPositionTasks',
+              required: true,
+              attributes: ['id', 'reportRatio', 'planCount', 'goodCount', 'badCount', 'status', 'isOutsource', 'isInspection'],
+              include: [
+                {
+                  association: 'user',
+                  attributes: ['id', 'userName', 'userCode'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      order: [
+        ['id', 'ASC'],
+        ['processTasks', 'id', 'ASC'],
+        ['processTasks', 'processPositionTasks', 'id', 'ASC'],
+      ],
+    })
+
+    // 统计信息
+    let totalProcessTasks = 0
+    let totalPositionTasks = 0
+    let completedProcessTasks = 0
+    let completedPositionTasks = 0
+
+    productSerials.forEach(serial => {
+      if (serial.processTasks) {
+        totalProcessTasks += serial.processTasks.length
+        completedProcessTasks += serial.processTasks.filter(task => task.status === PROCESS_TASK_STATUS.finish).length
+
+        serial.processTasks.forEach(processTask => {
+          if (processTask.processPositionTasks) {
+            totalPositionTasks += processTask.processPositionTasks.length
+            completedPositionTasks += processTask.processPositionTasks.filter(task => task.status === PROCESS_TASK_STATUS.finish).length
+          }
+        })
+      }
+    })
+
+    return {
+      productionOrderTask: {
+        id: productionOrderTask.id,
+        orderCode: productionOrderTask.orderCode,
+        // status: productionOrderTask.status,
+      },
+      statistics: {
+        totalProcessTasks,
+        completedProcessTasks,
+        totalPositionTasks,
+        completedPositionTasks,
+        processProgress: totalProcessTasks > 0 ? Math.round((completedProcessTasks / totalProcessTasks) * 100) : 0,
+        positionProgress: totalPositionTasks > 0 ? Math.round((completedPositionTasks / totalPositionTasks) * 100) : 0,
+      },
+      productSerials,
     }
   }
 }

@@ -3,7 +3,7 @@ import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { StationAuth } from '@core/decorator/controller'
 import { ProcessPositionTaskService } from './processPositionTask.service'
-import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto } from './processPositionTask.dto'
+import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto, FindByOrderDto } from './processPositionTask.dto'
 
 @ApiTags('工位任务单')
 @ApiBearerAuth()
@@ -54,6 +54,14 @@ export class ProcessPositionTaskController {
     return { data: result }
   }
 
+  @Get('order/query')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '根据工单查找其下面的工序和工位任务单' })
+  async findByOrder(@Query() dto: FindByOrderDto) {
+    const result = await this.processPositionTaskService.findByOrder(dto)
+    return { data: result }
+  }
+
   // @Post('start-work')
   // @HttpCode(HttpStatus.OK)
   // @ApiOperation({ summary: '开始工作' })
@@ -88,11 +96,11 @@ export class ProcessPositionTaskController {
 
   @Post('locate')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '创建派工单' })
+  @ApiOperation({ summary: '派工' })
   async createProcessLocate(@Body() dto: CreateProcessLocateDto, @Req() req: any) {
     const assignerId = req.user.id
     const result = await this.processPositionTaskService.createProcessLocate(dto, assignerId)
-    return { data: result, message: '派工单创建成功' }
+    return { data: result, message: '派工成功' }
   }
 
   @Get('locate/list')

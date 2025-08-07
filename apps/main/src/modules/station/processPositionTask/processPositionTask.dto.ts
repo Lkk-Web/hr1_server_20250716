@@ -170,3 +170,24 @@ export class CreateProcessLocateDto {
   @IsArray({ message: '派工详情列表必须是数组' })
   details: ProcessLocateDetailDto[]
 }
+
+export class FindByOrderDto {
+  @ApiProperty({ type: Number, description: '生产工单ID', required: true })
+  @IsNotEmpty({ message: '生产工单ID不能为空' })
+  productionOrderTaskId: number
+
+  @ApiProperty({ type: Number, description: '工序状态筛选', required: false })
+  @IsOptional()
+  @IsNumber({}, { message: '工序状态必须是数字' })
+  processStatus?: number
+
+  @ApiProperty({ type: Number, description: '工位任务状态筛选', required: false })
+  @IsOptional()
+  @IsNumber({}, { message: '工位任务状态必须是数字' })
+  positionStatus?: number
+
+  @ApiProperty({ type: String, description: '工序名称筛选', required: false })
+  @IsOptional()
+  @IsString({ message: '工序名称必须是字符串' })
+  processName?: string
+}
