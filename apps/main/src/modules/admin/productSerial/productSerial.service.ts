@@ -54,7 +54,17 @@ export class ProductSerialService {
         association: 'processTasks',
         include: [
           {
+            association: 'process',
+            attributes: ['id', 'processName'],
+          },
+          {
             association: 'processPositionTasks',
+            include: [
+              {
+                association: 'process',
+                attributes: ['id', 'processName'],
+              },
+            ],
           },
         ],
       },

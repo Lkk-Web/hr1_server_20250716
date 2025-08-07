@@ -4,6 +4,7 @@ import { User } from '@model/auth/user'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
 import { ProcessTask } from './processTask.model'
+import { Process } from '@model/process/process.model'
 
 //工位任务单
 @Table({ tableName: `process_position_task`, timestamps: true, freezeTableName: true, comment: '工位任务单' })
@@ -24,6 +25,14 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
     type: DataType.INTEGER,
   })
   declare userId: number
+
+  @ForeignKey(() => Process)
+  @Column({
+    comment: '工序ID',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare processId: number
 
   // 报工数比例
   @Column({
@@ -70,7 +79,7 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   // 任务状态
   @Column({
-    comment: '任务状态 (审核中,待分配 , 待报工，已完成)',
+    comment: '任务状态 (审核中, 待分配, 待报工, 已完成)',
     type: DataType.STRING(10),
     allowNull: true,
   })
@@ -97,6 +106,9 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   @BelongsTo(() => User)
   declare user: User
+
+  @BelongsTo(() => Process)
+  declare process: Process
 
   @HasMany(() => ProcessTaskLog)
   declare operateLogs: ProcessTaskLog[]

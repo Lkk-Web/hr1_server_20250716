@@ -1090,6 +1090,7 @@ export class ProductionOrderService {
                   {
                     processTaskId: processTask.id,
                     reportRatio: childProcess.dataValues.reportRatio || 1,
+                    processId: childProcess.id,
                     planCount: 1,
                     status: PROCESS_TASK_STATUS.notStart,
                     isOutsource: childProcess.dataValues.isOut || false,

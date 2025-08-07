@@ -24,7 +24,6 @@ export class ProcessTask extends BaseDate<ProcessTask> {
   declare serialId: number
 
   @ForeignKey(() => Process)
-  // 工序名称
   @Column({
     comment: '工序ID',
     type: DataType.INTEGER,
