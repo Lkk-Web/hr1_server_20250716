@@ -42,19 +42,19 @@ export class ProductSerialService {
     const includeConditions: any[] = [
       {
         association: 'productionOrderTask',
-        attributes: ['id', 'orderCode', 'splitQuantity', 'status', 'materialId'],
+        attributes: ['id', 'orderCode', 'splitQuantity', 'materialId'],
         include: [
           {
             association: 'material',
             attributes: ['id', 'materialName', 'code', 'spec', 'unit'],
           },
+        ],
+      },
+      {
+        association: 'processTasks',
+        include: [
           {
-            association: 'productionOrderDetail',
-            include: [
-              {
-                association: 'productionOrder',
-              },
-            ],
+            association: 'processPositionTasks',
           },
         ],
       },
