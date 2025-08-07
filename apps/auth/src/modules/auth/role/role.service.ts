@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
 import { Role } from '@model/auth/role'
 import { RoleMenu } from '@model/auth/roleMenu'
-import { FindOptions, Op, where } from 'sequelize'
+import { FindOptions, Op, Sequelize, where } from 'sequelize'
 import { Menu } from '@model/auth/menu'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Aide, JsExclKey } from '@library/utils/aide'
@@ -22,30 +22,39 @@ export class RoleService {
   ) {}
 
   public async create(dto: RoleCreateDto, user: User, ip: string, loadModel) {
-    let sysRole = await this.roleModal.findOne({ where: { name: dto.name } })
-    if (sysRole) {
-      throw new HttpException('该角色已存在', 400)
-    }
-    let menuList = []
-    if (dto.menus) {
-      menuList = dto.menus
-    }
-    delete dto.menus
+    const transaction = await Role.sequelize.transaction()
+    try {
+      let sysRole = await this.roleModal.findOne({ where: { name: dto.name }, transaction })
+      if (sysRole) {
+        throw new HttpException('该角色已存在', 400)
+      }
 
-    let orgList = []
-    if (dto.dataScopeType == '4') {
-      orgList = dto.orgs
-    }
-    delete dto.orgs
+      let orgList = []
+      if (dto.dataScopeType == '4') {
+        orgList = dto.orgs
+      }
 
-    if (menuList.length > 0) {
-      await RoleMenu.bulkCreate(menuList.map(item => ({ roleId: result.id, menuId: item })))
+      const res = await Role.create(dto, { transaction })
+
+      if (dto.menus.length > 0) {
+        await RoleMenu.bulkCreate(
+          dto.menus.map(item => ({ roleId: res.id, menuId: item })),
+          { updateOnDuplicate: ['roleId', 'menuId'], transaction }
+        )
+      }
+      // if (orgList.length > 0) {
+      //   console.log(orgList)
+      //   await RoleOrganize.bulkCreate(
+      //     orgList.map(item => ({ roleId: res.id, orgId: item })),
+      //     { transaction }
+      //   )
+      // }
+      await transaction.commit()
+      return res
+    } catch (error) {
+      await transaction.rollback()
+      throw error
     }
-    if (orgList.length > 0) {
-      await RoleOrganize.bulkCreate(orgList.map(item => ({ roleId: result.id, orgId: item })))
-    }
-    const result = await Role.create(dto)
-    return result
   }
 
   public async edit(dto: RoleEditDto, id: number, user: User, ip: string, loadModel) {
@@ -61,9 +70,7 @@ export class RoleService {
     }
     if (dto.orgs) {
       await RoleOrganize.destroy({ where: { roleId: id } })
-      let orgList = dto.orgs
-      await RoleOrganize.bulkCreate(orgList.map(item => ({ roleId: id, orgId: item })))
-      delete dto.orgs
+      await RoleOrganize.bulkCreate(dto.orgs.map(item => ({ roleId: id, orgId: item })))
     }
     await sysRole.update(dto)
 

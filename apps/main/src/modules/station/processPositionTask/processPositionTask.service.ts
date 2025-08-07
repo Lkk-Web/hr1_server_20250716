@@ -310,7 +310,7 @@ export class ProcessPositionTaskService {
                   model: ProcessPositionTask,
                   as: 'processPositionTasks',
                   where: positionTaskWhere,
-                  required: false,
+                  required: true,
                   attributes: ['id', 'reportRatio', 'planCount', 'goodCount', 'badCount', 'status', 'isOutsource', 'isInspection'],
                   include: [
                     {

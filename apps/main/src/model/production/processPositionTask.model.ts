@@ -30,7 +30,7 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
   @Column({
     comment: '工序ID',
     type: DataType.INTEGER,
-    allowNull: true,
+    allowNull: false,
   })
   declare processId: number
 
