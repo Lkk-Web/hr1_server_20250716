@@ -977,35 +977,22 @@ export class ProductionOrderService {
 
       // 4. 生产工单 ProductionOrderTask 根据工艺路线工序自动匹配绑定全部班组
       {
-        // 收集所有子工序ID
-        const childProcessIds = []
-        processRoute.map(v => {
-          if (v.process.children && v.process.children.length > 0) {
-            v.process.children.forEach(child => {
-              childProcessIds.push(child.id)
-            })
-          }
+        const teamProcesses = await TeamProcess.findAll({
+          where: {
+            processId: {
+              [Op.in]: processRoute.map(v => v.processId),
+            },
+          },
+          attributes: ['teamId'],
+          group: ['teamId'],
+          transaction,
         })
 
-        // 如果有子工序，查找匹配的班组
-        if (childProcessIds.length > 0) {
-          const teamProcesses = await TeamProcess.findAll({
-            where: {
-              processId: {
-                [Op.in]: childProcessIds,
-              },
-            },
-            attributes: ['teamId'],
-            group: ['teamId'],
-            transaction,
-          })
+        if (teamProcesses.length <= 0) throw new Error('当前没有匹配的班组')
 
-          if (!teamProcesses) throw new Error('当前没有匹配的班组')
-
-          // 为每个匹配的班组创建与工单关联
-          for (const tp of teamProcesses) {
-            await ProductionOrderTaskTeam.create({ productionOrderTaskId: productionOrderTask.id, teamId: tp.teamId }, { transaction })
-          }
+        // 为每个匹配的班组创建与工单关联
+        for (const tp of teamProcesses) {
+          await ProductionOrderTaskTeam.create({ productionOrderTaskId: productionOrderTask.id, teamId: tp.teamId }, { transaction })
         }
       }
 

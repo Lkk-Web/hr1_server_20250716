@@ -53,10 +53,10 @@ export class TeamService {
       await TeamUser.destroy({ where: { teamId: id } })
       await TeamUser.bulkCreate(dto.userIds.map(userId => ({ teamId: team.id, userId })))
     }
-    if (dto.equipmentLedgerIds) {
-      await TeamEquipmentLedger.destroy({ where: { teamId: id } })
-      await TeamEquipmentLedger.bulkCreate(dto.equipmentLedgerIds.map(equipmentLedgerId => ({ teamId: team.id, equipmentLedgerId })))
-    }
+    // if (dto.equipmentLedgerIds) {
+    //   await TeamEquipmentLedger.destroy({ where: { teamId: id } })
+    //   await TeamEquipmentLedger.bulkCreate(dto.equipmentLedgerIds.map(equipmentLedgerId => ({ teamId: team.id, equipmentLedgerId })))
+    // }
     if (dto.processIds) {
       await TeamProcess.destroy({ where: { teamId: id } })
       await TeamProcess.bulkCreate(dto.processIds.map(processId => ({ teamId: team.id, processId })))
@@ -96,19 +96,19 @@ export class TeamService {
     let result = await Team.findOne(options)
     if (result) {
       result = result.toJSON()
-      const [equipmentLedgers, process] = await Promise.all([
-        TeamEquipmentLedger.findAll({
-          where: { teamId: id },
-          attributes: ['id'],
-          include: [{ association: 'equipmentLedger', attributes: ['id', 'code', 'status'], include: [{ association: 'equipment', attributes: ['name'] }] }],
-        }),
+      const [process] = await Promise.all([
+        // TeamEquipmentLedger.findAll({
+        //   where: { teamId: id },
+        //   attributes: ['id'],
+        //   include: [{ association: 'equipmentLedger', attributes: ['id', 'code', 'status'], include: [{ association: 'equipment', attributes: ['name'] }] }],
+        // }),
         TeamProcess.findAll({
           where: { teamId: id },
           attributes: ['id'],
           include: [{ association: 'process', attributes: ['id', 'processName'] }],
         }),
       ])
-      result.equipmentLedgers = equipmentLedgers.map(item => item.equipmentLedger)
+      // result.equipmentLedgers = equipmentLedgers.map(item => item.equipmentLedger)
       result.process = process.map(item => item.process)
     }
     return result
