@@ -338,4 +338,151 @@ export class ProcessPositionTaskService {
       productionOrderTasks: result,
     }
   }
+
+  /**
+   * 创建派工单
+   */
+  async createProcessLocate(dto: CreateProcessLocateDto, assignerId: number) {
+    const transaction = await this.sequelize.transaction()
+
+    try {
+      // 生成派工编号
+      const locateCode = dto.locateCode || `PL${Date.now()}`
+
+      // 创建派工主表
+      const processLocate = await ProcessLocate.create(
+        {
+          locateCode,
+          assignerId,
+          assignTime: new Date(),
+          status: 0, // 待执行
+          remark: dto.remark,
+        },
+        { transaction }
+      )
+
+      // 验证并创建派工详情
+      for (const detail of dto.details) {
+        // 验证用户是否存在
+        const user = await User.findByPk(detail.userId)
+        if (!user) {
+          throw new HttpException(`用户ID ${detail.userId} 不存在`, 400)
+        }
+
+        // 验证工序任务单是否存在（如果提供）
+        if (detail.processTaskId) {
+          const processTask = await ProcessTask.findByPk(detail.processTaskId)
+          if (!processTask) {
+            throw new HttpException(`工序任务单ID ${detail.processTaskId} 不存在`, 400)
+          }
+        }
+
+        // 验证工位任务单是否存在（如果提供）
+        if (detail.processPositionTaskId) {
+          const processPositionTask = await ProcessPositionTask.findByPk(detail.processPositionTaskId)
+          if (!processPositionTask) {
+            throw new HttpException(`工位任务单ID ${detail.processPositionTaskId} 不存在`, 400)
+          }
+        }
+
+        // 创建派工详情
+        await ProcessLocateDetail.create(
+          {
+            processLocateId: processLocate.id,
+            userId: detail.userId,
+            processTaskId: detail.processTaskId,
+            processPositionTaskId: detail.processPositionTaskId,
+            assignCount: detail.assignCount || 1,
+            status: 0, // 待执行
+            remark: detail.remark,
+          },
+          { transaction }
+        )
+
+        // 如果指定了工位任务单，更新其操作工
+        if (detail.processPositionTaskId) {
+          await ProcessLocateDetail.update(
+            { userId: detail.userId },
+            {
+              where: { id: detail.processPositionTaskId },
+              transaction,
+            }
+          )
+        }
+      }
+
+      await transaction.commit()
+
+      // 返回创建的派工单详情
+      return await ProcessLocate.findByPk(processLocate.id, {
+        include: [
+          {
+            association: 'assigner',
+            attributes: ['id', 'userName', 'userCode'],
+          },
+        ],
+      })
+    } catch (error) {
+      await transaction.rollback()
+      throw error
+    }
+  }
+
+  /**
+   * 查询派工单列表
+   */
+  async findProcessLocateList(pagination: Pagination) {
+    const result = await Paging.diyPaging(ProcessLocate, pagination, {
+      include: [
+        {
+          association: 'assigner',
+          attributes: ['id', 'userName', 'userCode'],
+        },
+      ],
+      order: [['id', 'DESC']],
+    })
+    return result
+  }
+
+  /**
+   * 获取派工单详情
+   */
+  async findProcessLocateDetail(id: number) {
+    const result = await ProcessLocate.findByPk(id, {
+      include: [
+        {
+          association: 'assigner',
+          attributes: ['id', 'userName', 'userCode'],
+        },
+      ],
+    })
+
+    if (!result) {
+      throw new HttpException('派工单不存在', 400)
+    }
+
+    // 获取派工详情
+    const details = await ProcessLocateDetail.findAll({
+      where: { processLocateId: id },
+      include: [
+        {
+          association: 'user',
+          attributes: ['id', 'userName', 'userCode'],
+        },
+        {
+          association: 'processTask',
+          attributes: ['id', 'processName', 'status'],
+        },
+        {
+          association: 'processPositionTask',
+          attributes: ['id', 'status', 'planCount', 'goodCount', 'badCount'],
+        },
+      ],
+    })
+
+    return {
+      ...result.toJSON(),
+      details,
+    }
+  }
 }

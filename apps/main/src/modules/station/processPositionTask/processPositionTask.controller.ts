@@ -85,4 +85,30 @@ export class ProcessPositionTaskController {
   //   await this.processPositionTaskService.batchComplete(dto)
   //   return { message: '批量完成成功' }
   // }
+
+  @Post('locate')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '创建派工单' })
+  async createProcessLocate(@Body() dto: CreateProcessLocateDto, @Req() req: any) {
+    const assignerId = req.user.id
+    const result = await this.processPositionTaskService.createProcessLocate(dto, assignerId)
+    return { data: result, message: '派工单创建成功' }
+  }
+
+  @Get('locate/list')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '查询派工单列表' })
+  async findProcessLocateList(@Query() pagination: Pagination) {
+    const result = await this.processPositionTaskService.findProcessLocateList(pagination)
+    return result
+  }
+
+  @Get('locate/:id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '获取派工单详情' })
+  @ApiParam({ name: 'id', description: '派工单ID' })
+  async findProcessLocateDetail(@Param('id') id: number) {
+    const result = await this.processPositionTaskService.findProcessLocateDetail(id)
+    return { data: result }
+  }
 }

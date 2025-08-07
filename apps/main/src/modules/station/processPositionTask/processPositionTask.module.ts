@@ -9,6 +9,8 @@ import { Team } from '@model/auth/team'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
 import { ProductionOrderTaskTeam } from '@model/production/productionOrderTaskOfTeam.model'
 import { ProductSerial } from '@model/production/productSerial.model'
+import { ProcessLocate } from '@model/production/processLocate.model'
+import { ProcessLocateDetail } from '@model/production/processLocateDetail.model'
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { ProductSerial } from '@model/production/productSerial.model'
       Team, 
       ProductionOrderTask, 
       ProductionOrderTaskTeam, 
-      ProductSerial
+      ProductSerial,
+      ProcessLocate,
+      ProcessLocateDetail
     ])
   ],
   controllers: [ProcessPositionTaskController],

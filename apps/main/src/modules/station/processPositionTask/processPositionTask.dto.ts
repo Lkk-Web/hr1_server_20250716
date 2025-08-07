@@ -126,3 +126,47 @@ export class FindByTeamDto {
   @IsString({ message: '工位任务状态必须是字符串' })
   positionTaskStatus?: string
 }
+
+export class ProcessLocateDetailDto {
+  @ApiProperty({ type: Number, description: '指定人员ID', required: true })
+  @IsNotEmpty({ message: '指定人员ID不能为空' })
+  @IsNumber({}, { message: '指定人员ID必须是数字' })
+  userId: number
+
+  @ApiProperty({ type: Number, description: '工序任务单ID', required: false })
+  @IsOptional()
+  @IsNumber({}, { message: '工序任务单ID必须是数字' })
+  processTaskId?: number
+
+  @ApiProperty({ type: Number, description: '工位任务单ID', required: false })
+  @IsOptional()
+  @IsNumber({}, { message: '工位任务单ID必须是数字' })
+  processPositionTaskId?: number
+
+  @ApiProperty({ type: Number, description: '分配数量', required: false })
+  @IsOptional()
+  @IsNumber({}, { message: '分配数量必须是数字' })
+  assignCount?: number
+
+  @ApiProperty({ type: String, description: '备注', required: false })
+  @IsOptional()
+  @IsString({ message: '备注必须是字符串' })
+  remark?: string
+}
+
+export class CreateProcessLocateDto {
+  @ApiProperty({ type: String, description: '派工编号', required: false })
+  @IsOptional()
+  @IsString({ message: '派工编号必须是字符串' })
+  locateCode?: string
+
+  @ApiProperty({ type: String, description: '备注', required: false })
+  @IsOptional()
+  @IsString({ message: '备注必须是字符串' })
+  remark?: string
+
+  @ApiProperty({ type: [ProcessLocateDetailDto], description: '派工详情列表', required: true })
+  @IsNotEmpty({ message: '派工详情列表不能为空' })
+  @IsArray({ message: '派工详情列表必须是数组' })
+  details: ProcessLocateDetailDto[]
+}
