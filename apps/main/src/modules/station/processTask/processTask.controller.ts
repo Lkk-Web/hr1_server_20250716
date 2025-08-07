@@ -25,7 +25,7 @@ export class ProcessTaskController {
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
-    const result = await this.service.findPagination(dto, pagination, req.process.id)
+    const result = await this.service.findPagination(dto, pagination)
     return result
   }
 

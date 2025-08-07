@@ -142,59 +142,34 @@ export class ProcessTaskService {
     return result
   }
 
-  public async findPagination(dto: FindPaginationDto, pagination: Pagination, processId) {
+  public async findPagination(dto: FindPaginationDto, pagination: Pagination) {
     const options: FindPaginationOptions = {
       where: {
         processId: {
-          [Op.eq]: processId,
+          [Op.eq]: dto.processId,
         },
       },
-      attributes: [
-        'id',
-        'updatedAt',
-        'productionOrderId',
-        'processId',
-        'reportRatio',
-        'planCount',
-        'goodCount',
-        'badCount',
-        'unit',
-        'status',
-        'isOutsource',
-        'isInspection',
-        'priority',
-        'startTime',
-        'endTime',
-        'actualStartTime',
-        'actualStartTime',
-        'receptionCount',
-        'reportQuantity',
-      ],
       pagination,
       // order: [['id', 'ASC']],
       include: [
         {
-          association: 'order',
-          attributes: ['id', 'code', 'plannedOutput', 'startTime', 'endTime', 'actualStartTime', 'actualEndTime', 'kingdeeCode', 'salesOrderCode'],
+          association: 'process',
+          attributes: ['id', 'processName'],
           where: {},
+        },
+        {
+          association: 'serial',
+          attributes: ['id', 'serialNumber', 'productionOrderTaskId'],
           include: [
             {
-              association: 'bom',
-              attributes: ['id', 'materialId', 'remark', 'version', 'quantity', 'formData'],
-              where: {},
+              association: 'productionOrderTask',
               include: [
                 {
-                  association: 'parentMaterial',
-                  attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
-                  where: {},
+                  association: 'material',
                 },
               ],
             },
           ],
-        },
-        {
-          association: 'process',
-          attributes: ['id', 'processName'],
           where: {},
         },
         { association: 'operateLogs', attributes: ['pauseTime', 'resumeTime'] },
@@ -229,18 +204,18 @@ export class ProcessTaskService {
 
     const result = await ProcessTask.findPagination(options)
     // @ts-ignore
-    for (const datum of result.data) {
-      // console.log(datum)
-      const temp = await PerformanceConfig.findOne({
-        where: {
-          materialId: datum.dataValues.order.dataValues.bom.dataValues.materialId,
-          processId: datum.processId,
-        },
-      })
-      if (temp) {
-        datum.dataValues.process.setDataValue('performanceConfig', temp)
-      }
-    }
+    // for (const datum of result.data) {
+    //   // console.log(datum)
+    //   const temp = await PerformanceConfig.findOne({
+    //     where: {
+    //       materialId: datum.dataValues.order.dataValues.bom.dataValues.materialId,
+    //       processId: datum.processId,
+    //     },
+    //   })
+    //   if (temp) {
+    //     datum.dataValues.process.setDataValue('performanceConfig', temp)
+    //   }
+    // }
     return result
   }
 

@@ -16,14 +16,17 @@ export class FindPaginationDto {
   })
   orderCode: number
 
+  @ApiProperty({ description: '工序ID', type: Number, required: true })
+  processId: number
+
   @ApiProperty({ type: Boolean, description: '当前工序', required: false })
   currentProcess?: boolean
 
   @ApiProperty({ type: String, description: '排除指定状态', required: false })
   filterStatus?: string
 
-  @ApiProperty({ type: String, description: '工序状态', required: false,enum:PROCESS_TASK_STATUS })
-  status?: PROCESS_TASK_STATUS|string
+  @ApiProperty({ type: String, description: '工序状态', required: false, enum: PROCESS_TASK_STATUS })
+  status?: PROCESS_TASK_STATUS | string
 
   @ApiProperty({
     description: '产品编号',
@@ -31,7 +34,6 @@ export class FindPaginationDto {
     required: false,
   })
   materialCode: number
-
 }
 
 export class priorityDto {
@@ -85,7 +87,6 @@ export class CProcessTaskDto {
     required: false,
   })
   goodCount: number
-
 
   @ApiProperty({
     description: '不良品数',
@@ -290,16 +291,14 @@ export class BatchStartWorkDto {
   ids: number[]
 }
 
-export class MaterialUrgingOrderDto extends StartWorkDto{
-
+export class MaterialUrgingOrderDto extends StartWorkDto {
   @ApiProperty({ type: String, description: '内容', required: true })
   @IsNotEmpty({ message: '内容不能为空' })
   content: string
 
-  @ApiProperty({ type: String, description: '场景', required: true,enum:NOTIFY_SCENE })
-  @IsEnum(NOTIFY_SCENE,{ message: 'scene错误' })
+  @ApiProperty({ type: String, description: '场景', required: true, enum: NOTIFY_SCENE })
+  @IsEnum(NOTIFY_SCENE, { message: 'scene错误' })
   scene: NOTIFY_SCENE
 
-  declare teamId?:number
-
+  declare teamId?: number
 }
