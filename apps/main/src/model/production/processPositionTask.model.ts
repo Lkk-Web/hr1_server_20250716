@@ -1,15 +1,8 @@
-import { BelongsTo, BelongsToMany, Column, DataType, Default, ForeignKey, HasMany, Table } from 'sequelize-typescript'
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Process } from '@model/process/process.model'
-import { Organize } from '@model/auth/organize'
-import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { User } from '@model/auth/user'
-import { ProcessTaskUser } from '@model/production/processTaskUser.model'
-import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
-import { ProductSerial } from './productSerial.model'
-import { FileList } from '@model/document/FileList.model'
 import { ProcessTask } from './processTask.model'
 
 //工位任务单
@@ -104,4 +97,7 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   @BelongsTo(() => User)
   declare user: User
+
+  @HasMany(() => ProcessTaskLog)
+  declare operateLogs: ProcessTaskLog[]
 }

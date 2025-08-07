@@ -1,8 +1,9 @@
 import { Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { ProcessTask } from './processTask.model'
 import { BaseModel } from '@model/shared/base.model'
+import { ProcessPositionTask } from './processPositionTask.model'
 
-@Table({ tableName: `production_process_task_log`, timestamps: false, freezeTableName: true, comment: '工序任务单日志' })
+@Table({ tableName: `process_task_log`, timestamps: false, freezeTableName: true, comment: '工序任务单日志' })
 export class ProcessTaskLog extends BaseModel<ProcessTaskLog> {
   @ForeignKey(() => ProcessTask)
   @Column({
@@ -11,6 +12,14 @@ export class ProcessTaskLog extends BaseModel<ProcessTaskLog> {
     allowNull: false,
   })
   declare processTaskID: number
+
+  @ForeignKey(() => ProcessPositionTask)
+  @Column({
+    comment: '工位任务单id',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare processPositionTaskID: number
 
   @Column({
     comment: '暂停的时间',
