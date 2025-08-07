@@ -288,6 +288,25 @@ export class ProcessPositionTaskService {
             {
               association: 'material',
               attributes: ['id', 'code', 'materialName'],
+              include: [
+                {
+                  association: 'processRoute',
+                  include: [
+                    {
+                      association: 'processRouteList',
+                      attributes: ['id'],
+                      include: [
+                        {
+                          association: 'process',
+                          attributes: ['id', 'processName'],
+                          required: true,
+                          include: [{ association: 'children', attributes: ['id', 'processName'], required: true }],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
             },
           ],
         },
