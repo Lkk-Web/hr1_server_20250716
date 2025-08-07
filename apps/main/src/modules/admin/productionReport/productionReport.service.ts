@@ -61,7 +61,7 @@ export class ProductionReportService {
   }
 
   public async create(dto: CProductionReportDto, user, loadModel) {
-    const temp = await ProductionReport.findAll({ where: { processTaskId: dto.productionOrderTaskId, processId: dto.processId } })
+    const temp = await ProductionReport.findAll({ where: { processPositionTaskId: dto.productionOrderTaskId, processId: dto.processId } })
     let order = await ProductionOrder.findByPk(dto.productionOrderTaskId, {
       include: [
         {
@@ -961,7 +961,19 @@ export class ProductionReportService {
 
   public async delete(id: number, loadModel) {
     //删除记录前减去对应工序任务单和生产工单的数量
-    let productionReport = await ProductionReport.findOne({ where: { id } })
+    let productionReport = await ProductionReport.findOne({
+      where: { id },
+      include: [
+        {
+          association: 'processPositionTask',
+          include: [
+            {
+              association: 'processTask',
+            },
+          ],
+        },
+      ],
+    })
     if (!productionReport) {
       throw new HttpException('数据不存在', 400006)
     }
@@ -971,7 +983,7 @@ export class ProductionReportService {
     //编辑报工数量之前减去上一次报工的数量再写入本次数量
     let pop = await ProcessTask.findAll({
       where: {
-        id: productionReport.task.serialId,
+        serialId: productionReport.processPositionTask?.processTask?.serialId,
         processId: productionReport.processId,
       },
     })
@@ -989,7 +1001,7 @@ export class ProductionReportService {
     }
     let task = await ProcessTask.findAll({
       where: {
-        serialId: productionReport.task.serialId,
+        serialId: productionReport.processPositionTask?.processTask?.serialId,
         processId: productionReport.processId,
       },
     })
@@ -1103,8 +1115,8 @@ export class ProductionReportService {
     const records = await ProductionReport.findAll({
       attributes: ['id', 'goodCount'],
       where: {
-        processTaskId: {
-          [Op.eq]: result.processTaskId,
+        processPositionTaskId: {
+          [Op.eq]: result.processPositionTaskId,
         },
         createdAt: {
           [Op.lt]: result.createdAt,
@@ -1212,11 +1224,11 @@ export class ProductionReportService {
         materialId: datum.dataValues.order.dataValues.bom.dataValues.materialId,
         processId: datum.dataValues.processId,
       }))
-      const teamIds = result.data.filter(v => v.taskId).map(datum => datum.teamId)
+      const teamIds = result.data.filter(v => v.processPositionTaskId).map(datum => datum.teamId)
       const productionReportIds = result.data.map(datum => datum.id)
-      // 获取所有taskId和createdAt
+      // 获取所有processPositionTaskId和createdAt
       const taskCreatedPairs = result.data.map(datum => ({
-        taskId: datum.dataValues.taskId,
+        processPositionTaskId: datum.dataValues.processPositionTaskId,
         createdAt: datum.createdAt,
       }))
 
@@ -1228,10 +1240,10 @@ export class ProductionReportService {
           },
         }),
         ProductionReport.findAll({
-          attributes: ['id', 'taskId', 'createdAt', 'goodCount'],
+          attributes: ['id', 'processPositionTaskId', 'createdAt', 'goodCount'],
           where: {
             [Op.or]: taskCreatedPairs.map(pair => ({
-              taskId: pair.taskId,
+              processPositionTaskId: pair.processPositionTaskId,
               createdAt: { [Op.lt]: pair.createdAt },
             })),
           },
@@ -1262,7 +1274,7 @@ export class ProductionReportService {
 
         // 计算processProgress
         const count = allProductionReports
-          .filter(report => report.processTaskId === datum.processTaskId && report.createdAt < datum.createdAt)
+          .filter(report => report.processPositionTaskId === datum.processPositionTaskId && report.createdAt < datum.createdAt)
           .reduce((sum, report) => sum + report.goodCount, 0)
 
         datum.processProgress = count + ''

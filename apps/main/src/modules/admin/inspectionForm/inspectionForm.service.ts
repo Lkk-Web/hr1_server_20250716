@@ -268,10 +268,18 @@ export class InspectionFormService {
               ProductionReport.findOne({
                 where: { id: form.productionReportId },
                 include: [
-                  { association: 'task', required: true },
+                  {
+                    association: 'processPositionTask',
+                    required: true,
+                    include: [
+                      {
+                        association: 'processTask',
+                      },
+                    ],
+                  },
                   { association: 'order', attributes: [], where: { code: form.originCode } },
                 ],
-                attributes: ['id', 'productionOrderTaskId', 'processId', 'taskId'],
+                attributes: ['id', 'processPositionTaskId', 'processId'],
               }),
             ])
 
@@ -291,7 +299,7 @@ export class InspectionFormService {
                     badCount: Sequelize.literal(`badCount+${info.badCount}`),
                   },
                   {
-                    where: { id: productionReport.processTaskId },
+                    where: { id: productionReport.processPositionTask?.processTask?.id },
                     transaction,
                   }
                 ),
@@ -303,7 +311,7 @@ export class InspectionFormService {
                     badCount: Sequelize.literal(`badCount+${info.badCount}`),
                   },
                   {
-                    where: { id: productionReport.processTaskId, processId: productionReport.processId },
+                    where: { id: productionReport.processPositionTask?.processTask?.id, processId: productionReport.processId },
                     transaction,
                   }
                 ),
@@ -322,7 +330,7 @@ export class InspectionFormService {
                       {
                         receptionCount: Sequelize.literal(`receptionCount+${info.goodCount}`),
                       },
-                      { where: { id: productionReport.processTaskId + 1 } }
+                      { where: { id: (productionReport.processPositionTask?.processTask?.id || 0) + 1 } }
                     )
                   : null,
               ])
@@ -344,7 +352,13 @@ export class InspectionFormService {
 
               //创建工序单
               if (handle.processId && handle.workCount) {
-                await this.createReworkInspectionForm(productionReport.task, handle.workCount, handle.processId, productionReport.task.serialId, transaction)
+                await this.createReworkInspectionForm(
+                  productionReport.processPositionTask?.processTask,
+                  handle.workCount,
+                  handle.processId,
+                  productionReport.processPositionTask?.processTask?.serialId,
+                  transaction
+                )
               }
             }
           } else if (dto.status === '取消审核') {

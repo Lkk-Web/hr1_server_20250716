@@ -813,7 +813,20 @@ export class ProductionReportService {
 
   public async delete(id: number, loadModel) {
     //删除记录前减去对应工序任务单和生产工单的数量
-    let productionReport = await ProductionReport.findOne({ where: { id } })
+    let productionReport = await ProductionReport.findOne({
+      where: { id },
+      include: [
+        {
+          association: 'processPositionTask',
+          include: [
+            {
+              association: 'processTask',
+              attributes: ['id', 'serialId'],
+            },
+          ],
+        },
+      ],
+    })
     if (!productionReport) {
       throw new HttpException('数据不存在', 400006)
     }
@@ -823,7 +836,7 @@ export class ProductionReportService {
     //编辑报工数量之前减去上一次报工的数量再写入本次数量
     let pop = await ProcessTask.findAll({
       where: {
-        serialId: productionReport.task.serialId,
+        serialId: productionReport.processPositionTask?.processTask?.serialId,
         processId: productionReport.processId,
       },
     })
@@ -841,7 +854,7 @@ export class ProductionReportService {
     }
     let task = await ProcessTask.findAll({
       where: {
-        serialId: productionReport.task.serialId,
+        serialId: productionReport.processPositionTask?.processTask?.serialId,
         processId: productionReport.processId,
       },
     })
@@ -936,8 +949,14 @@ export class ProductionReportService {
           ],
         },
         {
-          association: 'task',
+          association: 'processPositionTask',
           attributes: ['id', 'planCount'],
+          include: [
+            {
+              association: 'processTask',
+              attributes: ['id', 'serialId'],
+            },
+          ],
         },
       ],
     }
@@ -955,15 +974,15 @@ export class ProductionReportService {
     const records = await ProductionReport.findAll({
       attributes: ['id', 'goodCount'],
       where: {
-        processTaskId: {
-          [Op.eq]: result.processTaskId,
+        processPositionTaskId: {
+          [Op.eq]: result.processPositionTaskId,
         },
         createdAt: {
           [Op.lt]: result.createdAt,
         },
       },
     })
-    const order = await ProductionOrder.findByPk(result.task.serialId)
+    const order = await ProductionOrder.findByPk(result.processPositionTask?.processTask?.serialId)
     let count = 0
     for (const record of records) {
       count += record.goodCount
@@ -1026,8 +1045,14 @@ export class ProductionReportService {
           ],
         },
         {
-          association: 'task',
+          association: 'processPositionTask',
           attributes: ['id', 'planCount'],
+          include: [
+            {
+              association: 'processTask',
+              attributes: ['id', 'serialId'],
+            },
+          ],
         },
       ],
     }
@@ -1073,8 +1098,8 @@ export class ProductionReportService {
       const records = await ProductionReport.findAll({
         attributes: ['id', 'goodCount'],
         where: {
-          processTaskId: {
-            [Op.eq]: datum.dataValues.taskId,
+          processPositionTaskId: {
+            [Op.eq]: datum.dataValues.processPositionTaskId,
           },
           createdAt: {
             [Op.lt]: datum.createdAt,
@@ -1108,7 +1133,20 @@ export class ProductionReportService {
     }
     if (dto.ids != undefined) {
       for (const id of dto.ids) {
-        const report = await ProductionReport.findByPk(id)
+        const report = await ProductionReport.findOne({
+          where: { id },
+          include: [
+            {
+              association: 'processPositionTask',
+              include: [
+                {
+                  association: 'processTask',
+                  attributes: ['id', 'serialId'],
+                },
+              ],
+            },
+          ],
+        })
         if (report) {
           const date: Date = new Date()
           const formattedDate = moment(date, 'YYYY-MM-DD HH:mm:ss').toDate()
@@ -1121,7 +1159,7 @@ export class ProductionReportService {
             { where: { id } }
           )
           if (dto.status === '已审核') {
-            const order = await ProductionOrder.findByPk(report.task.serialId, {
+            const order = await ProductionOrder.findByPk(report.processPositionTask?.processTask?.serialId, {
               include: [
                 {
                   association: 'bom',
@@ -1178,7 +1216,7 @@ export class ProductionReportService {
                     // materialId: order.dataValues.bom.materialId,
                     processId: report.processId,
                     performanceId: per.id,
-                    id: report.task.serialId,
+                    id: report.processPositionTask?.processTask?.serialId,
                     userId: perUser.id,
                   },
                 })
@@ -1188,7 +1226,7 @@ export class ProductionReportService {
                     // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
                     processId: report.processId,
                     performanceId: per.id,
-                    id: report.task.serialId,
+                    id: report.processPositionTask?.processTask?.serialId,
                     userId: perUser.id,
                     goodCount: report.goodCount,
                     badCount: report.badCount,
@@ -1226,7 +1264,7 @@ export class ProductionReportService {
                     // materialId: order.dataValues.bom.materialId,
                     processId: report.processId,
                     performanceId: per.id,
-                    id: report.task.serialId,
+                    id: report.processPositionTask?.processTask?.serialId,
                   },
                 })
                 if (!temp) {
@@ -1236,7 +1274,7 @@ export class ProductionReportService {
                     // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
                     processId: report.processId,
                     performanceId: per.id,
-                    id: report.task.serialId,
+                    id: report.processPositionTask?.processTask?.serialId,
                     userId: perUser.id,
                     goodCount: report.goodCount,
                     badCount: report.badCount,
@@ -1260,7 +1298,7 @@ export class ProductionReportService {
               }
             }
           } else if (dto.status === '取消审核') {
-            const order = await ProductionOrder.findByPk(report.task.serialId, {
+            const order = await ProductionOrder.findByPk(report.processPositionTask?.processTask?.serialId, {
               include: [
                 {
                   association: 'bom',

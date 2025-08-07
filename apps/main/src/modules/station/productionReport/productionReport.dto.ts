@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNumber, Min, ValidateNested } from 'class-validator'
+import { IsNumber, Min, ValidateNested, IsOptional } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsArrayLength } from '@library/utils/custom'
 
@@ -306,9 +306,14 @@ export class PadRegisterUserDto {
 }
 
 export class PadProcessDto {
-  @ApiProperty({ description: '工序任务单id', type: Number })
+  @ApiProperty({ description: '工序任务单id', type: Number, required: true })
   @IsNumber({}, { message: '工序任务单id必须为数字' })
-  id: number
+  processTaskID: number
+
+  @ApiProperty({ description: '工位任务单id', type: Number, required: false })
+  @IsOptional()
+  @IsNumber({}, { message: '工位任务单id必须为数字' })
+  processPositionTaskId?: number
 
   @ApiProperty({ description: '报工数量', type: Number })
   @IsNumber({}, { message: '报工数量必须为数字' })
@@ -328,6 +333,18 @@ export class PadRegisterDto {
   @ValidateNested({ each: true })
   @IsArrayLength({ min: 1 }, { message: '做工人配置必须是数组且长度大于0' })
   config: PadRegisterUserDto[]
+
+  @ApiProperty({
+    description: '工序id',
+    required: true,
+  })
+  processId: number
+
+  @ApiProperty({
+    description: '班组id',
+    required: true,
+  })
+  teamId: number
 }
 
 export class PickingOutboundDto {

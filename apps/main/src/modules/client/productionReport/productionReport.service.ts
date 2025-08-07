@@ -609,7 +609,19 @@ export class ProductionReportService {
 
   public async delete(id: number) {
     //删除记录前减去对应工序任务单和生产工单的数量
-    let productionReport = await ProductionReport.findOne({ where: { id } })
+    let productionReport = await ProductionReport.findOne({
+      where: { id },
+      include: [
+        {
+          association: 'processPositionTask',
+          include: [
+            {
+              association: 'processTask',
+            },
+          ],
+        },
+      ],
+    })
     if (!productionReport) {
       throw new HttpException('数据不存在', 400006)
     }
@@ -619,7 +631,7 @@ export class ProductionReportService {
     //编辑报工数量之前减去上一次报工的数量再写入本次数量
     let pop = await ProcessTask.findAll({
       where: {
-        id: productionReport.task.serialId,
+        serialId: productionReport.processPositionTask?.processTask?.serialId,
         processId: productionReport.processId,
       },
     })
@@ -637,7 +649,7 @@ export class ProductionReportService {
     }
     let task = await ProcessTask.findAll({
       where: {
-        serialId: productionReport.task.serialId,
+        serialId: productionReport.processPositionTask?.processTask?.serialId,
         processId: productionReport.processId,
       },
     })

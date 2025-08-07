@@ -70,11 +70,14 @@ export class ProductionReportController {
     return result
   }*/
 
-  @ApiOperation({ summary: '报工' })
+  @ApiOperation({
+    summary: '报工',
+    description: '支持两种报工方式：工序任务单报工：只传processTaskID； 工位任务单报工：同时传processTaskID和processPositionTaskId',
+  })
   @HttpCode(HttpStatus.OK)
   @Post('batch')
-  async batch(@Body() dto: PadRegisterDto, @Req() req) {
-    const result = await this.serviceTwo.padRegister(dto, req.process.id, req.team.id)
+  async batch(@Body() dto: PadRegisterDto) {
+    const result = await this.serviceTwo.padRegister(dto)
     return result
   }
 

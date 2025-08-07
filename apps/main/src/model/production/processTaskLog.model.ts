@@ -19,7 +19,7 @@ export class ProcessTaskLog extends BaseModel<ProcessTaskLog> {
     type: DataType.INTEGER,
     allowNull: true,
   })
-  declare processPositionTaskID: number
+  declare processPositionTaskId: number
 
   @Column({
     comment: '暂停的时间',

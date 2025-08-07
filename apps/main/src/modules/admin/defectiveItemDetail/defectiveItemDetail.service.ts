@@ -16,7 +16,7 @@ export class DefectiveItemDetailService {
   constructor(
     @Inject(RedisProvider.local)
     private readonly redis: Redis
-  ) { }
+  ) {}
   public async findPagination(dto: FindPaginationDto, pagination: Pagination, loadModel) {
     const options: FindPaginationOptions = {
       where: {},
@@ -58,7 +58,12 @@ export class DefectiveItemDetailService {
           ],
         },
         {
-          association: 'task',
+          association: 'processPositionTask',
+          include: [
+            {
+              association: 'processTask',
+            },
+          ],
         },
       ],
     }
@@ -165,7 +170,12 @@ export class DefectiveItemDetailService {
           ],
         },
         {
-          association: 'task',
+          association: 'processPositionTask',
+          include: [
+            {
+              association: 'processTask',
+            },
+          ],
         },
       ],
     }
@@ -452,26 +462,28 @@ export class DefectiveItemDetailService {
         // poEndAt: dayjs(value.order.endTime).format('YYYY-MM-DD'),
 
         processName: value.process.processName,
-        ptStartTime: dayjs(value.task.startTime).format('YYYY-MM-DD'),
-        ptEndTime: dayjs(value.task.endTime).format('YYYY-MM-DD'),
+        ptStartTime: dayjs(value.processPositionTask?.processTask?.startTime).format('YYYY-MM-DD'),
+        ptEndTime: dayjs(value.processPositionTask?.processTask?.endTime).format('YYYY-MM-DD'),
 
-        actualStartTime: dayjs(value.task.actualStartTime).format('YYYY-MM-DD'),
-        actualEndTime: dayjs(value.task.actualEndTime).format('YYYY-MM-DD'),
-        ptStatus: value.task.status,
-        planCount: value.task.planCount,
-        crealityNum: value.task.badCount + value.task.goodCount,
+        actualStartTime: dayjs(value.processPositionTask?.processTask?.actualStartTime).format('YYYY-MM-DD'),
+        actualEndTime: dayjs(value.processPositionTask?.processTask?.actualEndTime).format('YYYY-MM-DD'),
+        ptStatus: value.processPositionTask?.processTask?.status,
+        planCount: value.processPositionTask?.processTask?.planCount,
+        crealityNum: (value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0),
         productUser: value.productUser.userName,
         reportQuantity: value.reportQuantity,
-        goodCount: value.task.goodCount,
-        badCount: value.task.badCount,
-        badRate: value.task.badCount / (value.task.badCount + value.task.goodCount),
+        goodCount: value.processPositionTask?.processTask?.goodCount || 0,
+        badCount: value.processPositionTask?.processTask?.badCount || 0,
+        badRate:
+          (value.processPositionTask?.processTask?.badCount || 0) /
+          ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0)),
         defectiveName: defectiveCause,
         badNum1: badNumber1,
-        badReate1: ((badNumber1 / (value.task.badCount + value.task.goodCount)) * 100).toFixed(2),
+        badReate1: ((badNumber1 / ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0))) * 100).toFixed(2),
         badNum2: badNumber2,
-        badRate2: ((badNumber2 / (value.task.badCount + value.task.goodCount)) * 100).toFixed(2),
+        badRate2: ((badNumber2 / ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0))) * 100).toFixed(2),
         badNum3: badNumber3,
-        badRate3: ((badNumber3 / (value.task.badCount + value.task.goodCount)) * 100).toFixed(2),
+        badRate3: ((badNumber3 / ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0))) * 100).toFixed(2),
       }
       performanceData.rows.push(temp)
     })

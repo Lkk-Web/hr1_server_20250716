@@ -8,6 +8,7 @@ import { ProcessTask } from '@model/production/processTask.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { Team } from '@model/auth/team'
 import { ReportUser } from '@model/production/reportUser.model'
+import { ProcessPositionTask } from './processPositionTask.model'
 
 @Table({ tableName: `production_report`, timestamps: true, comment: '生产报工表 - 序列号 - 工序' })
 export class ProductionReport extends BaseDate<ProductionReport> {
@@ -19,13 +20,13 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   })
   declare processId: number
 
-  @ForeignKey(() => ProcessTask)
+  @ForeignKey(() => ProcessPositionTask)
   @Column({
-    comment: '工序任务单ID',
+    comment: '工位任务单ID',
     type: DataType.INTEGER,
     allowNull: false,
   })
-  declare processTaskId: number
+  declare processPositionTaskId: number
 
   @Column({
     comment: '工序状态（未开始，执行中,已结束）',
@@ -232,8 +233,8 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   @BelongsTo(() => Process)
   process: Process
 
-  @BelongsTo(() => ProcessTask, { foreignKey: 'taskId', constraints: false, foreignKeyConstraint: false })
-  task: ProcessTask
+  @BelongsTo(() => ProcessPositionTask, 'processPositionTaskId')
+  processPositionTask: ProcessPositionTask
 
   @BelongsTo(() => User, 'productUserId')
   productUser: User

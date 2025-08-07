@@ -864,7 +864,7 @@ export class MiService {
       let totalProductionCount = 0
       const report = await ProductionReport.findAll({
         where: {
-          processTaskId: {
+          processPositionTaskId: {
             // [Op.eq]: pop.dataValues.processTaskId,
           },
           endTime: {
