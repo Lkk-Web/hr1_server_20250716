@@ -298,9 +298,56 @@ export class ProcessPositionTaskService {
                       include: [
                         {
                           association: 'process',
-                          attributes: ['id', 'processName'],
+                          attributes: ['id', 'processName', 'sort'],
                           required: true,
-                          include: [{ association: 'children', attributes: ['id', 'processName'], required: true }],
+                          include: [
+                            {
+                              association: 'children',
+                              attributes: [
+                                'id',
+                                'processName',
+                                'sort',
+                                [
+                                  Sequelize.literal(`(
+                                  SELECT COUNT(DISTINCT pld.id)
+                                  FROM process_locate_detail pld
+                                  INNER JOIN process_task pt ON pld.processTaskId = pt.id
+                                  WHERE pt.processId = \`productionOrderDetail->material->processRoute->processRouteList->process->children\`.\`id\`
+                                )`),
+                                  'totalAssignedCount',
+                                ],
+                                [
+                                  Sequelize.literal(`(
+                                  SELECT COUNT(DISTINCT pld.id)
+                                  FROM process_locate_detail pld
+                                  INNER JOIN process_task pt ON pld.processTaskId = pt.id
+                                  WHERE pt.processId = \`productionOrderDetail->material->processRoute->processRouteList->process->children\`.\`id\` AND pld.status = 2
+                                )`),
+                                  'completedAssignedCount',
+                                ],
+                                [
+                                  Sequelize.literal(`(
+                                  SELECT COUNT(DISTINCT pld.id)
+                                  FROM process_locate_detail pld
+                                  INNER JOIN process_task pt ON pld.processTaskId = pt.id
+                                  WHERE pt.processId = \`productionOrderDetail->material->processRoute->processRouteList->process->children\`.\`id\` AND pld.status = 1
+                                )`),
+                                  'runningAssignedCount',
+                                ],
+                                [
+                                  Sequelize.literal(`(
+                                  SELECT SUM(pld.assignCount)
+                                  FROM process_locate_detail pld
+                                  INNER JOIN process_task pt ON pld.processTaskId = pt.id
+                                  WHERE pt.processId = \`productionOrderDetail->material->processRoute->processRouteList->process->children\`.\`id\`
+                                )`),
+                                  'totalAssignedQuantity',
+                                ],
+                              ],
+                              required: true,
+                            },
+                          ],
+                          order: ['sort'],
                         },
                       ],
                     },
@@ -321,7 +368,7 @@ export class ProcessPositionTaskService {
   }
 
   /**
-   * 派工
+   * 创建派工单
    */
   async createProcessLocate(dto: CreateProcessLocateDto, assignerId: number) {
     const transaction = await this.sequelize.transaction()
