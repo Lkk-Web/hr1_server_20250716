@@ -298,6 +298,14 @@ export class ProcessPositionTaskService {
                         {
                           association: 'process',
                           attributes: ['id', 'processName'],
+                          required: true,
+                          include: [
+                            {
+                              association: 'children',
+                              attributes: ['id', 'processName'],
+                              required: true,
+                            },
+                          ],
                         },
                       ],
                     },
