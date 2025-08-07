@@ -15,6 +15,7 @@ import { FindPaginationOptions } from '@model/shared/interface'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto, FindByOrderDto } from './processPositionTask.dto'
 import { Paging } from '@library/utils/paging'
+import { Process } from '@model/index'
 
 @Injectable()
 export class ProcessPositionTaskService {
@@ -287,31 +288,6 @@ export class ProcessPositionTaskService {
             {
               association: 'material',
               attributes: ['id', 'code', 'materialName'],
-              include: [
-                {
-                  association: 'processRoute',
-                  include: [
-                    {
-                      association: 'processRouteList',
-                      attributes: ['id'],
-                      include: [
-                        {
-                          association: 'process',
-                          attributes: ['id', 'processName'],
-                          required: true,
-                          include: [
-                            {
-                              association: 'children',
-                              attributes: ['id', 'processName'],
-                              required: true,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
             },
           ],
         },
@@ -326,7 +302,7 @@ export class ProcessPositionTaskService {
   }
 
   /**
-   * 创建派工单
+   * 派工
    */
   async createProcessLocate(dto: CreateProcessLocateDto, assignerId: number) {
     const transaction = await this.sequelize.transaction()
@@ -539,6 +515,20 @@ export class ProcessPositionTaskService {
         ['processTasks', 'processPositionTasks', 'id', 'ASC'],
       ],
     })
+    let processRouteList: Process[] = []
+    if (dto.processName) {
+      processRouteList = await Process.findAll({
+        where: { processName: dto.processName },
+        attributes: ['id'],
+        include: [
+          {
+            association: 'children',
+            attributes: ['id', 'processName'],
+            required: true,
+          },
+        ],
+      })
+    }
 
     // 统计信息
     let totalProcessTasks = 0
@@ -575,6 +565,7 @@ export class ProcessPositionTaskService {
         positionProgress: totalPositionTasks > 0 ? Math.round((completedPositionTasks / totalPositionTasks) * 100) : 0,
       },
       productSerials,
+      processRouteList,
     }
   }
 }
