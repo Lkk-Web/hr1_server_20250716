@@ -7,7 +7,7 @@ import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto } from './
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
-import { OpenAuthorize } from '@core/decorator/metaData'
+import { ApiPlatformWhitelist, OpenAuthorize } from '@core/decorator/metaData'
 import { FileUploadDto } from '@modules/file/file.dto'
 import { deleteIdsDto } from '@common/dto'
 
@@ -48,6 +48,7 @@ export class ProcessController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @ApiPlatformWhitelist(['admin', 'station'])
   @ApiOperation({ summary: '详情' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')

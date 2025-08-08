@@ -293,33 +293,13 @@ export class ProcessPositionTaskService {
                   include: [
                     {
                       association: 'processRouteList',
-                      attributes: ['id'],
+                      attributes: ['processId'],
                       include: [
                         {
                           association: 'process',
                           attributes: ['id', 'processName'],
                           order: ['sort', 'DESC'],
                           required: true,
-                          include: [
-                            {
-                              association: 'children',
-                              attributes: [
-                                'id',
-                                'processName',
-                                'sort',
-                                [
-                                  Sequelize.literal(`(
-                                  SELECT COUNT(DISTINCT pld.id)
-                                  FROM process_locate_detail pld
-                                  INNER JOIN process_position_task pt ON pld.processPositionTaskId = pt.id
-                                  WHERE pt.processId = \`productionOrderDetail->material->processRoute->processRouteList->process->children\`.\`id\`
-                                )`),
-                                  'totalAssignedCount',
-                                ],
-                              ],
-                              required: true,
-                            },
-                          ],
                         },
                       ],
                     },

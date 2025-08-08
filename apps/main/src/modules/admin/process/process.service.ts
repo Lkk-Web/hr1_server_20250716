@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { Process } from '@model/process/process.model'
 import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto } from './process.dto'
-import { FindOptions, Op } from 'sequelize'
+import { FindOptions, Op, Sequelize } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { ProcessItems } from '@model/process/processItems.model'
 import { Aide, JsExclKey } from '@library/utils/aide'
@@ -135,10 +135,10 @@ export class ProcessService {
     const options: FindOptions = {
       where: { id },
       include: [
-        {
-          association: 'processItem',
-          attributes: ['id', 'name'],
-        },
+        // {
+        //   association: 'processItem',
+        //   attributes: ['id', 'name'],
+        // },
         {
           association: 'processDept',
           attributes: ['id', 'name'],
@@ -151,7 +151,24 @@ export class ProcessService {
         },
         {
           association: 'children',
-          attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
+          attributes: [
+            'id',
+            'processName',
+            'sort',
+            'reportRatio',
+            'isOut',
+            'createdAt',
+            'updatedAt',
+            [
+              Sequelize.literal(`(
+              SELECT COUNT(DISTINCT pld.id)
+              FROM process_locate_detail pld
+              INNER JOIN process_position_task pt ON pld.processPositionTaskId = pt.id
+              WHERE pt.processId = \`children\`.\`id\`
+            )`),
+              'totalAssignedCount',
+            ],
+          ],
           required: false,
         },
       ],

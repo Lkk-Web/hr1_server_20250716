@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { ProcessRoute } from '@model/process/processRoute.model'
 import { CProcessRouteDto, FindPaginationDto, UProcessRouteDto } from './processRoute.dto'
-import { FindOptions, Op } from 'sequelize'
+import { FindOptions, Op, Sequelize } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { deleteIdsDto } from '@common/dto'
 import { Process } from '@model/process/process.model'
@@ -177,18 +177,36 @@ export class ProcessRouteService {
           attributes: ['id', 'isReport', 'isOutsource', 'isInspection'],
           include: [
             {
-              //工序自带的不良品项
               association: 'process',
               attributes: ['id', 'processName'],
-            },
-            {
-              association: 'items',
               include: [
                 {
-                  association: 'defectiveItem',
+                  association: 'children',
+                  attributes: [
+                    'id',
+                    'processName',
+                    'sort',
+                    [
+                      Sequelize.literal(`(
+                      SELECT COUNT(DISTINCT pld.id)
+                      FROM process_locate_detail pld
+                      INNER JOIN process_position_task pt ON pld.processPositionTaskId = pt.id
+                      WHERE pt.processId = \`processRouteList->process->children\`.\`id\`
+                    )`),
+                      'totalAssignedCount',
+                    ],
+                  ],
                 },
               ],
             },
+            // {
+            //   association: 'items',
+            //   include: [
+            //     {
+            //       association: 'defectiveItem',
+            //     },
+            //   ],
+            // },
           ],
         },
       ],
@@ -218,15 +236,20 @@ export class ProcessRouteService {
           // attributes: ['id'],
           include: [
             {
-              //工序自带的不良品项
               association: 'process',
               attributes: ['id', 'processName'],
+              include: [
+                {
+                  association: 'children',
+                  attributes: ['id', 'processName'],
+                },
+              ],
             },
-            {
-              //工序自带的不良品项
-              association: 'items',
-              attributes: ['id', 'defectiveItemId'],
-            },
+            // {
+            //   //工序自带的不良品项
+            //   association: 'items',
+            //   attributes: ['id', 'defectiveItemId'],
+            // },
           ],
         },
       ],
