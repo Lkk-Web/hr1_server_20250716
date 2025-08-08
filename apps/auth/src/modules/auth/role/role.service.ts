@@ -77,7 +77,9 @@ export class RoleService {
         // await RoleOrganize.destroy({ where: { roleId: id }, transaction })
         // await RoleOrganize.bulkCreate(dto.orgs.map(item => ({ roleId: id, orgId: item })), { transaction })
       }
-      await sysRole.update(dto)
+      await sysRole.update(dto, { transaction })
+
+      await transaction.commit()
 
       // await SYSBusinessLog.create({
       // 	description: '修改角色',
