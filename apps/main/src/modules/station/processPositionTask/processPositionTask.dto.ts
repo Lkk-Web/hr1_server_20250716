@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, IsOptional, IsNumber, IsString, IsBoolean, IsArray } from 'class-validator'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 
-
 export class UpdateProcessPositionTaskDto {
   @ApiProperty({ type: Number, description: '操作工ID', required: false })
   @IsOptional()
@@ -155,20 +154,15 @@ export class ProcessLocateDetailDto {
 }
 
 export class CreateProcessLocateDto {
-  @ApiProperty({ type: String, description: '派工编号', required: false })
-  @IsOptional()
-  @IsString({ message: '派工编号必须是字符串' })
-  locateCode?: string
+  @ApiProperty({ type: [ProcessLocateDetailDto], description: '派工详情列表', required: true })
+  @IsNotEmpty({ message: '派工详情列表不能为空' })
+  @IsArray({ message: '派工详情列表必须是数组' })
+  details: ProcessLocateDetailDto[]
 
   @ApiProperty({ type: String, description: '备注', required: false })
   @IsOptional()
   @IsString({ message: '备注必须是字符串' })
   remark?: string
-
-  @ApiProperty({ type: [ProcessLocateDetailDto], description: '派工详情列表', required: true })
-  @IsNotEmpty({ message: '派工详情列表不能为空' })
-  @IsArray({ message: '派工详情列表必须是数组' })
-  details: ProcessLocateDetailDto[]
 }
 
 export class FindByOrderDto {
