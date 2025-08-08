@@ -58,31 +58,40 @@ export class RoleService {
   }
 
   public async edit(dto: RoleEditDto, id: number, user: User, ip: string, loadModel) {
-    let sysRole = await Role.findOne({ where: { id } })
-    if (!sysRole) {
-      throw new HttpException('角色不存在', 400)
-    }
-    if (dto.menus) {
-      await RoleMenu.destroy({ where: { roleId: id }, force: true })
-      let menuList = dto.menus
-      await RoleMenu.bulkCreate(menuList.map(item => ({ roleId: id, menuId: item })))
-      delete dto.menus
-    }
-    if (dto.orgs) {
-      await RoleOrganize.destroy({ where: { roleId: id } })
-      await RoleOrganize.bulkCreate(dto.orgs.map(item => ({ roleId: id, orgId: item })))
-    }
-    await sysRole.update(dto)
+    const transaction = await Role.sequelize.transaction()
+    try {
+      let sysRole = await Role.findOne({ where: { id } })
+      if (!sysRole) {
+        throw new HttpException('角色不存在', 400)
+      }
+      if (dto.menus) {
+        await RoleMenu.destroy({ where: { roleId: id }, force: true, transaction })
+        let menuList = dto.menus
+        await RoleMenu.bulkCreate(
+          menuList.map(item => ({ roleId: id, menuId: item })),
+          { transaction }
+        )
+        delete dto.menus
+      }
+      if (dto.orgs) {
+        // await RoleOrganize.destroy({ where: { roleId: id }, transaction })
+        // await RoleOrganize.bulkCreate(dto.orgs.map(item => ({ roleId: id, orgId: item })), { transaction })
+      }
+      await sysRole.update(dto)
 
-    // await SYSBusinessLog.create({
-    // 	description: '修改角色',
-    // 	params: `${id}`,
-    // 	userId: user.id,
-    // 	module: SYS_MODULE.ROLE,
-    // });
-    sysRole = await Role.findOne({ where: { id } })
-    // await SYSBusinessLog.create({module:'角色管理',ip,userId:user.id,behavioral:'修改',description:user.name+'编辑了角色'+id,params:''+dto})
-    return sysRole
+      // await SYSBusinessLog.create({
+      // 	description: '修改角色',
+      // 	params: `${id}`,
+      // 	userId: user.id,
+      // 	module: SYS_MODULE.ROLE,
+      // });
+      sysRole = await Role.findOne({ where: { id } })
+      // await SYSBusinessLog.create({module:'角色管理',ip,userId:user.id,behavioral:'修改',description:user.name+'编辑了角色'+id,params:''+dto})
+      return sysRole
+    } catch (error) {
+      await transaction.rollback()
+      throw error
+    }
   }
 
   // public async editPower(dto: ESYSRolePowerDto, id: number) {
