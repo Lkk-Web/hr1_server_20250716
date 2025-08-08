@@ -176,6 +176,9 @@ export class FindByOrderDto {
   @IsNotEmpty({ message: '生产工单ID不能为空' })
   productionOrderTaskId: number
 
+  @ApiProperty({ type: Number, description: '工序ID', required: true })
+  processId: number
+
   @ApiProperty({ type: Number, description: '工序状态筛选', required: false })
   @IsOptional()
   @IsNumber({}, { message: '工序状态必须是数字' })
@@ -185,9 +188,4 @@ export class FindByOrderDto {
   @IsOptional()
   @IsNumber({}, { message: '工位任务状态必须是数字' })
   positionStatus?: number
-
-  @ApiProperty({ type: String, description: '工序名称筛选', required: false })
-  @IsOptional()
-  @IsString({ message: '工序名称必须是字符串' })
-  processName?: string
 }

@@ -1,4 +1,4 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
 import { PROCESS_TASK_STATUS } from '@common/enum'
@@ -8,6 +8,7 @@ import { Process } from '@model/process/process.model'
 import { ProductionReport } from './productionReport.model'
 import { ProductSerial } from './productSerial.model'
 import { ProductionOrderTask } from './productionOrderTask.model'
+import { ProcessLocateDetail } from './processLocateDetail.model'
 
 //工位任务单
 @Table({ tableName: `process_position_task`, timestamps: true, freezeTableName: true, comment: '工位任务单' })
@@ -138,6 +139,9 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   @BelongsTo(() => Process)
   declare process: Process
+
+  @HasOne(() => ProcessLocateDetail)
+  declare locate: ProcessLocateDetail
 
   @HasMany(() => ProcessTaskLog)
   declare operateLogs: ProcessTaskLog[]
