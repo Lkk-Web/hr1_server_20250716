@@ -1056,6 +1056,7 @@ export class ProductionOrderService {
             const processTask = await ProcessTask.create(
               {
                 serialId: productSerial.id,
+                productionOrderTaskId: productionOrderTask.id,
                 processId: process.processId,
                 reportRatio: process.reportRatio,
                 isOutsource: process.isOutsource,
@@ -1076,6 +1077,8 @@ export class ProductionOrderService {
               for (const childProcess of process.process.children) {
                 const processPositionTask = await ProcessPositionTask.create(
                   {
+                    serialId: productSerial.id,
+                    productionOrderTaskId: productionOrderTask.id,
                     processTaskId: processTask.id,
                     reportRatio: childProcess.dataValues.reportRatio || 1,
                     processId: childProcess.id,

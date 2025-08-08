@@ -6,10 +6,29 @@ import { ProcessTaskLog } from '@model/production/processTaskLog.model'
 import { ProcessTask } from './processTask.model'
 import { Process } from '@model/process/process.model'
 import { ProductionReport } from './productionReport.model'
+import { ProductSerial } from './productSerial.model'
+import { ProductionOrderTask } from './productionOrderTask.model'
 
 //工位任务单
 @Table({ tableName: `process_position_task`, timestamps: true, freezeTableName: true, comment: '工位任务单' })
 export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
+  @ForeignKey(() => ProductionOrderTask)
+  @Column({
+    comment: '生产工单ID',
+    type: DataType.INTEGER,
+    allowNull: false, // 必填项
+  })
+  declare productionOrderTaskId: number
+
+  //产品序列号id
+  @ForeignKey(() => ProductSerial)
+  @Column({
+    comment: '产品序列号id',
+    type: DataType.INTEGER,
+    allowNull: false, // 必填项
+  })
+  declare serialId: number
+
   //工序任务单id
   @ForeignKey(() => ProcessTask)
   @Column({
@@ -104,6 +123,12 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   @HasMany(() => ProductionReport)
   declare productionReport: ProductionReport[]
+
+  @BelongsTo(() => ProductSerial)
+  declare serial: ProductSerial
+
+  @BelongsTo(() => ProductionOrderTask)
+  declare productionOrderTask: ProductionOrderTask
 
   @BelongsTo(() => ProcessTask)
   declare processTask: ProcessTask

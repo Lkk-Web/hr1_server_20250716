@@ -12,7 +12,7 @@ import { Team } from '@model/auth/team'
 export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
   // 拆单编号
   @Column({
-    comment: '工序单编号 (格式: 原订单编号-01)',
+    comment: '工单编号',
     type: DataType.STRING(100),
     allowNull: false,
     unique: true,

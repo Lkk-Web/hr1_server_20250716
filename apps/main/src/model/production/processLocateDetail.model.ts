@@ -31,7 +31,7 @@ export class ProcessLocateDetail extends BaseDate<ProcessLocateDetail> {
   @Column({
     comment: '工序任务单ID',
     type: DataType.INTEGER,
-    allowNull: true,
+    allowNull: false,
   })
   declare processTaskId: number
 
