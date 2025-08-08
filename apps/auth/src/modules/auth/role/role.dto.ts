@@ -34,8 +34,7 @@ export class RoleCreateDto {
   @ApiProperty({ description: '菜单Id集合', type: [Number], required: false })
   menus?: [number]
 
-  @ApiProperty({ name: 'code', required: true, description: '角色编码', enum: ROLE_CODE })
-  @IsNotEmpty({ message: '角色编码不能为空' })
+  @ApiProperty({ name: 'code', required: false, description: '角色编码', enum: ROLE_CODE })
   @IsEnum(ROLE_CODE, { message: '无效的角色编码' })
   code: ROLE_CODE
 
@@ -62,8 +61,7 @@ export class RoleEditDto {
   @ApiProperty({ description: '菜单Id集合', type: [Number], required: false })
   menus?: [number]
 
-  @ApiProperty({ name: 'code', required: true, description: '角色编码', enum: ROLE_CODE })
-  @IsNotEmpty({ message: '角色编码不能为空' })
+  @ApiProperty({ name: 'code', required: false, description: '角色编码', enum: ROLE_CODE })
   @IsEnum(ROLE_CODE, { message: '无效的角色编码' })
   code: ROLE_CODE
 

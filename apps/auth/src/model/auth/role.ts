@@ -8,7 +8,7 @@ import { ROLE_CODE } from '@common/enum'
 
 @Table({ tableName: `auth_role`, timestamps: true, freezeTableName: true, paranoid: true })
 export class Role extends BaseDate<Role> {
-  @Column({ type: DataType.ENUM(...Object.values(ROLE_CODE)), comment: '角色编号', allowNull: false, defaultValue: ROLE_CODE.USER })
+  @Column({ type: DataType.ENUM(...Object.values(ROLE_CODE)), comment: '角色编号', allowNull: true })
   declare code: ROLE_CODE
 
   @Column({ type: DataType.STRING, comment: '角色名称' })
