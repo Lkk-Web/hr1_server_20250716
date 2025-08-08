@@ -300,6 +300,13 @@ export class ProcessPositionTaskService {
                           attributes: ['id', 'processName'],
                           order: ['sort', 'DESC'],
                           required: true,
+                          include: [
+                            {
+                              association: 'children',
+                              attributes: [],
+                              required: true,
+                            },
+                          ],
                         },
                       ],
                     },
