@@ -98,3 +98,10 @@ export enum ROLE_CODE {
   PLANER = '0004',  // 计划员
   USER = '0005',  // 员工/普通用户
 }
+
+export enum AuditStatus {
+  PENDING_REVIEW = '待审核',
+  APPROVED = '已通过',
+  REJECTED = '已驳回',
+}
+

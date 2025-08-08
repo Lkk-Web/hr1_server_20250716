@@ -1,6 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
+import { AuditStatus } from '@common/enum'
 
 /** 派工表 */
 @Table({ tableName: `process_locate`, freezeTableName: true, timestamps: true, comment: '派工表' })
@@ -32,12 +33,12 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
 
   // 状态 (0: 待执行, 1: 执行中, 2: 已完成, 3: 已取消)
   @Column({
-    comment: '状态',
-    type: DataType.TINYINT,
-    allowNull: false,
-    defaultValue: 0,
+    type: DataType.ENUM(...Object.values(AuditStatus)),
+    comment: '派工状态 (待审核, 已通过, 已驳回)',
+    allowNull: false, // 必填项
+    defaultValue: '待审核',
   })
-  declare status: number
+  declare status: AuditStatus
 
   // 备注
   @Column({

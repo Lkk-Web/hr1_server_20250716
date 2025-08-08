@@ -129,23 +129,13 @@ export class FindByTeamDto {
 export class ProcessLocateDetailDto {
   @ApiProperty({ type: Number, description: '指定人员ID', required: true })
   @IsNotEmpty({ message: '指定人员ID不能为空' })
-  @IsNumber({}, { message: '指定人员ID必须是数字' })
   userId: number
 
-  @ApiProperty({ type: Number, description: '工序任务单ID', required: false })
-  @IsOptional()
-  @IsNumber({}, { message: '工序任务单ID必须是数字' })
-  processTaskId?: number
+  @ApiProperty({ type: Number, description: '工位任务单ID', required: true })
+  processPositionTaskId: number
 
-  @ApiProperty({ type: Number, description: '工位任务单ID', required: false })
-  @IsOptional()
-  @IsNumber({}, { message: '工位任务单ID必须是数字' })
-  processPositionTaskId?: number
-
-  @ApiProperty({ type: Number, description: '分配数量', required: false })
-  @IsOptional()
-  @IsNumber({}, { message: '分配数量必须是数字' })
-  assignCount?: number
+  @ApiProperty({ type: Number, description: '分配数量', required: true })
+  assignCount: number
 
   @ApiProperty({ type: String, description: '备注', required: false })
   @IsOptional()

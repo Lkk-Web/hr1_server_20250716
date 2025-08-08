@@ -12,7 +12,7 @@ import { ProcessLocateDetail } from '@model/production/processLocateDetail.model
 import { Op, FindOptions, Sequelize } from 'sequelize'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { PROCESS_TASK_STATUS, ProductSerialStatus } from '@common/enum'
+import { AuditStatus, PROCESS_TASK_STATUS, ProductSerialStatus } from '@common/enum'
 import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto, FindByOrderDto } from './processPositionTask.dto'
 import { Paging } from '@library/utils/paging'
 
@@ -342,7 +342,7 @@ export class ProcessPositionTaskService {
           locateCode,
           assignerId,
           assignTime: new Date(),
-          status: 0, // 待执行
+          status: AuditStatus.PENDING_REVIEW, // 待审核
           remark: dto.remark,
         },
         { transaction }
@@ -356,20 +356,9 @@ export class ProcessPositionTaskService {
           throw new HttpException(`用户ID ${detail.userId} 不存在`, 400)
         }
 
-        // 验证工序任务单是否存在（如果提供）
-        if (detail.processTaskId) {
-          const processTask = await ProcessTask.findByPk(detail.processTaskId)
-          if (!processTask) {
-            throw new HttpException(`工序任务单ID ${detail.processTaskId} 不存在`, 400)
-          }
-        }
-
-        // 验证工位任务单是否存在（如果提供）
-        if (detail.processPositionTaskId) {
-          const processPositionTask = await ProcessPositionTask.findByPk(detail.processPositionTaskId)
-          if (!processPositionTask) {
-            throw new HttpException(`工位任务单ID ${detail.processPositionTaskId} 不存在`, 400)
-          }
+        const processPositionTask = await ProcessPositionTask.findByPk(detail.processPositionTaskId)
+        if (!processPositionTask) {
+          throw new HttpException(`工位任务单ID ${detail.processPositionTaskId} 不存在`, 400)
         }
 
         // 创建派工详情
@@ -377,10 +366,9 @@ export class ProcessPositionTaskService {
           {
             processLocateId: processLocate.id,
             userId: detail.userId,
-            processTaskId: detail.processTaskId,
             processPositionTaskId: detail.processPositionTaskId,
             assignCount: detail.assignCount || 1,
-            status: 0, // 待执行
+            status: ProductSerialStatus.NOT_STARTED, // 未开始
             remark: detail.remark,
           },
           { transaction }
