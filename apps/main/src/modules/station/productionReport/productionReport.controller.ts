@@ -72,7 +72,7 @@ export class ProductionReportController {
 
   @ApiOperation({
     summary: '报工',
-    description: '支持两种报工方式：工序任务单报工：只传processTaskID； 工位任务单报工：同时传processTaskID和processPositionTaskId',
+    description: '仅支持工位任务单报工：传 processPositionTaskId',
   })
   @HttpCode(HttpStatus.OK)
   @Post('batch')

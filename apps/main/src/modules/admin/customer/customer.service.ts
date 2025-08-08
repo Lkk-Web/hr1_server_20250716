@@ -69,12 +69,20 @@ export class CustomerService {
     }
     if (dto.selectAttr) {
       options.where[Op.or] = [
-        { shortName: { [Op.like]: `%${dto.selectAttr}%` } },
         { fullName: { [Op.like]: `%${dto.selectAttr}%` } },
-        { contactPerson: { [Op.like]: `%${dto.selectAttr}%` } },
-        { contactPhone: { [Op.like]: `%${dto.selectAttr}%` } },
       ]
     }
+    if (dto.contactPerson) {
+      options.where['contactPerson'] = {
+        [Op.like]: `%${dto.contactPerson}%`,
+      }
+    }
+    if (dto.contactPhone) {
+      options.where['contactPhone'] = {
+        [Op.like]: `%${dto.contactPhone}%`,
+      }
+    }
+
     const result = await Paging.diyPaging(Customer, pagination, options)
     return result
   }

@@ -1147,6 +1147,16 @@ export class ProductionReportService {
                 },
               ],
             },
+            {
+              association: 'serial',
+              attributes: ['serialNumber'],
+              include: [
+                {
+                  association: 'material',
+                  attributes: ['code'],
+                },
+              ],
+            },
           ],
         },
         {

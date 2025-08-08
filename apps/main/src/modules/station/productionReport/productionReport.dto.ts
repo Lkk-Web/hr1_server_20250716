@@ -306,14 +306,9 @@ export class PadRegisterUserDto {
 }
 
 export class PadProcessDto {
-  @ApiProperty({ description: '工序任务单id', type: Number, required: true })
-  @IsNumber({}, { message: '工序任务单id必须为数字' })
-  processTaskID: number
-
-  @ApiProperty({ description: '工位任务单id', type: Number, required: false })
-  @IsOptional()
+  @ApiProperty({ description: '工位任务单id', type: Number, required: true })
   @IsNumber({}, { message: '工位任务单id必须为数字' })
-  processPositionTaskId?: number
+  processPositionTaskId: number
 
   @ApiProperty({ description: '报工数量', type: Number })
   @IsNumber({}, { message: '报工数量必须为数字' })
@@ -345,6 +340,12 @@ export class PadRegisterDto {
     required: true,
   })
   teamId: number
+
+  @ApiProperty({
+    description: '铁芯序列号',
+    required: false,
+  })
+  ironSerial: string
 }
 
 export class PickingOutboundDto {

@@ -107,10 +107,10 @@ export class RoleService {
   // }
 
   public async delete(id: number, user: User, ip: string, loadModel) {
-    // const count = await User.count({ where: { roleId: id } });
-    // if (count > 0) {
-    // 	throw new HttpException('该角色有用户正在使用!', 400);
-    // }
+    const count = await User.count({ where: { roleId: id } });
+    if (count > 0) {
+    	throw new HttpException('该角色有用户正在使用!', 400);
+    }
     const result = await Role.destroy({
       where: {
         id: id,
@@ -152,6 +152,18 @@ export class RoleService {
         [Op.like]: `%${dto.name}%`,
       }
     }
+
+    if (dto.remark) {
+      options.where['remark'] = {
+        [Op.like]: `%${dto.remark}%`,
+      }
+    }
+    if (dto.dataScopeType) {
+      options.where['dataScopeType'] = {
+        [Op.eq]: dto.dataScopeType,
+      }
+    }
+
     if (dto.status) {
       const statusString = String(dto.status).toLowerCase().trim() // 确保字符串统一处理
       const statusBoolean = statusString === 'true' || statusString === '1' // 转换逻辑

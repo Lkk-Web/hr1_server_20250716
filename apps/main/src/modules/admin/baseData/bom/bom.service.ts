@@ -168,6 +168,11 @@ export class BomService {
         [Op.like]: `%${dto.default}%`,
       }
     }
+    if (dto.bomCode) {
+      options.where['code'] = {
+        [Op.eq]: dto.bomCode,
+      }
+    }
 
     if (dto.name) {
       options.include[0].where['name'] = {

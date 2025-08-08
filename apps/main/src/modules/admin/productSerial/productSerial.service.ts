@@ -43,6 +43,8 @@ export class ProductSerialService {
       {
         association: 'productionOrderTask',
         attributes: ['id', 'orderCode', 'splitQuantity', 'materialId'],
+        where: {},
+        required: false,
         include: [
           {
             association: 'material',
@@ -80,6 +82,12 @@ export class ProductSerialService {
         required: false,
       },
     ]
+
+    if (dto.orderCode) {
+      includeConditions[0].where['orderCode'] = {
+        [Op.like]: `%${dto.orderCode}%`,
+      }
+    }
 
     // 如果有订单编码条件，添加到关联查询中
     if (kingdeeCode) {

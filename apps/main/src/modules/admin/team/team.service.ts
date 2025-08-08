@@ -123,13 +123,11 @@ export class TeamService {
           association: 'charge', //负责人
           attributes: ['id', 'userName'],
           where: {},
-          required: false,
         },
         {
           association: 'workShop', //车间
           attributes: ['id', 'name'],
           where: {},
-          required: false,
         },
         {
           association: 'users',
@@ -146,15 +144,17 @@ export class TeamService {
     }
 
     if (dto.chargeName) {
-      options.include[1].where['userName'] = {
-        [Op.like]: `%${dto.chargeName}%`,
+      options.include[0].where['userName'] = {
+        [Op.eq]: dto.chargeName,
       }
     }
+
     if (dto.workShopName) {
-      options.include[2].where['name'] = {
-        [Op.like]: `%${dto.workShopName}%`,
+      options.include[1].where['name'] = {
+        [Op.eq]: dto.workShopName,
       }
     }
+
     if (dto.type) {
       options.where['type'] = dto.type
     }

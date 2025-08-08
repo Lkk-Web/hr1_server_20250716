@@ -65,7 +65,6 @@ export class ProductionOrderTaskService {
             },
             {
               association: 'productionOrder',
-              attributes: { exclude: ['createdAt', 'updatedAt'] },
               required: false,
               where: {},
               include: [

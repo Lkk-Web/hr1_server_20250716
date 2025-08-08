@@ -31,6 +31,7 @@ export class UserService {
       }
     }
     temp = await User.findOne({ where: { phone: dto.phone } })
+
     if (temp) {
       throw new HttpException('该手机号的员工已存在', 400)
     }
@@ -38,6 +39,13 @@ export class UserService {
       temp = await User.findOne({ where: { email: dto.email } })
       if (temp) {
         throw new HttpException('该邮箱的员工已存在', 400)
+      }
+    }
+
+    if (dto.userName) {
+      temp = await User.findOne({ where: { userName: dto.userName } })
+      if (temp) {
+        throw new HttpException('该员工姓名的员工已存在', 400)
       }
     }
     temp = await User.findOne({ order: [['id', 'DESC']], where: { userCode: { [Op.like]: `ST%` } } })

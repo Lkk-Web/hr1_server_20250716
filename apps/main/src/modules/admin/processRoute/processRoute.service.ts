@@ -72,6 +72,7 @@ export class ProcessRouteService {
         }
       }
     }
+    console.log(dto.materialId)
     await Material.update({ processRouteId: result.id }, { where: { id: dto.materialId } })
     return this.find(result.id, loadModel)
   }
@@ -141,6 +142,11 @@ export class ProcessRouteService {
   }
 
   public async delete(id: number, loadModel) {
+    // 校验：若有物料关联该工艺路线，则不允许删除
+    const relatedMaterial = await Material.findOne({ where: { processRouteId: id } })
+    if (relatedMaterial) {
+      throw new HttpException('工艺路线绑定物料，无法删除！', 400)
+    }
     //删除依赖关系
     const list = await ProcessRouteList.findAll({ where: { processRouteId: id } })
     for (const processRouteList of list) {
@@ -374,6 +380,21 @@ export class ProcessRouteService {
     let errors: Array<string> = []
     for (const id of dto.ids) {
       try {
+        // 校验：若有物料关联该工艺路线，则不允许删除
+        const relatedMaterial = await Material.findOne({ where: { processRouteId: id } })
+        if (relatedMaterial) {
+          failed++
+          errors.push(`工艺路线 ID ${id}：存在物料关联，禁止删除`)
+          continue
+        }
+
+        // 先删除依赖关系
+        const list = await ProcessRouteList.findAll({ where: { processRouteId: id } })
+        for (const processRouteList of list) {
+          await ProcessRouteListItem.destroy({ where: { processRouteListId: processRouteList.id } })
+        }
+        await ProcessRouteList.destroy({ where: { processRouteId: id } })
+
         const deleteNum = await ProcessRoute.destroy({ where: { id } })
         if (deleteNum) {
           success++

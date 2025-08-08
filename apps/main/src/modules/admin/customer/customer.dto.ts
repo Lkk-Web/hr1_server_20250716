@@ -13,6 +13,20 @@ export class FindPaginationDto {
     required: false,
   })
   selectAttr: string
+
+  @ApiProperty({
+    description: '联系人',
+    type: String,
+    required: false,
+  })
+  contactPerson: string
+
+  @ApiProperty({
+    description: '联系电话',
+    type: String,
+    required: false,
+  })
+  contactPhone: string
 }
 
 export class CCustomerDto {

@@ -140,7 +140,7 @@ export class MaterialService {
       options.where[Op.or] = [{ materialName: { [Op.like]: `%${dto.default}%` } }, { code: { [Op.like]: `%${dto.default}%` } }]
     }
     if (dto.name) {
-      options.where['name'] = {
+      options.where['materialName'] = {
         [Op.like]: `%${dto.name}%`,
       }
     }

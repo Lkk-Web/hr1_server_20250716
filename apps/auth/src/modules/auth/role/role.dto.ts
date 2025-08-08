@@ -16,6 +16,12 @@ export class FindPaginationDto {
 
   @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
   pageSize?: string
+
+  @ApiProperty({ description: '备注', type: String, required: false })
+  remark?: string
+
+  @ApiProperty({ description: '数据权限范围类型（0全部 1本组织 2本部门及下级部门 3本部门 4自定义）', type: String, required: false })
+  dataScopeType?: string
 }
 
 export class RoleCreateDto {

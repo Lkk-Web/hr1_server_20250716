@@ -8,6 +8,11 @@ export class FindProductSerialDto {
   @IsString()
   serialNumber?: string
 
+  @ApiProperty({ description: '工单编号', required: false })
+  @IsOptional()
+  @IsString()
+  orderCode?: string
+
   @ApiProperty({ description: '生产订单任务ID', required: false })
   @IsOptional()
   @IsString()
