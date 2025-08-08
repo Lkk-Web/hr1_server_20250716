@@ -5,6 +5,7 @@ import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
 import { ProcessTask } from './processTask.model'
 import { Process } from '@model/process/process.model'
+import { ProductionReport } from './productionReport.model'
 
 //工位任务单
 @Table({ tableName: `process_position_task`, timestamps: true, freezeTableName: true, comment: '工位任务单' })
@@ -100,6 +101,9 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
     defaultValue: true,
   })
   declare isInspection: boolean
+
+  @HasMany(() => ProductionReport)
+  declare productionReport: ProductionReport[]
 
   @BelongsTo(() => ProcessTask)
   declare processTask: ProcessTask

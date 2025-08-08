@@ -24,9 +24,15 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   @Column({
     comment: '工位任务单ID',
     type: DataType.INTEGER,
-    allowNull: false,
+    allowNull: true, // 修改为允许为空
   })
   declare processPositionTaskId: number
+
+  @Column({
+    comment: '铁芯序列号',
+    type: DataType.STRING(255),
+  })
+  declare ironSerial: string
 
   @Column({
     comment: '工序状态（未开始，执行中,已结束）',

@@ -1137,19 +1137,13 @@ export class ProductionReportService {
       pagination,
       include: [
         {
-          association: 'order',
-          attributes: ['id', 'code', 'plannedOutput', 'plannedOutput'],
-          where: {},
+          association: 'processPositionTask',
           include: [
             {
-              association: 'bom',
-              attributes: ['id', 'materialId', 'remark', 'version', 'quantity'],
-              where: {},
+              association: 'processTask',
               include: [
                 {
-                  association: 'parentMaterial',
-                  attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
-                  where: {},
+                  association: 'serial',
                 },
               ],
             },
@@ -1184,10 +1178,6 @@ export class ProductionReportService {
             },
           ],
         },
-        {
-          association: 'task',
-          attributes: ['id', 'planCount'],
-        },
       ],
     }
 
@@ -1220,15 +1210,19 @@ export class ProductionReportService {
     const result = await Paging.diyPaging(ProductionReport, pagination, options)
     if (result.data.length) {
       // 获取所有需要的materialId和processId
-      const materialProcessPairs = result.data.map(datum => ({
-        materialId: datum.dataValues.order.dataValues.bom.dataValues.materialId,
-        processId: datum.dataValues.processId,
-      }))
+      const materialProcessPairs = result.data.map(datum => {
+        // 添加空值检查，避免undefined错误
+        const materialId = datum.dataValues.processPositionTask?.dataValues?.processTask?.dataValues?.serial?.dataValues?.materialId
+        return {
+          materialId: materialId || null,
+          processId: datum.dataValues.processId,
+        }
+      })
       const teamIds = result.data.filter(v => v.processPositionTaskId).map(datum => datum.teamId)
       const productionReportIds = result.data.map(datum => datum.id)
       // 获取所有processPositionTaskId和createdAt
       const taskCreatedPairs = result.data.map(datum => ({
-        processPositionTaskId: datum.dataValues.processPositionTaskId,
+        processPositionTaskId: datum.dataValues.processPositionTaskId || null,
         createdAt: datum.createdAt,
       }))
 
@@ -1242,10 +1236,12 @@ export class ProductionReportService {
         ProductionReport.findAll({
           attributes: ['id', 'processPositionTaskId', 'createdAt', 'goodCount'],
           where: {
-            [Op.or]: taskCreatedPairs.map(pair => ({
-              processPositionTaskId: pair.processPositionTaskId,
-              createdAt: { [Op.lt]: pair.createdAt },
-            })),
+            [Op.or]: taskCreatedPairs
+              .filter(pair => pair.processPositionTaskId !== null) // 过滤掉空值
+              .map(pair => ({
+                processPositionTaskId: pair.processPositionTaskId,
+                createdAt: { [Op.lt]: pair.createdAt },
+              })),
           },
         }),
         teamIds.length

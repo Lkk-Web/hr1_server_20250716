@@ -3,6 +3,7 @@ import { ProductionOrderTask } from '@model/production/productionOrderTask.model
 import { ProcessTask } from '@model/production/processTask.model'
 import { BaseModel } from '@model/shared/base.model'
 import { ProductSerialStatus } from '@common/enum'
+import { Material } from '@model/base/material.model'
 
 /** 产品序列号表 */
 @Table({ tableName: `product_serial`, freezeTableName: true, timestamps: true, comment: '产品序列号表' })
@@ -23,6 +24,14 @@ export class ProductSerial extends BaseModel<ProductSerial> {
     allowNull: false,
   })
   declare productionOrderTaskId: number
+
+  @ForeignKey(() => Material)
+  @Column({
+    comment: '物料ID',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare materialId: number
 
   // 状态
   @Column({
@@ -102,4 +111,7 @@ export class ProductSerial extends BaseModel<ProductSerial> {
 
   @HasMany(() => ProcessTask)
   declare processTasks: ProcessTask[]
+
+  @BelongsTo(() => Material, 'materialId')
+  declare material: Material
 }

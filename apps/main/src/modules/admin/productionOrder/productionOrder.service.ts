@@ -1035,6 +1035,7 @@ export class ProductionOrderService {
               serialNumber: serialNumber,
               productionOrderTaskId: productionOrderTask.id,
               status: ProductSerialStatus.NOT_STARTED,
+              materialId: productionOrderDetail.materialId,
               quantity: 1,
               qualityStatus: '待检',
               processProgress: [], // 初始化为空数组，后续根据工艺路线填充

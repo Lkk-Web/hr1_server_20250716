@@ -50,6 +50,7 @@ export class ProductionReportController {
     const result = await this.service.find(Param.id)
     return result
   }
+
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')
