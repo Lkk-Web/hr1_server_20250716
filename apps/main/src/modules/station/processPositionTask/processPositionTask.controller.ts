@@ -3,7 +3,17 @@ import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { StationAuth } from '@core/decorator/controller'
 import { ProcessPositionTaskService } from './processPositionTask.service'
-import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto, FindByOrderDto } from './processPositionTask.dto'
+import {
+  UpdateProcessPositionTaskDto,
+  FindPaginationDto,
+  BatchOperationDto,
+  StartWorkDto,
+  FindByTeamDto,
+  CreateProcessLocateDto,
+  FindByOrderDto,
+  FindProcessLocatePaginationDto,
+} from './processPositionTask.dto'
+import { CurrentPage } from '@core/decorator/request'
 
 @ApiTags('工位任务单')
 @ApiBearerAuth()
@@ -106,8 +116,8 @@ export class ProcessPositionTaskController {
   @Get('locate/list')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '查询派工单列表' })
-  async findProcessLocateList(@Query() pagination: Pagination) {
-    const result = await this.processPositionTaskService.findProcessLocateList(pagination)
+  async findProcessLocateList(@Query() dto: FindProcessLocatePaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
+    const result = await this.processPositionTaskService.findProcessLocateList(dto, pagination)
     return result
   }
 

@@ -1,9 +1,10 @@
-import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
-import { ProcessPositionTask } from './processPositionTask.model'
 import { ProcessLocate } from './processLocate.model'
 import { ProductSerialStatus } from '@common/enum'
+import { Process } from '@model/process/process.model'
+import { ProcessLocateItem } from './processLocateItem.model'
 
 /** 派工详情表 */
 @Table({ tableName: `process_locate_detail`, freezeTableName: true, timestamps: true, comment: '派工详情表' })
@@ -26,14 +27,14 @@ export class ProcessLocateDetail extends BaseDate<ProcessLocateDetail> {
   })
   declare userId: number
 
-  // 工位任务单ID
-  @ForeignKey(() => ProcessPositionTask)
+  // 工序
+  @ForeignKey(() => Process)
   @Column({
-    comment: '工位任务单ID',
+    comment: '工序',
     type: DataType.INTEGER,
     allowNull: false,
   })
-  declare processPositionTaskId: number
+  declare processId: number
 
   // 分配数量
   @Column({
@@ -84,7 +85,10 @@ export class ProcessLocateDetail extends BaseDate<ProcessLocateDetail> {
   @BelongsTo(() => User, 'userId')
   declare user: User
 
-  // 关联工位任务单
-  @BelongsTo(() => ProcessPositionTask, 'processPositionTaskId')
-  declare processPositionTask: ProcessPositionTask
+  // 关联工序
+  @BelongsTo(() => Process, 'processId')
+  declare process: Process
+
+  @HasMany(() => ProcessLocateItem)
+  declare processLocateItems: ProcessLocateItem[]
 }

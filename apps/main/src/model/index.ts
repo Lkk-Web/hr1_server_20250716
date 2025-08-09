@@ -88,6 +88,11 @@ export * from './production/reportUserDuration.model'
 export * from './production/productionOrderTaskOfTeam.model'
 export * from './production/processPositionTask.model'
 
+// 派工
+export * from './production/processLocate.model'
+export * from './production/processLocateDetail.model'
+export * from './production/processLocateItem.model'
+
 //绩效管理 performance
 export * from './performance/performance.model'
 export * from './performance/performanceConfig.model'

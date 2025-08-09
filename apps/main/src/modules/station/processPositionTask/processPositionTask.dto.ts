@@ -50,6 +50,11 @@ export class UpdateProcessPositionTaskDto {
 }
 
 export class FindPaginationDto {
+  @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
+  current?: string
+  @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
+  pageSize?: string
+
   @ApiProperty({ type: Number, description: '工序任务单ID', required: false })
   @IsOptional()
   @IsNumber({}, { message: '工序任务单ID必须是数字' })
@@ -84,6 +89,18 @@ export class FindPaginationDto {
   @IsOptional()
   @IsString({ message: '结束时间必须是字符串' })
   endTime?: string
+}
+
+export class FindProcessLocatePaginationDto {
+  @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
+  current?: string
+  @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
+  pageSize?: string
+
+  @ApiProperty({ type: String, description: '任务状态', required: false })
+  @IsOptional()
+  @IsString({ message: '任务状态必须是字符串' })
+  status?: string
 }
 
 export class BatchOperationDto {
@@ -131,11 +148,13 @@ export class ProcessLocateDetailDto {
   @IsNotEmpty({ message: '指定人员ID不能为空' })
   userId: number
 
-  @ApiProperty({ type: Number, description: '工位任务单ID', required: true })
-  processPositionTaskId: number
+  @ApiProperty({ type: [Number], description: '工位任务单ID', required: true })
+  @IsArray({ message: '工位任务单列表必须是数组' })
+  @IsNotEmpty({ message: '工位任务单列表不能为空' })
+  processPositionTaskIds: number[]
 
-  @ApiProperty({ type: Number, description: '分配数量', required: true })
-  assignCount: number
+  @ApiProperty({ type: Number, description: '工序Id', required: true })
+  processId: number
 
   @ApiProperty({ type: String, description: '备注', required: false })
   @IsOptional()
@@ -148,6 +167,10 @@ export class CreateProcessLocateDto {
   @IsNotEmpty({ message: '派工详情列表不能为空' })
   @IsArray({ message: '派工详情列表必须是数组' })
   details: ProcessLocateDetailDto[]
+
+  @ApiProperty({ type: Number, description: '物料Id', required: true })
+  @IsNotEmpty({ message: '物料Id不能为空' })
+  materialId: number
 
   @ApiProperty({ type: String, description: '备注', required: false })
   @IsOptional()

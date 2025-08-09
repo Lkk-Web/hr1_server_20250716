@@ -2,6 +2,8 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequeli
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
 import { AuditStatus } from '@common/enum'
+import { ProcessLocateDetail } from './processLocateDetail.model'
+import { Material } from '@model/base/material.model'
 
 /** 派工表 */
 @Table({ tableName: `process_locate`, freezeTableName: true, timestamps: true, comment: '派工表' })
@@ -22,6 +24,15 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
     allowNull: false,
   })
   declare assignerId: number
+
+  // 物料
+  @ForeignKey(() => Material)
+  @Column({
+    comment: '物料Id',
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare materialId: number
 
   // 派工时间
   @Column({
@@ -51,4 +62,11 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
   // 关联派工人员
   @BelongsTo(() => User, 'assignerId')
   declare assigner: User
+
+  // 关联物料
+  @BelongsTo(() => Material, 'materialId')
+  declare material: Material
+
+  @HasMany(() => ProcessLocateDetail)
+  declare processLocateDetails: ProcessLocateDetail[]
 }

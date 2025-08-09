@@ -8,7 +8,7 @@ import { Process } from '@model/process/process.model'
 import { ProductionReport } from './productionReport.model'
 import { ProductSerial } from './productSerial.model'
 import { ProductionOrderTask } from './productionOrderTask.model'
-import { ProcessLocateDetail } from './processLocateDetail.model'
+import { ProcessLocateItem } from './processLocateItem.model'
 
 //工位任务单
 @Table({ tableName: `process_position_task`, timestamps: true, freezeTableName: true, comment: '工位任务单' })
@@ -140,8 +140,8 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
   @BelongsTo(() => Process)
   declare process: Process
 
-  @HasOne(() => ProcessLocateDetail)
-  declare locate: ProcessLocateDetail
+  @HasOne(() => ProcessLocateItem)
+  declare locate: ProcessLocateItem
 
   @HasMany(() => ProcessTaskLog)
   declare operateLogs: ProcessTaskLog[]

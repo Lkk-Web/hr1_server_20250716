@@ -9,12 +9,23 @@ import { ProductionOrderTaskTeam } from '@model/production/productionOrderTaskOf
 import { ProductSerial } from '@model/production/productSerial.model'
 import { ProcessLocate } from '@model/production/processLocate.model'
 import { ProcessLocateDetail } from '@model/production/processLocateDetail.model'
-import { Op, FindOptions, Sequelize } from 'sequelize'
+import { Op, FindOptions, Sequelize, where } from 'sequelize'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { AuditStatus, PROCESS_TASK_STATUS, ProductSerialStatus } from '@common/enum'
-import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto, FindByOrderDto } from './processPositionTask.dto'
+import {
+  UpdateProcessPositionTaskDto,
+  FindPaginationDto,
+  BatchOperationDto,
+  StartWorkDto,
+  FindByTeamDto,
+  CreateProcessLocateDto,
+  FindByOrderDto,
+  FindProcessLocatePaginationDto,
+} from './processPositionTask.dto'
 import { Paging } from '@library/utils/paging'
+import { ProcessLocateItem } from '@model/index'
+import moment from 'moment'
 
 @Injectable()
 export class ProcessPositionTaskService {
@@ -327,20 +338,21 @@ export class ProcessPositionTaskService {
   }
 
   /**
-   * 创建派工单
+   * 派工
    */
   async createProcessLocate(dto: CreateProcessLocateDto, assignerId: number) {
-    const transaction = await this.sequelize.transaction()
+    const transaction = await ProcessLocate.sequelize.transaction()
 
     try {
       // 生成派工编号
-      const locateCode = `PG${Date.now()}`
+      const locateCode = `PG${moment().format('YYYYMMDDHHmmss')}`
 
       // 创建派工主表
       const processLocate = await ProcessLocate.create(
         {
           locateCode,
           assignerId,
+          materialId: dto.materialId,
           assignTime: new Date(),
           status: AuditStatus.PENDING_REVIEW, // 待审核
           remark: dto.remark,
@@ -356,34 +368,27 @@ export class ProcessPositionTaskService {
           throw new HttpException(`用户ID ${detail.userId} 不存在`, 400)
         }
 
-        const processPositionTask = await ProcessPositionTask.findByPk(detail.processPositionTaskId)
-        if (!processPositionTask) {
-          throw new HttpException(`工位任务单ID ${detail.processPositionTaskId} 不存在`, 400)
-        }
-
         // 创建派工详情
-        await ProcessLocateDetail.create(
+        const processLocateDetail = await ProcessLocateDetail.create(
           {
             processLocateId: processLocate.id,
             userId: detail.userId,
-            processPositionTaskId: detail.processPositionTaskId,
-            assignCount: detail.assignCount || 1,
+            processId: detail.processId,
+            assignCount: detail.processPositionTaskIds.length,
             status: ProductSerialStatus.NOT_STARTED, // 未开始
             remark: detail.remark,
           },
           { transaction }
         )
 
-        // 如果指定了工位任务单，更新其操作工
-        if (detail.processPositionTaskId) {
-          await ProcessLocateDetail.update(
-            { userId: detail.userId },
-            {
-              where: { id: detail.processPositionTaskId },
-              transaction,
-            }
-          )
-        }
+        const processLocateItems = detail.processPositionTaskIds.map(v => {
+          return {
+            processPositionTaskId: v,
+            processLocateDetailId: processLocateDetail.id,
+          }
+        })
+
+        await ProcessLocateItem.bulkCreate(processLocateItems, { transaction })
       }
 
       await transaction.commit()
@@ -392,8 +397,16 @@ export class ProcessPositionTaskService {
       return await ProcessLocate.findByPk(processLocate.id, {
         include: [
           {
-            association: 'assigner',
-            attributes: ['id', 'userName', 'userCode'],
+            association: 'processLocateDetails',
+            include: [
+              {
+                association: 'process',
+                attributes: ['id', 'processName'],
+              },
+              {
+                association: 'processLocateItems',
+              },
+            ],
           },
         ],
       })
@@ -406,16 +419,40 @@ export class ProcessPositionTaskService {
   /**
    * 查询派工单列表
    */
-  async findProcessLocateList(pagination: Pagination) {
-    const result = await Paging.diyPaging(ProcessLocate, pagination, {
+  async findProcessLocateList(dto: FindProcessLocatePaginationDto, pagination: Pagination) {
+    const options = {
+      attributes: ['id', 'status', 'locateCode', 'createdAt'],
+      where: {},
       include: [
         {
           association: 'assigner',
           attributes: ['id', 'userName', 'userCode'],
         },
+        {
+          association: 'material',
+          attributes: ['id', 'code', 'materialName'],
+        },
+        {
+          association: 'processLocateDetails',
+          include: [
+            {
+              association: 'process',
+              attributes: ['id', 'processName'],
+            },
+          ],
+        },
       ],
       order: [['id', 'DESC']],
-    })
+    }
+
+    if (dto.status) {
+      options.where = {
+        status: dto.status,
+      }
+    }
+
+    const result = await Paging.diyPaging(ProcessLocate, pagination, options)
+
     return result
   }
 
@@ -429,6 +466,33 @@ export class ProcessPositionTaskService {
           association: 'assigner',
           attributes: ['id', 'userName', 'userCode'],
         },
+        {
+          association: 'processLocateDetails',
+          include: [
+            {
+              association: 'process',
+              attributes: ['id', 'processName'],
+            },
+            {
+              association: 'user',
+              attributes: ['id', 'userName', 'userCode'],
+            },
+            {
+              association: 'processLocateItems',
+              include: [
+                {
+                  association: 'processPositionTask',
+                  include: [
+                    {
+                      association: 'serial',
+                      attributes: ['id', 'serialNumber'],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       ],
     })
 
@@ -436,29 +500,7 @@ export class ProcessPositionTaskService {
       throw new HttpException('派工单不存在', 400)
     }
 
-    // 获取派工详情
-    const details = await ProcessLocateDetail.findAll({
-      where: { processLocateId: id },
-      include: [
-        {
-          association: 'user',
-          attributes: ['id', 'userName', 'userCode'],
-        },
-        {
-          association: 'processTask',
-          attributes: ['id', 'processName', 'status'],
-        },
-        {
-          association: 'processPositionTask',
-          attributes: ['id', 'status', 'planCount', 'goodCount', 'badCount'],
-        },
-      ],
-    })
-
-    return {
-      ...result.toJSON(),
-      details,
-    }
+    return result
   }
 
   /**
@@ -477,7 +519,7 @@ export class ProcessPositionTaskService {
           include: [
             {
               association: 'material',
-              attributes: ['code', 'materialName'],
+              attributes: ['id', 'code', 'materialName'],
             },
           ],
         },
