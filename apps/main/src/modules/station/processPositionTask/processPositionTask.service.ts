@@ -456,6 +456,25 @@ export class ProcessPositionTaskService {
         {
           association: 'material',
           attributes: ['id', 'code', 'materialName'],
+          include: [
+            {
+              association: 'processRoute',
+              include: [
+                {
+                  association: 'processRouteList',
+                  attributes: ['processId'],
+                  include: [
+                    {
+                      association: 'process',
+                      attributes: ['id', 'processName'],
+                      order: ['sort', 'DESC'],
+                      required: true,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
         {
           association: 'productionOrderTask',
@@ -463,10 +482,18 @@ export class ProcessPositionTaskService {
         },
         {
           association: 'processLocateDetails',
+          // attributes: [Sequelize.literal(``)],
           include: [
             {
               association: 'process',
               attributes: ['id', 'processName'],
+            },
+            {
+              association: 'user',
+              attributes: ['id', 'userName', 'userCode'],
+            },
+            {
+              association: 'processLocateItems',
             },
           ],
         },
