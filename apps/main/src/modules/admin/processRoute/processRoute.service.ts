@@ -207,9 +207,9 @@ export class ProcessRouteService {
                     'sort',
                     [
                       Sequelize.literal(`(
-                      SELECT COUNT(DISTINCT pld.id)
-                      FROM process_locate_detail pld
-                      INNER JOIN process_position_task pt ON pld.processPositionTaskId = pt.id
+                      SELECT COUNT(DISTINCT pli.id)
+                      FROM process_locate_item pli
+                      INNER JOIN process_position_task pt ON pli.processPositionTaskId = pt.id
                       WHERE pt.processId = \`processRouteList->process->children\`.\`id\`
                     )`),
                       'totalAssignedCount',
