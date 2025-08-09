@@ -16,6 +16,7 @@ import {
   BatchAuditProcessLocateDto,
 } from './processPositionTask.dto'
 import { CurrentPage } from '@core/decorator/request'
+import { ApiPlatformWhitelist } from '@core/decorator/metaData'
 
 @ApiTags('工位任务单')
 @ApiBearerAuth()
@@ -117,6 +118,7 @@ export class ProcessPositionTaskController {
 
   @Get('locate/list')
   @HttpCode(HttpStatus.OK)
+  @ApiPlatformWhitelist(['admin,station'])
   @ApiOperation({ summary: '查询派工单列表' })
   async findProcessLocateList(@Query() dto: FindProcessLocatePaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     const result = await this.processPositionTaskService.findProcessLocateList(dto, pagination)
@@ -125,6 +127,7 @@ export class ProcessPositionTaskController {
 
   @Get('locate/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiPlatformWhitelist(['admin,station'])
   @ApiOperation({ summary: '获取派工单详情' })
   @ApiParam({ name: 'id', description: '派工单ID' })
   async findProcessLocateDetail(@Param('id') id: number) {
@@ -134,6 +137,7 @@ export class ProcessPositionTaskController {
 
   @Post('locate/audit')
   @HttpCode(HttpStatus.OK)
+  @ApiPlatformWhitelist(['admin,station'])
   @ApiOperation({ summary: '批量审核派工单' })
   async auditProcessLocate(@Body() dto: BatchAuditProcessLocateDto, @Req() req: any) {
     const auditorId = req.user.id
