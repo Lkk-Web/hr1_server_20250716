@@ -7,7 +7,7 @@ import _ = require('lodash')
 import { WorkShop } from '@model/base/workShop.model'
 import { CWorkShopDto, FindPaginationDto, FindPaginationScheduleDto, ScheduleDto, ScheduleList, UWorkShopDto } from './workShop.dto'
 import { Sequelize } from 'sequelize-typescript'
-import { FindOptions, Op } from 'sequelize'
+import { FindOptions, Op, fn, col } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Paging } from '@library/utils/paging'
 import { ProductionOrderTask, POPSchedule } from '@model/index'
@@ -133,7 +133,7 @@ export class WorkShopService {
 
       const processRouteList = processTask.material.processRoute.processRouteList
 
-      if (scheduleList.length !== processRouteList.length) throw new HttpException(`排程数据数量不匹配，工艺路线包含${processRouteList.length}个工序`, 400)
+      // if (scheduleList.length !== processRouteList.length) throw new HttpException(`排程数据数量不匹配，工艺路线包含${processRouteList.length}个工序`, 400)
 
       let scheduleListData = scheduleList as ScheduleList[]
       if (processTask.schedulingStatus == SchedulingStatus.SCHEDULED) {
@@ -141,11 +141,13 @@ export class WorkShopService {
         const editSchedule = async (data: ScheduleList[]) => {
           for (const v of data) {
             if (v.startTime > v.endTime) throw new HttpException('排程开始时间不能大于结束时间', 400)
-            const temp = await POPSchedule.findOne({ where: { processId: v.processId, productionOrderTaskId } })
-            if (!temp) throw new HttpException('排程不存在,无法修改', 400)
-            v['id'] = temp.dataValues.id
+            const temp = await POPSchedule.findOne({ where: { processId: v.processId, productionOrderTaskId }, transaction })
+            // 如果存在则更新，不存在则作为新增处理
+            if (temp) {
+              v['id'] = temp.dataValues.id
+            }
             v['productionOrderTaskId'] = productionOrderTaskId
-            if (v.subProcessList?.length > 0) await editSchedule(v.subProcessList) //递归
+            if (v.subProcessList?.length > 0) await editSchedule(v.subProcessList) // 递归处理子工序
           }
         }
         await editSchedule(scheduleListData)
@@ -173,7 +175,29 @@ export class WorkShopService {
 
       await createScheduleSql(scheduleListData)
 
-      await ProductionOrderTask.update({ schedulingStatus: SchedulingStatus.SCHEDULED }, { where: { id: productionOrderTaskId }, transaction })
+      // 计算大工序（isChild = 0）的最小开始时间与最大结束时间
+      const agg = await POPSchedule.findOne({
+        where: { productionOrderTaskId },
+        include: [
+          {
+            association: 'process',
+            where: { isChild: 0 },
+            attributes: [],
+          },
+        ],
+        attributes: [
+          [fn('MIN', col('startTime')), 'minStartTime'],
+          [fn('MAX', col('endTime')), 'maxEndTime'],
+        ],
+        raw: true,
+        transaction,
+      })
+
+      const updateData: any = { schedulingStatus: SchedulingStatus.SCHEDULED }
+      if (agg && agg['minStartTime']) updateData.startTime = new Date(agg['minStartTime'])
+      if (agg && agg['maxEndTime']) updateData.endTime = new Date(agg['maxEndTime'])
+
+      await ProductionOrderTask.update(updateData, { where: { id: productionOrderTaskId }, transaction })
 
       await transaction.commit()
     } catch (error) {
