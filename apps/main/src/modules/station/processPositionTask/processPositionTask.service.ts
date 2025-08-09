@@ -370,19 +370,29 @@ export class ProcessPositionTaskService {
           throw new HttpException(`用户ID ${detail.userId} 不存在`, 400)
         }
 
+        // 全选 - 全部序列号 - 工位任务单
+        const tmp = await ProcessPositionTask.findAll({
+          where: {
+            processId: detail.processId,
+            productionOrderTaskId: dto.productionOrderTaskId,
+            status: POSITION_TASK_STATUS.TO_ASSIGN,
+          },
+        })
+
         // 创建派工详情
         const processLocateDetail = await ProcessLocateDetail.create(
           {
             processLocateId: processLocate.id,
             userId: detail.userId,
             processId: detail.processId,
-            assignCount: detail.processPositionTaskIds.length,
+            assignCount: detail.processPositionTaskIds.length == 0 ? tmp.length : detail.processPositionTaskIds.length,
             status: ProductSerialStatus.NOT_STARTED, // 未开始
             remark: detail.remark,
           },
           { transaction }
         )
 
+        // 序列号列表
         let processLocateItems = []
         if (detail.processPositionTaskIds?.length > 0) {
           processLocateItems = detail.processPositionTaskIds.map(v => {
@@ -392,14 +402,6 @@ export class ProcessPositionTaskService {
             }
           })
         } else {
-          // 全选
-          const tmp = await ProcessPositionTask.findAll({
-            where: {
-              processId: detail.processId,
-              productionOrderTaskId: dto.productionOrderTaskId,
-              status: POSITION_TASK_STATUS.TO_ASSIGN,
-            },
-          })
           processLocateItems = tmp.map(v => {
             return {
               processPositionTaskId: v.id,
@@ -409,6 +411,15 @@ export class ProcessPositionTaskService {
         }
 
         await ProcessLocateItem.bulkCreate(processLocateItems, { transaction })
+        await ProcessPositionTask.bulkCreate(
+          tmp.map(v => {
+            return {
+              id: v.id,
+              status: POSITION_TASK_STATUS.TO_AUDIT,
+            }
+          }),
+          { transaction }
+        )
       }
 
       await transaction.commit()
@@ -482,7 +493,6 @@ export class ProcessPositionTaskService {
         },
         {
           association: 'processLocateDetails',
-          // attributes: [Sequelize.literal(``)],
           include: [
             {
               association: 'process',
