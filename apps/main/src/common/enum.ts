@@ -30,7 +30,6 @@ export enum PROCESS_TASK_STATUS {
   finish = '已结束',
 }
 
-// 审核中, 待分配, 执行中, 已完成
 export enum POSITION_TASK_STATUS {
   TO_ASSIGN = '待派工',
   NOT_STARTED = '未开始',

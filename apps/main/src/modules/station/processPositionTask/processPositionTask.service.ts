@@ -565,7 +565,18 @@ export class ProcessPositionTaskService {
 
     // 查找工单下的所有工位任务单
     const processPositionTasks = await ProcessPositionTask.findAll({
-      where: { productionOrderTaskId, processId },
+      where: { 
+        productionOrderTaskId, 
+        processId,
+        // 使用子查询排除已派工的记录
+        id: {
+          [Op.notIn]: Sequelize.literal(`(
+            SELECT DISTINCT processPositionTaskId 
+            FROM process_locate_item 
+            WHERE processPositionTaskId IS NOT NULL
+          )`)
+        }
+      },
       include: [
         {
           association: 'serial',
@@ -576,13 +587,6 @@ export class ProcessPositionTaskService {
               attributes: ['id', 'code', 'materialName'],
             },
           ],
-        },
-        {
-          association: 'locate',
-          required: false,
-          where: {
-            id: null, // 筛选出没有派工记录的数据
-          },
         },
       ],
     })
