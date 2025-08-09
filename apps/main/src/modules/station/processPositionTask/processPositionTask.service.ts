@@ -410,16 +410,39 @@ export class ProcessPositionTaskService {
           })
         }
 
-        await ProcessLocateItem.bulkCreate(processLocateItems, { transaction })
-        await ProcessPositionTask.bulkCreate(
+        console.log(
           tmp.map(v => {
             return {
-              id: v.id,
+              id: v.dataValues.id,
               status: POSITION_TASK_STATUS.TO_AUDIT,
             }
-          }),
-          { transaction }
+          })
         )
+
+        await ProcessLocateItem.bulkCreate(processLocateItems, { transaction })
+
+        for (const item of tmp) {
+          await ProcessPositionTask.update(
+            {
+              status: POSITION_TASK_STATUS.TO_AUDIT,
+            },
+            {
+              where: {
+                id: item.id,
+              },
+              transaction,
+            }
+          )
+        }
+        // await ProcessPositionTask.bulkCreate(
+        //   tmp.map(v => {
+        //     return {
+        //       id: v.dataValues.id,
+        //       status: POSITION_TASK_STATUS.TO_AUDIT,
+        //     }
+        //   }),
+        //   { updateOnDuplicate: ['id', 'status'], transaction }
+        // )
       }
 
       await transaction.commit()
