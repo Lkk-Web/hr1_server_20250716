@@ -8,7 +8,7 @@ import { InspectionForm } from '@model/quantity/inspectionForm.model'
 import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 import { PadRegisterDto, PadRegisterUserDto, PickingOutboundDto } from './productionReport.dto'
-import { PROCESS_TASK_STATUS } from '@common/enum'
+import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS } from '@common/enum'
 import { Aide } from '@library/utils/aide'
 import { ReportUserDuration } from '@model/production/reportUserDuration.model'
 import { ReportUser } from '@model/production/reportUser.model'
@@ -118,7 +118,7 @@ export class ProductionReportTwoService {
         await ProcessPositionTask.update(
           {
             goodCount: positionTask.isInspection ? positionTask.goodCount : positionTask.goodCount + processDto.reportQuantity,
-            status: isPositionTaskEnd ? '已完成' : '待报工',
+            status: isPositionTaskEnd ? POSITION_TASK_STATUS.COMPLETED : POSITION_TASK_STATUS.TO_ASSIGN,
           },
           { where: { id: processDto.processPositionTaskId }, transaction }
         )

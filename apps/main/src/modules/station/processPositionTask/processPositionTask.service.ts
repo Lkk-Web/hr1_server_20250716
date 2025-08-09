@@ -12,7 +12,7 @@ import { ProcessLocateDetail } from '@model/production/processLocateDetail.model
 import { Op, FindOptions, Sequelize, where } from 'sequelize'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { AuditStatus, PROCESS_TASK_STATUS, ProductSerialStatus } from '@common/enum'
+import { AuditStatus, POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductSerialStatus } from '@common/enum'
 import {
   UpdateProcessPositionTaskDto,
   FindPaginationDto,
@@ -52,7 +52,10 @@ export class ProcessPositionTaskService {
       }
     }
 
-    await task.update(dto)
+    await task.update({
+      ...dto,
+      status: dto.status as POSITION_TASK_STATUS,
+    })
     return task
   }
 
@@ -67,7 +70,7 @@ export class ProcessPositionTaskService {
     }
 
     // 检查任务状态，不允许删除进行中的任务
-    if (task.status === PROCESS_TASK_STATUS.running) {
+    if (task.status === POSITION_TASK_STATUS.IN_PROGRESS) {
       throw new HttpException('不能删除进行中的任务', 400)
     }
 
@@ -184,12 +187,12 @@ export class ProcessPositionTaskService {
     }
 
     // 检查任务状态
-    const invalidTasks = tasks.filter(task => task.status !== PROCESS_TASK_STATUS.notStart)
+    const invalidTasks = tasks.filter(task => task.status !== POSITION_TASK_STATUS.NOT_STARTED)
     if (invalidTasks.length > 0) {
       throw new HttpException('只能开始未开始状态的任务', 400)
     }
 
-    await ProcessPositionTask.update({ status: PROCESS_TASK_STATUS.running }, { where: { id: { [Op.in]: dto.ids } } })
+    await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.IN_PROGRESS }, { where: { id: { [Op.in]: dto.ids } } })
 
     return true
   }
@@ -202,12 +205,12 @@ export class ProcessPositionTaskService {
       where: { id: { [Op.in]: dto.ids } },
     })
 
-    const invalidTasks = tasks.filter(task => task.status !== PROCESS_TASK_STATUS.running)
+    const invalidTasks = tasks.filter(task => task.status !== POSITION_TASK_STATUS.IN_PROGRESS)
     if (invalidTasks.length > 0) {
       throw new HttpException('只能暂停进行中的任务', 400)
     }
 
-    await ProcessPositionTask.update({ status: PROCESS_TASK_STATUS.pause }, { where: { id: { [Op.in]: dto.ids } } })
+    await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.PAUSED }, { where: { id: { [Op.in]: dto.ids } } })
 
     return true
   }
@@ -220,12 +223,12 @@ export class ProcessPositionTaskService {
       where: { id: { [Op.in]: dto.ids } },
     })
 
-    const invalidTasks = tasks.filter(task => task.status !== PROCESS_TASK_STATUS.pause)
+    const invalidTasks = tasks.filter(task => task.status !== POSITION_TASK_STATUS.PAUSED)
     if (invalidTasks.length > 0) {
       throw new HttpException('只能恢复暂停状态的任务', 400)
     }
 
-    await ProcessPositionTask.update({ status: PROCESS_TASK_STATUS.running }, { where: { id: { [Op.in]: dto.ids } } })
+    await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.IN_PROGRESS }, { where: { id: { [Op.in]: dto.ids } } })
 
     return true
   }
@@ -238,12 +241,12 @@ export class ProcessPositionTaskService {
       where: { id: { [Op.in]: dto.ids } },
     })
 
-    const invalidTasks = tasks.filter(task => task.status !== PROCESS_TASK_STATUS.running && task.status !== PROCESS_TASK_STATUS.pause)
+    const invalidTasks = tasks.filter(task => task.status !== POSITION_TASK_STATUS.IN_PROGRESS && task.status !== POSITION_TASK_STATUS.PAUSED)
     if (invalidTasks.length > 0) {
       throw new HttpException('只能完成进行中或暂停状态的任务', 400)
     }
 
-    await ProcessPositionTask.update({ status: PROCESS_TASK_STATUS.finish }, { where: { id: { [Op.in]: dto.ids } } })
+    await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED }, { where: { id: { [Op.in]: dto.ids } } })
 
     return true
   }
@@ -382,12 +385,30 @@ export class ProcessPositionTaskService {
           { transaction }
         )
 
-        const processLocateItems = detail.processPositionTaskIds.map(v => {
-          return {
-            processPositionTaskId: v,
-            processLocateDetailId: processLocateDetail.id,
-          }
-        })
+        let processLocateItems = []
+        if (detail.processPositionTaskIds?.length > 0) {
+          processLocateItems = detail.processPositionTaskIds.map(v => {
+            return {
+              processPositionTaskId: v,
+              processLocateDetailId: processLocateDetail.id,
+            }
+          })
+        } else {
+          // 全选
+          processLocateItems = await ProcessPositionTask.findAll({
+            where: {
+              processId: detail.processId,
+              productionOrderTaskId: dto.productionOrderTaskId,
+              status: POSITION_TASK_STATUS.TO_ASSIGN,
+            },
+          })
+          processLocateItems.map(v => {
+            return {
+              processPositionTaskId: v.id,
+              processLocateDetailId: processLocateDetail.id,
+            }
+          })
+        }
 
         await ProcessLocateItem.bulkCreate(processLocateItems, { transaction })
       }
@@ -575,11 +596,31 @@ export class ProcessPositionTaskService {
           auditorId,
           auditTime: new Date(),
         },
-        {
-          where: { id: ids },
-          transaction,
-        }
+        { where: { id: ids }, transaction }
       )
+
+      // 批量更新工位任务单状态
+      if (dto.status === AuditStatus.APPROVED) {
+        // 如果审核通过，需要通过关联关系更新ProcessPositionTask状态
+        await ProcessPositionTask.update(
+          {
+            status: POSITION_TASK_STATUS.NOT_STARTED,
+          },
+          {
+            where: {
+              id: {
+                [Op.in]: Sequelize.literal(`(
+                  SELECT pli.processPositionTaskId 
+                  FROM process_locate_item pli
+                  INNER JOIN process_locate_detail pld ON pli.processLocateDetailId = pld.id
+                  WHERE pld.processLocateId IN (${ids.join(',')})
+                )`),
+              },
+            },
+            transaction,
+          }
+        )
+      }
 
       await transaction.commit()
 

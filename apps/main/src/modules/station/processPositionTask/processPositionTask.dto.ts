@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, IsOptional, IsNumber, IsString, IsBoolean, IsArray } from 'class-validator'
-import { PROCESS_TASK_STATUS, AuditStatus } from '@common/enum'
+import { PROCESS_TASK_STATUS, AuditStatus, POSITION_TASK_STATUS } from '@common/enum'
 
 export class UpdateProcessPositionTaskDto {
   @ApiProperty({ type: Number, description: '操作工ID', required: false })
@@ -36,7 +36,7 @@ export class UpdateProcessPositionTaskDto {
   @ApiProperty({ type: String, description: '任务状态', required: false })
   @IsOptional()
   @IsString({ message: '任务状态必须是字符串' })
-  status?: PROCESS_TASK_STATUS | string
+  status?: POSITION_TASK_STATUS
 
   @ApiProperty({ type: Boolean, description: '是否委外', required: false })
   @IsOptional()
@@ -171,6 +171,10 @@ export class CreateProcessLocateDto {
   @ApiProperty({ type: Number, description: '物料Id', required: true })
   @IsNotEmpty({ message: '物料Id不能为空' })
   materialId: number
+
+  @ApiProperty({ type: Number, description: '生产工单ID', required: false })
+  @IsOptional()
+  productionOrderTaskId: number
 
   @ApiProperty({ type: String, description: '备注', required: false })
   @IsOptional()
