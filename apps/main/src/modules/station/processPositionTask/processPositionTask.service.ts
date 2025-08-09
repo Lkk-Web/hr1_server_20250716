@@ -1,18 +1,15 @@
-import { Injectable, HttpException, Inject } from '@nestjs/common'
+import { Injectable, HttpException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
 import { ProcessPositionTask } from '@model/production/processPositionTask.model'
-import { ProcessTask } from '@model/production/processTask.model'
 import { User } from '@model/auth/user'
 import { Team } from '@model/auth/team'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
-import { ProductionOrderTaskTeam } from '@model/production/productionOrderTaskOfTeam.model'
-import { ProductSerial } from '@model/production/productSerial.model'
 import { ProcessLocate } from '@model/production/processLocate.model'
 import { ProcessLocateDetail } from '@model/production/processLocateDetail.model'
-import { Op, FindOptions, Sequelize, where } from 'sequelize'
+import { Op, FindOptions, Sequelize } from 'sequelize'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { AuditStatus, POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductSerialStatus } from '@common/enum'
+import { AuditStatus, POSITION_TASK_STATUS, ProductSerialStatus } from '@common/enum'
 import {
   UpdateProcessPositionTaskDto,
   FindPaginationDto,
@@ -444,7 +441,7 @@ export class ProcessPositionTaskService {
    */
   async findProcessLocateList(dto: FindProcessLocatePaginationDto, pagination: Pagination) {
     const options = {
-      attributes: ['id', 'status', 'locateCode', 'createdAt', 'auditTime', 'auditRemark'],
+      attributes: ['id', 'status', 'locateCode', 'createdAt', 'assignTime', 'auditTime', 'auditRemark'],
       where: {},
       include: [
         {
@@ -477,11 +474,31 @@ export class ProcessPositionTaskService {
       order: [['id', 'DESC']],
     }
 
+    // 构建查询条件
+    const whereConditions = {}
+
     if (dto.status) {
-      options.where = {
-        status: dto.status,
+      whereConditions['status'] = dto.status
+    }
+
+    if (dto.locateCode) {
+      whereConditions['locateCode'] = {
+        [Op.like]: `%${dto.locateCode}%`
       }
     }
+
+    if (dto.assignStartTime || dto.assignEndTime) {
+      const assignTimeCondition = {}
+      if (dto.assignStartTime) {
+        assignTimeCondition[Op.gte] = new Date(dto.assignStartTime)
+      }
+      if (dto.assignEndTime) {
+        assignTimeCondition[Op.lte] = new Date(dto.assignEndTime)
+      }
+      whereConditions['assignTime'] = assignTimeCondition
+    }
+
+    options.where = whereConditions
 
     const result = await Paging.diyPaging(ProcessLocate, pagination, options)
 

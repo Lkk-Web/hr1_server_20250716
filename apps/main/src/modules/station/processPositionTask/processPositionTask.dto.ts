@@ -101,6 +101,21 @@ export class FindProcessLocatePaginationDto {
   @IsOptional()
   @IsString({ message: '任务状态必须是字符串' })
   status?: string
+
+  @ApiProperty({ type: String, description: '派工编号', required: false })
+  @IsOptional()
+  @IsString({ message: '派工编号必须是字符串' })
+  locateCode?: string
+
+  @ApiProperty({ type: String, description: '派工开始时间', required: false })
+  @IsOptional()
+  @IsString({ message: '派工开始时间必须是字符串' })
+  assignStartTime?: string
+
+  @ApiProperty({ type: String, description: '派工结束时间', required: false })
+  @IsOptional()
+  @IsString({ message: '派工结束时间必须是字符串' })
+  assignEndTime?: string
 }
 
 export class BatchOperationDto {
