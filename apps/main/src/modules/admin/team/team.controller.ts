@@ -6,6 +6,7 @@ import { TeamService } from './team.service'
 import { CTeamDto, FindPaginationDto, UTeamDto } from './team.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
+import { ApiPlatformWhitelist } from '@core/decorator/metaData'
 
 @ApiTags('班组')
 @ApiBearerAuth()
@@ -44,6 +45,7 @@ export class TeamController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @ApiPlatformWhitelist(['admin', 'station'])
   @ApiOperation({ summary: '详情' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')

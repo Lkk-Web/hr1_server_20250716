@@ -88,7 +88,7 @@ export class TeamService {
         },
         {
           association: 'users',
-          attributes: ['id', 'userName', 'userCode', 'phone', 'status'],
+          attributes: ['id', 'userName', 'userCode', 'phone', 'status', 'departmentId'],
           through: { attributes: [] },
         },
       ],
