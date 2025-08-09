@@ -59,9 +59,38 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
   })
   declare remark: string
 
+  // 审核人员ID
+  @ForeignKey(() => User)
+  @Column({
+    comment: '审核人员ID',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare auditorId: number
+
+  // 审核时间
+  @Column({
+    comment: '审核时间',
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  declare auditTime: Date
+
+  // 审核备注
+  @Column({
+    comment: '审核备注',
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  declare auditRemark: string
+
   // 关联派工人员
   @BelongsTo(() => User, 'assignerId')
   declare assigner: User
+
+  // 关联审核人员
+  @BelongsTo(() => User, 'auditorId')
+  declare auditor: User
 
   // 关联物料
   @BelongsTo(() => Material, 'materialId')

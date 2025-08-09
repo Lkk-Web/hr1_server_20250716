@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, IsOptional, IsNumber, IsString, IsBoolean, IsArray } from 'class-validator'
-import { PROCESS_TASK_STATUS } from '@common/enum'
+import { PROCESS_TASK_STATUS, AuditStatus } from '@common/enum'
 
 export class UpdateProcessPositionTaskDto {
   @ApiProperty({ type: Number, description: '操作工ID', required: false })
@@ -195,4 +195,28 @@ export class FindByOrderDto {
   @IsOptional()
   @IsNumber({}, { message: '工位任务状态必须是数字' })
   positionStatus?: number
+}
+
+export class AuditProcessLocateDto {
+  @ApiProperty({ type: String, description: '审核状态', enum: AuditStatus, required: true })
+  @IsNotEmpty({ message: '审核状态不能为空' })
+  @IsString({ message: '审核状态必须是字符串' })
+  status: AuditStatus
+
+  @ApiProperty({ type: String, description: '审核备注', required: false })
+  @IsOptional()
+  @IsString({ message: '审核备注必须是字符串' })
+  auditRemark?: string
+}
+
+export class BatchAuditProcessLocateDto {
+  @ApiProperty({ type: [Number], description: '派工单ID数组', required: true })
+  @IsNotEmpty({ message: '派工单ID数组不能为空' })
+  @IsArray({ message: '派工单ID必须是数组' })
+  @IsNumber({}, { each: true, message: '派工单ID必须是数字' })
+  ids: number[]
+
+  @ApiProperty({ type: AuditProcessLocateDto, description: '审核信息', required: true })
+  @IsNotEmpty({ message: '审核信息不能为空' })
+  audit: AuditProcessLocateDto
 }

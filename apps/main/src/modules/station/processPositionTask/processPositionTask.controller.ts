@@ -12,6 +12,8 @@ import {
   CreateProcessLocateDto,
   FindByOrderDto,
   FindProcessLocatePaginationDto,
+  AuditProcessLocateDto,
+  BatchAuditProcessLocateDto,
 } from './processPositionTask.dto'
 import { CurrentPage } from '@core/decorator/request'
 
@@ -128,5 +130,14 @@ export class ProcessPositionTaskController {
   async findProcessLocateDetail(@Param('id') id: number) {
     const result = await this.processPositionTaskService.findProcessLocateDetail(id)
     return { data: result }
+  }
+
+  @Post('locate/audit')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '批量审核派工单' })
+  async auditProcessLocate(@Body() dto: BatchAuditProcessLocateDto, @Req() req: any) {
+    const auditorId = req.user.id
+    const result = await this.processPositionTaskService.auditProcessLocate(dto.ids, dto.audit, auditorId)
+    return { data: result, message: '审核成功' }
   }
 }

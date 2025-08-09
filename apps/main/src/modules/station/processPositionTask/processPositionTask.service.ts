@@ -22,6 +22,7 @@ import {
   CreateProcessLocateDto,
   FindByOrderDto,
   FindProcessLocatePaginationDto,
+  AuditProcessLocateDto,
 } from './processPositionTask.dto'
 import { Paging } from '@library/utils/paging'
 import { ProcessLocateItem } from '@model/index'
@@ -421,12 +422,17 @@ export class ProcessPositionTaskService {
    */
   async findProcessLocateList(dto: FindProcessLocatePaginationDto, pagination: Pagination) {
     const options = {
-      attributes: ['id', 'status', 'locateCode', 'createdAt'],
+      attributes: ['id', 'status', 'locateCode', 'createdAt', 'auditTime', 'auditRemark'],
       where: {},
       include: [
         {
           association: 'assigner',
           attributes: ['id', 'userName', 'userCode'],
+        },
+        {
+          association: 'auditor',
+          attributes: ['id', 'userName', 'userCode'],
+          required: false,
         },
         {
           association: 'material',
@@ -465,6 +471,11 @@ export class ProcessPositionTaskService {
         {
           association: 'assigner',
           attributes: ['id', 'userName', 'userCode'],
+        },
+        {
+          association: 'auditor',
+          attributes: ['id', 'userName', 'userCode'],
+          required: false,
         },
         {
           association: 'processLocateDetails',
@@ -530,5 +541,56 @@ export class ProcessPositionTaskService {
     })
 
     return processPositionTasks
+  }
+
+  /**
+   * 批量审核派工单
+   */
+  async auditProcessLocate(ids: number[], dto: AuditProcessLocateDto, auditorId: number) {
+    const transaction = await ProcessLocate.sequelize.transaction()
+
+    try {
+      // 查找所有需要审核的派工单
+      const processLocates = await ProcessLocate.findAll({
+        where: {
+          id: ids,
+          status: AuditStatus.PENDING_REVIEW, // 只能审核待审核状态的派工单
+        },
+        transaction,
+      })
+
+      if (processLocates.length === 0) {
+        throw new HttpException('没有找到可审核的派工单', 400)
+      }
+
+      if (processLocates.length !== ids.length) {
+        throw new HttpException('部分派工单不存在或状态不正确', 400)
+      }
+
+      // 批量更新派工单状态
+      await ProcessLocate.update(
+        {
+          status: dto.status,
+          auditRemark: dto.auditRemark,
+          auditorId,
+          auditTime: new Date(),
+        },
+        {
+          where: { id: ids },
+          transaction,
+        }
+      )
+
+      await transaction.commit()
+
+      return {
+        message: `成功审核 ${processLocates.length} 个派工单`,
+        auditedCount: processLocates.length,
+        status: dto.status,
+      }
+    } catch (error) {
+      await transaction.rollback()
+      throw error
+    }
   }
 }
