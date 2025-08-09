@@ -41,6 +41,15 @@ export class findMaterialDto {
   text: string
 }
 
+export class FindProcessDto {
+  @ApiProperty({
+    required: false,
+    description: '生产工单任务ID',
+    type: Number,
+  })
+  productionOrderTaskId?: number
+}
+
 export class CProcessDto {
   @ApiProperty({
     name: 'processName',
