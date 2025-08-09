@@ -112,7 +112,7 @@ export class ProcessPositionTaskController {
   async createProcessLocate(@Body() dto: CreateProcessLocateDto, @Req() req: any) {
     const assignerId = req.user.id
     const result = await this.processPositionTaskService.createProcessLocate(dto, assignerId)
-    return { data: result, message: '派工成功' }
+    return { data: result, message: '派工成功', code: 200 }
   }
 
   @Get('locate/list')
@@ -120,7 +120,7 @@ export class ProcessPositionTaskController {
   @ApiOperation({ summary: '查询派工单列表' })
   async findProcessLocateList(@Query() dto: FindProcessLocatePaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     const result = await this.processPositionTaskService.findProcessLocateList(dto, pagination)
-    return result
+    return { data: result, code: 200 }
   }
 
   @Get('locate/:id')
@@ -129,7 +129,7 @@ export class ProcessPositionTaskController {
   @ApiParam({ name: 'id', description: '派工单ID' })
   async findProcessLocateDetail(@Param('id') id: number) {
     const result = await this.processPositionTaskService.findProcessLocateDetail(id)
-    return { data: result }
+    return { data: result, code: 200 }
   }
 
   @Post('locate/audit')
@@ -138,6 +138,6 @@ export class ProcessPositionTaskController {
   async auditProcessLocate(@Body() dto: BatchAuditProcessLocateDto, @Req() req: any) {
     const auditorId = req.user.id
     const result = await this.processPositionTaskService.auditProcessLocate(dto.ids, dto.audit, auditorId)
-    return { data: result, message: '审核成功' }
+    return { data: result, message: '审核成功', code: 200 }
   }
 }

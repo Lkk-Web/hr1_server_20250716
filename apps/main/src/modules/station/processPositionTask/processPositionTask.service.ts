@@ -557,6 +557,7 @@ export class ProcessPositionTaskService {
         },
         {
           association: 'locate',
+          required: true,
         },
       ],
     })
