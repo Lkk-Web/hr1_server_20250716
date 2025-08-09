@@ -508,7 +508,42 @@ export class ProcessPositionTaskService {
   /**
    * 获取派工单详情
    */
-  async findProcessLocateDetail(id: number) {
+  async findProcessLocateDetail(id: number, processId?: number) {
+    const processLocateDetailsInclude = {
+      association: 'processLocateDetails',
+      include: [
+        {
+          association: 'process',
+          attributes: ['id', 'processName'],
+        },
+        {
+          association: 'user',
+          attributes: ['id', 'userName', 'userCode'],
+        },
+        {
+          association: 'processLocateItems',
+          include: [
+            {
+              association: 'processPositionTask',
+              include: [
+                {
+                  association: 'serial',
+                  attributes: ['id', 'serialNumber'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    // 如果指定了工序ID，则添加筛选条件
+    if (processId) {
+      processLocateDetailsInclude['where'] = {
+        processId: processId,
+      }
+    }
+
     const result = await ProcessLocate.findByPk(id, {
       include: [
         {
@@ -520,33 +555,7 @@ export class ProcessPositionTaskService {
           attributes: ['id', 'userName', 'userCode'],
           required: false,
         },
-        {
-          association: 'processLocateDetails',
-          include: [
-            {
-              association: 'process',
-              attributes: ['id', 'processName'],
-            },
-            {
-              association: 'user',
-              attributes: ['id', 'userName', 'userCode'],
-            },
-            {
-              association: 'processLocateItems',
-              include: [
-                {
-                  association: 'processPositionTask',
-                  include: [
-                    {
-                      association: 'serial',
-                      attributes: ['id', 'serialNumber'],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
+        processLocateDetailsInclude,
       ],
     })
 

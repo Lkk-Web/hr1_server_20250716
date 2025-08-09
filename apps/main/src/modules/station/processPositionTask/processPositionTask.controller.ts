@@ -1,4 +1,4 @@
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger'
 import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { StationAuth } from '@core/decorator/controller'
@@ -130,8 +130,9 @@ export class ProcessPositionTaskController {
   @ApiPlatformWhitelist(['admin', 'station'])
   @ApiOperation({ summary: '获取派工单详情' })
   @ApiParam({ name: 'id', description: '派工单ID' })
-  async findProcessLocateDetail(@Param('id') id: number) {
-    const result = await this.processPositionTaskService.findProcessLocateDetail(id)
+  @ApiQuery({ name: 'processId', description: '工序ID', required: false, type: Number })
+  async findProcessLocateDetail(@Param('id') id: number, @Query('processId') processId?: number) {
+    const result = await this.processPositionTaskService.findProcessLocateDetail(id, processId)
     return { data: result, code: 200 }
   }
 
