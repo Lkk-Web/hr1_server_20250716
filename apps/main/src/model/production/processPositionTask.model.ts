@@ -100,7 +100,7 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   // 任务状态
   @Column({
-    comment: '任务状态 (待派工, 未开始, 执行中, 已暂停, 已完成)',
+    comment: '任务状态 (待派工, 待审核, 未开始, 执行中, 已暂停, 已完成)',
     type: DataType.ENUM(...Object.values(POSITION_TASK_STATUS)),
     defaultValue: POSITION_TASK_STATUS.TO_ASSIGN,
     allowNull: false,

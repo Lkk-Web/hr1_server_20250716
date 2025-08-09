@@ -496,6 +496,7 @@ export class ProcessPositionTaskService {
           include: [
             {
               association: 'process',
+              //TODO 带出已派数量
               attributes: ['id', 'processName'],
             },
             {
@@ -566,6 +567,14 @@ export class ProcessPositionTaskService {
                 {
                   association: 'serial',
                   attributes: ['id', 'serialNumber'],
+                },
+                {
+                  association: 'user',
+                  attributes: ['id', 'userName', 'userCode'],
+                },
+                {
+                  association: 'productionOrderTask',
+                  attributes: ['id', 'orderCode'],
                 },
               ],
             },
