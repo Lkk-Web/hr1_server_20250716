@@ -20,6 +20,8 @@ export class PlatformGuard implements CanActivate {
     // 获取装饰器中设置的平台白名单
     const allowedPlatforms = this.reflector.getAllAndOverride<string[]>(PLATFORM_WHITELIST_KEY, [context.getHandler(), context.getClass()])
 
+    console.log(allowedPlatforms)
+
     if (!allowedPlatforms.includes(request.user.platform)) {
       throw new ForbiddenException(`无权访问，当前用户平台:${request.user.platform}, 允许的平台:${allowedPlatforms.join(', ')}`)
     }
