@@ -391,22 +391,22 @@ export class ProcessPositionTaskService {
           processLocateItems = detail.processPositionTaskIds.map(v => {
             return {
               processPositionTaskId: v,
-              processLocateDetailId: processLocateDetail.id,
+              processLocateDetailId: processLocateDetail.dataValues.id,
             }
           })
         } else {
           // 全选
-          processLocateItems = await ProcessPositionTask.findAll({
+          const tmp = await ProcessPositionTask.findAll({
             where: {
               processId: detail.processId,
               productionOrderTaskId: dto.productionOrderTaskId,
               status: POSITION_TASK_STATUS.TO_ASSIGN,
             },
           })
-          processLocateItems.map(v => {
+          processLocateItems = tmp.map(v => {
             return {
               processPositionTaskId: v.id,
-              processLocateDetailId: processLocateDetail.id,
+              processLocateDetailId: processLocateDetail.dataValues.id,
             }
           })
         }
