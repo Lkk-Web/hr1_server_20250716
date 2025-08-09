@@ -44,7 +44,6 @@ export class ProductSerialService {
         association: 'productionOrderTask',
         attributes: ['id', 'orderCode', 'splitQuantity', 'materialId'],
         where: {},
-        required: false,
         include: [
           {
             association: 'material',

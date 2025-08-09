@@ -16,6 +16,7 @@ import { ProcessRouteListItem } from '@model/process/processRouteListItem.model'
 import { Aide, JsExclKey } from '@library/utils/aide'
 import { User } from '@model/auth/user'
 import { Paging } from '@library/utils/paging'
+import { ProductSerial } from '@model/production/productSerial.model'
 
 @Injectable()
 export class ProcessRouteService {
@@ -43,7 +44,11 @@ export class ProcessRouteService {
     if (dto.processRouteList) {
       //关联内部工序列表
       for (const processRouteList of dto.processRouteList) {
-        const process = await Process.findOne({ where: { id: processRouteList.processId } })
+        const processId = (processRouteList as any).processId ?? (processRouteList as any).process?.id
+        if (!processId) {
+          throw new HttpException('工序ID为空或未提供: 请传入 processId 或 process.id', 400)
+        }
+        const process = await Process.findOne({ where: { id: processId } })
         if (process) {
           const list = await ProcessRouteList.create({
             processId: process.id,
@@ -68,7 +73,7 @@ export class ProcessRouteService {
             }
           }
         } else {
-          throw new HttpException('ID为:' + processRouteList.processId + '的工序不存在!请重新选择', 400)
+          throw new HttpException('ID为:' + processId + '的工序不存在!请重新选择', 400)
         }
       }
     }
@@ -78,6 +83,7 @@ export class ProcessRouteService {
   }
 
   public async edit(dto: UProcessRouteDto, id: number, user: User, loadModel) {
+    console.log(id)
     let processRoute = await ProcessRoute.findOne({ where: { id } })
     if (!processRoute) {
       throw new HttpException('数据不存在', 400006)
@@ -102,12 +108,60 @@ export class ProcessRouteService {
     const newMaterialIds: number[] = Array.isArray(dto.materialId) ? dto.materialId : dto.materialId != null ? [dto.materialId as unknown as number] : []
 
     if (newMaterialIds.length > 0) {
-      // 解绑当前路线下但不在新列表中的物料
+      // 需要被解绑的物料列表（现绑定在该路线但不在新列表中）
+      const materialsToUnbind = await Material.findAll({
+        where: { processRouteId: id, id: { [Op.notIn]: newMaterialIds } },
+        attributes: ['id', 'code', 'materialName'],
+      })
+
+      if (materialsToUnbind.length > 0) {
+        const unbindIds = materialsToUnbind.map(m => m.id)
+        const blocked = await ProductSerial.findAll({
+          where: { materialId: { [Op.in]: unbindIds } },
+          attributes: ['materialId'],
+          group: ['materialId'],
+        })
+
+        if (blocked.length > 0) {
+          const blockedIdSet = new Set(blocked.map(b => (b as any).materialId))
+          const blockedTips = materialsToUnbind
+            .filter(m => blockedIdSet.has(m.id))
+            .map(m => `${m.code || m.id}${m['materialName'] ? `(${m['materialName']})` : ''}`)
+            .join(', ')
+          throw new HttpException(`以下物料已关联产品序列单，禁止解除绑定：${blockedTips}`, 400)
+        }
+      }
+
+      // 执行解绑未被阻止的物料
       await Material.update({ processRouteId: null }, { where: { processRouteId: id, id: { [Op.notIn]: newMaterialIds } } })
+
       // 绑定新列表中的物料
       await Material.update({ processRouteId: id }, { where: { id: newMaterialIds } })
     } else {
-      // 若未传 materialId 或为空数组，则解绑该路线下的所有物料
+      // 若未传 materialId 或为空数组，则尝试解绑该路线下的所有物料，但需校验是否存在产品序列单关联
+      const boundMaterials = await Material.findAll({
+        where: { processRouteId: id },
+        attributes: ['id', 'code', 'materialName'],
+      })
+
+      if (boundMaterials.length > 0) {
+        const boundIds = boundMaterials.map(m => m.id)
+        const blocked = await ProductSerial.findAll({
+          where: { materialId: { [Op.in]: boundIds } },
+          attributes: ['materialId'],
+          group: ['materialId'],
+        })
+
+        if (blocked.length > 0) {
+          const blockedIdSet = new Set(blocked.map(b => (b as any).materialId))
+          const blockedTips = boundMaterials
+            .filter(m => blockedIdSet.has(m.id))
+            .map(m => `${m.code || m.id}${m['materialName'] ? `(${m['materialName']})` : ''}`)
+            .join(', ')
+          throw new HttpException(`以下物料已关联产品序列单，禁止解除绑定：${blockedTips}`, 400)
+        }
+      }
+
       await Material.update({ processRouteId: null }, { where: { processRouteId: id } })
     }
 
@@ -121,7 +175,11 @@ export class ProcessRouteService {
     if (dto.processRouteList) {
       //关联内部工序列表
       for (const processRouteList of dto.processRouteList) {
-        const process = await Process.findOne({ where: { id: processRouteList.processId } })
+        const processId = (processRouteList as any).processId ?? (processRouteList as any).process?.id
+        if (!processId) {
+          throw new HttpException('工序ID为空或未提供: 请传入 processId 或 process.id', 400)
+        }
+        const process = await Process.findOne({ where: { id: processId } })
         if (process) {
           const list = await ProcessRouteList.create({
             processId: process.id,
@@ -146,7 +204,7 @@ export class ProcessRouteService {
             }
           }
         } else {
-          throw new HttpException('ID为:' + processRouteList.processId + '的工序不存在!请重新选择', 400)
+          throw new HttpException('ID为:' + processId + '的工序不存在!请重新选择', 400)
         }
       }
     }
@@ -264,11 +322,11 @@ export class ProcessRouteService {
                 },
               ],
             },
-            // {
-            //   //工序自带的不良品项
-            //   association: 'items',
-            //   attributes: ['id', 'defectiveItemId'],
-            // },
+            {
+              // 工序自带的不良品项
+              association: 'items',
+              attributes: ['id', 'defectiveItemId'],
+            },
           ],
         },
       ],
@@ -278,32 +336,46 @@ export class ProcessRouteService {
     let processRoute
 
     if (result) {
-      //先生成工艺路线
-      processRoute = await ProcessRoute.create({
-        name: result.name + '-副本',
-        status: false,
-        remark: result.dataValues.remark,
-        createdUserId: result.dataValues.createdUserId,
-        updatedUserId: result.dataValues.updatedUserId,
-      })
+      const sequelize = ProcessRoute.sequelize
+      await sequelize.transaction(async transaction => {
+        // 先生成工艺路线
+        processRoute = await ProcessRoute.create(
+          {
+            name: result.name + '-副本',
+            status: false,
+            remark: result.dataValues.remark,
+            createdUserId: result.dataValues.createdUserId,
+            updatedUserId: result.dataValues.updatedUserId,
+          },
+          { transaction }
+        )
 
-      //创建关联关系
-      for (const list of result.dataValues.processRouteList) {
-        const list1 = await ProcessRouteList.create({
-          processRouteId: processRoute.dataValues.id,
-          processId: list.dataValues.processId,
-          isOutsource: list.dataValues.isOutsource,
-          isReport: list.dataValues.isReport,
-          sort: list.dataValues.sort,
-          reportRatio: list.dataValues.reportRatio,
-          fileId: list.dataValues.fileId,
-        })
-        let mIds = result.dataValues.material.map(item => item.id)
-        await Material.update({ processRouteId: processRoute.dataValues.id }, { where: { id: mIds } })
-        for (const item of list.items) {
-          await ProcessRouteListItem.create({ processRouteListId: list1.dataValues.id, defectiveItemId: item.dataValues.defectiveItemId })
+        // 创建关联关系
+        for (const list of result.dataValues.processRouteList) {
+          const list1 = await ProcessRouteList.create(
+            {
+              processRouteId: processRoute.dataValues.id,
+              processId: list.dataValues.processId,
+              isOutsource: list.dataValues.isOutsource,
+              isReport: list.dataValues.isReport,
+              isInspection: list.dataValues.isInspection,
+              sort: list.dataValues.sort,
+              reportRatio: list.dataValues.reportRatio,
+              fileId: list.dataValues.fileId,
+            },
+            { transaction }
+          )
+
+          // 复制不良品项
+          if (list.items && Array.isArray(list.items) && list.items.length > 0) {
+            for (const item of list.items) {
+              await ProcessRouteListItem.create({ processRouteListId: list1.dataValues.id, defectiveItemId: item.dataValues.defectiveItemId }, { transaction })
+            }
+          }
         }
-      }
+
+        // 注意：复制工艺路线时不变更原有物料与工艺路线的绑定关系
+      })
     } else {
       throw new HttpException('所选择的工艺路线不存在,无法复制', 400)
     }
