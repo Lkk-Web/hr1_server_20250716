@@ -24,7 +24,7 @@ import { POBDetail } from '@model/production/POBDetail.model'
 // import { SENTENCE } from '@common/enum'
 import { deleteIdsDto } from '@common/dto'
 import { BomService } from '../baseData/bom/bom.service'
-import { PROCESS_TASK_STATUS, ProductionOrderTaskStatus, ProductSerialStatus } from '@common/enum'
+import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductionOrderTaskStatus, ProductSerialStatus } from '@common/enum'
 import { ProductSerial } from '@model/production/productSerial.model'
 import moment = require('moment')
 import dayjs = require('dayjs')
@@ -1083,7 +1083,7 @@ export class ProductionOrderService {
                     reportRatio: childProcess.dataValues.reportRatio || 1,
                     processId: childProcess.id,
                     planCount: 1,
-                    status: PROCESS_TASK_STATUS.notStart,
+                    status: POSITION_TASK_STATUS.TO_ASSIGN,
                     isOutsource: childProcess.dataValues.isOut || false,
                     isInspection: true,
                   },

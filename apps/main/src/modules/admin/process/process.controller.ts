@@ -3,7 +3,7 @@ import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common'
 import { AdminAuth } from '@core/decorator/controller'
 import { ProcessService } from './process.service'
-import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto } from './process.dto'
+import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto, FindProcessDto } from './process.dto'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
@@ -52,9 +52,9 @@ export class ProcessController {
   @ApiOperation({ summary: '详情' })
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')
-  async find(@Param() Param, @Req() req) {
+  async find(@Param() Param, @Query() dto: FindProcessDto, @Req() req) {
     let { factoryCode, loadModel } = req
-    const result = await this.service.find(Param.id, loadModel)
+    const result = await this.service.find(Param.id, loadModel, dto)
     return result
   }
 

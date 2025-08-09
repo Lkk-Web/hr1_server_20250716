@@ -1,14 +1,14 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
-import { PROCESS_TASK_STATUS } from '@common/enum'
+import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
 import { ProcessTask } from './processTask.model'
 import { Process } from '@model/process/process.model'
 import { ProductionReport } from './productionReport.model'
 import { ProductSerial } from './productSerial.model'
 import { ProductionOrderTask } from './productionOrderTask.model'
-import { ProcessLocateDetail } from './processLocateDetail.model'
+import { ProcessLocateItem } from './processLocateItem.model'
 
 //工位任务单
 @Table({ tableName: `process_position_task`, timestamps: true, freezeTableName: true, comment: '工位任务单' })
@@ -100,11 +100,12 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   // 任务状态
   @Column({
-    comment: '任务状态 (审核中, 待分配, 待报工, 已完成)',
-    type: DataType.STRING(10),
-    allowNull: true,
+    comment: '任务状态 (待派工, 未开始, 执行中, 已暂停, 已完成)',
+    type: DataType.ENUM(...Object.values(POSITION_TASK_STATUS)),
+    defaultValue: POSITION_TASK_STATUS.TO_ASSIGN,
+    allowNull: false,
   })
-  declare status: PROCESS_TASK_STATUS | string
+  declare status: POSITION_TASK_STATUS
 
   @Column({
     comment: '是否委外',
@@ -140,8 +141,8 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
   @BelongsTo(() => Process)
   declare process: Process
 
-  @HasOne(() => ProcessLocateDetail)
-  declare locate: ProcessLocateDetail
+  @HasOne(() => ProcessLocateItem)
+  declare locate: ProcessLocateItem
 
   @HasMany(() => ProcessTaskLog)
   declare operateLogs: ProcessTaskLog[]

@@ -19,14 +19,14 @@ export class ProcessTaskController {
   @Get('find/:id')
   async find(@Param() param, @Req() req) {
     const result = await this.service.find(param.id)
-    return result
+    return { data: result, code: 200 }
   }
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     const result = await this.service.findPagination(dto, pagination)
-    return result
+    return { data: result, code: 200 }
   }
 
   @ApiOperation({ summary: '批量开工' })
@@ -34,7 +34,7 @@ export class ProcessTaskController {
   @Post('batchStartWork')
   async batchStartWork(@Body() dto: BatchStartWorkDto, @Req() req) {
     const result = await this.service.batchStartWork(dto)
-    return result
+    return { data: result, code: 200 }
   }
 
   @ApiOperation({ summary: '开工' })
@@ -42,21 +42,21 @@ export class ProcessTaskController {
   @Post('startWork')
   async startWork(@Body() dto: StartWorkDto, @Req() req) {
     const result = await this.service.startWork(dto)
-    return result
+    return { data: result, code: 200 }
   }
 
   @ApiOperation({ summary: '暂停工序' })
   @HttpCode(HttpStatus.OK)
   @Post('pause')
   async batchBatchPauseWork(@Body() dto: BatchStartWorkDto) {
-    return this.service.batchBatchPauseWork(dto)
+    return { data: this.service.batchBatchPauseWork(dto), code: 200 }
   }
 
   @ApiOperation({ summary: '恢复工序' })
   @HttpCode(HttpStatus.OK)
   @Post('resume')
   async batchResumeWork(@Body() dto: BatchStartWorkDto) {
-    return this.service.batchResumeWork(dto)
+    return { data: this.service.batchResumeWork(dto), code: 200 }
   }
 
   @ApiOperation({ summary: '物料催单' })
@@ -64,7 +64,7 @@ export class ProcessTaskController {
   @Post('material/urging')
   async materialUrgingOrder(@Body() dto: MaterialUrgingOrderDto, @Req() req) {
     dto.teamId = req.team.id
-    return this.service.materialUrgingOrder(dto, req)
+    return { data: this.service.materialUrgingOrder(dto, req), code: 200 }
   }
 
   @HttpCode(HttpStatus.OK)
@@ -72,7 +72,7 @@ export class ProcessTaskController {
   @ApiParam({ name: 'id', required: true, description: '物料id', type: Number })
   @Get('material/route/:id')
   async getProcessRouteList(@Param('id') id: number) {
-    return this.service.getProcessRouteList(id)
+    return { data: this.service.getProcessRouteList(id), code: 200 }
   }
 
   @HttpCode(HttpStatus.OK)
@@ -80,7 +80,7 @@ export class ProcessTaskController {
   @Get('notify')
   async notifyPage(@Query() dto: NotifyPageDto, @CurrentPage() pagination: Pagination, @Req() req) {
     dto.teamId = req.team.id
-    return this.notifyService.notifyPage(dto, pagination)
+    return { data: this.notifyService.notifyPage(dto, pagination), code: 200 }
   }
 
   @HttpCode(HttpStatus.OK)
@@ -89,6 +89,6 @@ export class ProcessTaskController {
   @Get('process/:id')
   async processFind(@Param() Param) {
     const result = await this.service.processFind(Param.id)
-    return result
+    return { data: result, code: 200 }
   }
 }

@@ -30,6 +30,15 @@ export enum PROCESS_TASK_STATUS {
   finish = '已结束',
 }
 
+// 审核中, 待分配, 执行中, 已完成
+export enum POSITION_TASK_STATUS {
+  TO_ASSIGN = '待派工',
+  NOT_STARTED = '未开始',
+  IN_PROGRESS = '执行中',
+  PAUSED = '已暂停',
+  COMPLETED = '已完成',
+}
+
 export enum NOTIFY_SCENE {
   PAD_M_O = 'PAD物料催单',
   PAD_M_A = 'PAD物料申请',
@@ -93,10 +102,10 @@ export enum ProductSerialStatus {
 export enum ROLE_CODE {
   SUPER_ADMIN = '0000',
   ADMIN = '0001', // 管理员
-  MANAGE = '0002',  // 生产经理
-  OPERATOR = '0003',  // 班组长
-  PLANER = '0004',  // 计划员
-  USER = '0005',  // 员工/普通用户
+  MANAGE = '0002', // 生产经理
+  OPERATOR = '0003', // 班组长
+  PLANER = '0004', // 计划员
+  USER = '0005', // 员工/普通用户
 }
 
 export enum AuditStatus {
@@ -104,4 +113,3 @@ export enum AuditStatus {
   APPROVED = '已通过',
   REJECTED = '已驳回',
 }
-

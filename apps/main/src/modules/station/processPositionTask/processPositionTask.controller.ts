@@ -3,7 +3,19 @@ import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { StationAuth } from '@core/decorator/controller'
 import { ProcessPositionTaskService } from './processPositionTask.service'
-import { UpdateProcessPositionTaskDto, FindPaginationDto, BatchOperationDto, StartWorkDto, FindByTeamDto, CreateProcessLocateDto, FindByOrderDto } from './processPositionTask.dto'
+import {
+  UpdateProcessPositionTaskDto,
+  FindPaginationDto,
+  BatchOperationDto,
+  StartWorkDto,
+  FindByTeamDto,
+  CreateProcessLocateDto,
+  FindByOrderDto,
+  FindProcessLocatePaginationDto,
+  AuditProcessLocateDto,
+  BatchAuditProcessLocateDto,
+} from './processPositionTask.dto'
+import { CurrentPage } from '@core/decorator/request'
 
 @ApiTags('工位任务单')
 @ApiBearerAuth()
@@ -100,15 +112,15 @@ export class ProcessPositionTaskController {
   async createProcessLocate(@Body() dto: CreateProcessLocateDto, @Req() req: any) {
     const assignerId = req.user.id
     const result = await this.processPositionTaskService.createProcessLocate(dto, assignerId)
-    return { data: result, message: '派工成功' }
+    return { data: result, message: '派工成功', code: 200 }
   }
 
   @Get('locate/list')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '查询派工单列表' })
-  async findProcessLocateList(@Query() pagination: Pagination) {
-    const result = await this.processPositionTaskService.findProcessLocateList(pagination)
-    return result
+  async findProcessLocateList(@Query() dto: FindProcessLocatePaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
+    const result = await this.processPositionTaskService.findProcessLocateList(dto, pagination)
+    return { data: result, code: 200 }
   }
 
   @Get('locate/:id')
@@ -117,6 +129,15 @@ export class ProcessPositionTaskController {
   @ApiParam({ name: 'id', description: '派工单ID' })
   async findProcessLocateDetail(@Param('id') id: number) {
     const result = await this.processPositionTaskService.findProcessLocateDetail(id)
-    return { data: result }
+    return { data: result, code: 200 }
+  }
+
+  @Post('locate/audit')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '批量审核派工单' })
+  async auditProcessLocate(@Body() dto: BatchAuditProcessLocateDto, @Req() req: any) {
+    const auditorId = req.user.id
+    const result = await this.processPositionTaskService.auditProcessLocate(dto.ids, dto.audit, auditorId)
+    return { data: result, message: '审核成功', code: 200 }
   }
 }

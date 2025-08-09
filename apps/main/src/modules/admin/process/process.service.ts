@@ -4,7 +4,7 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { Process } from '@model/process/process.model'
-import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto } from './process.dto'
+import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto, FindProcessDto } from './process.dto'
 import { FindOptions, Op, Sequelize } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { ProcessItems } from '@model/process/processItems.model'
@@ -131,7 +131,7 @@ export class ProcessService {
     return result
   }
 
-  public async find(id: number, loadModel) {
+  public async find(id: number, loadModel, dto: FindProcessDto) {
     const options: FindOptions = {
       where: { id },
       include: [
@@ -151,28 +151,25 @@ export class ProcessService {
         },
         {
           association: 'children',
-          attributes: [
-            'id',
-            'processName',
-            'sort',
-            'reportRatio',
-            'isOut',
-            'createdAt',
-            'updatedAt',
-            [
-              Sequelize.literal(`(
-              SELECT COUNT(DISTINCT pld.id)
-              FROM process_locate_detail pld
-              INNER JOIN process_position_task pt ON pld.processPositionTaskId = pt.id
-              WHERE pt.processId = \`children\`.\`id\`
-            )`),
-              'totalAssignedCount',
-            ],
-          ],
+          attributes: ['id', 'processName', 'sort', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
           required: false,
         },
       ],
     }
+
+    if (dto.productionOrderTaskId) {
+      options.include[2]['attributes'].push([
+        Sequelize.literal(`(
+        SELECT COUNT(DISTINCT pli.id)
+        FROM process_locate_item pli
+        INNER JOIN process_position_task pt ON pli.processPositionTaskId = pt.id
+        WHERE pt.processId = \`children\`.\`id\`
+        ${`AND pt.productionOrderTaskId = ${dto.productionOrderTaskId}`}
+      )`),
+        'totalAssignedCount',
+      ])
+    }
+
     const result = await Process.findOne(options)
     return result
   }

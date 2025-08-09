@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, IsOptional, IsNumber, IsString, IsBoolean, IsArray } from 'class-validator'
-import { PROCESS_TASK_STATUS } from '@common/enum'
+import { PROCESS_TASK_STATUS, AuditStatus, POSITION_TASK_STATUS } from '@common/enum'
 
 export class UpdateProcessPositionTaskDto {
   @ApiProperty({ type: Number, description: '操作工ID', required: false })
@@ -36,7 +36,7 @@ export class UpdateProcessPositionTaskDto {
   @ApiProperty({ type: String, description: '任务状态', required: false })
   @IsOptional()
   @IsString({ message: '任务状态必须是字符串' })
-  status?: PROCESS_TASK_STATUS | string
+  status?: POSITION_TASK_STATUS
 
   @ApiProperty({ type: Boolean, description: '是否委外', required: false })
   @IsOptional()
@@ -50,6 +50,11 @@ export class UpdateProcessPositionTaskDto {
 }
 
 export class FindPaginationDto {
+  @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
+  current?: string
+  @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
+  pageSize?: string
+
   @ApiProperty({ type: Number, description: '工序任务单ID', required: false })
   @IsOptional()
   @IsNumber({}, { message: '工序任务单ID必须是数字' })
@@ -84,6 +89,18 @@ export class FindPaginationDto {
   @IsOptional()
   @IsString({ message: '结束时间必须是字符串' })
   endTime?: string
+}
+
+export class FindProcessLocatePaginationDto {
+  @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
+  current?: string
+  @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
+  pageSize?: string
+
+  @ApiProperty({ type: String, description: '任务状态', required: false })
+  @IsOptional()
+  @IsString({ message: '任务状态必须是字符串' })
+  status?: string
 }
 
 export class BatchOperationDto {
@@ -131,11 +148,13 @@ export class ProcessLocateDetailDto {
   @IsNotEmpty({ message: '指定人员ID不能为空' })
   userId: number
 
-  @ApiProperty({ type: Number, description: '工位任务单ID', required: true })
-  processPositionTaskId: number
+  @ApiProperty({ type: [Number], description: '工位任务单ID', required: true })
+  @IsArray({ message: '工位任务单列表必须是数组' })
+  @IsNotEmpty({ message: '工位任务单列表不能为空' })
+  processPositionTaskIds: number[]
 
-  @ApiProperty({ type: Number, description: '分配数量', required: true })
-  assignCount: number
+  @ApiProperty({ type: Number, description: '工序Id', required: true })
+  processId: number
 
   @ApiProperty({ type: String, description: '备注', required: false })
   @IsOptional()
@@ -148,6 +167,14 @@ export class CreateProcessLocateDto {
   @IsNotEmpty({ message: '派工详情列表不能为空' })
   @IsArray({ message: '派工详情列表必须是数组' })
   details: ProcessLocateDetailDto[]
+
+  @ApiProperty({ type: Number, description: '物料Id', required: true })
+  @IsNotEmpty({ message: '物料Id不能为空' })
+  materialId: number
+
+  @ApiProperty({ type: Number, description: '生产工单ID', required: false })
+  @IsOptional()
+  productionOrderTaskId: number
 
   @ApiProperty({ type: String, description: '备注', required: false })
   @IsOptional()
@@ -172,4 +199,28 @@ export class FindByOrderDto {
   @IsOptional()
   @IsNumber({}, { message: '工位任务状态必须是数字' })
   positionStatus?: number
+}
+
+export class AuditProcessLocateDto {
+  @ApiProperty({ type: String, description: '审核状态', enum: AuditStatus, required: true })
+  @IsNotEmpty({ message: '审核状态不能为空' })
+  @IsString({ message: '审核状态必须是字符串' })
+  status: AuditStatus
+
+  @ApiProperty({ type: String, description: '审核备注', required: false })
+  @IsOptional()
+  @IsString({ message: '审核备注必须是字符串' })
+  auditRemark?: string
+}
+
+export class BatchAuditProcessLocateDto {
+  @ApiProperty({ type: [Number], description: '派工单ID数组', required: true })
+  @IsNotEmpty({ message: '派工单ID数组不能为空' })
+  @IsArray({ message: '派工单ID必须是数组' })
+  @IsNumber({}, { each: true, message: '派工单ID必须是数字' })
+  ids: number[]
+
+  @ApiProperty({ type: AuditProcessLocateDto, description: '审核信息', required: true })
+  @IsNotEmpty({ message: '审核信息不能为空' })
+  audit: AuditProcessLocateDto
 }

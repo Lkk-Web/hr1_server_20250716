@@ -2,6 +2,9 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequeli
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
 import { AuditStatus } from '@common/enum'
+import { ProcessLocateDetail } from './processLocateDetail.model'
+import { Material } from '@model/base/material.model'
+import { ProductionOrderTask } from './productionOrderTask.model'
 
 /** 派工表 */
 @Table({ tableName: `process_locate`, freezeTableName: true, timestamps: true, comment: '派工表' })
@@ -14,6 +17,14 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
   })
   declare locateCode: string
 
+  @ForeignKey(() => ProductionOrderTask)
+  @Column({
+    comment: '生产工单ID',
+    type: DataType.INTEGER,
+    allowNull: false, // 必填项
+  })
+  declare productionOrderTaskId: number
+
   // 派工人员ID
   @ForeignKey(() => User)
   @Column({
@@ -22,6 +33,15 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
     allowNull: false,
   })
   declare assignerId: number
+
+  // 物料
+  @ForeignKey(() => Material)
+  @Column({
+    comment: '物料Id',
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  declare materialId: number
 
   // 派工时间
   @Column({
@@ -48,7 +68,47 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
   })
   declare remark: string
 
+  // 审核人员ID
+  @ForeignKey(() => User)
+  @Column({
+    comment: '审核人员ID',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare auditorId: number
+
+  // 审核时间
+  @Column({
+    comment: '审核时间',
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  declare auditTime: Date
+
+  // 审核备注
+  @Column({
+    comment: '审核备注',
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  declare auditRemark: string
+
   // 关联派工人员
   @BelongsTo(() => User, 'assignerId')
   declare assigner: User
+
+  // 关联审核人员
+  @BelongsTo(() => User, 'auditorId')
+  declare auditor: User
+
+  // 关联物料
+  @BelongsTo(() => Material, 'materialId')
+  declare material: Material
+
+  // 关联生产工单
+  @BelongsTo(() => ProductionOrderTask, 'productionOrderTaskId')
+  declare productionOrderTask: ProductionOrderTask
+
+  @HasMany(() => ProcessLocateDetail)
+  declare processLocateDetails: ProcessLocateDetail[]
 }
