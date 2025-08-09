@@ -97,7 +97,20 @@ export class ProcessRouteService {
     //   }
     // }
     await processRoute.update({ ...dto, updatedUserId: user.id })
-    await Material.update({ processRouteId: id }, { where: { id: dto.materialId } })
+
+    // 处理物料关联：先解绑已不在列表中的物料，再绑定新的物料
+    const newMaterialIds: number[] = Array.isArray(dto.materialId) ? dto.materialId : dto.materialId != null ? [dto.materialId as unknown as number] : []
+
+    if (newMaterialIds.length > 0) {
+      // 解绑当前路线下但不在新列表中的物料
+      await Material.update({ processRouteId: null }, { where: { processRouteId: id, id: { [Op.notIn]: newMaterialIds } } })
+      // 绑定新列表中的物料
+      await Material.update({ processRouteId: id }, { where: { id: newMaterialIds } })
+    } else {
+      // 若未传 materialId 或为空数组，则解绑该路线下的所有物料
+      await Material.update({ processRouteId: null }, { where: { processRouteId: id } })
+    }
+
     //删除依赖关系
     const list = await ProcessRouteList.findAll({ where: { processRouteId: id } })
     for (const processRouteList of list) {
