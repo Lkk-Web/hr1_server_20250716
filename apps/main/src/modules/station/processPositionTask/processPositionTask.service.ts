@@ -675,9 +675,9 @@ export class ProcessPositionTaskService {
         { where: { id: ids }, transaction }
       )
 
-      // 批量更新工位任务单状态
+      // 根据审核状态处理相关业务逻辑
       if (dto.status === AuditStatus.APPROVED) {
-        // 如果审核通过，需要通过关联关系更新ProcessPositionTask状态
+        // 审核通过：更新工位任务单状态为未开始
         await ProcessPositionTask.update(
           {
             status: POSITION_TASK_STATUS.NOT_STARTED,
@@ -696,15 +696,61 @@ export class ProcessPositionTaskService {
             transaction,
           }
         )
+      } else if (dto.status === AuditStatus.REJECTED) {
+        // 审核驳回：恢复工位任务单状态为待派工，并删除派工关联记录
+
+        // 1. 恢复工位任务单状态为待派工
+        await ProcessPositionTask.update(
+          {
+            status: POSITION_TASK_STATUS.TO_ASSIGN,
+            userId: null, // 清除分配的用户
+          },
+          {
+            where: {
+              id: {
+                [Op.in]: Sequelize.literal(`(
+                  SELECT pli.processPositionTaskId 
+                  FROM process_locate_item pli
+                  INNER JOIN process_locate_detail pld ON pli.processLocateDetailId = pld.id
+                  WHERE pld.processLocateId IN (${ids.join(',')})
+                )`),
+              },
+            },
+            transaction,
+          }
+        )
+
+        // 2. 删除派工项目记录
+        await ProcessLocateItem.destroy({
+          where: {
+            processLocateDetailId: {
+              [Op.in]: Sequelize.literal(`(
+                SELECT id 
+                FROM process_locate_detail 
+                WHERE processLocateId IN (${ids.join(',')})
+              )`),
+            },
+          },
+          transaction,
+        })
+
+        // 3. 删除派工详情记录
+        await ProcessLocateDetail.destroy({
+          where: {
+            processLocateId: {
+              [Op.in]: ids,
+            },
+          },
+          transaction,
+        })
       }
 
       await transaction.commit()
 
-      return {
-        message: `成功审核 ${processLocates.length} 个派工单`,
-        auditedCount: processLocates.length,
-        status: dto.status,
-      }
+      // 根据审核状态返回不同的消息
+      const actionText = dto.status === AuditStatus.APPROVED ? '审核通过' : '审核驳回并清理相关数据'
+
+      return `成功${actionText} ${processLocates.length} 个派工单`
     } catch (error) {
       await transaction.rollback()
       throw error
