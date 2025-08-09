@@ -459,7 +459,7 @@ export class ProcessPositionTaskService {
         },
         {
           association: 'productionOrderTask',
-          attributes: ['id', 'orderCode', 'startTime', 'endTime'],
+          attributes: ['id', 'orderCode', 'startTime', 'endTime', 'splitQuantity'],
         },
         {
           association: 'processLocateDetails',
@@ -483,7 +483,7 @@ export class ProcessPositionTaskService {
 
     if (dto.locateCode) {
       whereConditions['locateCode'] = {
-        [Op.like]: `%${dto.locateCode}%`
+        [Op.like]: `%${dto.locateCode}%`,
       }
     }
 
@@ -565,8 +565,8 @@ export class ProcessPositionTaskService {
 
     // 查找工单下的所有工位任务单
     const processPositionTasks = await ProcessPositionTask.findAll({
-      where: { 
-        productionOrderTaskId, 
+      where: {
+        productionOrderTaskId,
         processId,
         // 使用子查询排除已派工的记录
         id: {
@@ -574,8 +574,8 @@ export class ProcessPositionTaskService {
             SELECT DISTINCT processPositionTaskId 
             FROM process_locate_item 
             WHERE processPositionTaskId IS NOT NULL
-          )`)
-        }
+          )`),
+        },
       },
       include: [
         {
