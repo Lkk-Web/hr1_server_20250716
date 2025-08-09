@@ -66,6 +66,7 @@ export class UserService {
 
   public async edit(dto: UUserDto, id: number, loadModel) {
     let user = await User.findOne({ where: { id }, attributes: ['id', 'userCode', 'phone', 'email'] })
+    const role = await Role.findOne({ where: { id: dto.roleId } })
     if (!user) {
       throw new HttpException('数据不存在', 400006)
     }
@@ -89,7 +90,10 @@ export class UserService {
         throw new HttpException('该邮箱的员工已存在', 400)
       }
     }
-    await user.update(dto)
+    await user.update({
+      ...dto,
+      code: role.code,
+    })
     return user
   }
 

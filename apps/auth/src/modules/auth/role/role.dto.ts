@@ -41,8 +41,7 @@ export class RoleCreateDto {
   menus?: [number]
 
   @ApiProperty({ name: 'code', required: false, description: '角色编码', enum: ROLE_CODE })
-  @IsEnum(ROLE_CODE, { message: '无效的角色编码' })
-  code: ROLE_CODE
+  code?: ROLE_CODE
 
   @ApiProperty({ description: '数据权限范围类型（0全部 1本组织 2本部门及下级部门 3本部门 4自定义）', type: String })
   dataScopeType: string
@@ -68,8 +67,7 @@ export class RoleEditDto {
   menus?: [number]
 
   @ApiProperty({ name: 'code', required: false, description: '角色编码', enum: ROLE_CODE })
-  @IsEnum(ROLE_CODE, { message: '无效的角色编码' })
-  code: ROLE_CODE
+  code?: ROLE_CODE
 
   @ApiProperty({ description: '数据权限范围类型（0全部 1本组织 2本部门及下级部门 3本部门 4自定义）', type: String })
   dataScopeType: string
