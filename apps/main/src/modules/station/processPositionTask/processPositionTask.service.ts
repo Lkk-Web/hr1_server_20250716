@@ -356,6 +356,7 @@ export class ProcessPositionTaskService {
         {
           locateCode,
           assignerId,
+          productionOrderTaskId: dto.productionOrderTaskId,
           materialId: dto.materialId,
           assignTime: new Date(),
           status: AuditStatus.PENDING_REVIEW, // 待审核
@@ -460,6 +461,10 @@ export class ProcessPositionTaskService {
           attributes: ['id', 'code', 'materialName'],
         },
         {
+          association: 'productionOrderTask',
+          attributes: ['id', 'orderCode', 'startTime', 'endTime'],
+        },
+        {
           association: 'processLocateDetails',
           include: [
             {
@@ -557,7 +562,10 @@ export class ProcessPositionTaskService {
         },
         {
           association: 'locate',
-          required: true,
+          required: false,
+          where: {
+            id: null, // 筛选出没有派工记录的数据
+          },
         },
       ],
     })

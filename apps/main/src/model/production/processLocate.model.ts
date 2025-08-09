@@ -4,6 +4,7 @@ import { User } from '@model/auth/user'
 import { AuditStatus } from '@common/enum'
 import { ProcessLocateDetail } from './processLocateDetail.model'
 import { Material } from '@model/base/material.model'
+import { ProductionOrderTask } from './productionOrderTask.model'
 
 /** 派工表 */
 @Table({ tableName: `process_locate`, freezeTableName: true, timestamps: true, comment: '派工表' })
@@ -15,6 +16,14 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
     allowNull: false,
   })
   declare locateCode: string
+
+  @ForeignKey(() => ProductionOrderTask)
+  @Column({
+    comment: '生产工单ID',
+    type: DataType.INTEGER,
+    allowNull: false, // 必填项
+  })
+  declare productionOrderTaskId: number
 
   // 派工人员ID
   @ForeignKey(() => User)
@@ -95,6 +104,10 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
   // 关联物料
   @BelongsTo(() => Material, 'materialId')
   declare material: Material
+
+  // 关联生产工单
+  @BelongsTo(() => ProductionOrderTask, 'productionOrderTaskId')
+  declare productionOrderTask: ProductionOrderTask
 
   @HasMany(() => ProcessLocateDetail)
   declare processLocateDetails: ProcessLocateDetail[]
