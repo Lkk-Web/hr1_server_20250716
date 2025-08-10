@@ -130,9 +130,8 @@ export class ProcessPositionTaskController {
   @ApiPlatformWhitelist(['admin', 'station'])
   @ApiOperation({ summary: '获取派工单详情' })
   @ApiParam({ name: 'id', description: '派工单ID' })
-  @ApiQuery({ name: 'processId', description: '工序ID', required: false, type: Number })
-  async findProcessLocateDetail(@Param('id') id: number, @Query('processId') processId?: number) {
-    const result = await this.processPositionTaskService.findProcessLocateDetail(id, processId)
+  async findProcessLocateDetail(@Param('id') id: number) {
+    const result = await this.processPositionTaskService.findProcessLocateDetail(id)
     return { data: result, code: 200 }
   }
 

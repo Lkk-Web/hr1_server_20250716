@@ -353,6 +353,7 @@ export class ProcessPositionTaskService {
         {
           locateCode,
           assignerId,
+          parentProcessId: dto.parentProcessId,
           productionOrderTaskId: dto.productionOrderTaskId,
           materialId: dto.materialId,
           assignTime: new Date(),
@@ -574,51 +575,9 @@ export class ProcessPositionTaskService {
   /**
    * 获取派工单详情
    */
-  async findProcessLocateDetail(id: number, processId?: number) {
-    const processLocateDetailsInclude = {
-      association: 'processLocateDetails',
-      include: [
-        {
-          association: 'process',
-          attributes: ['id', 'processName'],
-        },
-        {
-          association: 'user',
-          attributes: ['id', 'userName', 'userCode'],
-        },
-        {
-          association: 'processLocateItems',
-          include: [
-            {
-              association: 'processPositionTask',
-              include: [
-                {
-                  association: 'serial',
-                  attributes: ['id', 'serialNumber'],
-                },
-                {
-                  association: 'user',
-                  attributes: ['id', 'userName', 'userCode'],
-                },
-                {
-                  association: 'productionOrderTask',
-                  attributes: ['id', 'orderCode'],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
-
-    // 如果指定了工序ID，则添加筛选条件
-    if (processId) {
-      processLocateDetailsInclude['where'] = {
-        processId: processId,
-      }
-    }
-
+  async findProcessLocateDetail(id: number) {
     const result = await ProcessLocate.findByPk(id, {
+      attributes: ['id', 'locateCode', 'status', 'assignTime', 'auditTime'],
       include: [
         {
           association: 'assigner',
@@ -629,7 +588,52 @@ export class ProcessPositionTaskService {
           attributes: ['id', 'userName', 'userCode'],
           required: false,
         },
-        processLocateDetailsInclude,
+        {
+          association: 'parentProcess',
+          attributes: ['id', 'processName'],
+        },
+        {
+          association: 'productionOrderTask',
+          attributes: ['id', 'orderCode', 'splitQuantity', 'locateStatus', 'startTime', 'endTime'],
+          include: [
+            {
+              association: 'material',
+              attributes: ['id', 'code', 'materialName'],
+            },
+          ],
+        },
+        {
+          association: 'processLocateDetails',
+          include: [
+            {
+              association: 'process',
+              attributes: ['id', 'processName'],
+            },
+            {
+              association: 'user',
+              attributes: ['id', 'userName', 'userCode'],
+            },
+
+            {
+              association: 'processLocateItems',
+              include: [
+                {
+              association: 'processPositionTask',
+              include: [
+                {
+                  association: 'serial',
+                  attributes: ['id', 'serialNumber'],
+                },
+                {
+                  association: 'user',
+                  attributes: ['id', 'userName', 'userCode'],
+                },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       ],
     })
 

@@ -5,6 +5,7 @@ import { AuditStatus } from '@common/enum'
 import { ProcessLocateDetail } from './processLocateDetail.model'
 import { Material } from '@model/base/material.model'
 import { ProductionOrderTask } from './productionOrderTask.model'
+import { Process } from '@model/process/process.model'
 
 /** 派工表 */
 @Table({ tableName: `process_locate`, freezeTableName: true, timestamps: true, comment: '派工表' })
@@ -42,6 +43,15 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
     allowNull: false,
   })
   declare materialId: number
+
+  // 工序
+  @ForeignKey(() => Process)
+  @Column({
+    comment: '工序Id',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare parentProcessId: number
 
   // 派工时间
   @Column({
@@ -108,6 +118,10 @@ export class ProcessLocate extends BaseDate<ProcessLocate> {
   // 关联生产工单
   @BelongsTo(() => ProductionOrderTask, 'productionOrderTaskId')
   declare productionOrderTask: ProductionOrderTask
+
+  // 关联工序
+  @BelongsTo(() => Process, 'parentProcessId')
+  declare parentProcess: Process
 
   @HasMany(() => ProcessLocateDetail)
   declare processLocateDetails: ProcessLocateDetail[]
