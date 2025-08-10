@@ -142,10 +142,10 @@ export class FindByTeamDto {
   @IsNotEmpty({ message: '班组ID不能为空' })
   teamId: number
 
-  @ApiProperty({ type: String, description: '工单状态', required: false })
-  @IsOptional()
-  @IsString({ message: '工单状态必须是字符串' })
-  orderStatus?: string
+  // @ApiProperty({ type: String, description: '工单状态', required: false })
+  // @IsOptional()
+  // @IsString({ message: '工单状态必须是字符串' })
+  // orderStatus?: string
 
   @ApiProperty({ type: String, description: '工序任务状态', required: false })
   @IsOptional()
@@ -190,6 +190,10 @@ export class CreateProcessLocateDto {
   @ApiProperty({ type: Number, description: '生产工单ID', required: false })
   @IsOptional()
   productionOrderTaskId: number
+
+  @ApiProperty({ type: Number, description: '父工序Id', required: true })
+  @IsNotEmpty({ message: '父工序Id不能为空' })
+  parentProcessId: number
 
   @ApiProperty({ type: String, description: '备注', required: false })
   @IsOptional()

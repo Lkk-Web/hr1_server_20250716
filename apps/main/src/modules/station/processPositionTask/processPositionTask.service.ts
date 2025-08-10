@@ -267,10 +267,13 @@ export class ProcessPositionTaskService {
     }
 
     // 构建查询条件
-    const productionOrderTaskWhere: any = {}
-    if (dto.orderStatus) {
-      productionOrderTaskWhere.status = dto.orderStatus
+    const productionOrderTaskWhere: any = {
+      locateStatus: {
+        [Op.in]: [LocateStatus.NOT_LOCATED, LocateStatus.PART_LOCATED],
+      },
     }
+    // if (dto.orderStatus) {
+    // }
 
     const processTaskWhere: any = {}
     if (dto.processTaskStatus) {
@@ -285,6 +288,7 @@ export class ProcessPositionTaskService {
     // 查询班组关联的生产工单任务
     const result = await ProductionOrderTask.findAll({
       where: productionOrderTaskWhere,
+      attributes: ['id', 'orderCode', 'splitQuantity', 'startTime', 'endTime', 'priority', 'locateStatus'],
       include: [
         {
           association: 'teams',
@@ -329,7 +333,6 @@ export class ProcessPositionTaskService {
           ],
         },
       ],
-      attributes: ['id', 'orderCode', 'splitQuantity', 'startTime', 'endTime', 'priority', 'remark'],
     })
 
     return {
@@ -618,16 +621,16 @@ export class ProcessPositionTaskService {
               association: 'processLocateItems',
               include: [
                 {
-              association: 'processPositionTask',
-              include: [
-                {
-                  association: 'serial',
-                  attributes: ['id', 'serialNumber'],
-                },
-                {
-                  association: 'user',
-                  attributes: ['id', 'userName', 'userCode'],
-                },
+                  association: 'processPositionTask',
+                  include: [
+                    {
+                      association: 'serial',
+                      attributes: ['id', 'serialNumber'],
+                    },
+                    {
+                      association: 'user',
+                      attributes: ['id', 'userName', 'userCode'],
+                    },
                   ],
                 },
               ],
