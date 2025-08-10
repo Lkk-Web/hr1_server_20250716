@@ -9,7 +9,7 @@ import { ProcessLocateDetail } from '@model/production/processLocateDetail.model
 import { Op, FindOptions, Sequelize } from 'sequelize'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { AuditStatus, POSITION_TASK_STATUS, ProductSerialStatus } from '@common/enum'
+import { AuditStatus, LocateStatus, POSITION_TASK_STATUS, ProductSerialStatus } from '@common/enum'
 import {
   UpdateProcessPositionTaskDto,
   FindPaginationDto,
@@ -370,7 +370,7 @@ export class ProcessPositionTaskService {
           throw new HttpException(`用户ID ${detail.userId} 不存在`, 400)
         }
 
-        // 全选 - 全部序列号 - 工位任务单
+        // 全选传 [] - 全部序列号 - 工位任务单
         const tmp = await ProcessPositionTask.findAll({
           where: {
             processId: detail.processId,
@@ -410,30 +410,13 @@ export class ProcessPositionTaskService {
           })
         }
 
-        console.log(
-          tmp.map(v => {
-            return {
-              id: v.dataValues.id,
-              status: POSITION_TASK_STATUS.TO_AUDIT,
-            }
-          })
-        )
-
         await ProcessLocateItem.bulkCreate(processLocateItems, { transaction })
 
         for (const item of tmp) {
-          await ProcessPositionTask.update(
-            {
-              status: POSITION_TASK_STATUS.TO_AUDIT,
-            },
-            {
-              where: {
-                id: item.id,
-              },
-              transaction,
-            }
-          )
+          await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.TO_AUDIT }, { where: { id: item.id }, transaction })
         }
+
+        // bulkCreate 原理是Inser & update，所以 productionOrderTaskId 必须也要更新
         // await ProcessPositionTask.bulkCreate(
         //   tmp.map(v => {
         //     return {
@@ -444,6 +427,28 @@ export class ProcessPositionTaskService {
         //   { updateOnDuplicate: ['id', 'status'], transaction }
         // )
       }
+
+      // 更新生产工单任务状态
+      await ProductionOrderTask.update({ locateStatus: LocateStatus.PART_LOCATED }, { where: { id: dto.productionOrderTaskId }, transaction })
+
+      // 更新生产工单任务状态
+      await ProductionOrderTask.update(
+        { locateStatus: LocateStatus.LOCATED },
+        {
+          where: {
+            id: {
+              // 工单的所有工位单 不是待派工 的聚合
+              [Op.in]: Sequelize.literal(`(
+                SELECT productionOrderTaskId
+                FROM process_position_task
+                GROUP BY productionOrderTaskId
+                HAVING SUM(status != ${POSITION_TASK_STATUS.TO_ASSIGN}) = 0)    
+              `),
+            },
+          },
+          transaction,
+        }
+      )
 
       await transaction.commit()
 

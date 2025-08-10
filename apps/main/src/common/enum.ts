@@ -91,6 +91,12 @@ export enum SchedulingStatus {
   SCHEDULED = '已排程',
 }
 
+export enum LocateStatus {
+  NOT_LOCATED = '待派工',
+  PART_LOCATED = '部分派工',
+  LOCATED = '已派工',
+}
+
 /** 产品序列号状态枚举 */
 export enum ProductSerialStatus {
   NOT_STARTED = '未开始',

@@ -1,7 +1,7 @@
 import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { Material } from '@model/base/material.model'
 import { ProductionOrderDetail } from '@model/production/productionOrderDetail.model'
-import { ProductionOrderTaskStatus, SchedulingStatus } from '@common/enum'
+import { LocateStatus, ProductionOrderTaskStatus, SchedulingStatus } from '@common/enum'
 import { BaseModel } from '@model/shared/base.model'
 import { ProductSerial } from './productSerial.model'
 import { ProductionOrderTaskTeam } from './productionOrderTaskOfTeam.model'
@@ -51,6 +51,15 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
     defaultValue: SchedulingStatus.NOT_SCHEDULED,
   })
   declare schedulingStatus: SchedulingStatus
+
+  // 派工状态
+  @Column({
+    comment: '派工状态',
+    type: DataType.ENUM(...Object.values(LocateStatus)),
+    allowNull: false,
+    defaultValue: LocateStatus.NOT_LOCATED,
+  })
+  declare locateStatus: LocateStatus
 
   // 计划开始时间
   @Column({
