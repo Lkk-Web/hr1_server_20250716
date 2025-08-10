@@ -23,7 +23,6 @@ import {
 } from './processPositionTask.dto'
 import { Paging } from '@library/utils/paging'
 import { ProcessLocateItem } from '@model/index'
-import { ProcessLocateAuditLog } from '@model/production/processLocateAuditLog.model'
 import moment from 'moment'
 
 @Injectable()
@@ -708,19 +707,6 @@ export class ProcessPositionTaskService {
       if (processLocates.length !== ids.length) {
         throw new HttpException('部分派工单不存在或状态不正确', 400)
       }
-
-      // 创建审核记录
-      const auditLogs = processLocates.map(processLocate => ({
-        processLocateId: processLocate.id,
-        auditorId,
-        auditStatus: dto.status,
-        auditRemark: dto.auditRemark,
-        auditTime: new Date(),
-        beforeStatus: processLocate.status,
-        afterStatus: dto.status,
-      }))
-
-      await ProcessLocateAuditLog.bulkCreate(auditLogs, { transaction })
 
       // 批量更新派工单状态
       await ProcessLocate.update(
