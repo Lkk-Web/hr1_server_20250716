@@ -92,6 +92,7 @@ export * from './production/processPositionTask.model'
 export * from './production/processLocate.model'
 export * from './production/processLocateDetail.model'
 export * from './production/processLocateItem.model'
+export * from './production/processLocateAuditLog.model'
 
 //绩效管理 performance
 export * from './performance/performance.model'

@@ -31,7 +31,6 @@ export class ProcessLocateItem extends BaseDate<ProcessLocateItem> {
   // 工位任务单ID
   @ForeignKey(() => ProcessPositionTask)
   @Column({
-    unique: true,
     comment: '工位任务单ID',
     type: DataType.INTEGER,
     allowNull: false,
