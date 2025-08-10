@@ -442,7 +442,7 @@ export class ProcessPositionTaskService {
                 SELECT productionOrderTaskId
                 FROM process_position_task
                 GROUP BY productionOrderTaskId
-                HAVING SUM(status != ${POSITION_TASK_STATUS.TO_ASSIGN}) = 0)    
+                HAVING SUM(status = '${POSITION_TASK_STATUS.TO_ASSIGN}') = 0)    
               `),
             },
           },
