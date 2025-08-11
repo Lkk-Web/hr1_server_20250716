@@ -5,7 +5,7 @@ import { ProductionOrderTask } from '@model/production/productionOrderTask.model
 import { ProcessTask } from '@model/production/processTask.model'
 import { Op, Transaction } from 'sequelize'
 import { FindProductSerialDto, UpdateProductSerialDto, UpdateProcessProgressDto } from './productSerial.dto'
-import { ProductSerialStatus } from '@common/enum'
+import { POSITION_TASK_STATUS, ProductSerialStatus } from '@common/enum'
 import { Paging } from '@library/utils/paging'
 
 @Injectable()
@@ -96,6 +96,10 @@ export class ProductSerialService {
 
     if (status) {
       includeConditions[1].include[1].where['status'] = status
+    } else {
+      includeConditions[1].include[1].where['status'] = {
+        [Op.in]: [POSITION_TASK_STATUS.NOT_STARTED, POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.PAUSED, POSITION_TASK_STATUS.COMPLETED],
+      }
     }
     // 如果有订单编码条件，添加到关联查询中
     if (kingdeeCode) {
