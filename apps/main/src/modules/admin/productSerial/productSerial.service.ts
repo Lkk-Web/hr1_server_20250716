@@ -6,6 +6,7 @@ import { ProcessTask } from '@model/production/processTask.model'
 import { Op, Transaction } from 'sequelize'
 import { FindProductSerialDto, UpdateProductSerialDto, UpdateProcessProgressDto } from './productSerial.dto'
 import { ProductSerialStatus } from '@common/enum'
+import { Paging } from '@library/utils/paging'
 
 @Injectable()
 export class ProductSerialService {
@@ -22,22 +23,6 @@ export class ProductSerialService {
     const { current, pageSize } = pagination
 
     const whereCondition: any = {}
-
-    if (serialNumber) {
-      whereCondition.serialNumber = { [Op.like]: `%${serialNumber}%` }
-    }
-
-    if (productionOrderTaskId) {
-      whereCondition.productionOrderTaskId = productionOrderTaskId
-    }
-
-    if (status) {
-      whereCondition.status = status
-    }
-
-    if (qualityStatus) {
-      whereCondition.qualityStatus = qualityStatus
-    }
 
     const includeConditions: any[] = [
       {
@@ -60,6 +45,7 @@ export class ProductSerialService {
           },
           {
             association: 'processPositionTasks',
+            where: {},
             include: [
               {
                 association: 'process',
@@ -82,12 +68,35 @@ export class ProductSerialService {
       },
     ]
 
+    const options = {
+      where: whereCondition,
+      include: includeConditions,
+      offset: (current - 1) * pageSize,
+      limit: pageSize,
+      order: [['createdAt', 'DESC']],
+    }
+
+    if (serialNumber) {
+      whereCondition.serialNumber = { [Op.like]: `%${serialNumber}%` }
+    }
+
+    if (productionOrderTaskId) {
+      whereCondition.productionOrderTaskId = productionOrderTaskId
+    }
+
+    if (qualityStatus) {
+      whereCondition.qualityStatus = qualityStatus
+    }
+
     if (dto.orderCode) {
       includeConditions[0].where['orderCode'] = {
         [Op.like]: `%${dto.orderCode}%`,
       }
     }
 
+    if (status) {
+      includeConditions[1].include[1].where['status'] = status
+    }
     // 如果有订单编码条件，添加到关联查询中
     if (kingdeeCode) {
       includeConditions[0].include[1].include[0].where = {
@@ -95,20 +104,9 @@ export class ProductSerialService {
       }
     }
 
-    const result = await this.productSerialModel.findAndCountAll({
-      where: whereCondition,
-      include: includeConditions,
-      limit: pageSize,
-      offset: (current - 1) * pageSize,
-      order: [['createdAt', 'DESC']],
-    })
+    const result = await Paging.diyPaging(this.productSerialModel, pagination, options)
 
-    return {
-      data: result.rows,
-      total: result.count,
-      current,
-      pageSize,
-    }
+    return result
   }
 
   /**

@@ -1,4 +1,4 @@
-import { ProductSerialStatus } from '@common/enum'
+import { POSITION_TASK_STATUS, ProductSerialStatus } from '@common/enum'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsOptional, IsString, IsEnum, IsNumber } from 'class-validator'
 
@@ -18,10 +18,10 @@ export class FindProductSerialDto {
   @IsString()
   productionOrderTaskId?: string
 
-  @ApiProperty({ description: '状态', enum: ProductSerialStatus, required: false })
+  @ApiProperty({ description: '状态', enum: POSITION_TASK_STATUS, required: false })
   @IsOptional()
-  @IsEnum(ProductSerialStatus)
-  status?: ProductSerialStatus
+  @IsEnum(POSITION_TASK_STATUS)
+  status?: POSITION_TASK_STATUS
 
   @ApiProperty({ description: '质量状态', required: false })
   @IsOptional()
