@@ -1,18 +1,15 @@
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
 import { Pagination } from '@common/interface'
-import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
+import { Body, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { StationAuth } from '@core/decorator/controller'
 import { ProcessPositionTaskService } from './processPositionTask.service'
 import {
   UpdateProcessPositionTaskDto,
   FindPaginationDto,
-  BatchOperationDto,
-  StartWorkDto,
   FindByTeamDto,
   CreateProcessLocateDto,
   FindByOrderDto,
   FindProcessLocatePaginationDto,
-  AuditProcessLocateDto,
   BatchAuditProcessLocateDto,
 } from './processPositionTask.dto'
 import { CurrentPage } from '@core/decorator/request'
@@ -74,38 +71,6 @@ export class ProcessPositionTaskController {
     const result = await this.processPositionTaskService.findByOrder(dto)
     return { data: result }
   }
-
-  // @Post('start-work')
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOperation({ summary: '开始工作' })
-  // async startWork(@Body() dto: StartWorkDto) {
-  //   await this.processPositionTaskService.startWork(dto)
-  //   return { message: '开始工作成功' }
-  // }
-
-  // @Post('batch/pause')
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOperation({ summary: '批量暂停任务' })
-  // async batchPause(@Body() dto: BatchOperationDto) {
-  //   await this.processPositionTaskService.batchPause(dto)
-  //   return { message: '批量暂停成功' }
-  // }
-
-  // @Post('batch/resume')
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOperation({ summary: '批量恢复任务' })
-  // async batchResume(@Body() dto: BatchOperationDto) {
-  //   await this.processPositionTaskService.batchResume(dto)
-  //   return { message: '批量恢复成功' }
-  // }
-
-  // @Post('batch/complete')
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOperation({ summary: '批量完成任务' })
-  // async batchComplete(@Body() dto: BatchOperationDto) {
-  //   await this.processPositionTaskService.batchComplete(dto)
-  //   return { message: '批量完成成功' }
-  // }
 
   @Post('locate')
   @HttpCode(HttpStatus.OK)

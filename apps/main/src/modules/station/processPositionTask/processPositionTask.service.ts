@@ -13,8 +13,6 @@ import { AuditStatus, LocateStatus, POSITION_TASK_STATUS, ProductSerialStatus } 
 import {
   UpdateProcessPositionTaskDto,
   FindPaginationDto,
-  BatchOperationDto,
-  StartWorkDto,
   FindByTeamDto,
   CreateProcessLocateDto,
   FindByOrderDto,
@@ -169,83 +167,6 @@ export class ProcessPositionTaskService {
 
     const result = await Paging.diyPaging(ProcessPositionTask, pagination, options)
     return result
-  }
-
-  /**
-   * 开始工作
-   */
-  async startWork(dto: StartWorkDto): Promise<boolean> {
-    const tasks = await ProcessPositionTask.findAll({
-      where: { id: { [Op.in]: dto.ids } },
-    })
-
-    if (tasks.length === 0) {
-      throw new HttpException('未找到指定的任务', 400)
-    }
-
-    // 检查任务状态
-    const invalidTasks = tasks.filter(task => task.status !== POSITION_TASK_STATUS.NOT_STARTED)
-    if (invalidTasks.length > 0) {
-      throw new HttpException('只能开始未开始状态的任务', 400)
-    }
-
-    await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.IN_PROGRESS }, { where: { id: { [Op.in]: dto.ids } } })
-
-    return true
-  }
-
-  /**
-   * 批量暂停任务
-   */
-  async batchPause(dto: BatchOperationDto): Promise<boolean> {
-    const tasks = await ProcessPositionTask.findAll({
-      where: { id: { [Op.in]: dto.ids } },
-    })
-
-    const invalidTasks = tasks.filter(task => task.status !== POSITION_TASK_STATUS.IN_PROGRESS)
-    if (invalidTasks.length > 0) {
-      throw new HttpException('只能暂停进行中的任务', 400)
-    }
-
-    await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.PAUSED }, { where: { id: { [Op.in]: dto.ids } } })
-
-    return true
-  }
-
-  /**
-   * 批量恢复任务
-   */
-  async batchResume(dto: BatchOperationDto): Promise<boolean> {
-    const tasks = await ProcessPositionTask.findAll({
-      where: { id: { [Op.in]: dto.ids } },
-    })
-
-    const invalidTasks = tasks.filter(task => task.status !== POSITION_TASK_STATUS.PAUSED)
-    if (invalidTasks.length > 0) {
-      throw new HttpException('只能恢复暂停状态的任务', 400)
-    }
-
-    await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.IN_PROGRESS }, { where: { id: { [Op.in]: dto.ids } } })
-
-    return true
-  }
-
-  /**
-   * 批量完成任务
-   */
-  async batchComplete(dto: BatchOperationDto): Promise<boolean> {
-    const tasks = await ProcessPositionTask.findAll({
-      where: { id: { [Op.in]: dto.ids } },
-    })
-
-    const invalidTasks = tasks.filter(task => task.status !== POSITION_TASK_STATUS.IN_PROGRESS && task.status !== POSITION_TASK_STATUS.PAUSED)
-    if (invalidTasks.length > 0) {
-      throw new HttpException('只能完成进行中或暂停状态的任务', 400)
-    }
-
-    await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED }, { where: { id: { [Op.in]: dto.ids } } })
-
-    return true
   }
 
   /**

@@ -124,19 +124,6 @@ export class BatchOperationDto {
   ids: number[]
 }
 
-export class StartWorkDto {
-  @ApiProperty({ description: '工位任务单ID数组', type: [Number] })
-  @IsNotEmpty({ message: '工位任务单ID数组不能为空' })
-  @IsArray({ message: '工位任务单ID必须是数组' })
-  @IsNumber({}, { each: true, message: '工位任务单ID必须是数字' })
-  ids: number[]
-
-  @ApiProperty({ description: '操作工ID', required: false })
-  @IsOptional()
-  @IsNumber({}, { message: '操作工ID必须是数字' })
-  userId?: number
-}
-
 export class FindByTeamDto {
   @ApiProperty({ type: Number, description: '班组ID', required: true })
   @IsNotEmpty({ message: '班组ID不能为空' })
