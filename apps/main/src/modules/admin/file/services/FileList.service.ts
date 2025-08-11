@@ -73,13 +73,19 @@ export class FileListService {
   }
 
   public async find(id: number, loadModel) {
-    const options: FindOptions = { where: { id }, include: [{ all: true }] }
+    const options: FindOptions = {
+      where: { id },
+      include: [{ association: 'fileMenu' }, { association: 'fileVersionList' }, { association: 'createdUser' }, { association: 'updateUser' }],
+    }
     const result = await FileList.findOne(options)
     return result
   }
 
   public async findByUrl(url: string, loadModel) {
-    const options: FindOptions = { where: { url: { [Op.like]: `%${url}%` } }, include: [{ all: true }] }
+    const options: FindOptions = {
+      where: { url: { [Op.like]: `%${url}%` } },
+      include: [{ association: 'fileMenu' }, { association: 'fileVersionList' }, { association: 'createdUser' }, { association: 'updateUser' }],
+    }
     const result = await FileList.findOne(options)
     return result
   }
@@ -87,7 +93,7 @@ export class FileListService {
   public async findPagination(dto: FindPaginationDto, pagination: Pagination, loadModel) {
     const options: FindPaginationOptions = {
       where: { fileMenuId: dto.fileMenuId },
-      include: [{ all: true }],
+      include: [{ association: 'fileMenu' }, { association: 'fileVersionList' }, { association: 'createdUser' }, { association: 'updateUser' }],
       pagination,
     }
     if (dto.name) {
