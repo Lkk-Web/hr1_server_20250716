@@ -57,7 +57,6 @@ export * from './process/processRouteListItem.model'
 export * from './process/SOP.model'
 export * from './process/SOPMaterial.model'
 export * from './process/SOPFile.model'
-export * from './process/processRouteListBomGroup.mode'
 
 //文件管理 document
 export * from './document/FileMenu.model'

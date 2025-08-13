@@ -3,7 +3,6 @@ import { BaseDate } from '@model/shared/baseDate'
 import { Material } from '@model/base/material.model'
 import { User } from '@model/auth/user'
 import { ProcessRouteList } from '@model/process/processRouteList.model'
-import { ProcessRouteListBomGroup } from './processRouteListBomGroup.mode'
 /** 工艺路线 */
 @Table({ tableName: `process_route`, freezeTableName: true, timestamps: true, comment: '工艺路线表' })
 export class ProcessRoute extends BaseDate<ProcessRoute> {
@@ -31,6 +30,18 @@ export class ProcessRoute extends BaseDate<ProcessRoute> {
     allowNull: true, // 可选项
   })
   declare remark: string
+
+  @Column({
+    comment: 'Bom分组编码',
+    type: DataType.STRING,
+  })
+  declare groupCode: string
+
+  @Column({
+    comment: 'Bom分组名称',
+    type: DataType.STRING,
+  })
+  declare groupName: string
 
   // 状态
   @Column({
@@ -64,9 +75,6 @@ export class ProcessRoute extends BaseDate<ProcessRoute> {
 
   @BelongsTo(() => User)
   declare createdUser: User
-
-  @HasOne(() => ProcessRouteListBomGroup)
-  declare processRouteListBomGroup: ProcessRouteListBomGroup
 
   @BelongsTo(() => User)
   declare updatedUser: User

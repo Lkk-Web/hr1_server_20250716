@@ -17,7 +17,7 @@ import { Aide, JsExclKey } from '@library/utils/aide'
 import { User } from '@model/auth/user'
 import { Paging } from '@library/utils/paging'
 import { ProductSerial } from '@model/production/productSerial.model'
-import { ProcessRouteListBomGroup } from '@model/index'
+import { BOM } from '@model/base/bom.model'
 
 @Injectable()
 export class ProcessRouteService {
@@ -82,9 +82,15 @@ export class ProcessRouteService {
       await Material.update({ processRouteId: result.id }, { where: { id: dto.materialId } })
     }
     //工艺路线绑定物料Bom
-    if (dto.groupId) {
-      await ProcessRouteListBomGroup.create({ processRouteId: result.id, groupId: dto.groupId, groupName: dto.groupName })
+    if (dto.groupCode) {
+      await ProcessRoute.update({ groupCode: dto.groupCode, groupName: dto.groupName }, { where: { id: result.id } })
     }
+
+    const bomList = await BOM.findAll({ where: { group: dto.groupCode } })
+    for (const bom of bomList) {
+      await Material.update({ processRouteId: result.id }, { where: { id: bom.materialId } })
+    }
+
     return this.find(result.id, loadModel)
   }
 
@@ -144,7 +150,7 @@ export class ProcessRouteService {
       // 绑定新列表中的物料
       await Material.update({ processRouteId: id }, { where: { id: newMaterialIds } })
       // 绑定Bom分组
-      await ProcessRouteListBomGroup.update({ groupName: dto.groupName, groupId: dto.groupId }, { where: { processRouteId: id } })
+      await ProcessRoute.update({ groupCode: dto.groupCode, groupName: dto.groupName }, { where: { id } })
     } else {
       // 若未传 materialId 或为空数组，则尝试解绑该路线下的所有物料，但需校验是否存在产品序列单关联
       const boundMaterials = await Material.findAll({
@@ -171,7 +177,7 @@ export class ProcessRouteService {
       }
 
       await Material.update({ processRouteId: null }, { where: { processRouteId: id } })
-      await ProcessRouteListBomGroup.update({ groupName: dto.groupName, groupId: dto.groupId }, { where: { processRouteId: id } })
+      await ProcessRoute.update({ groupCode: dto.groupCode, groupName: dto.groupName }, { where: { id } })
     }
 
     //删除依赖关系
@@ -228,8 +234,8 @@ export class ProcessRouteService {
       throw new HttpException('工艺路线绑定物料，无法删除！', 400)
     }
     // 校验：若有Bom分组关联该工艺路线，则不允许删除
-    const BomGroup = await ProcessRouteListBomGroup.findOne({ where: { processRouteId: id } })
-    if (BomGroup) {
+    const BomGroup = await ProcessRoute.findOne({ where: { id } })
+    if (BomGroup.groupCode) {
       throw new HttpException('工艺路线绑定Bom分组，无法删除！', 400)
     }
 
@@ -255,12 +261,6 @@ export class ProcessRouteService {
         {
           association: 'material',
           attributes: ['id', 'code', 'materialName', 'attribute', 'spec', 'unit'],
-        },
-        {
-          association: 'processRouteListBomGroup',
-          attributes: ['groupName', 'groupId'],
-          where: {},
-          required: false,
         },
         {
           association: 'createdUser',
@@ -414,12 +414,7 @@ export class ProcessRouteService {
           where: {},
           required: false,
         },
-        {
-          association: 'processRouteListBomGroup',
-          attributes: ['groupName', 'groupId'],
-          where: {},
-          required: false,
-        },
+
         {
           association: 'createdUser',
           attributes: ['id', 'userName'],
