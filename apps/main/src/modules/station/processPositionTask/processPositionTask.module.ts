@@ -14,20 +14,10 @@ import { ProcessLocateDetail } from '@model/production/processLocateDetail.model
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([
-      ProcessPositionTask, 
-      ProcessTask, 
-      User, 
-      Team, 
-      ProductionOrderTask, 
-      ProductionOrderTaskTeam, 
-      ProductSerial,
-      ProcessLocate,
-      ProcessLocateDetail
-    ])
+    SequelizeModule.forFeature([ProcessPositionTask, ProcessTask, User, Team, ProductionOrderTask, ProductionOrderTaskTeam, ProductSerial, ProcessLocate, ProcessLocateDetail]),
   ],
   controllers: [ProcessPositionTaskController],
   providers: [ProcessPositionTaskService],
-  exports: [ProcessPositionTaskService]
+  exports: [ProcessPositionTaskService],
 })
 export class ProcessPositionTaskModule {}

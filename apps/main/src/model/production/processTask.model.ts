@@ -226,5 +226,4 @@ export class ProcessTask extends BaseDate<ProcessTask> {
 
   @HasMany(() => ProcessPositionTask)
   declare processPositionTasks: ProcessPositionTask[]
-
 }

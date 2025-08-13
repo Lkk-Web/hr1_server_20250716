@@ -99,7 +99,6 @@ export enum LocateStatus {
 
 /** 产品序列号状态枚举 */
 export enum ProductSerialStatus {
-  TO_ASSIGN = '待派工',
   NOT_STARTED = '未开始',
   IN_PROGRESS = '执行中',
   PAUSED = '已暂停',

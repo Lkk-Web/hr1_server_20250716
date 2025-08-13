@@ -85,11 +85,12 @@ export class CProcessDto {
   reportRatio: number
 
   @ApiProperty({
+    name: 'isQC',
     required: false,
-    description: '是否为外包工序',
+    description: '是否为质检',
     type: Boolean,
   })
-  isOut: boolean
+  isQC?: boolean
 
   @ApiProperty({
     name: 'sort',

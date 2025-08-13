@@ -1038,7 +1038,6 @@ export class ProductionOrderService {
               materialId: productionOrderDetail.materialId,
               quantity: 1,
               qualityStatus: '待检',
-              processProgress: [], // 初始化为空数组，后续根据工艺路线填充
               createdBy: user?.userName || 'system',
             },
             { transaction }
@@ -1084,7 +1083,8 @@ export class ProductionOrderService {
                     processId: childProcess.id,
                     planCount: 1,
                     status: POSITION_TASK_STATUS.TO_ASSIGN,
-                    isOutsource: childProcess.dataValues.isOut || false,
+                    isOutsource: false, //  委外
+                    // isOutsource: childProcess.dataValues.isOut || false,
                     isInspection: true,
                   },
                   { transaction }

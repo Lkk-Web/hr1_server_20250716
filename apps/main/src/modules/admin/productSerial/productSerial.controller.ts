@@ -45,14 +45,6 @@ export class ProductSerialController {
     return await this.productSerialService.update(id, dto)
   }
 
-  @Put(':id/processProgress')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '更新工序进度' })
-  @ApiParam({ name: 'id', description: '序列号ID' })
-  async updateProcessProgress(@Param('id') id: string, @Body() dto: UpdateProcessProgressDto) {
-    return await this.productSerialService.updateProcessProgress(id, dto)
-  }
-
   @Post('batchUpdateStatus')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '批量更新产品序列号状态' })

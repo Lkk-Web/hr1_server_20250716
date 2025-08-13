@@ -60,23 +60,6 @@ export class ProductSerial extends BaseModel<ProductSerial> {
   })
   declare currentProcessTaskId: number
 
-  // 工序进度（JSON格式存储各工序的完成状态）
-  @Column({
-    comment: '工序进度（JSON格式：[{serialId: string, processName: string, status: string, startTime: Date, endTime: Date, actualStartTime: Date, actualEndTime: Date}]）',
-    type: DataType.JSON,
-    allowNull: true,
-  })
-  declare processProgress: Array<{
-    serialId: number
-    processName: string
-    status: string
-    startTime: Date
-    endTime: Date
-    actualStartTime?: Date
-    actualEndTime?: Date
-    sort: number
-  }>
-
   // 质量状态
   @Column({
     comment: '质量状态（合格、不合格、待检）',

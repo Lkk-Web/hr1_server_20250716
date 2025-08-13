@@ -169,54 +169,6 @@ export class ProductSerialService {
     return this.findOne(id)
   }
 
-  /**
-   * 更新工序进度
-   */
-  async updateProcessProgress(id: string, dto: UpdateProcessProgressDto): Promise<ProductSerial> {
-    const productSerial = await this.findOne(id)
-
-    // 获取当前工序进度
-    let processProgress = productSerial.processProgress || []
-
-    // 查找对应的工序进度记录
-    const existingProgressIndex = processProgress.findIndex(progress => progress.serialId === dto.processTaskId)
-
-    if (existingProgressIndex >= 0) {
-      // 更新现有记录
-      processProgress[existingProgressIndex] = {
-        ...processProgress[existingProgressIndex],
-        status: dto.status,
-        actualStartTime: dto.actualStartTime || processProgress[existingProgressIndex].actualStartTime,
-        actualEndTime: dto.actualEndTime || processProgress[existingProgressIndex].actualEndTime,
-      }
-    } else {
-      // 添加新记录
-      const processTask = await ProcessTask.findByPk(dto.processTaskId, {
-        include: [{ association: 'process', attributes: ['processName'] }],
-      })
-
-      if (processTask) {
-        processProgress.push({
-          serialId: productSerial.id,
-          processName: processTask.process.processName,
-          status: dto.status,
-          startTime: processTask.startTime,
-          endTime: processTask.endTime,
-          actualStartTime: dto.actualStartTime,
-          actualEndTime: dto.actualEndTime,
-          sort: processProgress.length + 1,
-        })
-      }
-    }
-
-    // 更新产品序列号 工序进度
-    await productSerial.update({
-      processProgress,
-      currentProcessTaskId: dto.processTaskId,
-    })
-
-    return this.findOne(id)
-  }
 
   /**
    * 根据生产订单任务ID查询产品序列号
