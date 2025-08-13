@@ -112,11 +112,27 @@ export class CProcessRouteDto {
 
   @ApiProperty({
     name: 'materialId',
-    required: true,
+    required: false,
     description: '关联产品（物料ID）',
     type: Number,
   })
-  materialId: number
+  materialId?: number
+
+  @ApiProperty({
+    name: 'groupId',
+    required: false,
+    description: 'Bom分组id',
+    type: String,
+  })
+  groupId?: string
+
+  @ApiProperty({
+    name: 'groupName',
+    required: false,
+    description: 'Bom分组名称',
+    type: String,
+  })
+  groupName?: string
 
   @ApiProperty({
     name: 'remark',
@@ -158,6 +174,22 @@ export class UProcessRouteDto {
     type: Number,
   })
   materialId: number
+
+  @ApiProperty({
+    name: 'groupId',
+    required: false,
+    description: 'Bom分组id',
+    type: String,
+  })
+  groupId?: string
+
+  @ApiProperty({
+    name: 'groupName',
+    required: false,
+    description: 'Bom分组名称',
+    type: String,
+  })
+  groupName?: string
 
   @ApiProperty({
     name: 'remark',

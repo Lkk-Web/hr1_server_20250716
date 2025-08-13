@@ -17,6 +17,7 @@ import { Aide, JsExclKey } from '@library/utils/aide'
 import { User } from '@model/auth/user'
 import { Paging } from '@library/utils/paging'
 import { ProductSerial } from '@model/production/productSerial.model'
+import { ProcessRouteListBomGroup } from '@model/index'
 
 @Injectable()
 export class ProcessRouteService {
@@ -77,8 +78,13 @@ export class ProcessRouteService {
         }
       }
     }
-    console.log(dto.materialId)
-    await Material.update({ processRouteId: result.id }, { where: { id: dto.materialId } })
+    if (dto.materialId) {
+      await Material.update({ processRouteId: result.id }, { where: { id: dto.materialId } })
+    }
+    //工艺路线绑定物料Bom
+    if (dto.groupId) {
+      await ProcessRouteListBomGroup.create({ processRouteId: result.id, groupId: dto.groupId, groupName: dto.groupName })
+    }
     return this.find(result.id, loadModel)
   }
 
@@ -137,6 +143,8 @@ export class ProcessRouteService {
 
       // 绑定新列表中的物料
       await Material.update({ processRouteId: id }, { where: { id: newMaterialIds } })
+      // 绑定Bom分组
+      await ProcessRouteListBomGroup.update({ groupName: dto.groupName, groupId: dto.groupId }, { where: { processRouteId: id } })
     } else {
       // 若未传 materialId 或为空数组，则尝试解绑该路线下的所有物料，但需校验是否存在产品序列单关联
       const boundMaterials = await Material.findAll({
@@ -163,6 +171,7 @@ export class ProcessRouteService {
       }
 
       await Material.update({ processRouteId: null }, { where: { processRouteId: id } })
+      await ProcessRouteListBomGroup.update({ groupName: dto.groupName, groupId: dto.groupId }, { where: { processRouteId: id } })
     }
 
     //删除依赖关系
@@ -218,6 +227,12 @@ export class ProcessRouteService {
     if (relatedMaterial) {
       throw new HttpException('工艺路线绑定物料，无法删除！', 400)
     }
+    // 校验：若有Bom分组关联该工艺路线，则不允许删除
+    const BomGroup = await ProcessRouteListBomGroup.findOne({ where: { processRouteId: id } })
+    if (BomGroup) {
+      throw new HttpException('工艺路线绑定Bom分组，无法删除！', 400)
+    }
+
     //删除依赖关系
     const list = await ProcessRouteList.findAll({ where: { processRouteId: id } })
     for (const processRouteList of list) {
@@ -240,6 +255,12 @@ export class ProcessRouteService {
         {
           association: 'material',
           attributes: ['id', 'code', 'materialName', 'attribute', 'spec', 'unit'],
+        },
+        {
+          association: 'processRouteListBomGroup',
+          attributes: ['groupName', 'groupId'],
+          where: {},
+          required: false,
         },
         {
           association: 'createdUser',
@@ -390,6 +411,12 @@ export class ProcessRouteService {
         {
           association: 'material',
           attributes: ['id', 'code', 'materialName'],
+          where: {},
+          required: false,
+        },
+        {
+          association: 'processRouteListBomGroup',
+          attributes: ['groupName', 'groupId'],
           where: {},
           required: false,
         },

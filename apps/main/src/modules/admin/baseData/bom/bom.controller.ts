@@ -61,6 +61,15 @@ export class BomController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Bom分组列表' })
+  @Get('BomFindPagination')
+  @OpenAuthorize()
+  async BomFindPagination(@CurrentPage() pagination: Pagination) {
+    const result = await this.service.BomFindPagination(pagination)
+    return result
+  }
+
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')
   @OpenAuthorize()

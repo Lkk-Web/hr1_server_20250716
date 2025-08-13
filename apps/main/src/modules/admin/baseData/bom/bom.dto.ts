@@ -1,5 +1,5 @@
-import { IsNotEmpty } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -56,112 +56,112 @@ export class FindPaginationDto {
     type: String,
   })
   unit?: string
+
+  @ApiProperty({
+    name: 'groupName',
+    required: false,
+    description: 'Bom分组名称',
+    type: String,
+  })
+  groupName?: string
 }
 
 export class BomItemDto {
-	@ApiProperty({
-		name: 'sort',
-		required: true,
-		description: '序号',
-		type: Number,
-	})
-	sort: number;
+  @ApiProperty({
+    name: 'sort',
+    required: true,
+    description: '序号',
+    type: Number,
+  })
+  sort: number
 
-	@ApiProperty({
-		name: 'materialId',
-		required: true,
-		description: 'materialId，外键，关联Material表',
-		type: Number,
-	})
-	materialId: number;
+  @ApiProperty({
+    name: 'materialId',
+    required: true,
+    description: 'materialId，外键，关联Material表',
+    type: Number,
+  })
+  materialId: number
 
-	@ApiProperty({
-		name: 'quantity',
-		required: true,
-		description: '数量',
-		type: Number,
-	})
-	quantity: number;
-
+  @ApiProperty({
+    name: 'quantity',
+    required: true,
+    description: '数量',
+    type: Number,
+  })
+  quantity: number
 }
 
 export class CBomDto {
+  @ApiProperty({
+    name: 'code',
+    required: false,
+    description: '编码，忽略时自动生成',
+    type: String,
+  })
+  code?: string
 
-	@ApiProperty({
-		name: 'code',
-		required: false,
-		description: '编码，忽略时自动生成',
-		type: String,
-	})
-	code?: string
+  @ApiProperty({
+    name: 'materialId',
+    required: true,
+    description: '父物料Id，外键，关联物料表',
+    type: Number,
+  })
+  materialId: number
 
-	@ApiProperty({
-		name: 'materialId',
-		required: true,
-		description: '父物料Id，外键，关联物料表',
-		type: Number,
-	})
-	materialId: number;
+  @ApiProperty({
+    name: 'remark',
+    required: false,
+    description: '备注',
+    type: String,
+  })
+  remark?: string
 
-	@ApiProperty({
-		name: 'remark',
-		required: false,
-		description: '备注',
-		type: String,
-	})
-	remark?: string
+  @ApiProperty({
+    name: 'items',
+    required: false,
+    description: '子项数组',
+    type: [BomItemDto],
+  })
+  items?: BomItemDto[]
 
-	@ApiProperty({
-		name: 'items',
-		required: false,
-		description: '子项数组',
-		type: [BomItemDto],
-	})
-	items?: BomItemDto[]
-
-	@ApiProperty({ name: 'formData', required: false, description: '工单表单的数据（JSON格式）', type: String, })
-	formData: string
+  @ApiProperty({ name: 'formData', required: false, description: '工单表单的数据（JSON格式）', type: String })
+  formData: string
 }
 
 export class UBomDto {
+  @ApiProperty({
+    name: 'code',
+    required: false,
+    description: '编码，忽略时自动生成',
+    type: String,
+  })
+  code?: string
 
-	@ApiProperty({
-		name: 'code',
-		required: false,
-		description: '编码，忽略时自动生成',
-		type: String,
-	})
-	code?: string
+  @ApiProperty({
+    name: 'materialId',
+    required: false,
+    description: '父物料Id，外键，关联物料表',
+    type: Number,
+  })
+  materialId: number
 
-	@ApiProperty({
-		name: 'materialId',
-		required: false,
-		description: '父物料Id，外键，关联物料表',
-		type: Number,
-	})
-	materialId: number;
+  @ApiProperty({
+    name: 'remark',
+    required: false,
+    description: '备注',
+    type: String,
+  })
+  remark?: string
 
-	@ApiProperty({
-		name: 'remark',
-		required: false,
-		description: '备注',
-		type: String,
-	})
-	remark?: string
+  @ApiProperty({
+    name: 'items',
+    required: false,
+    description: '子项数组',
+    type: [BomItemDto],
+  })
+  items?: BomItemDto[]
 
-	@ApiProperty({
-		name: 'items',
-		required: false,
-		description: '子项数组',
-		type: [BomItemDto],
-	})
-	items?: BomItemDto[]
-
-	@ApiProperty({ name: 'formData', required: false, description: '工单表单的数据（JSON格式）', type: String, })
-	formData: string
+  @ApiProperty({ name: 'formData', required: false, description: '工单表单的数据（JSON格式）', type: String })
+  formData: string
 }
-
-
-
-
-

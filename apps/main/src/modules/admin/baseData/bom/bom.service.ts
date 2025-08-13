@@ -174,6 +174,12 @@ export class BomService {
       }
     }
 
+    if (dto.groupName) {
+      options.where['groupName'] = {
+        [Op.eq]: dto.groupName,
+      }
+    }
+
     if (dto.name) {
       options.include[0].where['name'] = {
         [Op.like]: `%${dto.name}%`,
@@ -212,6 +218,16 @@ export class BomService {
     // )
     // // @ts-ignore
     // result.data = res
+    return result
+  }
+  public async BomFindPagination(pagination: Pagination) {
+    const options: FindPaginationOptions = {
+      attributes: ['group', 'groupName'],
+      group: ['group', 'groupName'],
+      pagination,
+      order: [['group', 'ASC']],
+    }
+    const result = await Paging.diyPaging(BOM, pagination, options)
     return result
   }
 
