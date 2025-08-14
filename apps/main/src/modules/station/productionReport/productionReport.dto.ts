@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNumber, Min, ValidateNested, IsOptional } from 'class-validator'
+import { IsNumber, Min, ValidateNested, IsOptional, isEnum, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsArrayLength } from '@library/utils/custom'
+import { TaskStatus } from '@common/enum'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -73,6 +74,25 @@ export class FindPaginationDto {
   auditStatus: string
 }
 
+export class FindPaginationReportTaskListDto {
+  @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
+  current?: string
+
+  @ApiProperty({ name: 'pageSize', type: String, required: false, description: 'pageSize' })
+  pageSize?: string
+
+  @ApiProperty({
+    description: '父工序id',
+    required: false,
+  })
+  processId: number
+
+  @ApiProperty({
+    description: '工位工序id',
+    required: false,
+  })
+  positioProcessId: number
+}
 export class ItemsDto {
   @ApiProperty({ type: Number, required: false, description: '不良品项ID' })
   defectiveItemId: number
@@ -295,39 +315,74 @@ export class auditDto {
   ids?: number[]
 }
 
-export class PadRegisterUserDto {
-  @ApiProperty({ description: '工人id', type: Number })
-  @IsNumber({}, { message: '工人id必须为数字' })
-  userId: number
+export class PadProcessDto {
+  @ApiProperty({ description: '序列号id', type: Number, required: true })
+  @IsNumber({}, { message: '序列号id必须为数字' })
+  serialId: number
+
+  @ApiProperty({ description: '报工数量，数量应都为1', type: Number })
+  @IsNumber({}, { message: '报工数量必须为数字' })
+  @Min(1, { message: '报工数量必须大于0' })
+  reportQuantity: number
 
   @ApiProperty({ description: '所用时长 单位/s', type: Number })
   @IsNumber({}, { message: '所用时长必须为数字' })
   duration: number
+
+  @ApiProperty({
+    description: '铁芯序列号',
+    required: false,
+    type: String,
+  })
+  ironSerial?: string
 }
 
-export class PadProcessDto {
-  @ApiProperty({ description: '工位任务单id', type: Number, required: true })
+export class ProductionOrderTaskDto {
+  @ApiProperty({ description: '工单id', type: Number, required: true })
   @IsNumber({}, { message: '工位任务单id必须为数字' })
-  processPositionTaskId: number
+  productionOrderTaskId: number
 
-  @ApiProperty({ description: '报工数量', type: Number })
-  @IsNumber({}, { message: '报工数量必须为数字' })
-  @Min(1, { message: '报工数量必须大于0' })
-  reportQuantity: number
-}
-
-export class PadRegisterDto {
-  @ApiProperty({ description: '工序配置数组', type: [PadProcessDto] })
+  @ApiProperty({ description: '工位任务单配置', type: [PadProcessDto] })
   @Type(() => PadProcessDto)
   @ValidateNested({ each: true })
   @IsArrayLength({ min: 1 }, { message: '工序配置必须是数组且长度大于0' })
-  process: PadProcessDto[]
+  positions: PadProcessDto[]
+}
 
-  @ApiProperty({ description: '做工人配置', type: [PadRegisterUserDto] })
-  @Type(() => PadRegisterUserDto)
+export class PadRegisterDto {
+  @ApiProperty({ description: '工单配置', type: [ProductionOrderTaskDto] })
+  @Type(() => ProductionOrderTaskDto)
   @ValidateNested({ each: true })
-  @IsArrayLength({ min: 1 }, { message: '做工人配置必须是数组且长度大于0' })
-  config: PadRegisterUserDto[]
+  @IsArrayLength({ min: 1 }, { message: '工单配置必须是数组且长度大于0' })
+  productionOrderTask: ProductionOrderTaskDto[]
+
+  // @ApiProperty({ description: '所用时长 单位/s', type: Number })
+  // @IsNumber({}, { message: '所用时长必须为数字' })
+  // duration: number
+
+  @ApiProperty({
+    description: '工序id',
+    required: true,
+  })
+  processId: number
+
+  @ApiProperty({
+    description: '班组id',
+    required: true,
+  })
+  teamId: number
+}
+
+export class OpenTaskDto {
+  @ApiProperty({ description: '工单配置', type: [ProductionOrderTaskDto] })
+  @Type(() => ProductionOrderTaskDto)
+  @ValidateNested({ each: true })
+  @IsArrayLength({ min: 1 }, { message: '工单配置必须是数组且长度大于0' })
+  productionOrderTask: ProductionOrderTaskDto[]
+
+  // @ApiProperty({ description: '所用时长 单位/s', type: Number })
+  // @IsNumber({}, { message: '所用时长必须为数字' })
+  // duration: number
 
   @ApiProperty({
     description: '工序id',
@@ -341,11 +396,9 @@ export class PadRegisterDto {
   })
   teamId: number
 
-  @ApiProperty({
-    description: '铁芯序列号',
-    required: false,
-  })
-  ironSerial: string
+  @ApiProperty({ description: '状态: 开工/暂停', required: true, enum: TaskStatus })
+  @IsEnum(TaskStatus)
+  status: string
 }
 
 export class PickingOutboundDto {

@@ -119,3 +119,8 @@ export enum AuditStatus {
   APPROVED = '已通过',
   REJECTED = '已驳回',
 }
+
+export enum TaskStatus {
+  OPEN_TASK = '开工',
+  PAUSE = '暂停',
+}
