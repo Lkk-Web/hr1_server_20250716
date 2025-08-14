@@ -37,6 +37,7 @@ export enum POSITION_TASK_STATUS {
   IN_PROGRESS = '执行中',
   PAUSED = '已暂停',
   COMPLETED = '已完成',
+  All = '全部',
 }
 
 export enum NOTIFY_SCENE {

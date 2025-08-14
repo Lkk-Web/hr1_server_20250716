@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsNumber, Min, ValidateNested, IsOptional, isEnum, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsArrayLength } from '@library/utils/custom'
-import { TaskStatus } from '@common/enum'
+import { POSITION_TASK_STATUS, TaskStatus } from '@common/enum'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -92,6 +92,13 @@ export class FindPaginationReportTaskListDto {
     required: false,
   })
   positioProcessId: number
+
+  @ApiProperty({
+    description: '工序状态',
+    required: false,
+  })
+  @IsEnum(POSITION_TASK_STATUS)
+  status: string
 }
 export class ItemsDto {
   @ApiProperty({ type: Number, required: false, description: '不良品项ID' })

@@ -1161,7 +1161,16 @@ export class ProductionReportService {
 
     if (dto.positioProcessId) {
       processPositionTaskWhere['processId'] = dto.positioProcessId
-      processPositionTaskWhere['status'] = POSITION_TASK_STATUS.NOT_STARTED
+    }
+
+    if (dto.status) {
+      processPositionTaskWhere['status'] = dto.status
+    }
+
+    if (dto.status == POSITION_TASK_STATUS.All || !dto.status) {
+      processPositionTaskWhere['status'] = {
+        [Op.notIn]: [POSITION_TASK_STATUS.TO_ASSIGN, POSITION_TASK_STATUS.TO_AUDIT],
+      }
     }
 
     const result = await Paging.diyPaging(ProductionOrderTask, pagination, options)
