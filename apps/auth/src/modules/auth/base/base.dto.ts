@@ -4,10 +4,10 @@ import { PLATFORM, request_Method } from '@common/enum'
 
 export class UserLoginDto {
   @IsNotEmpty({ message: '用户名不能为空' })
-  @ApiProperty({ name: 'userName', required: true, description: '用户名(手机号)', type: String })
+  @ApiProperty({ name: 'userName', required: true, description: '用户名(手机号)', type: String, default: '开发01' })
   userName: string
 
-  @ApiProperty({ name: 'password', required: true, description: '密码', type: String })
+  @ApiProperty({ name: 'password', required: true, description: '密码', type: String, default: 'string' })
   @IsNotEmpty({ message: '密码不能为空' })
   password: string
 
