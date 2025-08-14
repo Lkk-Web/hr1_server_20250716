@@ -43,29 +43,44 @@ export class ProductionReportTwoService {
       const process = await Process.findOne({ where: { id: dto.processId } })
       for (const processDto of dto.productionOrderTask) {
         // 工单任务
-        await ProductionOrderTask.update({ actualStartTime: new Date() }, { where: { id: processDto.productionOrderTaskId } }) // 工单
+        await ProductionOrderTask.update({ actualStartTime: new Date() }, { where: { id: processDto.productionOrderTaskId }, transaction }) // 工单
         for (const item of processDto.positions) {
           // 工序任务
           const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
-          await processTask.update({ status: taskStatus == TaskStatus.OPEN_TASK ? PROCESS_TASK_STATUS.running : PROCESS_TASK_STATUS.pause })
+          await processTask.update(
+            {
+              status: taskStatus == TaskStatus.OPEN_TASK ? PROCESS_TASK_STATUS.running : PROCESS_TASK_STATUS.pause,
+              actualStartTime: processTask.actualStartTime && new Date(),
+            },
+            { transaction }
+          )
           // 工位任务
-          const processPositionTask = await ProcessPositionTask.findOne({ where: { serialId: item.serialId, processId: dto.processId } })
-          await processPositionTask.update({
-            status: taskStatus == TaskStatus.OPEN_TASK ? POSITION_TASK_STATUS.IN_PROGRESS : POSITION_TASK_STATUS.PAUSED,
-            actualStartTime: processPositionTask.actualStartTime && new Date(),
-          })
+          const processPositionTask = await ProcessPositionTask.findOne({ where: { serialId: item.serialId, processId: dto.processId }, include: [{ association: 'operateLogs' }] })
+          if (processPositionTask.status == POSITION_TASK_STATUS.IN_PROGRESS && taskStatus == TaskStatus.OPEN_TASK) throw new Error('当前工位任务正在进行中，不能重新开工')
+          if (processPositionTask.status == POSITION_TASK_STATUS.PAUSED && taskStatus == TaskStatus.PAUSE) throw new Error('当前工位任务已暂停，不能暂停')
+          await processPositionTask.update(
+            {
+              status: taskStatus == TaskStatus.OPEN_TASK ? POSITION_TASK_STATUS.IN_PROGRESS : POSITION_TASK_STATUS.PAUSED,
+              actualStartTime: processPositionTask.dataValues.actualStartTime ?? new Date(),
+            },
+            { transaction }
+          )
           taskList.push(processPositionTask)
-          // 系列号
+          // 序列号
           await ProductSerial.update(
             { status: taskStatus == TaskStatus.OPEN_TASK ? ProductSerialStatus.IN_PROGRESS : ProductSerialStatus.PAUSED, currentProcessTaskId: processTask.dataValues.id },
             { where: { id: item.serialId } }
           )
           // 日志
-          await ProcessTaskLog.create({
-            processTaskID: processTask.id,
-            processPositionTaskId: processPositionTask.dataValues.id,
-            ...(taskStatus == TaskStatus.OPEN_TASK ? { resumeTime: new Date() } : { pauseTime: new Date() }),
-          })
+          const logs = await ProcessTaskLog.create(
+            {
+              processTaskID: processTask.id,
+              processPositionTaskId: processPositionTask.dataValues.id,
+              ...(taskStatus == TaskStatus.OPEN_TASK ? { resumeTime: new Date() } : { pauseTime: new Date() }),
+            },
+            { transaction }
+          )
+          taskList[taskList.length - 1]['operateLogs'].push(logs)
         }
       }
       // 创建用户时长和任务单用户关系
@@ -82,119 +97,89 @@ export class ProductionReportTwoService {
     }
   }
 
-  // public async reportTask(dto: PadRegisterDto, user) {
-  //   const transaction = await ProcessTask.sequelize.transaction()
+  // 报工
+  public async reportTask(dto: PadRegisterDto, user) {
+    const transaction = await ProcessTask.sequelize.transaction()
+    let taskList: ProcessPositionTask[] = []
+    try {
+      // 1. 创建报工单
+      const productionReport = await ProductionReport.create({ processId: dto.processId, productUserId: user.id, teamId: dto.teamId }, { transaction })
+      // 2. 处理报工产生的关联及工序的推进
+      // 2.1 处理工单
+      for (const processDto of dto.productionOrderTask) {
+        await ProductionOrderTaskOfReport.create({ productionOrderTaskId: processDto.productionOrderTaskId, reportId: productionReport.id }, { transaction })
+        const process = await Process.findOne({ where: { id: dto.processId } })
+        // 2.2 处理工序（工位）
+        for (const item of processDto.positions) {
+          // 工序任务
+          const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
+          if (process.isQC) {
+            await processTask.update({
+              goodCount: item.QCResult ? 1 : 0,
+              reportQuantity: item.QCResult ? 1 : 0,
+            }, { transaction })
+          }
+          // 工位任务
+          const processPositionTask = await ProcessPositionTask.findOne({ where: { serialId: item.serialId, processId: dto.processId } })
+          await processPositionTask.update({
+            status: POSITION_TASK_STATUS.COMPLETED,
+            actualEndTime: new Date(),
+          }, { transaction })
+          await ProductionReportDetail.create({ productionReportId: productionReport.id, processPositionTaskId: processPositionTask.id, reportQuantity: 1 }, { transaction })
+          taskList.push(processPositionTask)
 
-  //   try {
-  //     // 1. 创建报工单
-  //     const productionReport = await ProductionReport.create(
-  //       {
-  //         processId: dto.processId,
-  //         productUserId: user.id,
-  //         teamId: dto.teamId,
-  //       },
-  //       { transaction }
-  //     )
-  //     // 2. 处理报工产生的关联及工序的推进
-  //     // 2.1 处理工序
-  //     for (const processDto of dto.productionOrderTask) {
-  //       await ProductionOrderTaskOfReport.create({ productionOrderTaskId: processDto.productionOrderTaskId, reportId: productionReport.id }, { transaction })
+          // 日志
+          if (processPositionTask.status != POSITION_TASK_STATUS.IN_PROGRESS) throw new Error('当前工位不在执行中，无法报工')
+          const logs = await ProcessTaskLog.create(
+            {
+              processTaskID: processTask.id,
+              processPositionTaskId: processPositionTask.dataValues.id,
+              pauseTime: new Date(),
+            },
+            { transaction }
+          )
+          taskList[taskList.length - 1]['operateLogs'].push(logs)
 
-  //       // 2.2 处理子工序（工位）
-  //       for (const item of processDto.positions) {
-  //         const processPositionTask = await ProcessPositionTask.findOne({ where: { serialId: item.serialId } })
-  //         await ProductionReportDetail.create({ productionReportId: productionReport.id, processPositionTaskId: processPositionTask.id, reportQuantity: 1 }, { transaction })
+          // 处理下一道工位
+          const nextProcessTask = await ProcessTask.findOne({
+            where: { serialId: processTask.serialId, id: processTask.id + 1 },
+            order: [['id', 'ASC']],
+            include: [{ association: 'process', attributes: ['id', 'processName'] }],
+            transaction,
+          })
 
-  //         await processPositionTask.update({ goodCount: item.reportQuantity, status: POSITION_TASK_STATUS.IN_PROGRESS })
-  //         //   const isPositionTaskEnd = processDto.reportQuantity + positionTask.goodCount + positionTask.badCount >= positionTask.planCount
-  //         await ProcessPositionTask.update(
-  //           {
-  //             status: isPositionTaskEnd ? POSITION_TASK_STATUS.COMPLETED : POSITION_TASK_STATUS.TO_ASSIGN,
-  //           },
-  //           { where: { id: processDto.processPositionTaskId }, transaction }
-  //         )
+          if (nextProcessTask) {
+            if (nextProcessTask.status == PROCESS_TASK_STATUS.notStart) {
+              await nextProcessTask.update({ status: PROCESS_TASK_STATUS.running }, { transaction })
+            }
+          } else {
+            // 没有下一道工位
+            await processTask.update({ status: PROCESS_TASK_STATUS.finish, actualEndTime: new Date() }, { transaction })
 
-  //         await ProductSerial.update(
-  //           { status: ProductSerialStatus.IN_PROGRESS, currentProcessTaskId: dto.processId },
-  //           { where: { status: ProductSerialStatus.NOT_STARTED, productionOrderTaskId: processDto.productionOrderTaskId } }
-  //         )
-  //       }
+            // 生产汇报单
+            // await this.produceStore(
+            //   {
+            //     serialId: task.serialId,
+            //     goodCount: deltaGood,
+            //     badCount: 0,
+            //     taskId: task.id,
+            //   },
+            //   transaction
+            // )
+          }
+        }
+      }
+      // 3. 创建用户时长和报工关系、工时
+      await this.createReportUserDuration(user, taskList, productionReport.id)
 
-  //       await ProductionOrderTask.update({ actualStartTime: new Date() }, { where: { id: processDto.productionOrderTaskId } })
-  //       //如果为质检，判断 ProcessTask 工序 是否为良品
+      await transaction.commit()
 
-  //       // // 处理报工
-  //       // for (let i = 0; i < dto.process.length; i++) {
-  //       //   // 更新工位任务单状态与数量
-  //       //   // 更新工序任务单 - 按比例累计
-  //       //   const currentReportQuantity = Math.floor(processDto.reportQuantity * (positionTask.reportRatio || 1))
-  //       //   const prevGood = task.goodCount || 0
-  //       //   const prevReportQty = task.reportQuantity || 0
-  //       //   const deltaGood = task.isInspection ? 0 : currentReportQuantity
-  //       //   const newGood = prevGood + deltaGood
-  //       //   const newReportQty = prevReportQty + currentReportQuantity
-  //       //   const isTaskEnd = newReportQty >= task.planCount
-
-  //       //   await ProcessTask.update(
-  //       //     {
-  //       //       goodCount: newGood,
-  //       //       reportQuantity: newReportQty,
-  //       //       actualStartTime: task.actualStartTime || formattedDate,
-  //       //       ...(isTaskEnd ? { status: PROCESS_TASK_STATUS.finish, actualEndTime: formattedDate } : {}),
-  //       //     },
-  //       //     { where: { id: positionTask.processTaskId }, transaction }
-  //       //   )
-
-  //       // 处理下一道工序接收数
-  //       //   const nextPop = await ProcessTask.findOne({
-  //       //     where: { serialId: task.serialId, id: task.id + 1 },
-  //       //     order: [['id', 'ASC']],
-  //       //     include: [{ association: 'process', attributes: ['id', 'processName'] }],
-  //       //     transaction,
-  //       //   })
-
-  //       //   if (nextPop) {
-  //       //     if (nextPop.status == PROCESS_TASK_STATUS.notStart) {
-  //       //       await nextPop.update({ status: PROCESS_TASK_STATUS.running }, { transaction })
-  //       //     }
-  //       //     if (!task.isInspection && nextPop.id) {
-  //       //       await ProcessTask.update({ receptionCount: newGood }, { where: { id: nextPop.id }, transaction })
-  //       //     }
-  //       //   }
-
-  //       //   // 处理订单完成状态（最后一道工序时触发汇报），按比例的 deltaGood
-  //       //   const allPops = await ProcessTask.findAll({ where: { serialId: task.serialId }, order: [['id', 'ASC']], transaction })
-  //       //   if (!task.isInspection && allPops[allPops.length - 1].processId === dto.processId) {
-  //       //     if (!task.isInspection) {
-  //       //       await this.produceStore(
-  //       //         {
-  //       //           serialId: task.serialId,
-  //       //           goodCount: deltaGood,
-  //       //           badCount: 0,
-  //       //           taskId: task.id,
-  //       //         },
-  //       //         transaction
-  //       //       )
-  //       //     }
-  //       //   }
-  //       // }
-
-  //       // 创建用户时长和报告用户关系
-  //       await this.createReportUserDuration(dto.config, tasksList, productionReports)
-
-  //       await transaction.commit()
-
-  //       return productionReport
-  //     }
-
-  //     // 3. 处理工时
-  //   } catch (error) {
-  //     await transaction.rollback()
-  //     throw error
-  //   }
-  // }
-
-  // private handleProcess(processId,)
+      return productionReport
+    } catch (error) {
+      await transaction.rollback()
+      throw error
+    }
+  }
 
   private async handleInspection(task: ProcessTask, result: ProductionReport, date) {
     const year = date.getFullYear().toString().substring(2)
@@ -300,18 +285,27 @@ export class ProductionReportTwoService {
   }
 
   //创建用户时长和报告用户关系
-  private async createReportUserDuration(user, tasks: ProcessPositionTask[], productionReports?: ProductionReport[]) {
+  private async createReportUserDuration(user, tasks: ProcessPositionTask[], productionReportId?: number) {
     //实际总时长
     // const actualTotalDuration = userDurations.reduce((total, userDuration) => total + userDuration.duration, 0);
-    const reportUsers: Partial<UserTaskDuration>[] = []
-    //预估总时长
-    const totalDuration = tasks.reduce((total, task) => total + this.calculateTotalDuration(task), 0)
 
     tasks.forEach(async task => {
       const taskDuration = this.calculateTotalDuration(task)
-      const percentage = taskDuration / totalDuration
+      const days = moment.duration(taskDuration).days().toString().padStart(2, '0')
+      console.log(4444444, task.id, `${days}天`, moment.utc(taskDuration).format('HH:mm:ss'))
 
-      await UserTaskDuration.create({ userId: user.id, processPositionTaskId: task.id })
+      const userTaskDuration = await UserTaskDuration.findOne({
+        where: {
+          userId: user.id,
+          processPositionTaskId: task.id,
+        },
+      })
+
+      if (userTaskDuration) {
+        await userTaskDuration.update({ duration: taskDuration, ...(productionReportId && { productionReportId }) })
+      } else {
+        await UserTaskDuration.create({ userId: user.id, processPositionTaskId: task.id, duration: taskDuration })
+      }
 
       // if (productionReports) {
       //   // 查找与当前工序任务关联的所有生产报告
@@ -322,7 +316,6 @@ export class ProductionReportTwoService {
       //         reportUsers.push({
       //           productionReportId: productionReport.id,
       //           userId: user.id,
-      //           duration: Math.floor(tasks.duration * percentage), // 按比例分配时长
       //         })
       //     })
       //   }
@@ -330,9 +323,18 @@ export class ProductionReportTwoService {
       //   await UserTaskDuration.bulkCreate(reportUsers)
       // }
     })
-    console.log(reportUsers)
 
-    await UserDuration.create({ userId: user.id, duration: totalDuration })
+    // 报工
+    if (productionReportId) {
+      const userTaskDuration = await UserTaskDuration.findAll({ where: { productionReportId } })
+      const totalDuration = userTaskDuration.reduce((total, task) => total + task.duration, 0)
+      const userDuration = await UserDuration.findOne({ where: { userId: user.id } })
+      if (!userDuration) {
+        await UserDuration.create({ userId: user.id, duration: totalDuration })
+      } else {
+        await userDuration.update({ duration: totalDuration })
+      }
+    }
   }
 
   //创建生产汇报单
@@ -559,27 +561,28 @@ export class ProductionReportTwoService {
 
   // 将时间字符串转换为 Date 对象
   public calculateTotalDuration(task: ProcessPositionTask) {
-    const startTime = new Date(task.actualStartTime)
     const endTime = new Date(task.actualEndTime || new Date())
 
-    // 计算总时间差（毫秒）
-    let totalDuration = endTime.valueOf() - startTime.valueOf()
+    // 计算总时间差（毫秒）--- 开始到现在
+    let totalDuration = endTime.getTime()
 
-    // 遍历暂停时间，扣除已恢复的暂停时间
+    // 遍历暂停时间，扣除暂停时间
     if (task.operateLogs) {
-      task.operateLogs.forEach(pause => {
-        const pauseTime = new Date(pause.pauseTime)
-        const resumeTime = pause.resumeTime ? new Date(pause.resumeTime) : null
-
+      let resumeTime
+      let pauseTime
+      task.operateLogs.forEach((time, i) => {
+        resumeTime = time.resumeTime ? new Date(time.resumeTime) : 0
+        pauseTime = time.pauseTime ? new Date(time.pauseTime) : 0
         if (resumeTime) {
-          // 如果已恢复，扣除暂停时间
-          totalDuration -= resumeTime.valueOf() - pauseTime.valueOf()
-        } else {
-          // 如果未恢复，扣除从暂停时间到任务结束的时间
-          totalDuration -= endTime.valueOf() - pauseTime.valueOf()
+          totalDuration -= resumeTime.getTime()
+        }
+        // 最后如果为暂停则不加
+        if (pauseTime && i != task.operateLogs.length - 1) {
+          totalDuration += pauseTime.getTime()
         }
       })
     }
-    return totalDuration / 1000
+
+    return totalDuration
   }
 }

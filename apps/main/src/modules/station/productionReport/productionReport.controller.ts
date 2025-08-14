@@ -64,15 +64,6 @@ export class ProductionReportController {
     return result
   }
 
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '报工单列表' })
-  @Get('findPagination')
-  async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.findPagination(dto, pagination, loadModel)
-    return result
-  }
-
   //   @ApiOperation({ summary: '批量报工' })
   // @HttpCode(HttpStatus.OK)
   // @Post('batch')
@@ -97,8 +88,17 @@ export class ProductionReportController {
   @HttpCode(HttpStatus.OK)
   @Post('reportTask')
   async batch(@Body() dto: PadRegisterDto, @Req() req) {
-    // const result = await this.serviceTwo.reportTask(dto, req.user)
-    // return result
+    const result = await this.serviceTwo.reportTask(dto, req.user)
+    return result
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '报工单列表' })
+  @Get('findPagination')
+  async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
+    let { factoryCode, loadModel } = req
+    const result = await this.service.findPagination(dto, pagination, loadModel)
+    return result
   }
 
   @ApiOperation({ summary: '测试' })

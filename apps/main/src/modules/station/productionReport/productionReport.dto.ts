@@ -332,9 +332,8 @@ export class PadProcessDto {
   @Min(1, { message: '报工数量必须大于0' })
   reportQuantity: number
 
-  @ApiProperty({ description: '所用时长 单位/s', type: Number })
-  @IsNumber({}, { message: '所用时长必须为数字' })
-  duration: number
+  @ApiProperty({ description: '所用时长 单位/s', type: Number, required: false })
+  duration?: number
 
   @ApiProperty({
     description: '铁芯序列号',
@@ -342,6 +341,13 @@ export class PadProcessDto {
     type: String,
   })
   ironSerial?: string
+
+  @ApiProperty({
+    description: '质检结果',
+    required: false,
+    type: Boolean,
+  })
+  QCResult?: boolean
 }
 
 export class ProductionOrderTaskDto {
@@ -387,21 +393,11 @@ export class OpenTaskDto {
   @IsArrayLength({ min: 1 }, { message: '工单配置必须是数组且长度大于0' })
   productionOrderTask: ProductionOrderTaskDto[]
 
-  // @ApiProperty({ description: '所用时长 单位/s', type: Number })
-  // @IsNumber({}, { message: '所用时长必须为数字' })
-  // duration: number
-
   @ApiProperty({
     description: '工序id',
     required: true,
   })
   processId: number
-
-  @ApiProperty({
-    description: '班组id',
-    required: true,
-  })
-  teamId: number
 
   @ApiProperty({ description: '状态: 开工/暂停', required: true, enum: TaskStatus })
   @IsEnum(TaskStatus)
