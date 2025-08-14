@@ -45,6 +45,10 @@ export enum NOTIFY_SCENE {
   PAD_M_A = 'PAD物料申请',
 }
 
+export enum DICT_TYPE {
+  quality = '质检',
+}
+
 export enum PERFORMANCE_CONFIG_UNIT {
   hour = '小时',
   square = '平方',

@@ -17,6 +17,7 @@ export * from './inspectionForm/inspectionForm.module'
 //系统管理
 export * from './user/user.module'
 export * from './apiDict/apiDict.module'
+export * from './Dict/Dict.module'
 
 //文件管理
 export * from './file/FileList.module'
