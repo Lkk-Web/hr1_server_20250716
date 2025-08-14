@@ -1,14 +1,14 @@
-import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
+import { BelongsTo, BelongsToMany, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Process } from '@model/process/process.model'
 import { User } from '@model/auth/user'
 import { PRI } from '@model/production/PRI.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
-import { ProcessTask } from '@model/production/processTask.model'
-import { PROCESS_TASK_STATUS } from '@common/enum'
 import { Team } from '@model/auth/team'
-import { ReportUser } from '@model/production/reportUser.model'
-import { ProcessPositionTask } from './processPositionTask.model'
+import { UserTaskDuration } from '@model/production/userTaskDuration.model'
+import { ProductionOrderTask } from './productionOrderTask.model'
+import { ProductionReportDetail } from './productionReportDetail.model'
+import { ProductionOrderTaskOfReport } from './productionOrderTaskOfReport'
 
 @Table({ tableName: `production_report`, timestamps: true, comment: '生产报工表 - 序列号 - 工序' })
 export class ProductionReport extends BaseDate<ProductionReport> {
@@ -20,28 +20,6 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   })
   declare processId: number
 
-  @ForeignKey(() => ProcessPositionTask)
-  @Column({
-    comment: '工位任务单ID',
-    type: DataType.INTEGER,
-    allowNull: true, // 修改为允许为空
-  })
-  declare processPositionTaskId: number
-
-  @Column({
-    comment: '铁芯序列号',
-    type: DataType.STRING(255),
-  })
-  declare ironSerial: string
-
-  @Column({
-    comment: '工序状态（未开始，执行中,已结束）',
-    type: DataType.STRING(10),
-    allowNull: true,
-    defaultValue: '未开始',
-  })
-  declare processStatus: PROCESS_TASK_STATUS | string
-
   @ForeignKey(() => User)
   @Column({
     comment: '生产人员',
@@ -51,67 +29,32 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   declare productUserId: number
 
   @Column({
-    comment: '开始时间',
-    type: DataType.DATE,
-    allowNull: false,
-  })
-  declare startTime: Date
-
-  @Column({
-    comment: '结束时间',
-    type: DataType.DATE,
-    allowNull: false,
-  })
-  declare endTime: Date
-
-  @Column({
-    comment: '报工时长（小时）',
+    comment: '总报工时长（小时）',
     type: DataType.INTEGER,
     allowNull: true,
   })
-  declare reportDurationHours: number
+  declare allReportDurationHours: number
 
   @Column({
-    comment: '报工时长（分钟）',
+    comment: '总报工时长（分钟）',
     type: DataType.INTEGER,
     allowNull: true,
   })
-  declare reportDurationMinutes: number
-
-  @Column({
-    comment: '报工数量',
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  declare reportQuantity: number
-
-  @Column({
-    comment: '单位',
-    type: DataType.STRING(10),
-    allowNull: true,
-  })
-  declare unit: string
+  declare allReportDurationMinutes: number
 
   @Column({
     comment: '良品数',
     type: DataType.INTEGER,
     allowNull: true,
   })
-  declare goodCount: number
+  declare allGoodCount: number
 
   @Column({
     comment: '不良品数',
     type: DataType.INTEGER,
     allowNull: true,
   })
-  declare badCount: number
-
-  @Column({
-    comment: '工序进度',
-    type: DataType.STRING(10),
-    allowNull: true,
-  })
-  declare processProgress: string
+  declare allBadCount: number
 
   @Column({
     comment: '达标率',
@@ -129,30 +72,14 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   })
   declare accountingType: string
 
-  @Column({
-    comment: '良品单价（分）',
-    type: DataType.INTEGER,
-    allowNull: true,
-    defaultValue: 0,
-  })
-  declare goodCountPrice: number
-
-  @Column({
-    comment: '不良品单价（分）',
-    type: DataType.INTEGER,
-    allowNull: true,
-    defaultValue: 0,
-  })
-  declare badCountPrice: number
-
   // 预计工资
   @Column({
-    comment: '预计工资',
+    comment: '总预计工资',
     type: DataType.INTEGER,
     allowNull: true,
     defaultValue: 0,
   })
-  declare estimatedWage: number
+  declare allEstimatedWage: number
 
   @Column({
     comment: '标准工时（秒）',
@@ -184,10 +111,10 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   declare type: string
 
   @Column({
-    comment: '审核状态（未审核，已审核）',
-    type: DataType.STRING,
+    comment: '审核状态（待审核，已通过，已驳回）',
+    type: DataType.ENUM('待审核', '已通过', '已驳回'),
     allowNull: true,
-    defaultValue: '未审核',
+    defaultValue: '待审核',
   })
   declare auditStatus: string
 
@@ -205,14 +132,6 @@ export class ProductionReport extends BaseDate<ProductionReport> {
     allowNull: true,
   })
   declare auditedAt?: Date
-
-  @ForeignKey(() => User)
-  @Column({
-    comment: '创建人',
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
-  declare createdUserId: number
 
   @ForeignKey(() => User)
   @Column({
@@ -239,17 +158,11 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   @BelongsTo(() => Process)
   process: Process
 
-  @BelongsTo(() => ProcessPositionTask, 'processPositionTaskId')
-  processPositionTask: ProcessPositionTask
-
   @BelongsTo(() => User, 'productUserId')
   productUser: User
 
   @BelongsTo(() => User, 'auditorId')
   auditor: User
-
-  @BelongsTo(() => User, 'createdUserId')
-  createdUser: User
 
   @BelongsTo(() => User, 'updatedUserId')
   updatedUser: User
@@ -260,8 +173,14 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   @HasMany(() => PRI)
   pri: PRI[]
 
-  @HasMany(() => ReportUser)
-  declare reportUsers: ReportUser[]
+  @HasMany(() => UserTaskDuration)
+  declare reportUsers: UserTaskDuration[]
+
+  @BelongsToMany(() => ProductionOrderTask, () => ProductionOrderTaskOfReport)
+  declare productionOrderTask: ProductionOrderTask[]
+
+  @HasMany(() => ProductionReportDetail)
+  declare productionReportDetails: ProductionReportDetail[]
 
   declare performanceConfig: PerformanceConfig
   declare durationUsers: { duration: number; user: User }[]

@@ -3,7 +3,7 @@ import { ProcessTask } from './processTask.model'
 import { BaseModel } from '@model/shared/base.model'
 import { ProcessPositionTask } from './processPositionTask.model'
 
-@Table({ tableName: `process_task_log`, timestamps: false, freezeTableName: true, comment: '工序任务单日志' })
+@Table({ tableName: `process_task_log`, timestamps: false, freezeTableName: true, comment: '工序/工位任务单日志' })
 export class ProcessTaskLog extends BaseModel<ProcessTaskLog> {
   @ForeignKey(() => ProcessTask)
   @Column({
@@ -24,13 +24,14 @@ export class ProcessTaskLog extends BaseModel<ProcessTaskLog> {
   @Column({
     comment: '暂停的时间',
     type: DataType.DATE,
-    allowNull: false,
+    allowNull: true,
   })
   declare pauseTime: number | Date
 
   @Column({
     comment: '恢复的时间',
     type: DataType.DATE,
+    allowNull: true,
   })
   declare resumeTime: number | Date
 }

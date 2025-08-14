@@ -9,6 +9,7 @@ import { ProductionReport } from './productionReport.model'
 import { ProductSerial } from './productSerial.model'
 import { ProductionOrderTask } from './productionOrderTask.model'
 import { ProcessLocateItem } from './processLocateItem.model'
+import { ProductionReportDetail } from './productionReportDetail.model'
 
 //工位任务单
 @Table({ tableName: `process_position_task`, timestamps: true, freezeTableName: true, comment: '工位任务单' })
@@ -98,6 +99,22 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
   })
   declare unit: string
 
+  // 实际开始时间
+  @Column({
+    comment: '实际开始时间',
+    type: DataType.DATE,
+    allowNull: true, // 可选项
+  })
+  declare actualStartTime: Date
+
+  // 实际结束时间
+  @Column({
+    comment: '实际结束时间',
+    type: DataType.DATE,
+    allowNull: true, // 可选项
+  })
+  declare actualEndTime: Date
+
   // 任务状态
   @Column({
     comment: '任务状态 (待派工, 待审核, 未开始, 执行中, 已暂停, 已完成)',
@@ -123,8 +140,8 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
   })
   declare isInspection: boolean
 
-  @HasMany(() => ProductionReport)
-  declare productionReport: ProductionReport[]
+  @HasOne(() => ProductionReportDetail)
+  declare productionReportDetail: ProductionReportDetail
 
   @BelongsTo(() => ProductSerial)
   declare serial: ProductSerial
