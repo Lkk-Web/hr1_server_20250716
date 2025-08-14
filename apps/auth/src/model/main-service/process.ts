@@ -37,12 +37,12 @@ export class Process extends BaseDate<Process> {
   declare isChild: number
 
   @Column({
-    comment: '是否为外包工序',
+    comment: '是否为质检',
     type: DataType.BOOLEAN,
     allowNull: false,
     defaultValue: false,
   })
-  declare isOut: boolean
+  declare isQC: boolean
 
   // 排序字段
   @Column({
