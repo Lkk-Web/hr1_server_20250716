@@ -128,71 +128,71 @@ export class MiController {
   @Get('PCHome/:type')
   @ApiParam({ name: 'type', required: true, description: 'type', type: String })
   async PCHome(@Param() Param, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.PCHome(Param.type, req.user, loadModel)
+    // let { factoryCode, loadModel } = req
+    // return this.service.PCHome(Param.type, req.user, loadModel)
   }
 
   @ApiOperation({ summary: '切换工厂' })
   @HttpCode(HttpStatus.OK)
   @Post('changeFactory')
   async changeFactory(@Body() dto: changeFactoryDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.changeFactory(dto, req.user, loadModel)
+    // let { factoryCode, loadModel } = req
+    // return this.service.changeFactory(dto, req.user, loadModel)
   }
 
   @ApiOperation({ summary: '角色看板' })
   @HttpCode(HttpStatus.OK)
   @Get('roleBoard')
   async roleBoard(@Query() dto: RoleBoardDto, @Req() req) {
-    return this.service.roleBoard(dto, req.user)
+    // return this.service.roleBoard(dto, req.user)
   }
 
   @ApiOperation({ summary: '车间看板' })
   @HttpCode(HttpStatus.OK)
   @Get('workShopBoard')
   async workShopBoard(@Query() dto: RoleBoardDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.workShopBoard(dto, req.user, loadModel)
+    // let { factoryCode, loadModel } = req
+    // return this.service.workShopBoard(dto, req.user, loadModel)
   }
 
   @ApiOperation({ summary: '生产实时播报' })
   @HttpCode(HttpStatus.OK)
   @Get('productionBroadcast')
   async productionBroadcast(@Query() dto: RoleBoardDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.productionBroadcast(dto, req.user, loadModel)
+    // let { factoryCode, loadModel } = req
+    // return this.service.productionBroadcast(dto, req.user, loadModel)
   }
 
   @ApiOperation({ summary: '设备动态播报' })
   @HttpCode(HttpStatus.OK)
   @Get('equipmentBroadcast')
   async equipmentBroadcast(@Query() dto: RoleBoardDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    return this.service.equipmentBroadcast(dto, req.user, loadModel)
+    // let { factoryCode, loadModel } = req
+    // return this.service.equipmentBroadcast(dto, req.user, loadModel)
   }
 
   @ApiOperation({ summary: '工单进度' })
   @HttpCode(HttpStatus.OK)
   @Get('orderProgress')
   async orderProgress(@Req() req, @Query() dto: OrderProgressDto) {
-    let { factoryCode, loadModel } = req
-    return this.service.orderProgress(req.user, dto, loadModel)
+    // let { factoryCode, loadModel } = req
+    // return this.service.orderProgress(req.user, dto, loadModel)
   }
 
   @ApiOperation({ summary: '部门工序进度' })
   @HttpCode(HttpStatus.OK)
   @Get('deptProgress')
   async deptProgress(@Req() req, @Query() dto: taskProgressDto) {
-    let { factoryCode, loadModel } = req
-    return this.service.deptProgress(req.user, dto, loadModel)
+    // let { factoryCode, loadModel } = req
+    // return this.service.deptProgress(req.user, dto, loadModel)
   }
 
   @ApiOperation({ summary: '任务执行进度' })
   @HttpCode(HttpStatus.OK)
   @Get('questionProcess')
   async questionProcess(@Req() req, @Query() dto: taskProgressDto) {
-    let { factoryCode, loadModel } = req
-    return this.service.questionProcess(req.user, dto, loadModel)
+    // let { factoryCode, loadModel } = req
+    // return this.service.questionProcess(req.user, dto, loadModel)
   }
 
   @ApiOperation({ summary: '绩效排名' })
@@ -200,7 +200,7 @@ export class MiController {
   @Get('salary')
   async salary(@Req() req, @Query() dto: OrderProgressDto) {
     let { factoryCode, loadModel } = req
-    return this.service.salary(req.user, dto, loadModel)
+    // return this.service.salary(req.user, dto, loadModel)
   }
 
   @ApiOperation({ summary: '文件上传' })

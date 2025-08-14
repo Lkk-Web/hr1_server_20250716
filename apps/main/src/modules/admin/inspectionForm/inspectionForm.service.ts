@@ -283,84 +283,84 @@ export class InspectionFormService {
               }),
             ])
 
-            if (productionReport && form.infos?.length) {
-              const info = form.infos[0]
-              await Promise.all([
-                productionReport.update(
-                  {
-                    goodCount: info.goodCount,
-                    badCount: info.badCount,
-                  },
-                  { transaction }
-                ),
-                ProcessTask.update(
-                  {
-                    goodCount: Sequelize.literal(`goodCount+${info.goodCount}`),
-                    badCount: Sequelize.literal(`badCount+${info.badCount}`),
-                  },
-                  {
-                    where: { id: productionReport.processPositionTask?.processTask?.id },
-                    transaction,
-                  }
-                ),
-              ])
-              await Promise.all([
-                ProcessTask.update(
-                  {
-                    goodCount: Sequelize.literal(`goodCount+${info.goodCount}`),
-                    badCount: Sequelize.literal(`badCount+${info.badCount}`),
-                  },
-                  {
-                    where: { id: productionReport.processPositionTask?.processTask?.id, processId: productionReport.processId },
-                    transaction,
-                  }
-                ),
-                //创建生产汇报单
-                // this.productionReportTwoService.produceStore(
-                //   {
-                //     orderId: productionReport.productionOrderId,
-                //     goodCount: info.goodCount,
-                //     badCount: info.badCount,
-                //     taskId: productionReport.taskId,
-                //   },
-                //   transaction
-                // ),
-                info.goodCount
-                  ? ProcessTask.update(
-                      {
-                        receptionCount: Sequelize.literal(`receptionCount+${info.goodCount}`),
-                      },
-                      { where: { id: (productionReport.processPositionTask?.processTask?.id || 0) + 1 } }
-                    )
-                  : null,
-              ])
+            // if (productionReport && form.infos?.length) {
+            //   const info = form.infos[0]
+            //   await Promise.all([
+            //     productionReport.update(
+            //       {
+            //         goodCount: info.goodCount,
+            //         badCount: info.badCount,
+            //       },
+            //       { transaction }
+            //     ),
+            //     ProcessTask.update(
+            //       {
+            //         goodCount: Sequelize.literal(`goodCount+${info.goodCount}`),
+            //         badCount: Sequelize.literal(`badCount+${info.badCount}`),
+            //       },
+            //       {
+            //         where: { id: productionReport.processPositionTask?.processTask?.id },
+            //         transaction,
+            //       }
+            //     ),
+            //   ])
+            //   await Promise.all([
+            //     ProcessTask.update(
+            //       {
+            //         goodCount: Sequelize.literal(`goodCount+${info.goodCount}`),
+            //         badCount: Sequelize.literal(`badCount+${info.badCount}`),
+            //       },
+            //       {
+            //         where: { id: productionReport.processPositionTask?.processTask?.id, processId: productionReport.processId },
+            //         transaction,
+            //       }
+            //     ),
+            //     //创建生产汇报单
+            //     // this.productionReportTwoService.produceStore(
+            //     //   {
+            //     //     orderId: productionReport.productionOrderId,
+            //     //     goodCount: info.goodCount,
+            //     //     badCount: info.badCount,
+            //     //     taskId: productionReport.taskId,
+            //     //   },
+            //     //   transaction
+            //     // ),
+            //     info.goodCount
+            //       ? ProcessTask.update(
+            //           {
+            //             receptionCount: Sequelize.literal(`receptionCount+${info.goodCount}`),
+            //           },
+            //           { where: { id: (productionReport.processPositionTask?.processTask?.id || 0) + 1 } }
+            //         )
+            //       : null,
+            //   ])
 
-              // 工序返工
-              const handle = {
-                processId: 0,
-                workCount: 0,
-              }
-              for (let i = 0; i < form.infos.length; i++) {
-                const info = form.infos[i]
-                console.log(info)
-                if (info.results[0].processId) {
-                  handle.processId = info.results[0].processId
-                  handle.workCount = info.results[0].count
-                  break
-                }
-              }
+            //   // 工序返工
+            //   const handle = {
+            //     processId: 0,
+            //     workCount: 0,
+            //   }
+            //   for (let i = 0; i < form.infos.length; i++) {
+            //     const info = form.infos[i]
+            //     console.log(info)
+            //     if (info.results[0].processId) {
+            //       handle.processId = info.results[0].processId
+            //       handle.workCount = info.results[0].count
+            //       break
+            //     }
+            //   }
 
-              //创建工序单
-              if (handle.processId && handle.workCount) {
-                await this.createReworkInspectionForm(
-                  productionReport.processPositionTask?.processTask,
-                  handle.workCount,
-                  handle.processId,
-                  productionReport.processPositionTask?.processTask?.serialId,
-                  transaction
-                )
-              }
-            }
+            //   //创建工序单
+            //   if (handle.processId && handle.workCount) {
+            //     await this.createReworkInspectionForm(
+            //       productionReport.processPositionTask?.processTask,
+            //       handle.workCount,
+            //       handle.processId,
+            //       productionReport.processPositionTask?.processTask?.serialId,
+            //       transaction
+            //     )
+            //   }
+            // }
           } else if (dto.status === '取消审核') {
             await InspectionForm.update(
               { status: '未审核', auditorId: user.id, auditedAt: date },

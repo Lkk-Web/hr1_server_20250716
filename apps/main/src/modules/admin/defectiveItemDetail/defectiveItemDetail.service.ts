@@ -449,43 +449,43 @@ export class DefectiveItemDetailService {
       }
       console.log(badNumber1)
 
-      const temp: any = {
-        // productionOrderCode: value.order.code,
-        // bomCode: value.order.bom.parentMaterial.code,
-        // materialName: value.order.bom.parentMaterial.materialName,
-        // materialSpec: value.order.bom.parentMaterial.spec,
-        // unit: value.order.bom.parentMaterial.unit,
+      // const temp: any = {
+      //   // productionOrderCode: value.order.code,
+      //   // bomCode: value.order.bom.parentMaterial.code,
+      //   // materialName: value.order.bom.parentMaterial.materialName,
+      //   // materialSpec: value.order.bom.parentMaterial.spec,
+      //   // unit: value.order.bom.parentMaterial.unit,
 
-        // productionOrderStatus: value.order.status,
+      //   // productionOrderStatus: value.order.status,
 
-        // poStartAt: dayjs(value.order.startTime).format('YYYY-MM-DD'),
-        // poEndAt: dayjs(value.order.endTime).format('YYYY-MM-DD'),
+      //   // poStartAt: dayjs(value.order.startTime).format('YYYY-MM-DD'),
+      //   // poEndAt: dayjs(value.order.endTime).format('YYYY-MM-DD'),
 
-        processName: value.process.processName,
-        ptStartTime: dayjs(value.processPositionTask?.processTask?.startTime).format('YYYY-MM-DD'),
-        ptEndTime: dayjs(value.processPositionTask?.processTask?.endTime).format('YYYY-MM-DD'),
+      //   processName: value.process.processName,
+      //   ptStartTime: dayjs(value.processPositionTask?.processTask?.startTime).format('YYYY-MM-DD'),
+      //   ptEndTime: dayjs(value.processPositionTask?.processTask?.endTime).format('YYYY-MM-DD'),
 
-        actualStartTime: dayjs(value.processPositionTask?.processTask?.actualStartTime).format('YYYY-MM-DD'),
-        actualEndTime: dayjs(value.processPositionTask?.processTask?.actualEndTime).format('YYYY-MM-DD'),
-        ptStatus: value.processPositionTask?.processTask?.status,
-        planCount: value.processPositionTask?.processTask?.planCount,
-        crealityNum: (value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0),
-        productUser: value.productUser.userName,
-        reportQuantity: value.reportQuantity,
-        goodCount: value.processPositionTask?.processTask?.goodCount || 0,
-        badCount: value.processPositionTask?.processTask?.badCount || 0,
-        badRate:
-          (value.processPositionTask?.processTask?.badCount || 0) /
-          ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0)),
-        defectiveName: defectiveCause,
-        badNum1: badNumber1,
-        badReate1: ((badNumber1 / ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0))) * 100).toFixed(2),
-        badNum2: badNumber2,
-        badRate2: ((badNumber2 / ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0))) * 100).toFixed(2),
-        badNum3: badNumber3,
-        badRate3: ((badNumber3 / ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0))) * 100).toFixed(2),
-      }
-      performanceData.rows.push(temp)
+      //   actualStartTime: dayjs(value.processPositionTask?.processTask?.actualStartTime).format('YYYY-MM-DD'),
+      //   actualEndTime: dayjs(value.processPositionTask?.processTask?.actualEndTime).format('YYYY-MM-DD'),
+      //   ptStatus: value.processPositionTask?.processTask?.status,
+      //   planCount: value.processPositionTask?.processTask?.planCount,
+      //   crealityNum: (value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0),
+      //   productUser: value.productUser.userName,
+      //   reportQuantity: value.reportQuantity,
+      //   goodCount: value.processPositionTask?.processTask?.goodCount || 0,
+      //   badCount: value.processPositionTask?.processTask?.badCount || 0,
+      //   badRate:
+      //     (value.processPositionTask?.processTask?.badCount || 0) /
+      //     ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0)),
+      //   defectiveName: defectiveCause,
+      //   badNum1: badNumber1,
+      //   badReate1: ((badNumber1 / ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0))) * 100).toFixed(2),
+      //   badNum2: badNumber2,
+      //   badRate2: ((badNumber2 / ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0))) * 100).toFixed(2),
+      //   badNum3: badNumber3,
+      //   badRate3: ((badNumber3 / ((value.processPositionTask?.processTask?.badCount || 0) + (value.processPositionTask?.processTask?.goodCount || 0))) * 100).toFixed(2),
+      // }
+      // performanceData.rows.push(temp)
     })
     dataList.push(performanceData)
     return dataList

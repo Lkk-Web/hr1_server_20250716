@@ -151,7 +151,7 @@ export class ProcessService {
         },
         {
           association: 'children',
-          attributes: ['id', 'processName', 'sort', 'reportRatio', 'isOut', 'createdAt', 'updatedAt'],
+          attributes: ['id', 'processName', 'sort', 'reportRatio', 'createdAt', 'updatedAt'],
           required: false,
         },
       ],
@@ -192,7 +192,7 @@ export class ProcessService {
         },
         {
           association: 'children',
-          attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt', 'isChild', 'parentId', 'sort'],
+          attributes: ['id', 'processName', 'reportRatio', 'createdAt', 'updatedAt', 'isChild', 'parentId', 'sort'],
           required: false,
           include: [
             {
@@ -235,9 +235,7 @@ export class ProcessService {
         [Op.notIn]: dto.filterId,
       }
     }
-    if (dto.isOut != null) {
-      options.where['isOut'] = dto.isOut
-    }
+
     if (simplify) {
       return Process.findAll({
         where: options.where,

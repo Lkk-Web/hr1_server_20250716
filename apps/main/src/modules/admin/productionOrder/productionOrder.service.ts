@@ -1085,7 +1085,7 @@ export class ProductionOrderService {
                     status: POSITION_TASK_STATUS.TO_ASSIGN,
                     isOutsource: false, //  委外
                     // isOutsource: childProcess.dataValues.isOut || false,
-                    isInspection: true,
+                    isInspection: childProcess.dataValues.isQC || false,
                   },
                   { transaction }
                 )

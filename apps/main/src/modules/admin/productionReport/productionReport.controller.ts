@@ -18,9 +18,9 @@ export class ProductionReportController {
   @HttpCode(HttpStatus.OK)
   @Post('/')
   async create(@Body() dto: CProductionReportDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.create(dto, req.user, loadModel)
-    return result
+    // let { factoryCode, loadModel } = req
+    // const result = await this.service.create(dto, req.user, loadModel)
+    // return result
   }
 
   @HttpCode(HttpStatus.OK)
@@ -28,10 +28,10 @@ export class ProductionReportController {
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Put(':id')
   async edit(@Body() dto: UProductionReportDto, @Param() params, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const { id } = params
-    const result = await this.service.edit(dto, id, req.user, loadModel)
-    return result
+    // let { factoryCode, loadModel } = req
+    // const { id } = params
+    // const result = await this.service.edit(dto, id, req.user, loadModel)
+    // return result
   }
 
   @HttpCode(HttpStatus.OK)
@@ -39,10 +39,10 @@ export class ProductionReportController {
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Delete(':id')
   async delete(@Param() params, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const { id } = params
-    const result = await this.service.delete(id, loadModel)
-    return result
+    // let { factoryCode, loadModel } = req
+    // const { id } = params
+    // const result = await this.service.delete(id, loadModel)
+    // return result
   }
 
   @HttpCode(HttpStatus.OK)
@@ -50,44 +50,44 @@ export class ProductionReportController {
   @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
   @Get('find/:id')
   async find(@Param() Param, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.find(Param.id, loadModel)
-    return result
+    // let { factoryCode, loadModel } = req
+    // const result = await this.service.find(Param.id, loadModel)
+    // return result
   }
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
   @Get('findPagination')
   @OpenAuthorize()
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.findPagination(dto, pagination, loadModel)
-    return result
+    // let { factoryCode, loadModel } = req
+    // const result = await this.service.findPagination(dto, pagination, loadModel)
+    // return result
   }
 
   @ApiOperation({ summary: '批量报工' })
   @HttpCode(HttpStatus.OK)
   @Post('batch')
   async batch(@Body() dto: batchDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.batch(dto, req.user, loadModel)
-    return result
+    // let { factoryCode, loadModel } = req
+    // const result = await this.service.batch(dto, req.user, loadModel)
+    // return result
   }
 
   @ApiOperation({ summary: '审核' })
   @HttpCode(HttpStatus.OK)
   @Post('audit')
   async audit(@Body() dto: auditDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.audit(dto, req.user, loadModel)
-    return result
+    // let { factoryCode, loadModel } = req
+    // const result = await this.service.audit(dto, req.user, loadModel)
+    // return result
   }
 
   @ApiOperation({ summary: '批量删除' })
   @HttpCode(HttpStatus.OK)
   @Post('batDelete')
   async batDelete(@Body() dto: deleteIdsDto, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.batDelete(dto, loadModel)
-    return result
+    // let { factoryCode, loadModel } = req
+    // const result = await this.service.batDelete(dto, loadModel)
+    // return result
   }
 }

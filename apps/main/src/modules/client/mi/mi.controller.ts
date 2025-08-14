@@ -23,15 +23,15 @@ export class MiController {
   @OpenAuthorize()
   @Post('login')
   async postToken(@Body(new CensorParamPipe(new UserLoginDto())) dto: UserLoginDto, @Req() req) {
-    const data = await this.service.login(dto)
-    return data
+    // const data = await this.service.login(dto)
+    // return data
   }
 
   @ApiOperation({ summary: '根据token获取个人信息' })
   @HttpCode(HttpStatus.OK)
   @Get('info')
   async getInfo(@Req() req) {
-    return this.service.getInfo(req.user)
+    // return this.service.getInfo(req.user)
   }
 
   @ApiOperation({ summary: '车间总览' })
@@ -39,7 +39,7 @@ export class MiController {
   @ApiParam({ name: 'type', required: true, description: 'type', type: String })
   @Get('board/:type')
   async board(@Param() param, @Req() req, @Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination) {
-    return this.service.board(param.type, req.user, dto, pagination)
+    // return this.service.board(param.type, req.user, dto, pagination)
   }
 
   @ApiOperation({ summary: '生产进度' })
@@ -47,7 +47,7 @@ export class MiController {
   @ApiParam({ name: 'type', required: true, description: 'type', type: String })
   @Get('schedule/:type')
   async schedule(@Param() param, @Req() req, @Query() dto: ScheduleFindPaginationDto) {
-    return this.service.schedule(param.type, req.user, dto)
+    // return this.service.schedule(param.type, req.user, dto)
   }
 
   @ApiOperation({ summary: '生产进度工序任务数据' })
@@ -55,7 +55,7 @@ export class MiController {
   @ApiParam({ name: 'type', required: true, description: 'type', type: String })
   @Get('taskBoard/:type')
   async taskBoard(@Param() param, @Req() req, @Query() dto: taskBoardDto) {
-    return this.service.taskBoard(param.type, req.user, dto)
+    // return this.service.taskBoard(param.type, req.user, dto)
   }
 
   @ApiOperation({ summary: '绩效工资' })
@@ -63,42 +63,42 @@ export class MiController {
   @ApiParam({ name: 'type', required: true, description: 'type', type: String })
   @Get('performance/:type')
   async performance(@Param() param, @Req() req, @Query() dto: performanceDto) {
-    return this.service.performance(param.type, req.user, dto)
+    // return this.service.performance(param.type, req.user, dto)
   }
 
   @ApiOperation({ summary: '首页' })
   @HttpCode(HttpStatus.OK)
   @Get('home')
   async home(@Req() req) {
-    return this.service.home(req.user)
+    // return this.service.home(req.user)
   }
 
   @ApiOperation({ summary: '角色看板' })
   @HttpCode(HttpStatus.OK)
   @Get('roleBoard')
   async managerBoard(@Query() dto: RoleBoardDto, @Req() req) {
-    return this.clientMiService.roleBoard(dto, req.user)
+    // return this.clientMiService.roleBoard(dto, req.user)
   }
 
   @ApiOperation({ summary: '工单进度' })
   @HttpCode(HttpStatus.OK)
   @Get('orderProgress')
   async orderProgress(@Req() req, @Query() dto: OrderProgressDto) {
-    return this.service.orderProgress(req.user, dto)
+    // return this.service.orderProgress(req.user, dto)
   }
 
   @ApiOperation({ summary: '部门工序进度' })
   @HttpCode(HttpStatus.OK)
   @Get('deptProgress')
   async deptProgress(@Req() req, @Query() dto: taskProgressDto) {
-    return this.service.deptProgress(req.user, dto)
+    // return this.service.deptProgress(req.user, dto)
   }
 
   @ApiOperation({ summary: '绩效排名' })
   @HttpCode(HttpStatus.OK)
   @Get('salary')
   async salary(@Req() req, @Query() dto: OrderProgressDto) {
-    return this.service.salary(req.user, dto)
+    // return this.service.salary(req.user, dto)
   }
 
   @ApiOperation({ summary: '文件上传' })

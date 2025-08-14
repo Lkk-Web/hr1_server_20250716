@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { PerformanceDetailDto, PerformanceListDto, PerformanceListRes } from './performance.dto'
-import { ProductionOrder, ProductionReport, ReportUser, Team, TeamUser } from '@model/index'
+import { ProductionOrder, ProductionReport, UserTaskDuration, Team, TeamUser } from '@model/index'
 import { Op, Sequelize } from 'sequelize'
 import { Includeable } from 'sequelize/types/model'
 import { Aide, getTime } from '@library/utils/aide'
@@ -21,9 +21,7 @@ export class PerformanceService {
         [Op.like]: `%${dto.teamName}%`,
       }
     }
-    if (dto.isOut != null) {
-      where.isOut = dto.isOut
-    }
+
     if (dto.userName) {
       include.push({
         association: 'users',
@@ -57,24 +55,24 @@ export class PerformanceService {
       include: [{ association: 'reportUsers', attributes: ['duration'] }],
     })
 
-    const result: PerformanceListRes[] = teamIds.map(v => {
-      const team = teams.find(item => item.id == v)
-      if (!team) return
-      const pr = prList.filter(item => item.teamId == v)
-      const goodCount = pr.reduce((a, b) => a + b.goodCount, 0)
-      const duration = pr.reduce((a, b) => a + b.reportUsers.reduce((c, d) => c + d.duration, 0), 0)
-      const planCount = pr.reduce((a, b) => a + b.reportQuantity, 0)
-      const goodPr = (goodCount / planCount) * 100
-      return {
-        teamId: v,
-        name: team.name,
-        goodCount,
-        duration,
-        goodPr,
-      }
-    })
+    // const result: PerformanceListRes[] = teamIds.map(v => {
+    //   const team = teams.find(item => item.id == v)
+    //   if (!team) return
+    //   const pr = prList.filter(item => item.teamId == v)
+    //   // const goodCount = pr.reduce((a, b) => a + b.goodCount, 0)
+    //   const duration = pr.reduce((a, b) => a + b.reportUsers.reduce((c, d) => c + d.duration, 0), 0)
+    //   const planCount = pr.reduce((a, b) => a + b.reportQuantity, 0)
+    //   // const goodPr = (goodCount / planCount) * 100
+    //   return {
+    //     teamId: v,
+    //     name: team.name,
+    //     // goodCount,
+    //     duration,
+    //     // goodPr,
+    //   }
+    // })
 
-    return result
+    // return result
   }
 
   //绩效明细
@@ -120,9 +118,9 @@ export class PerformanceService {
         },
       }
     }
-    let result: PaginationResult<ReportUser>
+    let result: PaginationResult<UserTaskDuration>
     if (isAll) {
-      const list = await ReportUser.findAll(options)
+      const list = await UserTaskDuration.findAll(options)
       result = {
         total: list.length,
         data: list,
@@ -131,11 +129,11 @@ export class PerformanceService {
         pageSize: list.length,
       }
     } else {
-      result = await ReportUser.findPagination<ReportUser>(options)
+      result = await UserTaskDuration.findPagination<UserTaskDuration>(options)
     }
 
     if (result.data.length) {
-      let prList = result.data.filter(v => v.productionReport).map(v => v.productionReport)
+      // let prList = result.data.filter(v => v.productionReport).map(v => v.productionReport)
       // const orders = await ProductionOrder.findAll({
       //   where: { id: _.uniq(prList.map(v => v.productSerialId)) },
       //   attributes: ['id', 'kingdeeCode'],
@@ -144,9 +142,9 @@ export class PerformanceService {
 
       result.data = result.data.map(v => {
         v = v.toJSON()
-        if (v.productionReport) {
-          // v.productionReport.order = orders.find(item => item.id == v.productionReport.productionOrderId)
-        }
+        // if (v.productionReport) {
+        //   // v.productionReport.order = orders.find(item => item.id == v.productionReport.productionOrderId)
+        // }
         return v
       })
     }
@@ -181,14 +179,14 @@ export class PerformanceService {
     detail.forEach((v, i) => {
       data2.push({
         序号: i + 1,
-        部门名称: statistic.find(temp => teamUsers.find(vv => vv.teamId == temp.teamId && vv.userId == v.userDuration.userId))?.name || '-',
-        员工姓名: v.userDuration.user.userName,
+        // 部门名称: statistic.find(temp => teamUsers.find(vv => vv.teamId == temp.teamId && vv.userId == v.userDuration.userId))?.name || '-',
+        // 员工姓名: v.userDuration.user.userName,
         // 工单编号: v.productionReport?.order?.kingdeeCode || '',
         // 产品编号: v.productionReport?.order?.bom.parentMaterial.code || '',
         // 产品名称: v.productionReport?.order?.bom.parentMaterial.materialName || '',
-        工序: v.productionReport?.process.processName || '',
-        报工开始时间: dayjs(v.productionReport?.startTime || Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-        报工结束时间: dayjs(v.productionReport?.endTime || Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+        // 工序: v.productionReport?.process.processName || '',
+        // 报工开始时间: dayjs(v.productionReport?.startTime || Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+        // 报工结束时间: dayjs(v.productionReport?.endTime || Date.now()).format('YYYY-MM-DD HH:mm:ss'),
         '核算工时（小时）': v.duration ? v.duration / 3600 : 0,
       })
     })

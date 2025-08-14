@@ -28,8 +28,6 @@ export class FindPaginationDto {
   })
   filterId?: number[]
 
-  @ApiProperty({ type: Number, required: false, description: '是否为外包工序', enum: [0, 1] })
-  isOut?: number
 }
 
 export class findMaterialDto {
@@ -161,10 +159,4 @@ export class UProcessDto {
   })
   defectiveItems?: number[]
 
-  @ApiProperty({
-    required: false,
-    description: '是否为外包工序',
-    type: Boolean,
-  })
-  isOut: boolean
 }
