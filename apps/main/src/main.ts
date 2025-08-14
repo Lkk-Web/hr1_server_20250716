@@ -14,6 +14,18 @@ import { INestApplication } from '@nestjs/common'
 import { SwaggerDocumentOptions } from '@nestjs/swagger/dist/interfaces'
 import * as os from 'os'
 import express = require('express')
+import { BOM } from '@model/base/bom.model'
+import { BomDetail } from '@model/base/bomDetail.model'
+import { SalesOrderDetail } from '@model/plan/salesOrderDetail.model'
+import { Process } from '@model/process/process.model'
+import { Material } from '@model/base/material.model'
+import { ProductionOrderDetail } from '@model/production/productionOrderDetail.model'
+import { ProcessTask } from '@model/production/processTask.model'
+import { ProductSerial } from '@model/production/productSerial.model'
+import { ProductionOrderTaskTeam } from '@model/production/productionOrderTaskOfTeam.model'
+import { ProcessPositionTask } from '@model/production/processPositionTask.model'
+import { ProcessTaskLog } from '@model/production/processTaskLog.model'
+import { ProcessRoute, ProcessRouteList, ProductionReport } from './model'
 // 微信支付回调配置
 // const bodyParser = require('body-parser')
 // require('body-parser-xml')(bodyParser)
@@ -29,7 +41,25 @@ async function bootstrap() {
   // app.use(bodyParser.xml())
   // 同步单个表结构
   try {
-    // await User.sync({ alter: true, force: false })
+    // // await User.sync({ alter: true, force: false })
+    // await BOM.sync({ alter: true, force: false })
+    // await BomDetail.sync({ alter: true, force: false })
+    // await SalesOrderDetail.sync({ alter: true, force: false })
+    // await Process.sync({ alter: true, force: false })
+    // await Material.sync({ alter: true, force: false })
+    // await SalesOrderDetail.sync({ alter: true, force: false })
+    // await ProductionOrderDetail.sync({ alter: true, force: false })
+    // await Process.sync({ alter: true, force: false })
+    // await ProcessTask.sync({ alter: true, force: false })
+    // await Process.sync({ alter: true, force: false })
+    // await ProductionOrderTaskTeam.sync({ alter: true, force: false })
+    // await ProcessPositionTask.sync({ alter: true, force: false })
+    // await ProcessTaskLog.sync({ alter: true, force: false })
+    // await ProcessRoute.sync({ alter: true, force: false })
+    // await ProcessRouteList.sync({ alter: true, force: false })
+    // await ProductionReport.sync({ alter: true, force: false })
+    // await ProcessRouteList.sync({ alter: true, force: false })
+    // await ProductSerial.sync({ alter: true, force: false })
   } catch (e) {
     console.log(e)
     throw e

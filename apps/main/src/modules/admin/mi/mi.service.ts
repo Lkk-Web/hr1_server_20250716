@@ -31,6 +31,11 @@ import { UserTaskDuration } from '@model/production/userTaskDuration.model'
 import { Menu } from '@model/auth/menu'
 import moment = require('moment')
 import { ROLE_CODE } from '@common/enum'
+import { SyncKingdeeDto } from '@common/dto'
+import { K3Mapping } from '@library/kingdee/kingdee.keys.config'
+import { KingdeeeService } from '@library/kingdee'
+import { ApiDict } from '@model/index'
+import { kingdeeServiceConfig } from '@common/config'
 
 interface LoginDto {}
 
@@ -48,6 +53,105 @@ export class MiService {
     @Inject(RedisProvider.local)
     private readonly redis: SuperRedis
   ) {}
+
+  async syncKingdee(dto: SyncKingdeeDto): Promise<any> {
+    const { formID, dbModel, keys, redisKey, detailTypes, detailKeys, dbModelDetail, dict, filterString, pageSize: size } = K3Mapping[dto.tableName]
+    // 更新时间参数
+    // let updateData = await RedisProvider.redisClient.client.get(redisKey)
+    // let filterString = updateData ? `FModifyDate>='${updateData}'` : ''
+    // filterString += ` and FUseOrgId='${process.env.K3_ORG_ID}'`
+    // console.log('filterString: ', filterString)
+    // 翻页参数
+    const pageSize = size || 10000
+    let startRow = 0
+    // 明细翻页
+    const pageSizeDetail = size || 10000
+    let startRowDetail = 0
+    let dictKey = []
+    let dictFieldKey = []
+    let dictDataList = []
+    if (dict) {
+      for (let zd of dict) {
+        let dataList = []
+        let dictAll = await ApiDict.findAll({
+          where: { name: zd.name, xtName: '金蝶' },
+          attributes: [zd.keyName, zd.valueName],
+        })
+        dictAll.map(v => {
+          dataList.push([v[zd.keyName], v[zd.valueName]])
+        })
+        dictKey.push(zd.key)
+        dictFieldKey.push(zd.fieldName)
+        dictDataList.push(dataList)
+      }
+    }
+    while (true) {
+      try {
+        // 读取金蝶接口方式
+        console.log('pageSize: ', pageSize, startRow)
+        let fieldKeys = keys.map(v => v[1]).join(',')
+        if (dict) {
+          fieldKeys += ',' + dictKey.join(',')
+        }
+        let data = await KingdeeeService.getListV2(formID, fieldKeys, filterString ? filterString : `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`, pageSize, startRow)
+        if (data.length == 0) {
+          console.log('所有数据已查询完毕。')
+          break
+        }
+        data = KingdeeeService.parseKingdeeDataByMapping(data, keys, dictKey, dictFieldKey, dictDataList)
+        // 更新或插入数据库
+        let bdKeys = keys.map(v => v[2])
+        if (dict) {
+          bdKeys.push(...dictFieldKey)
+        }
+        let result = await dbModel.bulkCreate(data, { updateOnDuplicate: bdKeys })
+        // 翻页
+        startRow += data.length
+        if (data.length < pageSize) {
+          console.log('所有数据已查询完毕。')
+          break
+        }
+      } catch (error) {
+        console.error('请求发生错误:', error)
+        Aide.throwException(500, error)
+        break
+      }
+    }
+    if (detailTypes) {
+      while (true) {
+        try {
+          // 读取金蝶接口方式
+          console.log('pageSizeDetail: ', pageSizeDetail, startRowDetail)
+          let data = await KingdeeeService.getListV2(
+            formID,
+            detailKeys.map(v => v[1]).join(','),
+            filterString ? filterString : `FUseOrgId='${kingdeeServiceConfig.K3_ORG_ID}'`,
+            pageSizeDetail,
+            startRowDetail
+          )
+          if (data.length == 0) {
+            console.log('所有数据已查询完毕。')
+            break
+          }
+          data = KingdeeeService.parseKingdeeDataByMapping(data, detailKeys, dictKey, dictFieldKey, dictDataList)
+          // 更新或插入数据库
+          await dbModelDetail.bulkCreate(data, { updateOnDuplicate: detailKeys.map(v => v[2]) })
+          // 翻页
+          startRowDetail += data.length
+          if (data.length < pageSize) {
+            console.log('所有数据已查询完毕。')
+            break
+          }
+        } catch (error) {
+          console.error('请求发生错误:', error)
+          Aide.throwException(500, error)
+          break
+        }
+      }
+    }
+    // await RedisProvider.redisClient.client.set(redisKey, dayjs().format('YYYY-MM-DD'))
+    return { updateData: new Date(), count: startRow, detail: startRowDetail }
+  }
 
   // public async getInfo(user: User, factoryCode, loadModel) {
   //   let res = {}

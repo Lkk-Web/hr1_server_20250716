@@ -9,5 +9,6 @@ import { FileService } from '@modules/file/file.service'
   imports: [HttpModule, RedisModule],
   controllers: [MiController],
   providers: [MiService, FileService],
+  exports: [MiService],
 })
 export class MiModule {}
