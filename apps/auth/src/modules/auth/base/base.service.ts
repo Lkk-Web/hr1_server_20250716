@@ -144,7 +144,17 @@ export class MiService {
         association: 'team',
         attributes: ['id', 'name', 'chargeId'],
         through: { attributes: [] },
-        include: [{ association: 'process', through: { attributes: [] } }],
+        include: [
+          {
+            association: 'process',
+            through: { attributes: [] },
+            include: [
+              {
+                association: 'children',
+              },
+            ],
+          },
+        ],
       })
     }
 
