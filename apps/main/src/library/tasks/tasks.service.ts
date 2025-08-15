@@ -53,7 +53,8 @@ export class TasksService {
       this.logger.log('开始执行金蝶数据同步任务')
 
       // 需要同步的数据类型
-      const syncTables = [TableNames.部门, TableNames.用户, TableNames.物料, TableNames.物料BOM, TableNames.供应商, TableNames.客户, TableNames.销售订单]
+      // const syncTables = [TableNames.部门, TableNames.用户, TableNames.物料, TableNames.物料BOM, TableNames.供应商, TableNames.客户, TableNames.销售订单]
+      const syncTables = [TableNames.部门, TableNames.物料, TableNames.物料BOM, TableNames.供应商, TableNames.客户, TableNames.销售订单]
 
       let totalSyncCount = 0
 
