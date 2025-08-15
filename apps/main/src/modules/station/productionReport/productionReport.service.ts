@@ -1013,6 +1013,11 @@ export class ProductionReportService {
                 {
                   association: 'productionReportDetails',
                   required: false,
+                  include: [
+                    {
+                      association: 'processPositionTask',
+                    },
+                  ],
                 },
               ],
             },
