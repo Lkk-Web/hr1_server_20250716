@@ -35,7 +35,6 @@ export enum POSITION_TASK_STATUS {
   TO_AUDIT = '待审核',
   NOT_STARTED = '未开始',
   IN_PROGRESS = '进行中',
-  PAUSED = '已暂停',
   COMPLETED = '已完工',
   All = '全部',
 }

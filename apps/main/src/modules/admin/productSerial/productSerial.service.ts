@@ -98,7 +98,7 @@ export class ProductSerialService {
       includeConditions[1].include[1].where['status'] = status
     } else {
       includeConditions[1].include[1].where['status'] = {
-        [Op.in]: [POSITION_TASK_STATUS.NOT_STARTED, POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.PAUSED, POSITION_TASK_STATUS.COMPLETED],
+        [Op.in]: [POSITION_TASK_STATUS.NOT_STARTED, POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.COMPLETED],
       }
     }
     // 如果有订单编码条件，添加到关联查询中
