@@ -1139,7 +1139,7 @@ export class ProductionReportService {
             {
               association: 'processTasks',
               where: {},
-              attributes: ['id'],
+              attributes: ['id', 'status'],
               include: [
                 {
                   association: 'processPositionTasks',
@@ -1193,6 +1193,7 @@ export class ProductionReportService {
     return {
       result,
       taskTime,
+      status: result.data[0].productSerials[0].processTasks[0].status,
     }
   }
 

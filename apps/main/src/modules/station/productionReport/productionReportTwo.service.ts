@@ -127,19 +127,32 @@ export class ProductionReportTwoService {
             }
           }
           // 工位任务
-          const processPositionTask = await ProcessPositionTask.findOne({ where: { serialId: item.serialId, processId: dto.processId } })
-          await processPositionTask.update(
+          const processPositionTask = await ProcessPositionTask.findOne({
+            where: { serialId: item.serialId, processId: dto.processId },
+            include: [{ association: 'operateLogs' }],
+          })
+          // 上一道子工序
+          const preProcessPositionTask = await ProcessPositionTask.findOne({
+            where: { serialId: processPositionTask.serialId, id: processPositionTask.id - 1 },
+            order: [['id', 'ASC']],
+            transaction,
+          })
+          if (processPositionTask.dataValues.status != POSITION_TASK_STATUS.IN_PROGRESS) throw new Error('当前序列号不在进行中，无法报工')
+          if (preProcessPositionTask && preProcessPositionTask.dataValues.status != POSITION_TASK_STATUS.COMPLETED) throw new Error('上一道子工序未完成，无法报工')
+          await processPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED, actualEndTime: new Date() }, { transaction })
+          await ProductionReportDetail.create(
             {
-              status: POSITION_TASK_STATUS.COMPLETED,
-              actualEndTime: new Date(),
+              productionReportId: productionReport.id,
+              processPositionTaskId: processPositionTask.id,
+              reportQuantity: 1,
+              startTime: processPositionTask.actualStartTime,
+              endTime: new Date(),
             },
             { transaction }
           )
-          await ProductionReportDetail.create({ productionReportId: productionReport.id, processPositionTaskId: processPositionTask.id, reportQuantity: 1 }, { transaction })
           taskList.push(processPositionTask)
 
           // 日志
-          if (processPositionTask.status != POSITION_TASK_STATUS.IN_PROGRESS) throw new Error('当前工位不在执行中，无法报工')
           const logs = await ProcessTaskLog.create(
             {
               processTaskID: processTask.id,
@@ -151,21 +164,20 @@ export class ProductionReportTwoService {
           taskList[taskList.length - 1]['operateLogs'].push(logs)
 
           // 处理下一道工位
-          const nextProcessTask = await ProcessTask.findOne({
-            where: { serialId: processTask.serialId, id: processTask.id + 1 },
+          const nextProcessPositionTask = await ProcessPositionTask.findOne({
+            where: { serialId: processPositionTask.serialId, id: processPositionTask.id + 1 },
             order: [['id', 'ASC']],
-            include: [{ association: 'process', attributes: ['id', 'processName'] }],
+            // include: [{ association: 'process', attributes: ['id', 'processName'] }],
             transaction,
           })
 
-          if (nextProcessTask) {
-            if (nextProcessTask.status == PROCESS_TASK_STATUS.notStart) {
-              await nextProcessTask.update({ status: PROCESS_TASK_STATUS.running }, { transaction })
-            }
+          if (nextProcessPositionTask) {
+            // if (nextProcessPositionTask.status == PROCESS_TASK_STATUS.notStart) {
+            //   await nextProcessPositionTask.update({ status: PROCESS_TASK_STATUS.running }, { transaction })
+            // }
           } else {
             // 没有下一道工位
             await processTask.update({ status: PROCESS_TASK_STATUS.finish, actualEndTime: new Date() }, { transaction })
-
             // 生产汇报单
             // await this.produceStore(
             //   {
@@ -180,11 +192,14 @@ export class ProductionReportTwoService {
         }
       }
       // 3. 创建用户时长和报工关系、工时
-      await this.createReportUserDuration(user, taskList, productionReport.id)
+      const taskTime = await this.createReportUserDuration(user, taskList, productionReport.id)
 
       await transaction.commit()
 
-      return productionReport
+      return {
+        taskTime,
+        productionReport,
+      }
     } catch (error) {
       await transaction.rollback()
       throw error
