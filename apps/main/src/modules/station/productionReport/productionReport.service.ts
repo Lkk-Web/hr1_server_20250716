@@ -1002,25 +1002,23 @@ export class ProductionReportService {
         {
           association: 'productionOrderTask',
           attributes: ['id', 'orderCode', 'splitQuantity'],
+          required: false,
+          through: { attributes: [] },
           where: {},
           include: [
             {
+              association: 'productionReportDetails',
+              required: false,
+              // include: [
+              //   {
+              //     association: 'processPositionTask',
+              //   },
+              // ],
+            },
+            {
               association: 'material',
               where: {},
-              include: [
-                {
-                  association: 'bom',
-                  attributes: ['id', 'parentMaterialCode', 'remark', 'version', 'quantity', 'formData'],
-                  where: {},
-                  include: [
-                    {
-                      association: 'parentMaterial',
-                      attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
-                      where: {},
-                    },
-                  ],
-                },
-              ],
+              required: false,
             },
           ],
         },
@@ -1038,10 +1036,6 @@ export class ProductionReportService {
           attributes: ['id', 'userCode', 'userName'],
         },
         {
-          association: 'createdUser',
-          attributes: ['id', 'userName'],
-        },
-        {
           association: 'updatedUser',
           attributes: ['id', 'userName'],
         },
@@ -1050,14 +1044,6 @@ export class ProductionReportService {
           include: [
             {
               association: 'defectiveItem',
-            },
-          ],
-        },
-        {
-          association: 'productionReportDetails',
-          include: [
-            {
-              association: 'processPositionTask',
             },
           ],
         },
@@ -1091,35 +1077,35 @@ export class ProductionReportService {
       }
     }
     const result = await Paging.diyPaging(ProductionReport, pagination, options)
-    for (const datum of result.data) {
-      const temp = await PerformanceConfig.findOne({
-        where: {
-          materialId: datum.dataValues.order.dataValues.bom.dataValues.parentMaterialCode,
-          processId: datum.dataValues.processId,
-        },
-      })
-      if (temp) {
-        datum.setDataValue('performanceConfig', temp)
-      }
+    // for (const datum of result.data) {
+    //   const temp = await PerformanceConfig.findOne({
+    //     where: {
+    //       materialId: datum.dataValues.order.dataValues.bom.dataValues.parentMaterialCode,
+    //       processId: datum.dataValues.processId,
+    //     },
+    //   })
+    //   if (temp) {
+    //     datum.setDataValue('performanceConfig', temp)
+    //   }
 
-      // const records = await ProductionReport.findAll({
-      //   attributes: ['id', 'goodCount'],
-      //   where: {
-      //     processPositionTaskId: {
-      //       [Op.eq]: datum.dataValues.processPositionTaskId,
-      //     },
-      //     createdAt: {
-      //       [Op.lt]: datum.createdAt,
-      //     },
-      //   },
-      // })
-      // const order = await ProductionOrder.findByPk(datum.productionOrderId)
-      // let count = 0
-      // for (const record of records) {
-      //   count += record.goodCount
-      // }
-      // datum.setDataValue('processProgress', count + '')
-    }
+    //   // const records = await ProductionReport.findAll({
+    //   //   attributes: ['id', 'goodCount'],
+    //   //   where: {
+    //   //     processPositionTaskId: {
+    //   //       [Op.eq]: datum.dataValues.processPositionTaskId,
+    //   //     },
+    //   //     createdAt: {
+    //   //       [Op.lt]: datum.createdAt,
+    //   //     },
+    //   //   },
+    //   // })
+    //   // const order = await ProductionOrder.findByPk(datum.productionOrderId)
+    //   // let count = 0
+    //   // for (const record of records) {
+    //   //   count += record.goodCount
+    //   // }
+    //   // datum.setDataValue('processProgress', count + '')
+    // }
     return result
   }
 
@@ -1182,18 +1168,24 @@ export class ProductionReportService {
       }
     }
 
+    if (dto.status == POSITION_TASK_STATUS.IN_PROGRESS) {
+      processPositionTaskWhere['status'] = {
+        [Op.in]: [POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.PAUSED],
+      }
+    }
+
     const result = await Paging.diyPaging(ProductionOrderTask, pagination, options)
 
     let taskTime = null
 
-    if (dto.status == POSITION_TASK_STATUS.IN_PROGRESS) {
-      taskTime = await this.productionReportTwoService.getReportUserDuration(user, result.data[0].productSerials[0].processTasks[0].processPositionTasks)
+    if (dto.status == POSITION_TASK_STATUS.IN_PROGRESS && result.data[0]?.productSerials[0]?.processTasks[0]) {
+      taskTime = await this.productionReportTwoService.getReportUserDuration(user, result.data[0]?.productSerials[0].processTasks[0].processPositionTasks)
     }
 
     return {
       result,
       taskTime,
-      status: result.data[0].productSerials[0].processTasks[0].status,
+      status: result.data[0]?.productSerials[0]?.processTasks[0].status,
     }
   }
 

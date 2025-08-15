@@ -4,6 +4,7 @@ import { User } from '@model/auth/user'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { ProcessPositionTask } from './processPositionTask.model'
 import { ProductionReport } from './productionReport.model'
+import { ProductionOrderTaskOfReport } from './productionOrderTaskOfReport'
 
 @Table({ tableName: `production_report_detail`, timestamps: true, comment: '生产报工表 - 工位任务单' })
 export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
@@ -14,6 +15,22 @@ export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
     allowNull: false,
   })
   declare productionReportId: number
+
+  @ForeignKey(() => ProductionOrderTaskOfReport)
+  @Column({
+    comment: '工单关联任务ID',
+    field: 'productionOrderTaskOfReportId',
+    type: DataType.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'production_task_of_report',
+      key: 'id',
+    },
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE',
+    // Sequelize 没有官方 constraintName 属性，需要你用迁移控制
+  })
+  declare productionOrderTaskOfReportId: number
 
   @ForeignKey(() => ProcessPositionTask)
   @Column({
@@ -162,6 +179,13 @@ export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
     comment: '批次号',
   })
   declare batNum: string
+
+  // @BelongsTo(() => ProductionOrderTaskOfReport, {
+  //   foreignKey: 'productionOrderTaskOfReportId', // 短名字即可
+  //   constraints: false,
+  //   foreignKeyConstraintName: 'fk_trpi_record', // 自定义外键名，避免超长
+  // })
+  // declare productionOrderTaskOfReport?: ProductionOrderTaskOfReport
 
   @BelongsTo(() => ProcessPositionTask, 'processPositionTaskId')
   processPositionTask: ProcessPositionTask

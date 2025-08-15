@@ -6,7 +6,7 @@ import { FindPaginationDto, FindPaginationReportTaskListDto, OpenTaskDto, PadReg
 import { Sequelize } from 'sequelize-typescript'
 import { ProductionReportTwoService } from '@modules/station/productionReport/productionReportTwo.service'
 import { Pagination } from '@common/interface'
-import { OpenAuthorize } from '@core/decorator/metaData'
+import { ApiPlatformWhitelist, OpenAuthorize } from '@core/decorator/metaData'
 import { CurrentPage } from '@core/decorator/request'
 
 @ApiTags('生产报工')
@@ -94,6 +94,7 @@ export class ProductionReportController {
 
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '报工单列表' })
+  @ApiPlatformWhitelist(['admin', 'station'])
   @Get('findPagination')
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     let { factoryCode, loadModel } = req
