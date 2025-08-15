@@ -23,12 +23,12 @@ export class ProductionOrderTaskOfReport extends BaseModel<ProductionOrderTaskOf
   })
   declare reportId: number
 
-  @BelongsTo(() => ProductionOrderTask)
+  @BelongsTo(() => ProductionOrderTask, 'productionOrderTaskId')
   declare productionOrderTask: ProductionOrderTask
 
-  @BelongsTo(() => ProductionReport)
+  @BelongsTo(() => ProductionReport, 'reportId')
   declare report: ProductionReport
 
-  @HasMany(() => ProductionReportDetail)
+  @HasMany(() => ProductionReportDetail, 'taskOfReportId')
   declare productionReportDetails: ProductionReportDetail[]
 }

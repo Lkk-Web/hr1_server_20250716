@@ -6,6 +6,8 @@ import { BaseModel } from '@model/shared/base.model'
 import { ProductSerial } from './productSerial.model'
 import { ProductionOrderTaskTeam } from './productionOrderTaskOfTeam.model'
 import { Team } from '@model/auth/team'
+import { ProductionOrderTaskOfReport } from './productionOrderTaskOfReport'
+import { ProductionReport } from './productionReport.model'
 
 /** 生产订单任务表 */
 @Table({ tableName: `production_order_task`, freezeTableName: true, timestamps: true, comment: '生产工单表 - 排产 -含多个产品序列号' })
@@ -164,4 +166,7 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
 
   @BelongsToMany(() => Team, () => ProductionOrderTaskTeam)
   declare teams: Team[]
+
+  @BelongsToMany(() => ProductionReport, () => ProductionOrderTaskOfReport, 'productionOrderTaskId', 'reportId')
+  declare productionReports: ProductionReport[]
 }

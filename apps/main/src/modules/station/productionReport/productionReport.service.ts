@@ -1007,13 +1007,14 @@ export class ProductionReportService {
           where: {},
           include: [
             {
-              association: 'productionReportDetails',
+              association: 'productionReports',
               required: false,
-              // include: [
-              //   {
-              //     association: 'processPositionTask',
-              //   },
-              // ],
+              include: [
+                {
+                  association: 'productionReportDetails',
+                  required: false,
+                },
+              ],
             },
             {
               association: 'material',

@@ -176,7 +176,7 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   @HasMany(() => UserTaskDuration)
   declare reportUsers: UserTaskDuration[]
 
-  @BelongsToMany(() => ProductionOrderTask, () => ProductionOrderTaskOfReport)
+  @BelongsToMany(() => ProductionOrderTask, () => ProductionOrderTaskOfReport, 'reportId', 'productionOrderTaskId')
   declare productionOrderTask: ProductionOrderTask[]
 
   @HasMany(() => ProductionReportDetail)
