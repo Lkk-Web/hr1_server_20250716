@@ -19,18 +19,17 @@ export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
   @ForeignKey(() => ProductionOrderTaskOfReport)
   @Column({
     comment: '工单关联任务ID',
-    field: 'productionOrderTaskOfReportId',
+    field: 'taskOfReportId',
     type: DataType.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'production_task_of_report',
-      key: 'id',
-    },
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE',
-    // Sequelize 没有官方 constraintName 属性，需要你用迁移控制
+    allowNull: true
   })
-  declare productionOrderTaskOfReportId: number
+  declare taskOfReportId: number
+
+  @BelongsTo(() => ProductionOrderTaskOfReport, {
+    foreignKey: 'taskOfReportId',
+    constraints: false
+  })
+  declare productionOrderTaskOfReport?: ProductionOrderTaskOfReport
 
   @ForeignKey(() => ProcessPositionTask)
   @Column({
@@ -180,14 +179,12 @@ export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
   })
   declare batNum: string
 
-  // @BelongsTo(() => ProductionOrderTaskOfReport, {
-  //   foreignKey: 'productionOrderTaskOfReportId', // 短名字即可
-  //   constraints: false,
-  //   foreignKeyConstraintName: 'fk_trpi_record', // 自定义外键名，避免超长
-  // })
-  // declare productionOrderTaskOfReport?: ProductionOrderTaskOfReport
 
-  @BelongsTo(() => ProcessPositionTask, 'processPositionTaskId')
+
+  @BelongsTo(() => ProcessPositionTask, {
+    foreignKey: 'processPositionTaskId',
+    constraints: false
+  })
   processPositionTask: ProcessPositionTask
 
   declare performanceConfig: PerformanceConfig

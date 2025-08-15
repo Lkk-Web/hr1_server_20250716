@@ -149,7 +149,7 @@ export class ProductionReportTwoService {
             {
               productionReportId: productionReport.id,
               processPositionTaskId: processPositionTask.id,
-              productionOrderTaskOfReportId: productionOrderTaskOfReport.id,
+                             taskOfReportId: productionOrderTaskOfReport.id,
               reportQuantity: 1,
               startTime: processPositionTask.actualStartTime,
               endTime: new Date(),
