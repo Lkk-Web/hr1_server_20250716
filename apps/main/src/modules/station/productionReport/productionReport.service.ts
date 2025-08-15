@@ -24,7 +24,7 @@ import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.mod
 import { InspectionFormItem } from '@model/quantity/InspectionFormItem.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 import { WorkShop } from '@model/base/workShop.model'
-import { ProductionOrderTask, TrendsTemplate } from '@model/index'
+import { Material, Process, ProductionOrderTask, TrendsTemplate } from '@model/index'
 import { BatchLogService } from '@modules/admin/batchLog/batchLog.service'
 import { CProductionReportDto, UProductionReportDto, FindPaginationDto, batchDto, auditDto, FindPaginationReportTaskListDto } from './productionReport.dto'
 import { POSITION_TASK_STATUS } from '@common/enum'
@@ -40,6 +40,35 @@ export class ProductionReportService {
     @InjectModel(ProductionReport)
     private productionReportModel: typeof ProductionReport
   ) {}
+
+  public async find(id: number, query) {
+    const { materialId } = query
+    let bom = {}
+
+    const result = await Process.findOne({
+      where: { id },
+      include: [
+        {
+          association: 'sopList',
+          include: [
+            {
+              association: 'fileList',
+              through: {},
+            },
+          ],
+        },
+      ],
+    })
+
+    if (materialId) {
+      bom = await Material.findOne({ where: { id: materialId }, include: [{ association: 'boms' }] })
+    }
+
+    return {
+      result,
+      bom,
+    }
+  }
 
   // public async create(dto: CProductionReportDto, user, loadModel) {
   //   if (!user.id) {
@@ -901,99 +930,6 @@ export class ProductionReportService {
   //   return result
   // }
 
-  // public async find(id: number, loadModel) {
-  //   const options: FindOptions = {
-  //     where: { id },
-  //     include: [
-  //       {
-  //         association: 'order',
-  //         attributes: ['id', 'code', 'plannedOutput'],
-  //         include: [
-  //           {
-  //             association: 'bom',
-  //             attributes: ['id', 'parentMaterialCode', 'remark', 'version', 'quantity', 'formData'],
-  //             where: {},
-  //             include: [
-  //               {
-  //                 association: 'parentMaterial',
-  //                 attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
-  //                 where: {},
-  //               },
-  //             ],
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         association: 'process',
-  //         attributes: ['id', 'processName'],
-  //       },
-  //       {
-  //         association: 'productUser',
-  //         attributes: ['id', 'userCode', 'userName'],
-  //       },
-  //       {
-  //         association: 'auditor',
-  //         attributes: ['id', 'userCode', 'userName'],
-  //       },
-  //       {
-  //         association: 'createdUser',
-  //         attributes: ['id', 'userName'],
-  //       },
-  //       {
-  //         association: 'updatedUser',
-  //         attributes: ['id', 'userName'],
-  //       },
-  //       {
-  //         association: 'pri',
-  //         include: [
-  //           {
-  //             association: 'defectiveItem',
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         association: 'processPositionTask',
-  //         attributes: ['id', 'planCount'],
-  //         include: [
-  //           {
-  //             association: 'processTask',
-  //             attributes: ['id', 'serialId'],
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   }
-  //   const result = await ProductionReport.findOne(options)
-  //   const temp = await PerformanceConfig.findOne({
-  //     where: {
-  //       // materialId: result.dataValues.order.dataValues.bom.dataValues.materialId,
-  //       processId: result.dataValues.processId,
-  //     },
-  //   })
-  //   if (temp) {
-  //     result.setDataValue('performanceConfig', temp)
-  //   }
-
-  //   const records = await ProductionReport.findAll({
-  //     attributes: ['id', 'goodCount'],
-  //     where: {
-  //       processPositionTaskId: {
-  //         [Op.eq]: result.processPositionTaskId,
-  //       },
-  //       createdAt: {
-  //         [Op.lt]: result.createdAt,
-  //       },
-  //     },
-  //   })
-  //   const order = await ProductionOrder.findByPk(result.processPositionTask?.processTask?.serialId)
-  //   let count = 0
-  //   for (const record of records) {
-  //     count += record.goodCount
-  //   }
-  //   result.setDataValue('processProgress', count + '')
-  //   return result
-  // }
-
   public async findPagination(dto: FindPaginationDto, pagination: Pagination, loadModel) {
     const options: FindPaginationOptions = {
       where: {},
@@ -1031,17 +967,6 @@ export class ProductionReportService {
         {
           association: 'process',
           attributes: ['id', 'processName'],
-          include: [
-            {
-              association: 'sopList',
-              include: [
-                {
-                  association: 'fileList',
-                  through: {},
-                },
-              ],
-            },
-          ],
           where: {},
         },
         {

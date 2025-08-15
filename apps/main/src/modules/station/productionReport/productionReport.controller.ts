@@ -1,5 +1,5 @@
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { Body, Get, HttpCode, HttpStatus, Post, Query, Req } from '@nestjs/common'
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { Body, Get, HttpCode, HttpStatus, Param, Post, Query, Req } from '@nestjs/common'
 import { StationAuth } from '@core/decorator/controller'
 import { ProductionReportService } from './productionReport.service'
 import { FindPaginationDto, FindPaginationReportTaskListDto, OpenTaskDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
@@ -45,15 +45,16 @@ export class ProductionReportController {
   //   return result
   // }
 
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOperation({ summary: '详情' })
-  // @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
-  // @Get('find/:id')
-  // async find(@Param() Param, @Req() req) {
-  //   let { factoryCode, loadModel } = req
-  //   const result = await this.service.find(Param.id, loadModel)
-  //   return result
-  // }
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '查看工序对应 Bom / SOP 详情' })
+  @ApiParam({ name: 'processId', required: true, description: 'processId', type: Number })
+  @ApiQuery({ name: 'materialId', required: false, description: 'materialId', type: String })
+  @Get('find/:processId')
+  async find(@Param() Param, @Req() req, @Query() query) {
+    const result = await this.service.find(Param.processId, query)
+
+    return result
+  }
 
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '可报工列表' })
