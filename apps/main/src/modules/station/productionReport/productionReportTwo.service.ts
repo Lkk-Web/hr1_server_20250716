@@ -45,11 +45,8 @@ export class ProductionReportTwoService {
         // 工单任务
         await ProductionOrderTask.update({ actualStartTime: new Date() }, { where: { id: processDto.productionOrderTaskId }, transaction }) // 工单
         for (const item of processDto.positions) {
-          console.log(1)
           // 工序任务
           const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
-          if (processTask.status == PROCESS_TASK_STATUS.running && taskStatus == TaskStatus.OPEN_TASK) throw new Error('当前任务正在进行中，不能重新开工')
-          if (processTask.status == PROCESS_TASK_STATUS.pause && taskStatus == TaskStatus.PAUSE) throw new Error('当前任务已暂停，不能暂停')
           await processTask.update(
             {
               status: taskStatus == TaskStatus.OPEN_TASK ? PROCESS_TASK_STATUS.running : PROCESS_TASK_STATUS.pause,
@@ -62,8 +59,13 @@ export class ProductionReportTwoService {
             where: { serialId: item.serialId, processId: dto.processId },
             include: [{ association: 'operateLogs' }],
           })
+          if (processPositionTask.status == POSITION_TASK_STATUS.IN_PROGRESS && taskStatus == TaskStatus.OPEN_TASK) throw new Error('当前任务正在进行中，不能重新开工')
+          if (processPositionTask.status == POSITION_TASK_STATUS.PAUSED && taskStatus == TaskStatus.PAUSE) throw new Error('当前任务已暂停，不能暂停')
           await processPositionTask.update(
-            { actualStartTime: processPositionTask.dataValues.actualStartTime ?? new Date(), status: POSITION_TASK_STATUS.IN_PROGRESS },
+            {
+              actualStartTime: processPositionTask.dataValues.actualStartTime ?? new Date(),
+              status: taskStatus == TaskStatus.OPEN_TASK ? POSITION_TASK_STATUS.IN_PROGRESS : POSITION_TASK_STATUS.PAUSED,
+            },
             { transaction }
           )
           taskList.push(processPositionTask)
@@ -108,7 +110,10 @@ export class ProductionReportTwoService {
       // 2. 处理报工产生的关联及工序的推进
       // 2.1 处理工单
       for (const processDto of dto.productionOrderTask) {
-        await ProductionOrderTaskOfReport.create({ productionOrderTaskId: processDto.productionOrderTaskId, reportId: productionReport.id }, { transaction })
+        const productionOrderTaskOfReport = await ProductionOrderTaskOfReport.create(
+          { productionOrderTaskId: processDto.productionOrderTaskId, reportId: productionReport.id },
+          { transaction }
+        )
         const process = await Process.findOne({ where: { id: dto.processId } })
         // 2.2 处理工序（工位）
         for (const item of processDto.positions) {
@@ -144,6 +149,7 @@ export class ProductionReportTwoService {
             {
               productionReportId: productionReport.id,
               processPositionTaskId: processPositionTask.id,
+              productionOrderTaskOfReportId: productionOrderTaskOfReport.id,
               reportQuantity: 1,
               startTime: processPositionTask.actualStartTime,
               endTime: new Date(),
