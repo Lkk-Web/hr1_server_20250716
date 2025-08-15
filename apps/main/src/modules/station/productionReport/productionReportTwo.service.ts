@@ -39,12 +39,15 @@ export class ProductionReportTwoService {
     const transaction = await ProcessTask.sequelize.transaction()
     const { status: taskStatus } = dto
     let taskList: ProcessPositionTask[] = []
+    console.log(1)
     try {
       const process = await Process.findOne({ where: { id: dto.processId } })
       for (const processDto of dto.productionOrderTask) {
+        console.log(2)
         // 工单任务
-        await ProductionOrderTask.update({ actualStartTime: new Date() }, { where: { id: processDto.productionOrderTaskId }, transaction }) // 工单
+        // await ProductionOrderTask.update({ actualStartTime: new Date() }, { where: { id: processDto.productionOrderTaskId }, transaction }) // 工单  --- TODO,不知道为什么很慢 这条代码
         for (const item of processDto.positions) {
+          console.log(3)
           // 工序任务
           const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
           await processTask.update(
@@ -88,7 +91,7 @@ export class ProductionReportTwoService {
       }
       // 创建用户时长和任务单用户关系
       const taskTime = await this.createReportUserDuration(user, taskList)
-
+      console.log(4)
       await transaction.commit()
 
       return taskTime
@@ -149,7 +152,7 @@ export class ProductionReportTwoService {
             {
               productionReportId: productionReport.id,
               processPositionTaskId: processPositionTask.id,
-                             taskOfReportId: productionOrderTaskOfReport.id,
+              taskOfReportId: productionOrderTaskOfReport.id,
               reportQuantity: 1,
               startTime: processPositionTask.actualStartTime,
               endTime: new Date(),
