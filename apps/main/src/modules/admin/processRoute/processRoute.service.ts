@@ -434,7 +434,7 @@ export class ProcessRouteService {
               include: [
                 {
                   association: 'children',
-                  attributes: ['id', 'processName', 'reportRatio', 'isOut', 'createdAt', 'updatedAt', 'isChild', 'parentId', 'sort'],
+                  attributes: ['id', 'processName', 'reportRatio', 'createdAt', 'updatedAt', 'isChild', 'parentId', 'sort'],
                   required: false,
                 },
               ],
