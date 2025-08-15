@@ -1031,6 +1031,17 @@ export class ProductionReportService {
         {
           association: 'process',
           attributes: ['id', 'processName'],
+          include: [
+            {
+              association: 'sopList',
+              include: [
+                {
+                  association: 'fileList',
+                  through: {},
+                },
+              ],
+            },
+          ],
           where: {},
         },
         {

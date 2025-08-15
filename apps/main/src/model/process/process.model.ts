@@ -7,6 +7,7 @@ import { ProcessDept } from '@model/process/processDept.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { TeamProcess } from '@model/auth/teamProcess.model'
 import { ProcessTask } from '@model/production/processTask.model'
+import { SOP } from './SOP.model'
 
 /** 工序表 */
 @Table({ tableName: `process`, freezeTableName: true, timestamps: true, comment: '工序表' })
@@ -79,6 +80,9 @@ export class Process extends BaseDate<Process> {
 
   @HasMany(() => ProcessTask)
   declare tasks: ProcessTask[]
+
+  @HasMany(() => SOP)
+  declare sopList: SOP[]
 
   @HasOne(() => TeamProcess)
   declare teamProcess: TeamProcess
