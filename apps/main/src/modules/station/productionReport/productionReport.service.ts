@@ -28,11 +28,13 @@ import { ProductionOrderTask, TrendsTemplate } from '@model/index'
 import { BatchLogService } from '@modules/admin/batchLog/batchLog.service'
 import { CProductionReportDto, UProductionReportDto, FindPaginationDto, batchDto, auditDto, FindPaginationReportTaskListDto } from './productionReport.dto'
 import { POSITION_TASK_STATUS } from '@common/enum'
+import { ProductionReportTwoService } from './productionReportTwo.service'
 
 @Injectable()
 export class ProductionReportService {
   constructor(
     private readonly batchLogService: BatchLogService,
+    private readonly productionReportTwoService: ProductionReportTwoService,
     @Inject(RedisProvider.local)
     private readonly redis: Redis,
     @InjectModel(ProductionReport)
@@ -1121,7 +1123,7 @@ export class ProductionReportService {
     return result
   }
 
-  public async reportTaskList(dto: FindPaginationReportTaskListDto, pagination: Pagination, loadModel) {
+  public async reportTaskList(dto: FindPaginationReportTaskListDto, pagination: Pagination, user) {
     const processPositionTaskWhere = {}
 
     const options: FindPaginationOptions = {
@@ -1137,12 +1139,19 @@ export class ProductionReportService {
             {
               association: 'processTasks',
               where: {},
-              attributes: [],
+              attributes: ['id'],
               include: [
                 {
                   association: 'processPositionTasks',
                   where: processPositionTaskWhere,
-                  attributes: [],
+                  include: [
+                    {
+                      association: 'operateLogs',
+                      separate: true, // 单独查询关联，order 才会生效
+                      order: [['id', 'ASC']],
+                    },
+                  ],
+                  // attributes: [],
                 },
               ],
             },
@@ -1175,7 +1184,16 @@ export class ProductionReportService {
 
     const result = await Paging.diyPaging(ProductionOrderTask, pagination, options)
 
-    return result
+    let taskTime = null
+
+    if (dto.status == POSITION_TASK_STATUS.IN_PROGRESS) {
+      taskTime = await this.productionReportTwoService.getReportUserDuration(user, result.data[0].productSerials[0].processTasks[0].processPositionTasks)
+    }
+
+    return {
+      result,
+      taskTime,
+    }
   }
 
   // async batch(dto: batchDto, user: User, loadModel) {

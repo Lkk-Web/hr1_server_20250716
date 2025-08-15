@@ -332,9 +332,6 @@ export class PadProcessDto {
   @Min(1, { message: '报工数量必须大于0' })
   reportQuantity: number
 
-  @ApiProperty({ description: '所用时长 单位/s', type: Number, required: false })
-  duration?: number
-
   @ApiProperty({
     description: '铁芯序列号',
     required: false,
@@ -348,6 +345,13 @@ export class PadProcessDto {
     type: Boolean,
   })
   QCResult?: boolean
+
+  @ApiProperty({
+    description: '质检原因',
+    required: false,
+    type: String,
+  })
+  QCReason?: string
 }
 
 export class ProductionOrderTaskDto {

@@ -59,8 +59,8 @@ export class ProductionReportController {
   @ApiOperation({ summary: '可报工列表' })
   @Get('reportTask/findPagination')
   async reportTaskList(@Query() dto: FindPaginationReportTaskListDto, @CurrentPage() pagination: Pagination, @Req() req) {
-    let { factoryCode, loadModel } = req
-    const result = await this.service.reportTaskList(dto, pagination, loadModel)
+    let { factoryCode, loadModel, user } = req
+    const result = await this.service.reportTaskList(dto, pagination, user)
     return result
   }
 

@@ -45,8 +45,11 @@ export class ProductionReportTwoService {
         // 工单任务
         await ProductionOrderTask.update({ actualStartTime: new Date() }, { where: { id: processDto.productionOrderTaskId }, transaction }) // 工单
         for (const item of processDto.positions) {
+          console.log(1)
           // 工序任务
           const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
+          if (processTask.status == PROCESS_TASK_STATUS.running && taskStatus == TaskStatus.OPEN_TASK) throw new Error('当前任务正在进行中，不能重新开工')
+          if (processTask.status == PROCESS_TASK_STATUS.pause && taskStatus == TaskStatus.PAUSE) throw new Error('当前任务已暂停，不能暂停')
           await processTask.update(
             {
               status: taskStatus == TaskStatus.OPEN_TASK ? PROCESS_TASK_STATUS.running : PROCESS_TASK_STATUS.pause,
@@ -55,14 +58,12 @@ export class ProductionReportTwoService {
             { transaction }
           )
           // 工位任务
-          const processPositionTask = await ProcessPositionTask.findOne({ where: { serialId: item.serialId, processId: dto.processId }, include: [{ association: 'operateLogs' }] })
-          if (processPositionTask.status == POSITION_TASK_STATUS.IN_PROGRESS && taskStatus == TaskStatus.OPEN_TASK) throw new Error('当前工位任务正在进行中，不能重新开工')
-          if (processPositionTask.status == POSITION_TASK_STATUS.PAUSED && taskStatus == TaskStatus.PAUSE) throw new Error('当前工位任务已暂停，不能暂停')
+          const processPositionTask = await ProcessPositionTask.findOne({
+            where: { serialId: item.serialId, processId: dto.processId },
+            include: [{ association: 'operateLogs' }],
+          })
           await processPositionTask.update(
-            {
-              status: taskStatus == TaskStatus.OPEN_TASK ? POSITION_TASK_STATUS.IN_PROGRESS : POSITION_TASK_STATUS.PAUSED,
-              actualStartTime: processPositionTask.dataValues.actualStartTime ?? new Date(),
-            },
+            { actualStartTime: processPositionTask.dataValues.actualStartTime ?? new Date(), status: POSITION_TASK_STATUS.IN_PROGRESS },
             { transaction }
           )
           taskList.push(processPositionTask)
@@ -84,11 +85,11 @@ export class ProductionReportTwoService {
         }
       }
       // 创建用户时长和任务单用户关系
-      await this.createReportUserDuration(user, taskList)
+      const taskTime = await this.createReportUserDuration(user, taskList)
 
       await transaction.commit()
 
-      return true
+      return taskTime
 
       // 3. 处理工时
     } catch (error) {
@@ -114,17 +115,26 @@ export class ProductionReportTwoService {
           // 工序任务
           const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
           if (process.isQC) {
-            await processTask.update({
-              goodCount: item.QCResult ? 1 : 0,
-              reportQuantity: item.QCResult ? 1 : 0,
-            }, { transaction })
+            await processTask.update(
+              {
+                goodCount: item.QCResult ? 1 : 0,
+                reportQuantity: item.QCResult ? 1 : 0,
+              },
+              { transaction }
+            )
+            if (!item.QCResult) {
+              // 不良品 不良原因
+            }
           }
           // 工位任务
           const processPositionTask = await ProcessPositionTask.findOne({ where: { serialId: item.serialId, processId: dto.processId } })
-          await processPositionTask.update({
-            status: POSITION_TASK_STATUS.COMPLETED,
-            actualEndTime: new Date(),
-          }, { transaction })
+          await processPositionTask.update(
+            {
+              status: POSITION_TASK_STATUS.COMPLETED,
+              actualEndTime: new Date(),
+            },
+            { transaction }
+          )
           await ProductionReportDetail.create({ productionReportId: productionReport.id, processPositionTaskId: processPositionTask.id, reportQuantity: 1 }, { transaction })
           taskList.push(processPositionTask)
 
@@ -288,12 +298,18 @@ export class ProductionReportTwoService {
   private async createReportUserDuration(user, tasks: ProcessPositionTask[], productionReportId?: number) {
     //实际总时长
     // const actualTotalDuration = userDurations.reduce((total, userDuration) => total + userDuration.duration, 0);
+    let taskTime = []
 
     tasks.forEach(async task => {
       const taskDuration = this.calculateTotalDuration(task)
       const days = moment.duration(taskDuration).days().toString().padStart(2, '0')
       console.log(4444444, task.id, `${days}天`, moment.utc(taskDuration).format('HH:mm:ss'))
-
+      taskTime.push({
+        taskId: task.id,
+        duration: taskDuration,
+        time: moment.utc(taskDuration).format('HH:mm:ss'),
+        day: `${days}天`,
+      })
       const userTaskDuration = await UserTaskDuration.findOne({
         where: {
           userId: user.id,
@@ -335,6 +351,43 @@ export class ProductionReportTwoService {
         await userDuration.update({ duration: totalDuration })
       }
     }
+
+    return taskTime
+  }
+
+  //创建用户时长和报告用户关系
+  public async getReportUserDuration(user, tasks: ProcessPositionTask[], productionReportId?: number) {
+    //实际总时长
+    // const actualTotalDuration = userDurations.reduce((total, userDuration) => total + userDuration.duration, 0);
+    let taskTime = []
+
+    tasks.forEach(async task => {
+      const taskDuration = this.calculateTotalDuration(task)
+      const days = moment.duration(taskDuration).days().toString().padStart(2, '0')
+      console.log(4444444, task.id, taskDuration, `${days}天`, moment.utc(taskDuration).format('HH:mm:ss'))
+      taskTime.push({
+        taskId: task.id,
+        duration: taskDuration,
+        time: moment.utc(taskDuration).format('HH:mm:ss'),
+        day: `${days}天`,
+      })
+
+      return taskTime
+    })
+
+    // 报工
+    if (productionReportId) {
+      const userTaskDuration = await UserTaskDuration.findAll({ where: { productionReportId } })
+      const totalDuration = userTaskDuration.reduce((total, task) => total + task.duration, 0)
+      const userDuration = await UserDuration.findOne({ where: { userId: user.id } })
+      if (!userDuration) {
+        await UserDuration.create({ userId: user.id, duration: totalDuration })
+      } else {
+        await userDuration.update({ duration: totalDuration })
+      }
+    }
+
+    return taskTime
   }
 
   //创建生产汇报单
@@ -566,6 +619,8 @@ export class ProductionReportTwoService {
     // 计算总时间差（毫秒）--- 开始到现在
     let totalDuration = endTime.getTime()
 
+    console.log(JSON.stringify(task.operateLogs))
+
     // 遍历暂停时间，扣除暂停时间
     if (task.operateLogs) {
       let resumeTime
@@ -583,6 +638,7 @@ export class ProductionReportTwoService {
       })
     }
 
+    if (!task.operateLogs) throw '数据错误'
     return totalDuration
   }
 }
