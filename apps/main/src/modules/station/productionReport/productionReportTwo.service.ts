@@ -78,7 +78,7 @@ export class ProductionReportTwoService {
           console.log(6)
           await ProductSerial.update(
             { status: taskStatus == TaskStatus.OPEN_TASK ? ProductSerialStatus.IN_PROGRESS : ProductSerialStatus.PAUSED, currentProcessTaskId: processTask.dataValues.id },
-            { where: { id: item.serialId } }
+            { where: { id: item.serialId }, transaction }
           )
           // 日志
           const logs = await ProcessTaskLog.create(
@@ -94,7 +94,7 @@ export class ProductionReportTwoService {
       }
       // 创建用户时长和任务单用户关系
       console.log(7)
-      const taskTime = await this.createReportUserDuration(user, taskList)
+      const taskTime = await this.createReportUserDuration(user, taskList, undefined, transaction)
       console.log(8)
       await transaction.commit()
 
@@ -205,7 +205,7 @@ export class ProductionReportTwoService {
         }
       }
       // 3. 创建用户时长和报工关系、工时
-      const taskTime = await this.createReportUserDuration(user, taskList, productionReport.id)
+      const taskTime = await this.createReportUserDuration(user, taskList, productionReport.id, transaction)
 
       await transaction.commit()
 
@@ -322,13 +322,35 @@ export class ProductionReportTwoService {
     }
   }
 
-  //创建用户时长和报告用户关系
-  private async createReportUserDuration(user, tasks: ProcessPositionTask[], productionReportId?: number) {
+  // 创建用户时长和报告用户关系
+  private async createReportUserDuration(user, tasks: ProcessPositionTask[], productionReportId?: number, transaction?: Transaction) {
     //实际总时长
     // const actualTotalDuration = userDurations.reduce((total, userDuration) => total + userDuration.duration, 0);
     let taskTime = []
 
-    tasks.forEach(async task => {
+    // 性能优化：批量查询现有的 UserTaskDuration 记录
+    const taskIds = tasks.map(task => task.id)
+    const existingUserTaskDurations = await UserTaskDuration.findAll({
+      where: {
+        userId: user.id,
+        processPositionTaskId: { [Op.in]: taskIds },
+      },
+      transaction,
+    })
+
+    // 创建一个 Map 用于快速查找现有记录
+    const existingDurationsMap = new Map()
+    existingUserTaskDurations.forEach(duration => {
+      existingDurationsMap.set(duration.processPositionTaskId, duration)
+    })
+
+    // 准备批量操作的数据
+    const updatePromises = []
+    const createData = []
+
+    // 修复性能问题：使用 for...of 替代 forEach 来确保异步操作按顺序执行
+    // forEach 不会等待异步操作完成，导致所有数据库操作并发执行，可能造成数据库连接池耗尽和性能问题
+    for (const task of tasks) {
       const taskDuration = this.calculateTotalDuration(task)
       const days = moment.duration(taskDuration).days().toString().padStart(2, '0')
       console.log(4444444, task.id, `${days}天`, moment.utc(taskDuration).format('HH:mm:ss'))
@@ -338,52 +360,50 @@ export class ProductionReportTwoService {
         time: moment.utc(taskDuration).format('HH:mm:ss'),
         day: `${days}天`,
       })
-      const userTaskDuration = await UserTaskDuration.findOne({
-        where: {
+
+      const existingDuration = existingDurationsMap.get(task.id)
+      if (existingDuration) {
+        // 准备更新操作
+        updatePromises.push(existingDuration.update({ duration: taskDuration, ...(productionReportId && { productionReportId }) }, { transaction }))
+      } else {
+        // 准备创建操作
+        createData.push({
           userId: user.id,
           processPositionTaskId: task.id,
-        },
-      })
-
-      if (userTaskDuration) {
-        await userTaskDuration.update({ duration: taskDuration, ...(productionReportId && { productionReportId }) })
-      } else {
-        await UserTaskDuration.create({ userId: user.id, processPositionTaskId: task.id, duration: taskDuration })
+          duration: taskDuration,
+          ...(productionReportId && { productionReportId }),
+        })
       }
+    }
 
-      // if (productionReports) {
-      //   // 查找与当前工序任务关联的所有生产报告
-      //   const relatedReports = productionReports.filter(report => report.processId === task.processId)
+    // 批量执行更新和创建操作
+    await Promise.all(updatePromises)
 
-      //   if (relatedReports.length > 0) {
-      //     relatedReports.forEach(productionReport => {
-      //         reportUsers.push({
-      //           productionReportId: productionReport.id,
-      //           userId: user.id,
-      //         })
-      //     })
-      //   }
-
-      //   await UserTaskDuration.bulkCreate(reportUsers)
-      // }
-    })
+    if (createData.length > 0) {
+      try {
+        const result = await UserTaskDuration.bulkCreate(createData, { transaction })
+        console.log('批量创建完成，创建结果数量:', result.length)
+      } catch (error) {
+        throw error
+      }
+    }
 
     // 报工
     if (productionReportId) {
-      const userTaskDuration = await UserTaskDuration.findAll({ where: { productionReportId } })
+      const userTaskDuration = await UserTaskDuration.findAll({ where: { productionReportId }, transaction })
       const totalDuration = userTaskDuration.reduce((total, task) => total + task.duration, 0)
-      const userDuration = await UserDuration.findOne({ where: { userId: user.id } })
+      const userDuration = await UserDuration.findOne({ where: { userId: user.id }, transaction })
       if (!userDuration) {
-        await UserDuration.create({ userId: user.id, duration: totalDuration })
+        await UserDuration.create({ userId: user.id, duration: totalDuration }, { transaction })
       } else {
-        await userDuration.update({ duration: totalDuration })
+        await userDuration.update({ duration: totalDuration }, { transaction })
       }
     }
 
     return taskTime
   }
 
-  //创建用户时长和报告用户关系
+  // 获取用户时长和报告用户关系
   public async getReportUserDuration(user, tasks: ProcessPositionTask[], productionReportId?: number) {
     //实际总时长
     // const actualTotalDuration = userDurations.reduce((total, userDuration) => total + userDuration.duration, 0);
@@ -399,21 +419,7 @@ export class ProductionReportTwoService {
         time: moment.utc(taskDuration).format('HH:mm:ss'),
         day: `${days}天`,
       })
-
-      return taskTime
     })
-
-    // 报工
-    if (productionReportId) {
-      const userTaskDuration = await UserTaskDuration.findAll({ where: { productionReportId } })
-      const totalDuration = userTaskDuration.reduce((total, task) => total + task.duration, 0)
-      const userDuration = await UserDuration.findOne({ where: { userId: user.id } })
-      if (!userDuration) {
-        await UserDuration.create({ userId: user.id, duration: totalDuration })
-      } else {
-        await userDuration.update({ duration: totalDuration })
-      }
-    }
 
     return taskTime
   }
