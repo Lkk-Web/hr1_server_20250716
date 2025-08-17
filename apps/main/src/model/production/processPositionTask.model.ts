@@ -115,6 +115,14 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
   })
   declare actualEndTime: Date
 
+  // 报工工时
+  @Column({
+    comment: '报工工时',
+    type: DataType.INTEGER,
+    allowNull: true, // 可选项
+  })
+  declare actualWorkTime: number
+
   // 任务状态
   @Column({
     comment: '任务状态 (待派工, 待审核, 未开始, 执行中, 已暂停, 已完成)',

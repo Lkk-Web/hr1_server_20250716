@@ -37,18 +37,11 @@ export class ProductionReport extends BaseDate<ProductionReport> {
   declare productUserId: number
 
   @Column({
-    comment: '总报工时长（小时）',
+    comment: '总报工时长(秒s)',
     type: DataType.INTEGER,
     allowNull: true,
   })
-  declare allReportDurationHours: number
-
-  @Column({
-    comment: '总报工时长（分钟）',
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
-  declare allReportDurationMinutes: number
+  declare allReportDuration: number
 
   @Column({
     comment: '良品数',

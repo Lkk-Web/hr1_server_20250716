@@ -332,6 +332,9 @@ export class PadProcessDto {
   @Min(1, { message: '报工数量必须大于0' })
   reportQuantity: number
 
+  @ApiProperty({ description: '所用时长 单位/s', type: Number, required: false })
+  duration: number
+
   @ApiProperty({
     description: '铁芯序列号',
     required: false,
@@ -372,10 +375,6 @@ export class PadRegisterDto {
   @ValidateNested({ each: true })
   @IsArrayLength({ min: 1 }, { message: '工单配置必须是数组且长度大于0' })
   productionOrderTask: ProductionOrderTaskDto[]
-
-  // @ApiProperty({ description: '所用时长 单位/s', type: Number })
-  // @IsNumber({}, { message: '所用时长必须为数字' })
-  // duration: number
 
   @ApiProperty({
     description: '工序id',
