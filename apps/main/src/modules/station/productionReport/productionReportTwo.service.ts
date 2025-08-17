@@ -114,35 +114,31 @@ export class ProductionReportTwoService {
     try {
       // 1. 创建报工单
       const productionReport = await ProductionReport.create(
-        { processId: dto.processId, productUserId: user.id, teamId: dto.teamId, orderCode: `PG` + moment().format('YYYYMMDDHHmmss') },
+        {
+          processId: dto.processId,
+          productUserId: user.id,
+          teamId: dto.teamId,
+          allReportDuration: dto.productionOrderTask.reduce((pre, cur) => pre + cur.positions.reduce((pre, cur) => pre + (cur.duration || 0), 0), 0),
+          orderCode: `BG` + moment().format('YYYYMMDDHHmmss'),
+        },
         { transaction }
       )
       // 2. 处理报工产生的关联及工序的推进
       // 2.1 处理工单
       for (const processDto of dto.productionOrderTask) {
-        await ProductionOrderTaskOfReport.create({ productionOrderTaskId: processDto.productionOrderTaskId, reportId: productionReport.id }, { transaction })
+        const productionOrderTask = await ProductionOrderTask.findOne({ where: { id: processDto.productionOrderTaskId } })
+        await ProductionOrderTaskOfReport.create({ productionOrderTaskId: productionOrderTask.id, reportId: productionReport.id }, { transaction })
         const process = await Process.findOne({ where: { id: dto.processId } })
         // 2.2 处理工序（工位）
         for (const item of processDto.positions) {
           // 工序任务
           const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
-          if (process.isQC) {
-            await processTask.update(
-              {
-                goodCount: item.QCResult ? 1 : 0,
-                reportQuantity: item.QCResult ? 1 : 0,
-              },
-              { transaction }
-            )
-            if (!item.QCResult) {
-              // 不良品 不良原因
-            }
-          }
           // 工位任务
           const processPositionTask = await ProcessPositionTask.findOne({
             where: { serialId: item.serialId, processId: dto.processId },
             include: [{ association: 'operateLogs' }],
           })
+
           // 上一道子工序
           const preProcessPositionTask = await ProcessPositionTask.findOne({
             where: { serialId: processPositionTask.serialId, id: processPositionTask.id - 1 },
@@ -151,12 +147,31 @@ export class ProductionReportTwoService {
           })
           if (processPositionTask.dataValues.status != POSITION_TASK_STATUS.IN_PROGRESS) throw new Error('当前序列号不在进行中，无法报工')
           if (preProcessPositionTask && preProcessPositionTask.dataValues.status != POSITION_TASK_STATUS.COMPLETED) throw new Error('上一道子工序未完成，无法报工')
-          await processPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED, actualEndTime: new Date() }, { transaction })
+
+          await processPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED, actualEndTime: new Date(), actualWorkTime: item.duration }, { transaction })
+
+          // 质检工序
+          if (process.isQC) {
+            if (item.QCResult) {
+              // 良品
+              await processTask.update({ goodCount: 1, badCount: 0 }, { transaction })
+              await productionReport.update({ allGoodCount: productionReport.allGoodCount + 1 }, { transaction })
+              await productionOrderTask.update({ goodCount: productionOrderTask.goodCount + 1 }, { transaction })
+              await processPositionTask.update({ goodCount: productionOrderTask.goodCount + 1 }, { transaction })
+            } else {
+              // 不良品 不良原因
+              await processTask.update({ goodCount: 0, badCount: 1 }, { transaction })
+              await productionReport.update({ allBadCount: productionReport.allBadCount + 1 }, { transaction })
+              await productionOrderTask.update({ badCount: productionOrderTask.badCount + 1 }, { transaction })
+              await processPositionTask.update({ badCount: productionOrderTask.badCount + 1 }, { transaction })
+            }
+          }
+
           await ProductionReportDetail.create(
             {
               productionReportId: productionReport.id,
               processPositionTaskId: processPositionTask.id,
-              productionOrderTaskId: processDto.productionOrderTaskId,
+              productionOrderTaskId: productionOrderTask.id,
               reportQuantity: 1,
               startTime: processPositionTask.actualStartTime,
               endTime: new Date(),
@@ -646,33 +661,54 @@ export class ProductionReportTwoService {
     return `IPQC${year}${month}${day}${num.toString().padStart(4, '0')}`
   }
 
-  // 将时间字符串转换为 Date 对象
+  // 计算任务总时长（扣除暂停时间） TODO 待优化
   public calculateTotalDuration(task: ProcessPositionTask) {
-    const endTime = new Date(task.actualEndTime || new Date())
-
-    // 计算总时间差（毫秒）--- 开始到现在
-    let totalDuration = endTime.getTime()
-
-    console.log(JSON.stringify(task.operateLogs))
-
-    // 遍历暂停时间，扣除暂停时间
-    if (task.operateLogs) {
-      let resumeTime
-      let pauseTime
-      task.operateLogs.forEach((time, i) => {
-        resumeTime = time.resumeTime ? new Date(time.resumeTime) : 0
-        pauseTime = time.pauseTime ? new Date(time.pauseTime) : 0
-        if (resumeTime) {
-          totalDuration -= resumeTime.getTime()
-        }
-        // 最后如果为暂停则不加
-        if (pauseTime && i != task.operateLogs.length - 1) {
-          totalDuration += pauseTime.getTime()
-        }
-      })
+    if (!task.operateLogs || task.operateLogs.length === 0) {
+      throw '数据错误：缺少操作日志'
     }
 
-    if (!task.operateLogs) throw '数据错误'
-    return totalDuration
+    const endTime = new Date(task.actualEndTime || new Date())
+    const startTime = new Date(task.actualStartTime)
+
+    // 计算总时间差（毫秒）--- 从开始到结束
+    let totalDuration = endTime.getTime() - startTime.getTime()
+
+    // 分离暂停和恢复记录
+    const pauseRecords = task.operateLogs.filter(log => log.pauseTime)
+    const resumeRecords = task.operateLogs.filter(log => log.resumeTime)
+
+    console.log('暂停记录数:', pauseRecords.length)
+    console.log('恢复记录数:', resumeRecords.length)
+
+    // 计算所有暂停时长并扣除
+    let totalPauseDuration = 0
+
+    // 按时间排序暂停记录
+    pauseRecords.sort((a, b) => new Date(a.pauseTime).getTime() - new Date(b.pauseTime).getTime())
+    resumeRecords.sort((a, b) => new Date(a.resumeTime).getTime() - new Date(b.resumeTime).getTime())
+
+    for (let i = 0; i < pauseRecords.length; i++) {
+      const pauseTime = new Date(pauseRecords[i].pauseTime)
+
+      if (i < resumeRecords.length) {
+        // 有对应的恢复记录
+        const resumeTime = new Date(resumeRecords[i].resumeTime)
+        const pauseDuration = resumeTime.getTime() - pauseTime.getTime()
+        totalPauseDuration += pauseDuration
+      } else {
+        // 没有对应的恢复记录，说明当前仍在暂停中
+        const pauseDuration = endTime.getTime() - pauseTime.getTime()
+        totalPauseDuration += pauseDuration
+      }
+    }
+
+    // 总时长 = 结束时间 - 开始时间 - 暂停时长
+    const actualDuration = totalDuration - totalPauseDuration
+
+    console.log('总时间:', totalDuration, 'ms')
+    console.log('暂停时间:', totalPauseDuration, 'ms')
+    console.log('实际工作时间:', actualDuration, 'ms')
+
+    return Math.max(0, actualDuration) // 确保不返回负数
   }
 }

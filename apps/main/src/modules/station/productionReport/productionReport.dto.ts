@@ -311,7 +311,7 @@ export class batchDto {
 }
 
 export class auditDto {
-  @ApiProperty({ required: false, description: '状态(审核/取消审核)', type: String })
+  @ApiProperty({ required: false, description: '状态(已通过，已驳回)', type: String })
   status: string
 
   @ApiProperty({
