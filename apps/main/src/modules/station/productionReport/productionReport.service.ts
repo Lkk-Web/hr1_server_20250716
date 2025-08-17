@@ -1142,235 +1142,235 @@ export class ProductionReportService {
   //   return new ResultVO(sucessCount, 200, '批量创建成功')
   // }
 
-  // public async audit(dto: auditDto, user, loadModel) {
-  //   if (!user.id) {
-  //     throw new HttpException('登录状态出现异常,请重新登录', 400)
-  //   }
-  //   if (dto.ids != undefined) {
-  //     for (const id of dto.ids) {
-  //       const report = await ProductionReport.findOne({
-  //         where: { id },
-  //         include: [
-  //           {
-  //             association: 'processPositionTask',
-  //             include: [
-  //               {
-  //                 association: 'processTask',
-  //                 attributes: ['id', 'serialId'],
-  //               },
-  //             ],
-  //           },
-  //         ],
-  //       })
-  //       if (report) {
-  //         const date: Date = new Date()
-  //         const formattedDate = moment(date, 'YYYY-MM-DD HH:mm:ss').toDate()
-  //         await ProductionReport.update(
-  //           {
-  //             auditorId: user.id,
-  //             auditStatus: dto.status,
-  //             auditedAt: formattedDate,
-  //           },
-  //           { where: { id } }
-  //         )
-  //         if (dto.status === '已审核') {
-  //           const order = await ProductionOrder.findByPk(report.processPositionTask?.processTask?.serialId, {
-  //             include: [
-  //               {
-  //                 association: 'bom',
-  //                 attributes: ['id', 'parentMaterialCode', 'remark', 'version', 'quantity', 'formData'],
-  //                 where: {},
-  //                 include: [
-  //                   {
-  //                     association: 'parentMaterial',
-  //                     attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
-  //                     where: {},
-  //                   },
-  //                 ],
-  //               },
-  //               {
-  //                 association: 'boms',
-  //                 required: false,
-  //               },
-  //             ],
-  //           })
-  //           const perUser = await User.findByPk(report.productUserId)
-  //           let per = await Performance.findOne({ where: { userId: perUser.id } })
-  //           let config = await PerformanceConfig.findOne({
-  //             where: {
-  //               // materialId: order.dataValues.bom.materialId,
-  //               processId: report.processId,
-  //             },
-  //           })
-  //           if (!per) {
-  //             per = await Performance.create({
-  //               deptId: perUser.departmentId,
-  //               userId: perUser.id,
-  //               goodCount: 0,
-  //               badCount: 0,
-  //               yieldRate: 0,
-  //               goodCountWages: 0,
-  //               badCountWages: 0,
-  //               wages: 0,
-  //             })
-  //           }
-  //           if (config) {
-  //             if (report.accountingType === '计件') {
-  //               per.update({
-  //                 goodCount: report.goodCount + per.goodCount,
-  //                 badCount: report.badCount + per.badCount,
-  //                 yieldRate: ((report.goodCount + per.goodCount) / (report.badCount + report.goodCount + per.goodCount + per.badCount)) * 100,
-  //                 goodCountWages: report.goodCount * config.goodCountPrice + per.goodCountWages,
-  //                 badCountWages: report.badCount * config.badCountPrice + per.badCountWages,
-  //                 wages: report.goodCount * config.goodCountPrice + report.badCount * config.badCountPrice + per.wages,
-  //               })
-  //               //生成绩效明细
-  //               const temp = await PerformanceDetailed.findOne({
-  //                 where: {
-  //                   productionReportId: id,
-  //                   // materialId: order.dataValues.bom.materialId,
-  //                   processId: report.processId,
-  //                   performanceId: per.id,
-  //                   id: report.processPositionTask?.processTask?.serialId,
-  //                   userId: perUser.id,
-  //                 },
-  //               })
-  //               if (!temp) {
-  //                 await PerformanceDetailed.create({
-  //                   productionReportId: id,
-  //                   // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
-  //                   processId: report.processId,
-  //                   performanceId: per.id,
-  //                   id: report.processPositionTask?.processTask?.serialId,
-  //                   userId: perUser.id,
-  //                   goodCount: report.goodCount,
-  //                   badCount: report.badCount,
-  //                   goodCountPrice: config.goodCountPrice,
-  //                   badCountPrice: config.badCountPrice,
-  //                   goodCountWages: report.goodCount * config.goodCountPrice,
-  //                   badCountWages: report.badCount * config.badCountPrice,
-  //                   yieldRate: (report.goodCount / (report.badCount + report.goodCount)) * 100,
-  //                   wages: report.badCount * config.badCountPrice + report.goodCount * config.goodCountPrice,
-  //                 })
-  //               } else {
-  //                 await temp.update({
-  //                   goodCount: report.goodCount,
-  //                   badCount: report.badCount,
-  //                   goodCountPrice: config.goodCountPrice,
-  //                   badCountPrice: config.badCountPrice,
-  //                   goodCountWages: report.goodCount * config.goodCountPrice,
-  //                   badCountWages: report.badCount * config.badCountPrice,
-  //                   yieldRate: (report.goodCount / (report.badCount + report.goodCount)) * 100,
-  //                   wages: report.badCount * config.badCountPrice + report.goodCount * config.goodCountPrice,
-  //                 })
-  //               }
-  //             } else {
-  //               per.update({
-  //                 goodCount: report.goodCount + per.goodCount,
-  //                 badCount: report.badCount + per.badCount,
-  //                 yieldRate: ((report.goodCount + per.goodCount) / (report.badCount + report.goodCount + per.goodCount + per.badCount)) * 100,
-  //                 goodCountWages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice + per.goodCountWages,
-  //                 wages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice + per.wages,
-  //               })
+  public async audit(dto: auditDto, user, loadModel) {
+    await ProductionReport.update({ auditStatus: dto.status }, { where: { id: dto.ids } })
 
-  //               const temp = await PerformanceDetailed.findOne({
-  //                 where: {
-  //                   productionReportId: id,
-  //                   // materialId: order.dataValues.bom.materialId,
-  //                   processId: report.processId,
-  //                   performanceId: per.id,
-  //                   id: report.processPositionTask?.processTask?.serialId,
-  //                 },
-  //               })
-  //               if (!temp) {
-  //                 //生成绩效明细
-  //                 await PerformanceDetailed.create({
-  //                   productionReportId: id,
-  //                   // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
-  //                   processId: report.processId,
-  //                   performanceId: per.id,
-  //                   id: report.processPositionTask?.processTask?.serialId,
-  //                   userId: perUser.id,
-  //                   goodCount: report.goodCount,
-  //                   badCount: report.badCount,
-  //                   goodCountPrice: config.goodCountPrice,
-  //                   badCountPrice: config.badCountPrice,
-  //                   goodCountWages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice,
-  //                   yieldRate: (report.goodCount / (report.badCount + report.goodCount)) * 100,
-  //                   wages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice,
-  //                 })
-  //               } else {
-  //                 await temp.update({
-  //                   goodCount: report.goodCount,
-  //                   badCount: report.badCount,
-  //                   goodCountPrice: config.goodCountPrice,
-  //                   badCountPrice: config.badCountPrice,
-  //                   goodCountWages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice,
-  //                   yieldRate: (report.goodCount / (report.badCount + report.goodCount)) * 100,
-  //                   wages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice,
-  //                 })
-  //               }
-  //             }
-  //           }
-  //         } else if (dto.status === '取消审核') {
-  //           const order = await ProductionOrder.findByPk(report.processPositionTask?.processTask?.serialId, {
-  //             include: [
-  //               {
-  //                 association: 'bom',
-  //                 attributes: ['id', 'parentMaterialCode', 'remark', 'version', 'quantity', 'formData'],
-  //                 where: {},
-  //                 include: [
-  //                   {
-  //                     association: 'parentMaterial',
-  //                     attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
-  //                     where: {},
-  //                   },
-  //                 ],
-  //               },
-  //             ],
-  //           })
-  //           // 删除相关绩效
-  //           if (user.id) {
-  //             const perUser = await User.findByPk(user.id)
-  //             let per = await Performance.findOne({ where: { userId: perUser.id } })
-  //             let config = await PerformanceConfig.findOne({
-  //               where: {
-  //                 // materialId: order.dataValues.bom.dataValues.materialId,
-  //                 processId: report.dataValues.processId,
-  //               },
-  //             })
-  //             let detail = await PerformanceDetailed.findOne({
-  //               where: { performanceId: per.id },
-  //               order: [['createdAt', 'DESC']],
-  //             })
-  //             if (per) {
-  //               if (report.accountingType === '计件') {
-  //                 per.update({
-  //                   goodCount: per.goodCount - detail.goodCount,
-  //                   badCount: per.badCount - detail.badCount,
-  //                   yieldRate: ((per.goodCount - detail.goodCount) / (per.goodCount + per.badCount - detail.badCount - detail.goodCount)) * 100,
-  //                   goodCountWages: per.goodCountWages - detail.goodCountWages,
-  //                   badCountWages: per.badCountWages - detail.badCountWages,
-  //                   wages: per.wages - detail.goodCountWages - detail.badCountWages,
-  //                 })
-  //               } else {
-  //                 per.update({
-  //                   goodCount: per.goodCount - detail.goodCount,
-  //                   badCount: per.badCount - detail.badCount,
-  //                   yieldRate: ((per.goodCount - detail.goodCount) / (per.goodCount + per.badCount - detail.badCount - detail.goodCount)) * 100,
-  //                   goodCountWages: per.goodCountWages - detail.goodCountWages,
-  //                   wages: per.wages - detail.goodCountWages,
-  //                 })
-  //               }
-  //             }
-  //             await detail.destroy()
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  //   return new ResultVO()
-  // }
+    return `${dto.status}成功`
+    if (dto.ids != undefined) {
+      for (const id of dto.ids) {
+        const report = await ProductionReport.findOne({
+          where: { id },
+          include: [
+            {
+              association: 'processPositionTask',
+              include: [
+                {
+                  association: 'processTask',
+                  attributes: ['id', 'serialId'],
+                },
+              ],
+            },
+          ],
+        })
+        // if (report) {
+        //   const date: Date = new Date()
+        //   const formattedDate = moment(date, 'YYYY-MM-DD HH:mm:ss').toDate()
+        //   await ProductionReport.update(
+        //     {
+        //       auditorId: user.id,
+        //       auditStatus: dto.status,
+        //       auditedAt: formattedDate,
+        //     },
+        //     { where: { id } }
+        //   )
+        //   if (dto.status === '已审核') {
+        //     const order = await ProductionOrder.findByPk(report.processPositionTask?.processTask?.serialId, {
+        //       include: [
+        //         {
+        //           association: 'bom',
+        //           attributes: ['id', 'parentMaterialCode', 'remark', 'version', 'quantity', 'formData'],
+        //           where: {},
+        //           include: [
+        //             {
+        //               association: 'parentMaterial',
+        //               attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
+        //               where: {},
+        //             },
+        //           ],
+        //         },
+        //         {
+        //           association: 'boms',
+        //           required: false,
+        //         },
+        //       ],
+        //     })
+        //     const perUser = await User.findByPk(report.productUserId)
+        //     let per = await Performance.findOne({ where: { userId: perUser.id } })
+        //     let config = await PerformanceConfig.findOne({
+        //       where: {
+        //         // materialId: order.dataValues.bom.materialId,
+        //         processId: report.processId,
+        //       },
+        //     })
+        //     if (!per) {
+        //       per = await Performance.create({
+        //         deptId: perUser.departmentId,
+        //         userId: perUser.id,
+        //         goodCount: 0,
+        //         badCount: 0,
+        //         yieldRate: 0,
+        //         goodCountWages: 0,
+        //         badCountWages: 0,
+        //         wages: 0,
+        //       })
+        //     }
+        //     if (config) {
+        //       if (report.accountingType === '计件') {
+        //         per.update({
+        //           goodCount: report.goodCount + per.goodCount,
+        //           badCount: report.badCount + per.badCount,
+        //           yieldRate: ((report.goodCount + per.goodCount) / (report.badCount + report.goodCount + per.goodCount + per.badCount)) * 100,
+        //           goodCountWages: report.goodCount * config.goodCountPrice + per.goodCountWages,
+        //           badCountWages: report.badCount * config.badCountPrice + per.badCountWages,
+        //           wages: report.goodCount * config.goodCountPrice + report.badCount * config.badCountPrice + per.wages,
+        //         })
+        //         //生成绩效明细
+        //         const temp = await PerformanceDetailed.findOne({
+        //           where: {
+        //             productionReportId: id,
+        //             // materialId: order.dataValues.bom.materialId,
+        //             processId: report.processId,
+        //             performanceId: per.id,
+        //             id: report.processPositionTask?.processTask?.serialId,
+        //             userId: perUser.id,
+        //           },
+        //         })
+        //         if (!temp) {
+        //           await PerformanceDetailed.create({
+        //             productionReportId: id,
+        //             // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
+        //             processId: report.processId,
+        //             performanceId: per.id,
+        //             id: report.processPositionTask?.processTask?.serialId,
+        //             userId: perUser.id,
+        //             goodCount: report.goodCount,
+        //             badCount: report.badCount,
+        //             goodCountPrice: config.goodCountPrice,
+        //             badCountPrice: config.badCountPrice,
+        //             goodCountWages: report.goodCount * config.goodCountPrice,
+        //             badCountWages: report.badCount * config.badCountPrice,
+        //             yieldRate: (report.goodCount / (report.badCount + report.goodCount)) * 100,
+        //             wages: report.badCount * config.badCountPrice + report.goodCount * config.goodCountPrice,
+        //           })
+        //         } else {
+        //           await temp.update({
+        //             goodCount: report.goodCount,
+        //             badCount: report.badCount,
+        //             goodCountPrice: config.goodCountPrice,
+        //             badCountPrice: config.badCountPrice,
+        //             goodCountWages: report.goodCount * config.goodCountPrice,
+        //             badCountWages: report.badCount * config.badCountPrice,
+        //             yieldRate: (report.goodCount / (report.badCount + report.goodCount)) * 100,
+        //             wages: report.badCount * config.badCountPrice + report.goodCount * config.goodCountPrice,
+        //           })
+        //         }
+        //       } else {
+        //         per.update({
+        //           goodCount: report.goodCount + per.goodCount,
+        //           badCount: report.badCount + per.badCount,
+        //           yieldRate: ((report.goodCount + per.goodCount) / (report.badCount + report.goodCount + per.goodCount + per.badCount)) * 100,
+        //           goodCountWages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice + per.goodCountWages,
+        //           wages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice + per.wages,
+        //         })
+
+        //         const temp = await PerformanceDetailed.findOne({
+        //           where: {
+        //             productionReportId: id,
+        //             // materialId: order.dataValues.bom.materialId,
+        //             processId: report.processId,
+        //             performanceId: per.id,
+        //             id: report.processPositionTask?.processTask?.serialId,
+        //           },
+        //         })
+        //         if (!temp) {
+        //           //生成绩效明细
+        //           await PerformanceDetailed.create({
+        //             productionReportId: id,
+        //             // materialId: order.dataValues.bom.dataValues.parentMaterial.id,
+        //             processId: report.processId,
+        //             performanceId: per.id,
+        //             id: report.processPositionTask?.processTask?.serialId,
+        //             userId: perUser.id,
+        //             goodCount: report.goodCount,
+        //             badCount: report.badCount,
+        //             goodCountPrice: config.goodCountPrice,
+        //             badCountPrice: config.badCountPrice,
+        //             goodCountWages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice,
+        //             yieldRate: (report.goodCount / (report.badCount + report.goodCount)) * 100,
+        //             wages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice,
+        //           })
+        //         } else {
+        //           await temp.update({
+        //             goodCount: report.goodCount,
+        //             badCount: report.badCount,
+        //             goodCountPrice: config.goodCountPrice,
+        //             badCountPrice: config.badCountPrice,
+        //             goodCountWages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice,
+        //             yieldRate: (report.goodCount / (report.badCount + report.goodCount)) * 100,
+        //             wages: report.reportDurationHours * 60 * config.goodCountPrice + report.reportDurationMinutes * config.goodCountPrice,
+        //           })
+        //         }
+        //       }
+        //     }
+        //   } else if (dto.status === '取消审核') {
+        //     const order = await ProductionOrder.findByPk(report.processPositionTask?.processTask?.serialId, {
+        //       include: [
+        //         {
+        //           association: 'bom',
+        //           attributes: ['id', 'parentMaterialCode', 'remark', 'version', 'quantity', 'formData'],
+        //           where: {},
+        //           include: [
+        //             {
+        //               association: 'parentMaterial',
+        //               attributes: ['id', 'name', 'code', 'spec', 'attr', 'unit', 'status'],
+        //               where: {},
+        //             },
+        //           ],
+        //         },
+        //       ],
+        //     })
+        //     // 删除相关绩效
+        //     if (user.id) {
+        //       const perUser = await User.findByPk(user.id)
+        //       let per = await Performance.findOne({ where: { userId: perUser.id } })
+        //       let config = await PerformanceConfig.findOne({
+        //         where: {
+        //           // materialId: order.dataValues.bom.dataValues.materialId,
+        //           processId: report.dataValues.processId,
+        //         },
+        //       })
+        //       let detail = await PerformanceDetailed.findOne({
+        //         where: { performanceId: per.id },
+        //         order: [['createdAt', 'DESC']],
+        //       })
+        //       if (per) {
+        //         if (report.accountingType === '计件') {
+        //           per.update({
+        //             goodCount: per.goodCount - detail.goodCount,
+        //             badCount: per.badCount - detail.badCount,
+        //             yieldRate: ((per.goodCount - detail.goodCount) / (per.goodCount + per.badCount - detail.badCount - detail.goodCount)) * 100,
+        //             goodCountWages: per.goodCountWages - detail.goodCountWages,
+        //             badCountWages: per.badCountWages - detail.badCountWages,
+        //             wages: per.wages - detail.goodCountWages - detail.badCountWages,
+        //           })
+        //         } else {
+        //           per.update({
+        //             goodCount: per.goodCount - detail.goodCount,
+        //             badCount: per.badCount - detail.badCount,
+        //             yieldRate: ((per.goodCount - detail.goodCount) / (per.goodCount + per.badCount - detail.badCount - detail.goodCount)) * 100,
+        //             goodCountWages: per.goodCountWages - detail.goodCountWages,
+        //             wages: per.wages - detail.goodCountWages,
+        //           })
+        //         }
+        //       }
+        //       await detail.destroy()
+        //     }
+        //   }
+        // }
+      }
+    }
+    return new ResultVO()
+  }
 
   // public async batDelete(dto: deleteIdsDto, loadModel) {
   //   for (const id of dto.ids) {

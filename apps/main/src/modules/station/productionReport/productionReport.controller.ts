@@ -2,7 +2,7 @@ import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestj
 import { Body, Get, HttpCode, HttpStatus, Param, Post, Query, Req } from '@nestjs/common'
 import { StationAuth } from '@core/decorator/controller'
 import { ProductionReportService } from './productionReport.service'
-import { FindPaginationDto, FindPaginationReportTaskListDto, OpenTaskDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
+import { auditDto, FindPaginationDto, FindPaginationReportTaskListDto, OpenTaskDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { ProductionReportTwoService } from '@modules/station/productionReport/productionReportTwo.service'
 import { Pagination } from '@common/interface'
@@ -110,14 +110,15 @@ export class ProductionReportController {
     return this.serviceTwo.produceStore(dto)
   }
 
-  //  @ApiOperation({ summary: '审核' })
-  //   @HttpCode(HttpStatus.OK)
-  //   @Post('audit')
-  //   async audit(@Body() dto: auditDto, @Req() req) {
-  //     let { factoryCode, loadModel } = req
-  //     const result = await this.service.audit(dto, req.user, loadModel)
-  //     return result
-  //   }
+  @ApiOperation({ summary: '审核' })
+  @HttpCode(HttpStatus.OK)
+  @ApiPlatformWhitelist(['admin', 'station'])
+  @Post('audit')
+  async audit(@Body() dto: auditDto, @Req() req) {
+    let { factoryCode, loadModel } = req
+    const result = await this.service.audit(dto, req.user, loadModel)
+    return result
+  }
 
   //   @ApiOperation({ summary: '批量删除' })
   //   @HttpCode(HttpStatus.OK)
