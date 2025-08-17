@@ -80,6 +80,21 @@ export class ProductionOrderTaskService {
           association: 'productSerials',
           required: false,
           where: {},
+          include: [
+            {
+              association: 'currentProcessTask',
+              include: [{ association: 'process', attributes: ['id', 'processName'] }],
+            },
+            // {
+            //   association: 'processTasks',
+            //   include: [
+            //     {
+            //       association: 'processPositionTasks',
+            //       include: [{ association: 'process', attributes: ['id', 'processName'] }],
+            //     },
+            //   ],
+            // },
+          ],
         },
       ],
       attributes: { exclude: ['createdAt', 'updatedAt', 'productionOrderDetailId'] },

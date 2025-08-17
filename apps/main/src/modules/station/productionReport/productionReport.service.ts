@@ -937,7 +937,7 @@ export class ProductionReportService {
       include: [
         {
           association: 'productionOrderTask',
-          attributes: ['id', 'orderCode', 'splitQuantity'],
+          attributes: ['id', 'orderCode', 'splitQuantity', 'goodCount', 'badCount'],
           required: false,
           through: { attributes: [] },
           where: {},
@@ -948,6 +948,7 @@ export class ProductionReportService {
               include: [
                 {
                   association: 'processPositionTask',
+                  include: [{ association: 'serial' }],
                 },
               ],
             },
@@ -961,6 +962,11 @@ export class ProductionReportService {
         {
           association: 'process',
           attributes: ['id', 'processName'],
+          where: {},
+        },
+        {
+          association: 'team',
+          attributes: ['id', 'name'],
           where: {},
         },
         {
