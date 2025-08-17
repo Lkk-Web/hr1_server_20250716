@@ -12,6 +12,14 @@ import { ProductionOrderTaskOfReport } from './productionOrderTaskOfReport'
 
 @Table({ tableName: `production_report`, timestamps: true, comment: '生产报工表 - 序列号 - 工序' })
 export class ProductionReport extends BaseDate<ProductionReport> {
+  // 报工单
+  @Column({
+    comment: '报工单',
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  declare orderCode: string
+
   @ForeignKey(() => Process)
   @Column({
     comment: '工序Id',

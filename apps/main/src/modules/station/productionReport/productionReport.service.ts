@@ -943,17 +943,11 @@ export class ProductionReportService {
           where: {},
           include: [
             {
-              association: 'productionReports',
+              association: 'productionReportDetails',
               required: false,
               include: [
                 {
-                  association: 'productionReportDetails',
-                  required: false,
-                  include: [
-                    {
-                      association: 'processPositionTask',
-                    },
-                  ],
+                  association: 'processPositionTask',
                 },
               ],
             },

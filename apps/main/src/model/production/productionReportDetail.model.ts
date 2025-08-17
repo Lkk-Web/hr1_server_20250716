@@ -4,7 +4,7 @@ import { User } from '@model/auth/user'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { ProcessPositionTask } from './processPositionTask.model'
 import { ProductionReport } from './productionReport.model'
-import { ProductionOrderTaskOfReport } from './productionOrderTaskOfReport'
+import { ProductionOrderTask } from './productionOrderTask.model'
 
 @Table({ tableName: `production_report_detail`, timestamps: true, comment: '生产报工表 - 工位任务单' })
 export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
@@ -16,20 +16,13 @@ export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
   })
   declare productionReportId: number
 
-  @ForeignKey(() => ProductionOrderTaskOfReport)
+  @ForeignKey(() => ProductionOrderTask)
   @Column({
-    comment: '工单关联任务ID',
-    field: 'taskOfReportId',
+    comment: '生产工单任务ID',
     type: DataType.INTEGER,
-    allowNull: true
+    allowNull: true,
   })
-  declare taskOfReportId: number
-
-  @BelongsTo(() => ProductionOrderTaskOfReport, {
-    foreignKey: 'taskOfReportId',
-    constraints: false
-  })
-  declare productionOrderTaskOfReport?: ProductionOrderTaskOfReport
+  declare productionOrderTaskId: number
 
   @ForeignKey(() => ProcessPositionTask)
   @Column({
@@ -179,11 +172,15 @@ export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
   })
   declare batNum: string
 
-
+  @BelongsTo(() => ProductionOrderTask, {
+    foreignKey: 'productionOrderTaskId',
+    constraints: false,
+  })
+  declare productionOrderTask?: ProductionOrderTask
 
   @BelongsTo(() => ProcessPositionTask, {
     foreignKey: 'processPositionTaskId',
-    constraints: false
+    constraints: false,
   })
   processPositionTask: ProcessPositionTask
 

@@ -57,6 +57,7 @@ export class ProductionReportTwoService {
             },
             { transaction }
           )
+          console.log(4)
           // 工位任务
           const processPositionTask = await ProcessPositionTask.findOne({
             where: { serialId: item.serialId, processId: dto.processId },
@@ -64,6 +65,7 @@ export class ProductionReportTwoService {
           })
           if (processPositionTask.status == POSITION_TASK_STATUS.IN_PROGRESS && taskStatus == TaskStatus.OPEN_TASK) throw new Error('当前任务正在进行中，不能重新开工')
           if (processPositionTask.status == POSITION_TASK_STATUS.PAUSED && taskStatus == TaskStatus.PAUSE) throw new Error('当前任务已暂停，不能暂停')
+          console.log(5)
           await processPositionTask.update(
             {
               actualStartTime: processPositionTask.dataValues.actualStartTime ?? new Date(),
@@ -73,6 +75,7 @@ export class ProductionReportTwoService {
           )
           taskList.push(processPositionTask)
           // 序列号
+          console.log(6)
           await ProductSerial.update(
             { status: taskStatus == TaskStatus.OPEN_TASK ? ProductSerialStatus.IN_PROGRESS : ProductSerialStatus.PAUSED, currentProcessTaskId: processTask.dataValues.id },
             { where: { id: item.serialId } }
@@ -90,8 +93,9 @@ export class ProductionReportTwoService {
         }
       }
       // 创建用户时长和任务单用户关系
+      console.log(7)
       const taskTime = await this.createReportUserDuration(user, taskList)
-      console.log(4)
+      console.log(8)
       await transaction.commit()
 
       return taskTime
@@ -109,14 +113,14 @@ export class ProductionReportTwoService {
     let taskList: ProcessPositionTask[] = []
     try {
       // 1. 创建报工单
-      const productionReport = await ProductionReport.create({ processId: dto.processId, productUserId: user.id, teamId: dto.teamId }, { transaction })
+      const productionReport = await ProductionReport.create(
+        { processId: dto.processId, productUserId: user.id, teamId: dto.teamId, orderCode: `PG` + moment().format('YYYYMMDDHHmmss') },
+        { transaction }
+      )
       // 2. 处理报工产生的关联及工序的推进
       // 2.1 处理工单
       for (const processDto of dto.productionOrderTask) {
-        const productionOrderTaskOfReport = await ProductionOrderTaskOfReport.create(
-          { productionOrderTaskId: processDto.productionOrderTaskId, reportId: productionReport.id },
-          { transaction }
-        )
+        await ProductionOrderTaskOfReport.create({ productionOrderTaskId: processDto.productionOrderTaskId, reportId: productionReport.id }, { transaction })
         const process = await Process.findOne({ where: { id: dto.processId } })
         // 2.2 处理工序（工位）
         for (const item of processDto.positions) {
@@ -152,7 +156,7 @@ export class ProductionReportTwoService {
             {
               productionReportId: productionReport.id,
               processPositionTaskId: processPositionTask.id,
-              taskOfReportId: productionOrderTaskOfReport.id,
+              productionOrderTaskId: processDto.productionOrderTaskId,
               reportQuantity: 1,
               startTime: processPositionTask.actualStartTime,
               endTime: new Date(),
