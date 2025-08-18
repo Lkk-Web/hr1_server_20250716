@@ -192,7 +192,7 @@ export class ProcessService {
         },
         {
           association: 'children',
-          attributes: ['id', 'processName', 'reportRatio', 'createdAt', 'updatedAt', 'isChild', 'parentId', 'sort'],
+          attributes: ['id', 'processName', 'reportRatio', 'createdAt', 'updatedAt', 'parentId', 'sort', 'isQC'],
           required: false,
           include: [
             {
