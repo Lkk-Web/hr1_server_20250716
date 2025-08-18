@@ -63,7 +63,7 @@ export class ProductionReportService {
     })
 
     if (materialId) {
-      bom = await Material.findOne({ where: { id: materialId }, include: [{ association: 'boms' }] })
+      bom = await Material.findOne({ where: { id: materialId }, include: [{ association: 'boms', include: [{ association: 'bomDetails' }] }] })
     }
 
     return {
