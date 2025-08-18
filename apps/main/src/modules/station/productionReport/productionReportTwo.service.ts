@@ -217,6 +217,19 @@ export class ProductionReportTwoService {
             //   transaction
             // )
           }
+
+          // 处理下一道工序
+          const nextProcessTask = await ProcessTask.findOne({
+            where: { serialId: processTask.serialId, id: processTask.id + 1 },
+            order: [['id', 'ASC']],
+            transaction,
+          })
+
+          if (nextProcessTask) {
+          } else {
+            // 没有下一道工序
+            await ProductSerial.update({ status: ProductSerialStatus.COMPLETED }, { where: { id: item.serialId }, transaction })
+          }
         }
       }
       // 3. 创建用户时长和报工关系、工时
