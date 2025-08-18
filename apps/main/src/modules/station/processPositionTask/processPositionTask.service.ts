@@ -9,7 +9,7 @@ import { ProcessLocateDetail } from '@model/production/processLocateDetail.model
 import { Op, FindOptions, Sequelize } from 'sequelize'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { AuditStatus, LocateStatus, POSITION_TASK_STATUS, ProductSerialStatus } from '@common/enum'
+import { AuditStatus, LocateStatus, POSITION_TASK_STATUS, ProcessLocateDetailStatus, ProductSerialStatus } from '@common/enum'
 import {
   UpdateProcessPositionTaskDto,
   FindPaginationDto,
@@ -311,7 +311,7 @@ export class ProcessPositionTaskService {
             userId: detail.userId,
             processId: detail.processId,
             assignCount: detail.processPositionTaskIds.length == 0 ? tmp.length : detail.processPositionTaskIds.length,
-            status: ProductSerialStatus.NOT_STARTED, // 未开始
+            status: ProcessLocateDetailStatus.NOT_STARTED, // 未开始
             remark: detail.remark,
           },
           { transaction }

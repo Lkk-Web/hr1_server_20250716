@@ -2,7 +2,7 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequeli
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
 import { ProcessLocate } from './processLocate.model'
-import { ProductSerialStatus } from '@common/enum'
+import { ProcessLocateDetailStatus } from '@common/enum'
 import { Process } from '@model/process/process.model'
 import { ProcessLocateItem } from './processLocateItem.model'
 
@@ -47,11 +47,11 @@ export class ProcessLocateDetail extends BaseDate<ProcessLocateDetail> {
 
   @Column({
     comment: '状态',
-    type: DataType.ENUM(...Object.values(ProductSerialStatus)),
+    type: DataType.ENUM(...Object.values(ProcessLocateDetailStatus)),
     allowNull: false,
-    defaultValue: ProductSerialStatus.NOT_STARTED,
+    defaultValue: ProcessLocateDetailStatus.NOT_STARTED,
   })
-  declare status: ProductSerialStatus
+  declare status: ProcessLocateDetailStatus
 
   // 开始时间
   @Column({

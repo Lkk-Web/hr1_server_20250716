@@ -107,6 +107,14 @@ export enum ProductSerialStatus {
   NOT_STARTED = '未开始',
   IN_PROGRESS = '执行中',
   PAUSED = '已暂停',
+  COMPLETED = '已完工',
+}
+
+/** 派工详情状态枚举 */
+export enum ProcessLocateDetailStatus {
+  NOT_STARTED = '未开始',
+  IN_PROGRESS = '执行中',
+  PAUSED = '已暂停',
   COMPLETED = '已完成',
 }
 
