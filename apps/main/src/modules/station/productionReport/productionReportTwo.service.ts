@@ -228,7 +228,9 @@ export class ProductionReportTwoService {
           if (nextProcessTask) {
           } else {
             // 没有下一道工序
-            await ProductSerial.update({ status: ProductSerialStatus.COMPLETED }, { where: { id: item.serialId }, transaction })
+            if (processTask.status == PROCESS_TASK_STATUS.finish)
+              // 且当前工序任务已完成
+              await ProductSerial.update({ status: ProductSerialStatus.COMPLETED }, { where: { id: item.serialId }, transaction })
           }
         }
       }
