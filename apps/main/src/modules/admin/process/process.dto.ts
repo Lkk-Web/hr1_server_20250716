@@ -27,7 +27,6 @@ export class FindPaginationDto {
     type: [Number],
   })
   filterId?: number[]
-
 }
 
 export class findMaterialDto {
@@ -159,4 +158,11 @@ export class UProcessDto {
   })
   defectiveItems?: number[]
 
+  @ApiProperty({
+    name: 'isQC',
+    required: false,
+    description: '是否为质检',
+    type: Boolean,
+  })
+  isQC?: boolean
 }
