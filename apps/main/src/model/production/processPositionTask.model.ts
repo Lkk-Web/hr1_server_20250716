@@ -91,6 +91,13 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
   })
   declare badCount: number
 
+  @Column({
+    comment: '质检原因',
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  declare QCReason: string
+
   // 单位
   @Column({
     comment: '单位',

@@ -163,7 +163,7 @@ export class ProductionReportTwoService {
               await processTask.update({ goodCount: 0, badCount: 1 }, { transaction })
               await productionReport.update({ allBadCount: productionReport.allBadCount + 1 }, { transaction })
               await productionOrderTask.update({ badCount: productionOrderTask.badCount + 1 }, { transaction })
-              await processPositionTask.update({ badCount: productionOrderTask.badCount + 1 }, { transaction })
+              await processPositionTask.update({ badCount: productionOrderTask.badCount + 1, QCReason: item.QCReason }, { transaction })
             }
           }
 
