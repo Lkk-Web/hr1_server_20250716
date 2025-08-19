@@ -9,7 +9,7 @@ import { FileInterceptor } from '@nestjs/platform-express'
 import { Sequelize } from 'sequelize-typescript'
 import { FileUploadDto } from '@modules/file/file.dto'
 import { deleteIdsDto } from '@common/dto'
-import { OpenAuthorize } from '@core/decorator/metaData'
+import { ApiPlatformWhitelist, OpenAuthorize } from '@core/decorator/metaData'
 
 @ApiTags('不良品项')
 @ApiBearerAuth()
@@ -60,6 +60,7 @@ export class DefectiveItemController {
   }
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
+  @ApiPlatformWhitelist(['admin', 'station'])
   @Get('findPagination')
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     let { factoryCode, loadModel } = req
