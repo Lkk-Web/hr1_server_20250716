@@ -684,52 +684,28 @@ export class ProcessPositionTaskService {
           }
         )
 
-        // // 2. 删除派工项目记录
-        // await ProcessLocateItem.destroy({
-        //   where: {
-        //     processLocateDetailId: {
-        //       [Op.in]: Sequelize.literal(`(
-        //         SELECT id
-        //         FROM process_locate_detail
-        //         WHERE processLocateId IN (${ids.join(',')})
-        //       )`),
-        //     },
-        //   },
-        //   transaction,
-        // })
-
-        // // 3. 删除派工详情记录
-        // await ProcessLocateDetail.destroy({
-        //   where: {
-        //     processLocateId: {
-        //       [Op.in]: ids,
-        //     },
-        //   },
-        //   transaction,
-        // })
-      }
-
-      // 4. 工单状态回滚
-      await ProductionOrderTask.update(
-        {
-          locateStatus: LocateStatus.NOT_LOCATED,
-        },
-        {
-          where: {
-            id: {
-              //统计每个 productionOrderTask 下有多少条记录的 status = 待审核，如果这个数量 不等于 productionOrderTask的总记录数，就筛选出来
-              // COUNT(*) 为当前分组总记录数
-              [Op.in]: Sequelize.literal(`(
+        // 2. 工单状态回滚
+        await ProductionOrderTask.update(
+          {
+            locateStatus: LocateStatus.NOT_LOCATED,
+          },
+          {
+            where: {
+              id: {
+                //统计每个 productionOrderTask 下有多少条process_position_task记录的 status = 待审核，如果这个数量 不等于 productionOrderTask的总记录数，就筛选出来
+                // COUNT(*) 为当前分组总记录数
+                [Op.in]: Sequelize.literal(`(
                 SELECT productionOrderTaskId 
                 FROM process_position_task
                 GROUP BY productionOrderTaskId 
                 HAVING SUM(status = '${POSITION_TASK_STATUS.TO_AUDIT}') <> COUNT(*)
               )`),
+              },
             },
-          },
-          transaction,
-        }
-      )
+            transaction,
+          }
+        )
+      }
 
       await transaction.commit()
 
