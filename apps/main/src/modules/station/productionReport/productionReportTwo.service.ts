@@ -150,6 +150,8 @@ export class ProductionReportTwoService {
 
           await processPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED, actualEndTime: new Date(), actualWorkTime: item.duration }, { transaction })
 
+          // 打合 绑定铁心序列号
+
           // 质检工序
           if (process.isQC) {
             if (item.QCResult) {
