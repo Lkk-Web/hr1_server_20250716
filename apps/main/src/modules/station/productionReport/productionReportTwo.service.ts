@@ -15,6 +15,7 @@ import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
 import {
   InspectionFormInfo,
   InspectionFormItem,
+  IronProductSerial,
   Process,
   ProcessTaskLog,
   ProductionOrderTask,
@@ -150,10 +151,19 @@ export class ProductionReportTwoService {
 
           await processPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED, actualEndTime: new Date(), actualWorkTime: item.duration }, { transaction })
 
-          // 打合 绑定铁心序列号
+          //序列号绑定多个铁芯序列号
+          if (process.processName == '1') {
+            const ironProductSerial = item.ironSerial.map(v => {
+              return {
+                serialId: item.serialId,
+                ironSerial: v,
+              }
+            })
+            await IronProductSerial.bulkCreate(ironProductSerial, { transaction })
+          }
 
-          // 质检工序
           if (process.isQC) {
+            // 质检工序
             if (item.QCResult) {
               // 良品
               await processTask.update({ goodCount: 1, badCount: 0 }, { transaction })

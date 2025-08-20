@@ -4,6 +4,7 @@ import { ProcessTask } from '@model/production/processTask.model'
 import { BaseModel } from '@model/shared/base.model'
 import { ProductSerialStatus } from '@common/enum'
 import { Material } from '@model/base/material.model'
+import { IronProductSerial } from './ironProductSerial.model'
 
 /** 产品序列号表 */
 @Table({ tableName: `product_serial`, freezeTableName: true, timestamps: true, comment: '产品序列号表' })
@@ -94,6 +95,9 @@ export class ProductSerial extends BaseModel<ProductSerial> {
 
   @HasMany(() => ProcessTask)
   declare processTasks: ProcessTask[]
+
+  @HasMany(() => IronProductSerial)
+  declare ironSerial: IronProductSerial[]
 
   @BelongsTo(() => Material, 'materialId')
   declare material: Material

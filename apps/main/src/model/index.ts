@@ -89,6 +89,7 @@ export * from './production/userTaskDuration.model'
 export * from './production/userDuration.model'
 export * from './production/productionOrderTaskOfTeam.model'
 export * from './production/processPositionTask.model'
+export * from './production/ironProductSerial.model'
 
 // 派工
 export * from './production/processLocate.model'

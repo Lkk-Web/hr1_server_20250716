@@ -336,11 +336,11 @@ export class PadProcessDto {
   duration: number
 
   @ApiProperty({
-    description: '铁芯序列号',
+    description: '铁芯序列号数组',
     required: false,
-    type: String,
+    type: [String],
   })
-  ironSerial?: string
+  ironSerial?: string[]
 
   @ApiProperty({
     description: '质检结果',
