@@ -10,6 +10,7 @@ import { TeamProcess } from '@model/auth/teamProcess.model'
 import { TEAM_TYPE } from '@common/enum'
 import { ProductionOrderTask } from '@model/production/productionOrderTask.model'
 import { ProductionOrderTaskTeam } from '@model/production/productionOrderTaskOfTeam.model'
+import { Position } from '@model/production/position.model'
 
 /** 班组 */
 @Table({ tableName: `auth_team`, freezeTableName: true, timestamps: true, comment: '班组表' })
@@ -100,4 +101,7 @@ export class Team extends BaseDate<Team> {
 
   @BelongsToMany(() => ProductionOrderTask, () => ProductionOrderTaskTeam)
   declare productionOrderTasks: ProductionOrderTask[]
+
+  @HasMany(() => Position)
+  declare positions: Position[]
 }

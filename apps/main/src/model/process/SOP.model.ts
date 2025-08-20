@@ -6,6 +6,7 @@ import { FileList } from '@model/document/FileList.model'
 import { Process } from '@model/process/process.model'
 import { SOPMaterial } from '@model/process/SOPMaterial.model'
 import { SOPFile } from '@model/process/SOPFile.model'
+import { SOParameter } from './SOParameter.model'
 
 @Table({ tableName: 'process_sop', freezeTableName: true, timestamps: true, comment: '作业指导书' })
 export class SOP extends BaseDate<SOP> {
@@ -68,6 +69,9 @@ export class SOP extends BaseDate<SOP> {
 
   @BelongsToMany(() => FileList, { through: () => SOPFile, uniqueKey: 'SOP_sopf_fileList_unique', foreignKey: 'sopId', otherKey: 'fileListId' })
   fileList: FileList[]
+
+  @BelongsToMany(() => FileList, { through: () => SOParameter, uniqueKey: 'SOP_so_parameter_unique', foreignKey: 'sopId', otherKey: 'fileListId' })
+  ParameterList: FileList[]
 
   @HasMany(() => SOPMaterial)
   declare sopMaterial: SOPMaterial[]

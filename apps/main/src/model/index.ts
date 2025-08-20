@@ -57,6 +57,7 @@ export * from './process/processRouteListItem.model'
 export * from './process/SOP.model'
 export * from './process/SOPMaterial.model'
 export * from './process/SOPFile.model'
+export * from './process/SOParameter.model'
 
 //文件管理 document
 export * from './document/FileMenu.model'
@@ -90,6 +91,8 @@ export * from './production/userDuration.model'
 export * from './production/productionOrderTaskOfTeam.model'
 export * from './production/processPositionTask.model'
 export * from './production/ironProductSerial.model'
+export * from './production/position.model'
+export * from './production/positionDetail.model'
 
 // 派工
 export * from './production/processLocate.model'

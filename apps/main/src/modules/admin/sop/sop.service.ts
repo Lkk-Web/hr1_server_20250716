@@ -8,7 +8,7 @@ import { FileList } from '@model/document/FileList.model'
 import { Process } from '@model/process/process.model'
 import { SOPMaterial } from '@model/process/SOPMaterial.model'
 import { SOPFile } from '@model/process/SOPFile.model'
-
+import { SOParameter } from '@model/process/SOParameter.model'  
 @Injectable()
 export class SopService {
   constructor() {}
@@ -59,6 +59,11 @@ export class SopService {
         await SOPFile.create({ sopId: result.id, fileListId })
       }
     }
+    if (dto.processParametersIds) {
+      for (const processParametersId of dto.processParametersIds) {
+        await SOParameter.create({ sopId: result.id, processParametersId })
+      }
+    }
     return result
   }
 
@@ -99,6 +104,9 @@ export class SopService {
       }
       if (dto.fileListIds) {
         await SOPFile.bulkCreate(dto.fileListIds.map(fileListId => ({ sopId: id, fileListId })))
+      }
+      if (dto.processParametersIds) {
+        await SOParameter.bulkCreate(dto.processParametersIds.map(processParametersId => ({ sopId: id, processParametersId })))
       }
     }
 
@@ -147,6 +155,11 @@ export class SopService {
           attributes: ['id', 'userName'],
           required: false,
         },
+        {
+          association: 'ParameterList',
+          attributes: ['id', 'name', 'url'],
+          through: { attributes: [] },
+        },
       ],
     }
     const result = await SOP.findOne(options)
@@ -181,6 +194,11 @@ export class SopService {
           association: 'updatedUser',
           attributes: ['id', 'userName'],
           required: false,
+        },
+        {
+          association: 'ParameterList',
+          attributes: ['id', 'name', 'url'],
+          through: { attributes: [] },
         },
       ],
     }
