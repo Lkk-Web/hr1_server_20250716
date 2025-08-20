@@ -15,15 +15,15 @@ export class SOParameter extends BaseDate<SOParameter> {
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
-    comment: '工艺参数Id',
+    comment: 'sopId',
   })
-  declare processParametersId: number
+  declare sopId: number
 
   @ForeignKey(() => FileList)
   @Column({
     type: DataType.INTEGER,
     allowNull: true,
-    comment: '作业指导书Id',
+    comment: '文件Id',
   })
-  declare sopId: number
+  declare fileListId: number
 }

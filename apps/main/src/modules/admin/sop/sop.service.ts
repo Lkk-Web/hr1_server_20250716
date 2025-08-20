@@ -61,7 +61,7 @@ export class SopService {
     }
     if (dto.processParametersIds) {
       for (const processParametersId of dto.processParametersIds) {
-        await SOParameter.create({ sopId: result.id, processParametersId })
+        await SOParameter.create({ fileListId: processParametersId, sopId: result.id })
       }
     }
     return result
@@ -106,7 +106,7 @@ export class SopService {
         await SOPFile.bulkCreate(dto.fileListIds.map(fileListId => ({ sopId: id, fileListId })))
       }
       if (dto.processParametersIds) {
-        await SOParameter.bulkCreate(dto.processParametersIds.map(processParametersId => ({ sopId: id, processParametersId })))
+        await SOParameter.bulkCreate(dto.processParametersIds.map(fileListId => ({ sopId: id, fileListId })))
       }
     }
 
@@ -198,7 +198,6 @@ export class SopService {
         {
           association: 'ParameterList',
           attributes: ['id', 'name', 'url'],
-          through: { attributes: [] },
         },
       ],
     }

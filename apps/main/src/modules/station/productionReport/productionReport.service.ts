@@ -24,7 +24,7 @@ import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.mod
 import { InspectionFormItem } from '@model/quantity/InspectionFormItem.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 import { WorkShop } from '@model/base/workShop.model'
-import { Material, Process, ProductionOrderTask, SOP, TrendsTemplate } from '@model/index'
+import { Material, Process, ProductionOrderTask, SOP, SOParameter, TrendsTemplate } from '@model/index'
 import { BatchLogService } from '@modules/admin/batchLog/batchLog.service'
 import { CProductionReportDto, UProductionReportDto, FindPaginationDto, batchDto, auditDto, FindPaginationReportTaskListDto } from './productionReport.dto'
 import { POSITION_TASK_STATUS } from '@common/enum'
@@ -59,6 +59,10 @@ export class ProductionReportService {
           association: 'fileList',
           through: {},
         },
+        {
+          association: 'ParameterList',
+          through: {},
+        },
       ],
     })
 
@@ -66,9 +70,12 @@ export class ProductionReportService {
       bom = await Material.findOne({ where: { id: materialId }, include: [{ association: 'boms', include: [{ association: 'bomDetails' }] }] })
     }
 
+    const parameters = result.ParameterList
+
     return {
       result,
       bom,
+      parameters,
     }
   }
 

@@ -46,7 +46,7 @@ export class ProductionReportController {
   // }
 
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '查看工序对应 Bom / SOP 详情' })
+  @ApiOperation({ summary: '查看工序对应 Bom / SOP 详情/ parameters工艺参数' })
   @ApiParam({ name: 'processId', required: true, description: 'processId', type: Number })
   @ApiQuery({ name: 'materialId', required: true, description: 'materialId', type: String })
   @Get('find/:processId')
