@@ -220,4 +220,8 @@ export class BatchAuditProcessLocateDto {
   @ApiProperty({ type: AuditProcessLocateDto, description: '审核信息', required: true })
   @IsNotEmpty({ message: '审核信息不能为空' })
   audit: AuditProcessLocateDto
+
+  // @ApiProperty({ type: Number, description: '班组ID', required: true })
+  // @IsNotEmpty({ message: '班组ID不能为空' })
+  // teamId: number
 }

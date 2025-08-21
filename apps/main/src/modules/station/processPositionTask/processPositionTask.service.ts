@@ -21,7 +21,7 @@ import {
 } from './processPositionTask.dto'
 import { Paging } from '@library/utils/paging'
 import moment from 'moment'
-import { Position } from '@model/index'
+import { Position, PositionDetail } from '@model/index'
 
 @Injectable()
 export class ProcessPositionTaskService {
@@ -282,7 +282,7 @@ export class ProcessPositionTaskService {
           throw new HttpException(`用户ID ${detail.userId} 不存在`, 400)
         }
 
-        const processLocate = await ProcessLocate.findOne({
+        const processLocateData = await ProcessLocate.findOne({
           where: { productionOrderTaskId: dto.productionOrderTaskId },
           include: [
             {
@@ -294,8 +294,9 @@ export class ProcessPositionTaskService {
           ],
         })
 
-        if (processLocate.dataValues.processLocateDetails.reduce((prev, cur) => prev + cur.assignCount, 0) + detail.assignCount > productionOrderTask.splitQuantity)
-          throw new HttpException(`派工数量不能大于序列号数量`, 400)
+        const assignCount = processLocateData?.dataValues.processLocateDetails.reduce((prev, cur) => prev + cur.dataValues.assignCount, 0) + detail.assignCount
+
+        if (assignCount > productionOrderTask.splitQuantity) throw new HttpException(`派工数量不能大于序列号数量`, 400)
 
         // 创建派工详情
         await ProcessLocateDetail.create(
@@ -331,8 +332,6 @@ export class ProcessPositionTaskService {
         transaction,
       })
 
-      console.log('totalPositionTaskCount', totalPositionTaskCount)
-
       // 根据派工的工位任务单数量判断状态
       let locateStatus = LocateStatus.NOT_LOCATED
       if (assignedPositionTaskCount == totalPositionTaskCount) {
@@ -355,9 +354,6 @@ export class ProcessPositionTaskService {
               {
                 association: 'process',
                 attributes: ['id', 'processName'],
-              },
-              {
-                association: 'processLocateItems',
               },
             ],
           },
@@ -424,9 +420,6 @@ export class ProcessPositionTaskService {
             {
               association: 'user',
               attributes: ['id', 'userName', 'userCode'],
-            },
-            {
-              association: 'processLocateItems',
             },
           ],
         },
@@ -505,25 +498,6 @@ export class ProcessPositionTaskService {
             {
               association: 'user',
               attributes: ['id', 'userName', 'userCode'],
-            },
-
-            {
-              association: 'processLocateItems',
-              include: [
-                {
-                  association: 'processPositionTask',
-                  include: [
-                    {
-                      association: 'serial',
-                      attributes: ['id', 'serialNumber'],
-                    },
-                    {
-                      association: 'user',
-                      attributes: ['id', 'userName', 'userCode'],
-                    },
-                  ],
-                },
-              ],
             },
           ],
         },
@@ -616,21 +590,20 @@ export class ProcessPositionTaskService {
         const position = await Position.findOne({
           where: {
             processId: res.processId,
+            // teamId: dto.teamId,
           },
-          include: [
-            {
-              association: 'positionDetails',
-              where: {
-                userId: res.userId,
-              },
-            },
-          ],
+        })
+        const positionDetail = await PositionDetail.findOne({
+          where: {
+            positionId: position.dataValues.id,
+            userId: res.userId,
+          },
         })
         if (dto.status === AuditStatus.APPROVED) {
           await res.update({ status: AuditStatus.APPROVED }, { transaction })
-          position.dataValues.positionDetails[0].update({
-            allowWorkNum: position.dataValues.positionDetails[0].allowWorkNum + res.assignCount,
-          })
+          console.log(JSON.stringify(positionDetail))
+
+          await positionDetail.update({ allowWorkNum: positionDetail.dataValues.allowWorkNum + res.assignCount }, { transaction })
         } else if (dto.status === AuditStatus.REJECTED) {
           // 审核驳回：回滚派工记录，恢复工位任务单状态为待派工
           // 1. 派工为驳回
@@ -639,9 +612,7 @@ export class ProcessPositionTaskService {
           // 2. 工单状态回滚
           await ProductionOrderTask.update({ locateStatus: LocateStatus.NOT_LOCATED }, { where: { id: productionOrderTaskIds }, transaction })
           // 3. 可派数量回滚
-          position.dataValues.positionDetails[0].update({
-            allowWorkNum: position.dataValues.positionDetails[0].allowWorkNum - res.assignCount,
-          })
+          await positionDetail.update({ allowWorkNum: positionDetail.dataValues.allowWorkNum - res.assignCount }, { transaction })
         }
       }
 
