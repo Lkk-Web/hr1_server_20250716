@@ -43,10 +43,10 @@ export class ProductPositionController {
 
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '详情' })
-  @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
-  @Get('find/:id')
-  async find(@Param() Param) {
-    const result = await this.service.find(Param.id)
+  @ApiPlatformWhitelist(['admin', 'station'])
+  @Get('find')
+  async find(@Query() dto: FindPaginationDto) {
+    const result = await this.service.find(dto)
     return result
   }
 

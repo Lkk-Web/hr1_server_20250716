@@ -74,21 +74,24 @@ export class ProductPositionService {
     return result
   }
 
-  public async find(id: number) {
+  public async find(dto: FindPaginationDto) {
     const options: FindOptions = {
-      where: { id },
+      where: {},
       include: [
         {
           association: 'process', //子工序
           attributes: ['id', 'processName'],
+          where: {},
         },
         {
           association: 'team', //班组
           attributes: ['id', 'name'],
+          where: {},
         },
         {
           association: 'positionDetail', //人员
           attributes: ['id', 'userId'],
+          where: {},
           include: [
             {
               association: 'user',
@@ -97,6 +100,24 @@ export class ProductPositionService {
           ],
         },
       ],
+    }
+
+    if (dto.name) {
+      options.where['name'] = {
+        [Op.eq]: dto.name,
+      }
+    }
+
+    if (dto.processId) {
+      options.include[0].where['id'] = {
+        [Op.eq]: dto.processId,
+      }
+    }
+
+    if (dto.teamId) {
+      options.include[1].where['id'] = {
+        [Op.eq]: dto.teamId,
+      }
     }
     return await Position.findOne(options)
   }
