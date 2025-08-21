@@ -58,9 +58,9 @@ export class ProcessPositionTaskController {
 
   @Get('team/query')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '根据班组查询工单带出工序任务单和工位任务单' })
-  async findByTeam(@Query() dto: FindByTeamDto) {
-    const result = await this.processPositionTaskService.findByTeam(dto)
+  @ApiOperation({ summary: '查询工单带出可派工列表' })
+  async findByTeam(@Query() dto: FindByTeamDto, @Req() req) {
+    const result = await this.processPositionTaskService.findByTeam(dto, req.user.id)
     return { data: result }
   }
 

@@ -23,6 +23,27 @@ export class PositionDetail extends BaseDate<PositionDetail> {
   })
   declare userId: number
 
+  @Column({
+    comment: '可开工数量',
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  allowWorkNum: number
+
+  @Column({
+    comment: '已开工数量',
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  workNum: number
+
+  @Column({
+    comment: '已完成数量',
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  completeNum: number
+
   @BelongsTo(() => User)
   declare user: User
 }

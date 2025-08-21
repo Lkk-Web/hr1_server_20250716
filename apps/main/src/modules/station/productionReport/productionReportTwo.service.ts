@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { Op, Transaction } from 'sequelize'
-import { ProductionOrder } from '@model/production/productionOrder.model'
 import { ProcessTask } from '@model/production/processTask.model'
-import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { InspectionForm } from '@model/quantity/inspectionForm.model'
 import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 import { OpenTaskDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
 import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductSerialStatus, TaskStatus } from '@common/enum'
-import { Aide } from '@library/utils/aide'
 import { UserDuration } from '@model/production/userDuration.model'
 import { UserTaskDuration } from '@model/production/userTaskDuration.model'
 import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
@@ -16,6 +13,7 @@ import {
   InspectionFormInfo,
   InspectionFormItem,
   IronProductSerial,
+  Position,
   Process,
   ProcessTaskLog,
   ProductionOrderTask,
@@ -23,7 +21,6 @@ import {
   ProductionReport,
   ProductionReportDetail,
   ProductSerial,
-  TeamUser,
 } from '@model/index'
 import { InspectionTemplateTypeEnum } from '@modules/admin/inspectionTemplate/inspectionTemplate.dto'
 import { KingdeeeService } from '@library/kingdee'
@@ -46,7 +43,22 @@ export class ProductionReportTwoService {
       for (const processDto of dto.productionOrderTask) {
         console.log(2)
         // 工单任务
-        // await ProductionOrderTask.update({ actualStartTime: new Date() }, { where: { id: processDto.productionOrderTaskId }, transaction }) // 工单  --- TODO,不知道为什么很慢 这条代码
+        const productionOrderTask = await ProductionOrderTask.findOne({ where: { id: processDto.productionOrderTaskId } })
+        await productionOrderTask.update({ actualStartTime: new Date() }, { transaction }) // 工单
+        // 工位
+        const position = await Position.findOne({
+          where: { processId: dto.processId },
+          include: {
+            association: 'positionDetails',
+            where: {
+              userId: user.id,
+            },
+          },
+        })
+        if (position.positionDetails[0].allowWorkNum - position.positionDetails[0].workNum >= processDto.positions.length) throw new Error('报工数量大于可报工数量')
+        await position.positionDetails[0].update({
+          workNum: position.positionDetails[0].workNum + processDto.positions.length,
+        })
         for (const item of processDto.positions) {
           console.log(3)
           // 工序任务

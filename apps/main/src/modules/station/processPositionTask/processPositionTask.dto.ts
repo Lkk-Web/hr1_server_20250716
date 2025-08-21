@@ -125,15 +125,6 @@ export class BatchOperationDto {
 }
 
 export class FindByTeamDto {
-  @ApiProperty({ type: Number, description: '班组ID', required: true })
-  @IsNotEmpty({ message: '班组ID不能为空' })
-  teamId: number
-
-  // @ApiProperty({ type: String, description: '工单状态', required: false })
-  // @IsOptional()
-  // @IsString({ message: '工单状态必须是字符串' })
-  // orderStatus?: string
-
   @ApiProperty({ type: String, description: '工序任务状态', required: false })
   @IsOptional()
   @IsString({ message: '工序任务状态必须是字符串' })
@@ -150,10 +141,10 @@ export class ProcessLocateDetailDto {
   @IsNotEmpty({ message: '指定人员ID不能为空' })
   userId: number
 
-  @ApiProperty({ type: [Number], description: '工位任务单ID', required: true })
-  @IsArray({ message: '工位任务单列表必须是数组' })
-  @IsNotEmpty({ message: '工位任务单列表不能为空' })
-  processPositionTaskIds: number[]
+  @ApiProperty({ type: Number, description: '派工数量', required: true })
+  @IsNotEmpty({ message: '派工数量不能为空' })
+  @IsNumber({}, { message: '派工数量必须是数字' })
+  assignCount: number
 
   @ApiProperty({ type: Number, description: '工序Id', required: true })
   processId: number

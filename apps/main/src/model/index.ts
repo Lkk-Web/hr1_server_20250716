@@ -79,7 +79,6 @@ export * from './production/POB.model'
 export * from './production/POBDetail.model'
 export * from './production/processTask.model'
 export * from './production/processTaskDept.model'
-export * from './production/processTaskUser.model'
 export * from './production/productionReport.model'
 export * from './production/productionReportDetail.model'
 export * from './production/productionOrderTaskOfReport'
@@ -97,7 +96,6 @@ export * from './production/positionDetail.model'
 // 派工
 export * from './production/processLocate.model'
 export * from './production/processLocateDetail.model'
-export * from './production/processLocateItem.model'
 
 //绩效管理 performance
 export * from './performance/performance.model'

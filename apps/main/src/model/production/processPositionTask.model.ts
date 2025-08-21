@@ -8,7 +8,6 @@ import { Process } from '@model/process/process.model'
 import { ProductionReport } from './productionReport.model'
 import { ProductSerial } from './productSerial.model'
 import { ProductionOrderTask } from './productionOrderTask.model'
-import { ProcessLocateItem } from './processLocateItem.model'
 import { ProductionReportDetail } from './productionReportDetail.model'
 
 //工位任务单
@@ -132,9 +131,9 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   // 任务状态
   @Column({
-    comment: '任务状态 (待派工, 待审核, 未开始, 执行中, 已暂停, 已完成)',
+    comment: '任务状态 (未开始, 执行中, 已暂停, 已完成)',
     type: DataType.ENUM(...Object.values(POSITION_TASK_STATUS)),
-    defaultValue: POSITION_TASK_STATUS.TO_ASSIGN,
+    defaultValue: POSITION_TASK_STATUS.NOT_STARTED,
     allowNull: false,
   })
   declare status: POSITION_TASK_STATUS
@@ -172,9 +171,6 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   @BelongsTo(() => Process)
   declare process: Process
-
-  @HasOne(() => ProcessLocateItem)
-  declare locate: ProcessLocateItem
 
   @HasMany(() => ProcessTaskLog)
   declare operateLogs: ProcessTaskLog[]

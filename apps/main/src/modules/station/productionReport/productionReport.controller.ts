@@ -110,7 +110,7 @@ export class ProductionReportController {
     return this.serviceTwo.produceStore(dto)
   }
 
-  @ApiOperation({ summary: '审核' })
+  @ApiOperation({ summary: '报工审核' })
   @HttpCode(HttpStatus.OK)
   @ApiPlatformWhitelist(['admin', 'station'])
   @Post('audit')

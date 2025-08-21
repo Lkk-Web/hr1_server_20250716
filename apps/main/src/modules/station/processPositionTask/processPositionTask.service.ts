@@ -9,7 +9,7 @@ import { ProcessLocateDetail } from '@model/production/processLocateDetail.model
 import { Op, FindOptions, Sequelize } from 'sequelize'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { AuditStatus, LocateStatus, POSITION_TASK_STATUS, ProcessLocateDetailStatus, ProductSerialStatus } from '@common/enum'
+import { AuditStatus, LocateStatus, POSITION_TASK_STATUS, ProductSerialStatus } from '@common/enum'
 import {
   UpdateProcessPositionTaskDto,
   FindPaginationDto,
@@ -20,8 +20,8 @@ import {
   AuditProcessLocateDto,
 } from './processPositionTask.dto'
 import { Paging } from '@library/utils/paging'
-import { ProcessLocateItem } from '@model/index'
 import moment from 'moment'
+import { Position } from '@model/index'
 
 @Injectable()
 export class ProcessPositionTaskService {
@@ -170,31 +170,20 @@ export class ProcessPositionTaskService {
   }
 
   /**
-   * 根据班组查询工单带出工序任务单和工位任务单
+   * 根据班组查询工单带出可派工列表
    */
-  async findByTeam(dto: FindByTeamDto) {
+  async findByTeam(dto: FindByTeamDto, userId: number) {
     // 验证班组是否存在
-    const team = await Team.findByPk(dto.teamId, {
-      include: [
-        {
-          association: 'users',
-          attributes: ['id', 'userName', 'userCode', 'departmentId'],
-          through: { attributes: [] },
-        },
-      ],
-    })
-    if (!team) {
-      throw new HttpException('班组不存在', 400)
+    const team = await Team.findAll({ where: { chargeId: userId }, attributes: ['id'] })
+    if (!team || team.length == 0) {
+      throw new HttpException('班组不存在或者不是班组负责人', 400)
     }
 
-    // 构建查询条件
     const productionOrderTaskWhere: any = {
       locateStatus: {
-        [Op.in]: [LocateStatus.NOT_LOCATED, LocateStatus.PART_LOCATED],
+        [Op.in]: [LocateStatus.NOT_LOCATED, LocateStatus.PART_LOCATED], //待派工、部分派工
       },
     }
-    // if (dto.orderStatus) {
-    // }
 
     const processTaskWhere: any = {}
     if (dto.processTaskStatus) {
@@ -213,7 +202,7 @@ export class ProcessPositionTaskService {
       include: [
         {
           association: 'teams',
-          where: { id: dto.teamId },
+          where: { id: team.map(v => v.id) },
           required: true,
           attributes: [],
         },
@@ -256,10 +245,7 @@ export class ProcessPositionTaskService {
       ],
     })
 
-    return {
-      team,
-      productionOrderTasks: result,
-    }
+    return result
   }
 
   /**
@@ -267,7 +253,6 @@ export class ProcessPositionTaskService {
    */
   async createProcessLocate(dto: CreateProcessLocateDto, assignerId: number) {
     const transaction = await ProcessLocate.sequelize.transaction()
-
     try {
       // 生成派工编号
       const locateCode = `PG${moment().format('YYYYMMDDHHmmss')}`
@@ -287,6 +272,8 @@ export class ProcessPositionTaskService {
         { transaction }
       )
 
+      const productionOrderTask = await ProductionOrderTask.findOne({ where: { id: dto.productionOrderTaskId } })
+
       // 验证并创建派工详情
       for (const detail of dto.details) {
         // 验证用户是否存在
@@ -295,85 +282,67 @@ export class ProcessPositionTaskService {
           throw new HttpException(`用户ID ${detail.userId} 不存在`, 400)
         }
 
-        // 全选传 [] - 全部序列号 - 工位任务单
-        const tmp = await ProcessPositionTask.findAll({
-          where: {
-            processId: detail.processId,
-            productionOrderTaskId: dto.productionOrderTaskId,
-            status: POSITION_TASK_STATUS.TO_ASSIGN,
-          },
+        const processLocate = await ProcessLocate.findOne({
+          where: { productionOrderTaskId: dto.productionOrderTaskId },
+          include: [
+            {
+              association: 'processLocateDetails',
+              where: {
+                processId: detail.processId,
+              },
+            },
+          ],
         })
 
+        if (processLocate.dataValues.processLocateDetails.reduce((prev, cur) => prev + cur.assignCount, 0) + detail.assignCount > productionOrderTask.splitQuantity)
+          throw new HttpException(`派工数量不能大于序列号数量`, 400)
+
         // 创建派工详情
-        const processLocateDetail = await ProcessLocateDetail.create(
+        await ProcessLocateDetail.create(
           {
             processLocateId: processLocate.id,
             userId: detail.userId,
             processId: detail.processId,
-            assignCount: detail.processPositionTaskIds.length == 0 ? tmp.length : detail.processPositionTaskIds.length,
-            status: ProcessLocateDetailStatus.NOT_STARTED, // 未开始
+            assignCount: detail.assignCount,
+            status: AuditStatus.PENDING_REVIEW,
             remark: detail.remark,
           },
           { transaction }
         )
+      }
 
-        // 序列号列表
-        let processLocateItems = []
-        if (detail.processPositionTaskIds?.length > 0) {
-          processLocateItems = detail.processPositionTaskIds.map(v => {
-            return {
-              processPositionTaskId: v,
-              processLocateDetailId: processLocateDetail.dataValues.id,
-            }
-          })
-        } else {
-          processLocateItems = tmp.map(v => {
-            return {
-              processPositionTaskId: v.id,
-              processLocateDetailId: processLocateDetail.dataValues.id,
-            }
-          })
-        }
+      const processLocateDetails = await ProcessLocateDetail.findAll({
+        where: {
+          processLocateId: processLocate.id,
+          status: {
+            [Op.ne]: AuditStatus.REJECTED,
+          },
+        },
+        transaction,
+      })
 
-        await ProcessLocateItem.bulkCreate(processLocateItems, { transaction })
+      const assignedPositionTaskCount = processLocateDetails.reduce((sum, detail) => sum + detail.assignCount, 0)
 
-        for (const item of tmp) {
-          await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.TO_AUDIT }, { where: { id: item.id }, transaction })
-        }
+      // 计算该生产工单任务下工位任务单的总数量
+      const totalPositionTaskCount = await ProcessPositionTask.count({
+        where: {
+          productionOrderTaskId: dto.productionOrderTaskId,
+        },
+        transaction,
+      })
 
-        // bulkCreate 原理是Inser & update，所以 productionOrderTaskId 必须也要更新
-        // await ProcessPositionTask.bulkCreate(
-        //   tmp.map(v => {
-        //     return {
-        //       id: v.dataValues.id,
-        //       status: POSITION_TASK_STATUS.TO_AUDIT,
-        //     }
-        //   }),
-        //   { updateOnDuplicate: ['id', 'status'], transaction }
-        // )
+      console.log('totalPositionTaskCount', totalPositionTaskCount)
+
+      // 根据派工的工位任务单数量判断状态
+      let locateStatus = LocateStatus.NOT_LOCATED
+      if (assignedPositionTaskCount == totalPositionTaskCount) {
+        locateStatus = LocateStatus.LOCATED // 已派工
+      } else if (assignedPositionTaskCount > 0) {
+        locateStatus = LocateStatus.PART_LOCATED // 部分派工
       }
 
       // 更新生产工单任务状态
-      await ProductionOrderTask.update({ locateStatus: LocateStatus.PART_LOCATED }, { where: { id: dto.productionOrderTaskId }, transaction })
-
-      // 更新生产工单任务状态
-      await ProductionOrderTask.update(
-        { locateStatus: LocateStatus.LOCATED },
-        {
-          where: {
-            id: {
-              // 工单的所有工位单 不是待派工 的聚合
-              [Op.in]: Sequelize.literal(`(
-                SELECT productionOrderTaskId
-                FROM process_position_task
-                GROUP BY productionOrderTaskId
-                HAVING SUM(status = '${POSITION_TASK_STATUS.TO_ASSIGN}') = 0)    
-              `),
-            },
-          },
-          transaction,
-        }
-      )
+      await ProductionOrderTask.update({ locateStatus }, { where: { id: dto.productionOrderTaskId }, transaction })
 
       await transaction.commit()
 
@@ -641,70 +610,39 @@ export class ProcessPositionTaskService {
       )
 
       // 根据审核状态处理相关业务逻辑
-      if (dto.status === AuditStatus.APPROVED) {
-        // 审核通过：更新工位任务单状态为未开始
-        await ProcessPositionTask.update(
-          {
-            status: POSITION_TASK_STATUS.NOT_STARTED,
-          },
-          {
-            where: {
-              id: {
-                [Op.in]: Sequelize.literal(`(
-                  SELECT pli.processPositionTaskId 
-                  FROM process_locate_item pli
-                  INNER JOIN process_locate_detail pld ON pli.processLocateDetailId = pld.id
-                  WHERE pld.processLocateId IN (${ids.join(',')})
-                )`),
-              },
-            },
-            transaction,
-          }
-        )
-      } else if (dto.status === AuditStatus.REJECTED) {
-        // 审核驳回：回滚派工记录，恢复工位任务单状态为待派工
-        // 1. 恢复工位任务单状态为待派工
-        await ProcessPositionTask.update(
-          {
-            status: POSITION_TASK_STATUS.TO_ASSIGN,
-            userId: null, // 清除分配的用户
-          },
-          {
-            where: {
-              id: {
-                [Op.in]: Sequelize.literal(`(
-                  SELECT pli.processPositionTaskId 
-                  FROM process_locate_item pli
-                  INNER JOIN process_locate_detail pld ON pli.processLocateDetailId = pld.id
-                  WHERE pld.processLocateId IN (${ids.join(',')})
-                )`),
-              },
-            },
-            transaction,
-          }
-        )
+      const processLocateDetails = await ProcessLocateDetail.findAll({ where: { processLocateId: { [Op.in]: ids }, status: AuditStatus.PENDING_REVIEW } })
 
-        // 2. 工单状态回滚
-        await ProductionOrderTask.update(
-          {
-            locateStatus: LocateStatus.NOT_LOCATED,
+      for (const res of processLocateDetails) {
+        const position = await Position.findOne({
+          where: {
+            processId: res.processId,
           },
-          {
-            where: {
-              id: {
-                //统计每个 productionOrderTask 下有多少条process_position_task记录的 status = 待审核，如果这个数量 不等于 productionOrderTask的总记录数，就筛选出来
-                // COUNT(*) 为当前分组总记录数
-                [Op.in]: Sequelize.literal(`(
-                SELECT productionOrderTaskId 
-                FROM process_position_task
-                GROUP BY productionOrderTaskId 
-                HAVING SUM(status = '${POSITION_TASK_STATUS.TO_AUDIT}') <> COUNT(*)
-              )`),
+          include: [
+            {
+              association: 'positionDetails',
+              where: {
+                userId: res.userId,
               },
             },
-            transaction,
-          }
-        )
+          ],
+        })
+        if (dto.status === AuditStatus.APPROVED) {
+          await res.update({ status: AuditStatus.APPROVED }, { transaction })
+          position.dataValues.positionDetails[0].update({
+            allowWorkNum: position.dataValues.positionDetails[0].allowWorkNum + res.assignCount,
+          })
+        } else if (dto.status === AuditStatus.REJECTED) {
+          // 审核驳回：回滚派工记录，恢复工位任务单状态为待派工
+          // 1. 派工为驳回
+          await ProcessLocateDetail.update({ status: AuditStatus.REJECTED }, { where: { processLocateId: { [Op.in]: ids }, status: AuditStatus.PENDING_REVIEW }, transaction })
+          const productionOrderTaskIds = processLocates.map(item => item.productionOrderTaskId)
+          // 2. 工单状态回滚
+          await ProductionOrderTask.update({ locateStatus: LocateStatus.NOT_LOCATED }, { where: { id: productionOrderTaskIds }, transaction })
+          // 3. 可派数量回滚
+          position.dataValues.positionDetails[0].update({
+            allowWorkNum: position.dataValues.positionDetails[0].allowWorkNum - res.assignCount,
+          })
+        }
       }
 
       await transaction.commit()

@@ -4,7 +4,6 @@ import { Process } from '@model/process/process.model'
 import { Organize } from '@model/auth/organize'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
 import { User } from '@model/auth/user'
-import { ProcessTaskUser } from '@model/production/processTaskUser.model'
 import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
@@ -213,9 +212,6 @@ export class ProcessTask extends BaseDate<ProcessTask> {
 
   @BelongsToMany(() => Organize, { through: () => ProcessTaskDept, uniqueKey: 'ProcessTask_ptd_so_unique', foreignKey: 'taskId', otherKey: 'deptId' })
   declare depts: Organize[]
-
-  @BelongsToMany(() => User, { through: () => ProcessTaskUser, uniqueKey: 'ProcessTask_ptu_user_unique', foreignKey: 'taskId', otherKey: 'userId' })
-  declare users: User[]
 
   declare performanceConfig: PerformanceConfig
 
