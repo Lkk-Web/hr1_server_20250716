@@ -23,16 +23,16 @@ export class ProductPositionService {
   ) {}
 
   public async create(dto: CreateProductPositionDto) {
-    if (dto.name) {
-      const result = await this.positionModel.findOne({
-        where: {
-          name: dto.name,
-        },
-      })
-      if (result) {
-        throw new HttpException('工位名称已存在', HttpStatus.BAD_REQUEST)
-      }
-    }
+    // if (dto.name) {
+    //   const result = await this.positionModel.findOne({
+    //     where: {
+    //       name: dto.name,
+    //     },
+    //   })
+    //   if (result) {
+    //     throw new HttpException('工位名称已存在', HttpStatus.BAD_REQUEST)
+    //   }
+    // }
     const result = await this.positionModel.create({
       name: dto.name,
       processId: dto.processId,
