@@ -5,7 +5,6 @@ import { FindPaginationDto } from './processTask.dto'
 import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { User } from '@model/auth/user'
-import { ProcessTaskUser } from '@model/production/processTaskUser.model'
 import { PerformanceConfig } from '@model/index'
 import moment = require('moment')
 
@@ -177,14 +176,14 @@ export class ProcessTaskService {
         options.include[2].required = true
       }
     } else if (dto.type === 'self') {
-      const temp = await ProcessTaskUser.findAll({ where: { userId: user.id } })
-      let arr = []
-      for (const processTaskUser of temp) {
-        arr.push(processTaskUser.taskId)
-      }
-      options.where['id'] = {
-        [Op.in]: arr,
-      }
+      // const temp = await ProcessTaskUser.findAll({ where: { userId: user.id } })
+      // let arr = []
+      // for (const processTaskUser of temp) {
+      //   arr.push(processTaskUser.taskId)
+      // }
+      // options.where['id'] = {
+      //   [Op.in]: arr,
+      // }
     }
 
     const result = await ProcessTask.findPagination<ProcessTask>(options)
@@ -288,14 +287,14 @@ export class ProcessTaskService {
         options1.include[2].required = true
       }
     } else if (dto.type === 'self') {
-      const temp = await ProcessTaskUser.findAll({ where: { userId: user.id } })
-      let arr = []
-      for (const processTaskUser of temp) {
-        arr.push(processTaskUser.dataValues.taskId)
-      }
-      options1.where['id'] = {
-        [Op.in]: arr,
-      }
+      // const temp = await ProcessTaskUser.findAll({ where: { userId: user.id } })
+      // let arr = []
+      // for (const processTaskUser of temp) {
+      //   arr.push(processTaskUser.dataValues.taskId)
+      // }
+      // options1.where['id'] = {
+      //   [Op.in]: arr,
+      // }
     }
     // @ts-ignore
     const notDo = await ProcessTask.findAll(options1)
@@ -389,14 +388,14 @@ export class ProcessTaskService {
         options2.include[2].required = true
       }
     } else if (dto.type === 'self') {
-      const temp = await ProcessTaskUser.findAll({ where: { userId: user.id } })
-      let arr = []
-      for (const processTaskUser of temp) {
-        arr.push(processTaskUser.dataValues.taskId)
-      }
-      options2.where['id'] = {
-        [Op.in]: arr,
-      }
+      // const temp = await ProcessTaskUser.findAll({ where: { userId: user.id } })
+      // let arr = []
+      // for (const processTaskUser of temp) {
+      //   arr.push(processTaskUser.dataValues.taskId)
+      // }
+      // options2.where['id'] = {
+      //   [Op.in]: arr,
+      // }
     }
     // @ts-ignore
     const done = await ProcessTask.findAll(options2)
