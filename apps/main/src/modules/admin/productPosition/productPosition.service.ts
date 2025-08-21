@@ -89,7 +89,7 @@ export class ProductPositionService {
           where: {},
         },
         {
-          association: 'positionDetail', //人员
+          association: 'positionDetails', //人员
           attributes: ['id', 'userId'],
           where: {},
           include: [
@@ -137,7 +137,7 @@ export class ProductPositionService {
           where: {},
         },
         {
-          association: 'positionDetail', //人员
+          association: 'positionDetails', //人员
           attributes: ['id', 'userId'],
           include: [
             {
