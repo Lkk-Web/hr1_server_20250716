@@ -24,7 +24,7 @@ import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.mod
 import { InspectionFormItem } from '@model/quantity/InspectionFormItem.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 import { WorkShop } from '@model/base/workShop.model'
-import { Material, Process, ProductionOrderTask, SOP, SOParameter, TrendsTemplate } from '@model/index'
+import { Material, Position, PositionDetail, Process, ProductionOrderTask, SOP, SOParameter, TrendsTemplate } from '@model/index'
 import { BatchLogService } from '@modules/admin/batchLog/batchLog.service'
 import { CProductionReportDto, UProductionReportDto, FindPaginationDto, batchDto, auditDto, FindPaginationReportTaskListDto } from './productionReport.dto'
 import { POSITION_TASK_STATUS } from '@common/enum'
@@ -60,7 +60,7 @@ export class ProductionReportService {
           through: {},
         },
         {
-          association: 'ParameterList',
+          association: 'parameterList',
           through: {},
         },
       ],
@@ -70,7 +70,7 @@ export class ProductionReportService {
       bom = await Material.findOne({ where: { id: materialId }, include: [{ association: 'boms', include: [{ association: 'bomDetails' }] }] })
     }
 
-    const parameters = result.ParameterList
+    const parameters = result?.parameterList || []
 
     return {
       result,
@@ -1100,7 +1100,7 @@ export class ProductionReportService {
         },
         {
           association: 'processLocates',
-          attributes: ['id', 'processId'],
+          attributes: ['id'],
           include: [
             {
               association: 'processLocateDetails',
@@ -1137,9 +1137,15 @@ export class ProductionReportService {
       taskTime = await this.productionReportTwoService.getReportUserDuration(user, result.data[0]?.productSerials[0].processTasks[0].processPositionTasks)
     }
 
+    const positionInfo = await Position.findOne({
+      where: { processId: dto.positioProcessId },
+      include: [{ association: 'positionDetails', where: { userId: user.id }, attributes: ['allowWorkNum', 'workNum', 'completeNum'] }],
+    })
+
     return {
       result,
       taskTime,
+      positionInfo,
       allowReportQuantity: result.data.reduce(
         (pre, cur) => pre + cur?.processLocates.reduce((pre, cur) => pre + cur?.processLocateDetails.reduce((pre, cur) => pre + cur.assignCount, 0), 0),
         0

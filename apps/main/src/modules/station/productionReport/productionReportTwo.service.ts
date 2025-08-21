@@ -55,10 +55,16 @@ export class ProductionReportTwoService {
             },
           },
         })
-        if (position.positionDetails[0].allowWorkNum - position.positionDetails[0].workNum >= processDto.positions.length) throw new Error('报工数量大于可报工数量')
-        await position.positionDetails[0].update({
-          workNum: position.positionDetails[0].workNum + processDto.positions.length,
-        })
+
+        const allowReportQuantity = position?.positionDetails[0].allowWorkNum - position?.positionDetails[0].workNum || 0
+        if (allowReportQuantity < processDto.positions.length) throw new Error('报工数量大于可报工数量')
+
+        await position?.positionDetails[0].update(
+          {
+            workNum: position?.positionDetails[0].workNum + processDto.positions.length,
+          },
+          { transaction }
+        )
         for (const item of processDto.positions) {
           console.log(3)
           // 工序任务
