@@ -71,7 +71,7 @@ export class SOP extends BaseDate<SOP> {
   fileList: FileList[]
 
   @BelongsToMany(() => FileList, { through: () => SOParameter, uniqueKey: 'SOP_so_parameter_unique', foreignKey: 'sopId', otherKey: 'fileListId' })
-  ParameterList: FileList[]
+  parameterList: FileList[]
 
   @HasMany(() => SOPMaterial)
   declare sopMaterial: SOPMaterial[]

@@ -160,11 +160,11 @@ export class ProcessService {
     if (dto.productionOrderTaskId) {
       options.include[2]['attributes'].push([
         Sequelize.literal(`(
-        SELECT COUNT(DISTINCT pli.id)
-        FROM process_locate_item pli
-        INNER JOIN process_position_task pt ON pli.processPositionTaskId = pt.id
-        WHERE pt.processId = \`children\`.\`id\`
-        ${`AND pt.productionOrderTaskId = ${dto.productionOrderTaskId}`}
+        SELECT COALESCE(SUM(pld.assignCount), 0)
+        FROM process_locate_detail pld
+        INNER JOIN process_locate pl ON pld.processLocateId = pl.id
+        WHERE pld.processId = \`children\`.\`id\`
+        ${`AND pl.productionOrderTaskId = ${dto.productionOrderTaskId}`}
       )`),
         'totalAssignedCount',
       ])
