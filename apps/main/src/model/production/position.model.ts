@@ -45,5 +45,5 @@ export class Position extends BaseDate<Position> {
   declare status: boolean
 
   @HasMany(() => PositionDetail)
-  declare positionDetail: PositionDetail[]
+  declare positionDetails: PositionDetail[]
 }

@@ -2,9 +2,8 @@ import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequeli
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
 import { ProcessLocate } from './processLocate.model'
-import { ProcessLocateDetailStatus } from '@common/enum'
+import { AuditStatus } from '@common/enum'
 import { Process } from '@model/process/process.model'
-import { ProcessLocateItem } from './processLocateItem.model'
 
 /** 派工详情表 */
 @Table({ tableName: `process_locate_detail`, freezeTableName: true, timestamps: true, comment: '派工详情表' })
@@ -41,17 +40,16 @@ export class ProcessLocateDetail extends BaseDate<ProcessLocateDetail> {
     comment: '分配数量',
     type: DataType.INTEGER,
     allowNull: false,
-    defaultValue: 1,
   })
   declare assignCount: number
 
   @Column({
     comment: '状态',
-    type: DataType.ENUM(...Object.values(ProcessLocateDetailStatus)),
+    type: DataType.ENUM(...Object.values(AuditStatus)),
     allowNull: false,
-    defaultValue: ProcessLocateDetailStatus.NOT_STARTED,
+    defaultValue: AuditStatus.PENDING_REVIEW,
   })
-  declare status: ProcessLocateDetailStatus
+  declare status: AuditStatus
 
   // 开始时间
   @Column({
@@ -88,7 +86,4 @@ export class ProcessLocateDetail extends BaseDate<ProcessLocateDetail> {
   // 关联工序
   @BelongsTo(() => Process, 'processId')
   declare process: Process
-
-  @HasMany(() => ProcessLocateItem)
-  declare processLocateItems: ProcessLocateItem[]
 }

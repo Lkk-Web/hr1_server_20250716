@@ -1099,6 +1099,16 @@ export class ProductionReportService {
           ],
         },
         {
+          association: 'processLocates',
+          attributes: ['id', 'processId'],
+          include: [
+            {
+              association: 'processLocateDetails',
+              where: { userId: user.id },
+            },
+          ],
+        },
+        {
           association: 'material',
           attributes: ['id', 'code', 'materialName'],
         },
@@ -1111,12 +1121,6 @@ export class ProductionReportService {
 
     if (dto.status) {
       processPositionTaskWhere['status'] = dto.status
-    }
-
-    if (dto.status == POSITION_TASK_STATUS.All || !dto.status) {
-      processPositionTaskWhere['status'] = {
-        [Op.notIn]: [POSITION_TASK_STATUS.TO_ASSIGN, POSITION_TASK_STATUS.TO_AUDIT],
-      }
     }
 
     if (dto.status == POSITION_TASK_STATUS.IN_PROGRESS) {
@@ -1136,6 +1140,10 @@ export class ProductionReportService {
     return {
       result,
       taskTime,
+      allowReportQuantity: result.data.reduce(
+        (pre, cur) => pre + cur?.processLocates.reduce((pre, cur) => pre + cur?.processLocateDetails.reduce((pre, cur) => pre + cur.assignCount, 0), 0),
+        0
+      ),
       status: result.data[0]?.productSerials[0]?.processTasks[0].status,
     }
   }

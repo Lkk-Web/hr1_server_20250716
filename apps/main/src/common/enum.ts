@@ -31,8 +31,6 @@ export enum PROCESS_TASK_STATUS {
 }
 
 export enum POSITION_TASK_STATUS {
-  TO_ASSIGN = '待派工',
-  TO_AUDIT = '待审核',
   NOT_STARTED = '未开始',
   IN_PROGRESS = '进行中',
   PAUSED = '已暂停',
@@ -108,14 +106,6 @@ export enum ProductSerialStatus {
   IN_PROGRESS = '执行中',
   PAUSED = '已暂停',
   COMPLETED = '已完工',
-}
-
-/** 派工详情状态枚举 */
-export enum ProcessLocateDetailStatus {
-  NOT_STARTED = '未开始',
-  IN_PROGRESS = '执行中',
-  PAUSED = '已暂停',
-  COMPLETED = '已完成',
 }
 
 export enum ROLE_CODE {

@@ -1082,7 +1082,7 @@ export class ProductionOrderService {
                     reportRatio: childProcess.dataValues.reportRatio || 1,
                     processId: childProcess.id,
                     planCount: 1,
-                    status: POSITION_TASK_STATUS.TO_ASSIGN,
+                    status: POSITION_TASK_STATUS.NOT_STARTED,
                     isOutsource: false, //  委外
                     // isOutsource: childProcess.dataValues.isOut || false,
                     isInspection: childProcess.dataValues.isQC || false,
