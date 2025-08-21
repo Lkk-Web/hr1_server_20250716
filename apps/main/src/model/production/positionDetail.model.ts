@@ -26,6 +26,7 @@ export class PositionDetail extends BaseDate<PositionDetail> {
   @Column({
     comment: '可开工数量',
     type: DataType.INTEGER,
+    defaultValue: 0,
     allowNull: false,
   })
   allowWorkNum: number
@@ -33,6 +34,7 @@ export class PositionDetail extends BaseDate<PositionDetail> {
   @Column({
     comment: '已开工数量',
     type: DataType.INTEGER,
+    defaultValue: 0,
     allowNull: false,
   })
   workNum: number
@@ -40,6 +42,7 @@ export class PositionDetail extends BaseDate<PositionDetail> {
   @Column({
     comment: '已完成数量',
     type: DataType.INTEGER,
+    defaultValue: 0,
     allowNull: false,
   })
   completeNum: number
