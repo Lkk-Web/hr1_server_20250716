@@ -599,7 +599,7 @@ export class ProcessPositionTaskService {
         })
         if (dto.status === AuditStatus.APPROVED) {
           await res.update({ status: AuditStatus.APPROVED }, { transaction })
-          if (positionTaskDetail) {
+          if (!positionTaskDetail) {
             await PositionTaskDetail.create(
               {
                 positionDetailId: positionDetail.dataValues.id,

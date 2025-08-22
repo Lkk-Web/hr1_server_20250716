@@ -1149,21 +1149,9 @@ export class ProductionReportService {
       taskTime = await this.productionReportTwoService.getReportUserDuration(user, result.data[0]?.productSerials[0].processTasks[0].processPositionTasks)
     }
 
-    const positionInfo = await Position.findOne({
-      where: { processId: dto.positioProcessId },
-      include: [
-        {
-          association: 'positionDetails',
-          where: { userId: user.id },
-          include: [{ association: 'positionTaskDetails', attributes: ['allowWorkNum', 'workNum', 'completeNum'] }],
-        },
-      ],
-    })
-
     return {
       result,
       taskTime,
-      positionInfo,
       allowReportQuantity: result.data.reduce(
         (pre, cur) => pre + cur?.processLocates.reduce((pre, cur) => pre + cur?.processLocateDetails.reduce((pre, cur) => pre + cur.assignCount, 0), 0),
         0
