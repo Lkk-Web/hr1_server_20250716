@@ -1109,6 +1109,18 @@ export class ProductionReportService {
           ],
         },
         {
+          association: 'positionTaskDetails',
+          include: [
+            {
+              association: 'positionDetail',
+              attributes: [],
+              where: {
+                userId: user.id,
+              },
+            },
+          ],
+        },
+        {
           association: 'material',
           attributes: ['id', 'code', 'materialName'],
         },
@@ -1139,7 +1151,13 @@ export class ProductionReportService {
 
     const positionInfo = await Position.findOne({
       where: { processId: dto.positioProcessId },
-      include: [{ association: 'positionDetails', where: { userId: user.id }, attributes: ['allowWorkNum', 'workNum', 'completeNum'] }],
+      include: [
+        {
+          association: 'positionDetails',
+          where: { userId: user.id },
+          include: [{ association: 'positionTaskDetails', attributes: ['allowWorkNum', 'workNum', 'completeNum'] }],
+        },
+      ],
     })
 
     return {
