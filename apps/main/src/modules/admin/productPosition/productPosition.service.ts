@@ -33,6 +33,16 @@ export class ProductPositionService {
     //     throw new HttpException('工位名称已存在', HttpStatus.BAD_REQUEST)
     //   }
     // }
+    if (dto.processId) {
+      const result = await this.positionModel.findOne({
+        where: {
+          processId: dto.processId,
+        },
+      })
+      if (result) {
+        throw new HttpException('工序已被绑定', HttpStatus.BAD_REQUEST)
+      }
+    }
     const result = await this.positionModel.create({
       name: dto.name,
       processId: dto.processId,
