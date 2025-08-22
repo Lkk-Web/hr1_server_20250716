@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Table } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { User } from '@model/auth/user'
-import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS } from '@common/enum'
+import { POSITION_TASK_STATUS } from '@common/enum'
 import { ProcessTaskLog } from '@model/production/processTaskLog.model'
 import { ProcessTask } from './processTask.model'
 import { Process } from '@model/process/process.model'

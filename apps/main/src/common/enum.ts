@@ -22,12 +22,12 @@ export enum PROCESS_TASK_LOG_TYPE {
   finish = 10, //完成
 }
 
-//未开始 执行中 暂停 已结束
+//未开始 执行中 暂停 已完工
 export enum PROCESS_TASK_STATUS {
   notStart = '未开始',
-  running = '执行中',
-  pause = '暂停',
-  finish = '已结束',
+  running = '进行中',
+  pause = '已暂停',
+  finish = '已完工',
 }
 
 export enum POSITION_TASK_STATUS {
@@ -103,7 +103,7 @@ export enum LocateStatus {
 /** 产品序列号状态枚举 */
 export enum ProductSerialStatus {
   NOT_STARTED = '未开始',
-  IN_PROGRESS = '执行中',
+  IN_PROGRESS = '进行中',
   PAUSED = '已暂停',
   COMPLETED = '已完工',
 }

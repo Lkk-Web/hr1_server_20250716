@@ -38,6 +38,7 @@ export class ProductSerialService {
       },
       {
         association: 'processTasks',
+        where: {},
         include: [
           {
             association: 'process',
@@ -95,12 +96,9 @@ export class ProductSerialService {
     }
 
     if (status) {
-      includeConditions[1].include[1].where['status'] = status
-    } else {
-      includeConditions[1].include[1].where['status'] = {
-        [Op.in]: [POSITION_TASK_STATUS.NOT_STARTED, POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.COMPLETED],
-      }
+      includeConditions[1].where['status'] = status
     }
+
     // 如果有订单编码条件，添加到关联查询中
     if (kingdeeCode) {
       includeConditions[0].include[1].include[0].where = {
@@ -168,7 +166,6 @@ export class ProductSerialService {
 
     return this.findOne(id)
   }
-
 
   /**
    * 根据生产订单任务ID查询产品序列号

@@ -107,10 +107,10 @@ export class ProcessTask extends BaseDate<ProcessTask> {
   // 工序状态
   @Column({
     comment: '工序状态 (未开始, 执行中, 已结束)',
-    type: DataType.STRING(10),
+    type: DataType.ENUM(...Object.values(PROCESS_TASK_STATUS)),
     allowNull: true,
   })
-  declare status: PROCESS_TASK_STATUS | string
+  declare status: string
 
   @Column({
     comment: '是否委外',
