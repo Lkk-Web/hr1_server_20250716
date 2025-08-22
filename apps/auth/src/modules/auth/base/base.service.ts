@@ -161,6 +161,11 @@ export class MiService {
               },
               {
                 association: 'process',
+                order: [
+                  ['sort', 'ASC'],
+                  ['id', 'ASC'],
+                ],
+                separate: true,
               },
             ],
           },
