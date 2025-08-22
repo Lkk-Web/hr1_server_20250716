@@ -33,7 +33,7 @@ export class MiController {
   @ApiOperation({ summary: '根据token获取用户信息' })
   @OpenAuthorize()
   @Post('info')
-  async getUserInfo(@Body(new CensorParamPipe()) dto: TokenGetUserDto, @Req() req) {
+  async getUserInfo(@Body(new CensorParamPipe()) dto: TokenGetUserDto) {
     return await this.service.tokenGetUser(dto)
   }
 

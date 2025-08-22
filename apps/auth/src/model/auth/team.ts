@@ -5,7 +5,7 @@ import { TeamUser } from '@model/auth/teamUser'
 import { TeamProcess } from '@model/auth/teamProcess'
 import { TEAM_TYPE } from '@common/enum'
 import { Process } from '@model/main-service/process'
-
+import { Position } from '@model/main-service/position'
 /** 班组 */
 @Table({ tableName: `auth_team`, freezeTableName: true, timestamps: true, comment: '班组表' })
 export class Team extends BaseDate<Team> {
@@ -77,4 +77,7 @@ export class Team extends BaseDate<Team> {
 
   @HasOne(() => TeamUser)
   declare teamUser: TeamUser
+
+  @HasMany(() => Position)
+  declare positions: Position[]
 }

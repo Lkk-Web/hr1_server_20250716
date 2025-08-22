@@ -6,6 +6,7 @@ import { CryptoUtil, jwtDecode, jwtEncodeInExpire } from '@library/utils/crypt.u
 import * as crypto from 'crypto'
 import { TokenInfo } from '@model/auth/tokenInfo'
 import { SystemOperationLog } from '@model/index'
+import { includes } from 'lodash'
 
 @Injectable()
 export class MiService {
@@ -142,15 +143,24 @@ export class MiService {
     if (tokenRecord.platform == PLATFORM.station) {
       options.include.push({
         association: 'team',
-        attributes: ['id', 'name', 'chargeId'],
-        through: { attributes: [] },
         include: [
           {
-            association: 'process',
-            through: { attributes: [] },
+            association: 'positions',
             include: [
               {
-                association: 'children',
+                association: 'positionDetails',
+                where: {
+                  userId: payload.id,
+                },
+                include: [
+                  {
+                    association: 'user',
+                    attributes: ['id', 'userName'],
+                  },
+                ],
+              },
+              {
+                association: 'process',
               },
             ],
           },

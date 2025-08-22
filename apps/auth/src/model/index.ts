@@ -15,7 +15,9 @@ export * from './auth/teamProcess'
 
 // main 服务
 export * from './main-service/process'
+export * from './main-service/position'
+export * from './main-service/positionDetail'
 
-
+// 日志
 // 日志
 export * from './system/operationLog'

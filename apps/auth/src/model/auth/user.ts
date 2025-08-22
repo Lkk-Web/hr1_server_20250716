@@ -5,6 +5,7 @@ import { TokenInfo } from './tokenInfo'
 import { Organize } from './organize'
 import { TeamUser } from './teamUser'
 import { Team } from './team'
+import { PositionDetail } from '@model/main-service/positionDetail'
 
 @Table({ tableName: `auth_user`, freezeTableName: true, timestamps: true, comment: '用户员工表' })
 export class User extends BaseDate<User> {
@@ -102,4 +103,7 @@ export class User extends BaseDate<User> {
 
   @BelongsToMany(() => Team, () => TeamUser)
   declare team: Team[]
+
+  @HasMany(() => PositionDetail)
+  declare positionDetail: PositionDetail[]
 }
