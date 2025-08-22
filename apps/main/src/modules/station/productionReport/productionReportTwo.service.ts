@@ -81,6 +81,15 @@ export class ProductionReportTwoService {
             where: { serialId: item.serialId, processId: dto.processId },
             include: [{ association: 'operateLogs' }],
           })
+
+          // 上一道子工序
+          const preProcessPositionTask = await ProcessPositionTask.findOne({
+            where: { serialId: processPositionTask.serialId, id: processPositionTask.id - 1 },
+            order: [['id', 'ASC']],
+            transaction,
+          })
+          if (preProcessPositionTask && preProcessPositionTask.dataValues.status != POSITION_TASK_STATUS.COMPLETED) throw new Error('上一道子工序未完成，无法开工')
+
           if (processPositionTask.status == POSITION_TASK_STATUS.IN_PROGRESS && taskStatus == TaskStatus.OPEN_TASK) throw new Error('当前任务正在进行中，不能重新开工')
           if (processPositionTask.status == POSITION_TASK_STATUS.PAUSED && taskStatus == TaskStatus.PAUSE) throw new Error('当前任务已暂停，不能暂停')
           console.log(5)
