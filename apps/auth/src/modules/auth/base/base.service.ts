@@ -5,7 +5,7 @@ import { PLATFORM, request_Method } from '@common/enum'
 import { CryptoUtil, jwtDecode, jwtEncodeInExpire } from '@library/utils/crypt.util'
 import * as crypto from 'crypto'
 import { TokenInfo } from '@model/auth/tokenInfo'
-import { SystemOperationLog } from '@model/index'
+import { Position, Process, SystemOperationLog } from '@model/index'
 import { includes } from 'lodash'
 
 @Injectable()
@@ -161,13 +161,17 @@ export class MiService {
               },
               {
                 association: 'process',
-                order: [
-                  ['sort', 'ASC'],
-                  ['id', 'ASC'],
-                ],
-                separate: true,
+                // order: [
+                //   ['sort', 'ASC'],
+                //   ['id', 'ASC'],
+                // ],
+                // separate: true,
               },
             ],
+            // order: [
+            //   // ['positions', 'process', 'sort', 'DESC'],
+            //   ['positions', 'process', 'id', 'ASC'],
+            // ],
           },
         ],
       })
