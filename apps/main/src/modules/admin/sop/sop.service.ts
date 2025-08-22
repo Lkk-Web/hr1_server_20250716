@@ -156,7 +156,7 @@ export class SopService {
           required: false,
         },
         {
-          association: 'ParameterList',
+          association: 'parameterList',
           attributes: ['id', 'name', 'url'],
           through: { attributes: [] },
         },
@@ -196,7 +196,7 @@ export class SopService {
           required: false,
         },
         {
-          association: 'ParameterList',
+          association: 'parameterList',
           attributes: ['id', 'name', 'url'],
         },
       ],
