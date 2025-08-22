@@ -22,6 +22,7 @@ import {
 import { Paging } from '@library/utils/paging'
 import moment from 'moment'
 import { Position, PositionDetail } from '@model/index'
+import { PositionTaskDetail } from '@model/production/positionTaskDetail.model'
 
 @Injectable()
 export class ProcessPositionTaskService {
@@ -322,6 +323,7 @@ export class ProcessPositionTaskService {
         transaction,
       })
 
+      // 工位任务单数量
       const assignedPositionTaskCount = processLocateDetails.reduce((sum, detail) => sum + detail.assignCount, 0)
 
       // 计算该生产工单任务下工位任务单的总数量
@@ -584,26 +586,31 @@ export class ProcessPositionTaskService {
       )
 
       // 根据审核状态处理相关业务逻辑
-      const processLocateDetails = await ProcessLocateDetail.findAll({ where: { processLocateId: { [Op.in]: ids }, status: AuditStatus.PENDING_REVIEW } })
+      const processLocateDetails = await ProcessLocateDetail.findAll({
+        where: { processLocateId: { [Op.in]: ids }, status: AuditStatus.PENDING_REVIEW },
+        include: [{ association: 'processLocate', attributes: ['productionOrderTaskId'] }],
+      })
 
       for (const res of processLocateDetails) {
-        const position = await Position.findOne({
-          where: {
-            processId: res.processId,
-            // teamId: dto.teamId,
-          },
-        })
-        const positionDetail = await PositionDetail.findOne({
-          where: {
-            positionId: position.dataValues.id,
-            userId: res.userId,
-          },
+        const position = await Position.findOne({ where: { processId: res.processId } })
+        const positionDetail = await PositionDetail.findOne({ where: { positionId: position.dataValues.id, userId: res.userId } })
+        const positionTaskDetail = await PositionTaskDetail.findOne({
+          where: { positionDetailId: positionDetail.dataValues.id, productionOrderTaskId: res.processLocate.productionOrderTaskId },
         })
         if (dto.status === AuditStatus.APPROVED) {
           await res.update({ status: AuditStatus.APPROVED }, { transaction })
-          console.log(JSON.stringify(positionDetail))
-
-          await positionDetail.update({ allowWorkNum: positionDetail.dataValues.allowWorkNum + res.assignCount }, { transaction })
+          if (positionTaskDetail) {
+            await PositionTaskDetail.create(
+              {
+                positionDetailId: positionDetail.dataValues.id,
+                productionOrderTaskId: res.processLocate.productionOrderTaskId,
+                allowWorkNum: res.assignCount,
+              },
+              { transaction }
+            )
+          } else {
+            await positionTaskDetail.update({ allowWorkNum: positionTaskDetail.dataValues.allowWorkNum + res.assignCount }, { transaction })
+          }
         } else if (dto.status === AuditStatus.REJECTED) {
           // 审核驳回：回滚派工记录，恢复工位任务单状态为待派工
           // 1. 派工为驳回
@@ -612,7 +619,7 @@ export class ProcessPositionTaskService {
           // 2. 工单状态回滚
           await ProductionOrderTask.update({ locateStatus: LocateStatus.NOT_LOCATED }, { where: { id: productionOrderTaskIds }, transaction })
           // 3. 可派数量回滚
-          await positionDetail.update({ allowWorkNum: positionDetail.dataValues.allowWorkNum - res.assignCount }, { transaction })
+          await positionTaskDetail.update({ allowWorkNum: positionTaskDetail.dataValues.allowWorkNum - res.assignCount }, { transaction })
         }
       }
 
