@@ -8,6 +8,7 @@ import { ProductionOrderTaskTeam } from './productionOrderTaskOfTeam.model'
 import { Team } from '@model/auth/team'
 import { ProductionReportDetail } from './productionReportDetail.model'
 import { ProcessLocate } from './processLocate.model'
+import { PositionTaskDetail } from './positionTaskDetail.model'
 
 /** 生产订单任务表 */
 @Table({ tableName: `production_order_task`, freezeTableName: true, timestamps: true, comment: '生产工单表 - 排产 -含多个产品序列号' })
@@ -172,4 +173,7 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
 
   @HasMany(() => ProductionReportDetail, 'productionOrderTaskId')
   declare productionReportDetails: ProductionReportDetail[]
+
+  @HasMany(() => PositionTaskDetail)
+  declare positionTaskDetails: PositionTaskDetail[]
 }

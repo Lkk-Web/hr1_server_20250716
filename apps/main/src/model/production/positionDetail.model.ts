@@ -1,7 +1,8 @@
-import { Table, Column, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
+import { Table, Column, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Position } from './position.model'
 import { User } from '@model/auth/user'
+import { PositionTaskDetail } from './positionTaskDetail.model'
 @Table({ tableName: `production_position_detail`, freezeTableName: true, timestamps: true, comment: '工位人员明细表' })
 export class PositionDetail extends BaseDate<PositionDetail> {
   //工位ID
@@ -23,30 +24,9 @@ export class PositionDetail extends BaseDate<PositionDetail> {
   })
   declare userId: number
 
-  @Column({
-    comment: '可开工数量',
-    type: DataType.INTEGER,
-    defaultValue: 0,
-    allowNull: false,
-  })
-  allowWorkNum: number
-
-  @Column({
-    comment: '已开工数量',
-    type: DataType.INTEGER,
-    defaultValue: 0,
-    allowNull: false,
-  })
-  workNum: number
-
-  @Column({
-    comment: '已完成数量',
-    type: DataType.INTEGER,
-    defaultValue: 0,
-    allowNull: false,
-  })
-  completeNum: number
-
   @BelongsTo(() => User)
   declare user: User
+
+  @HasMany(() => PositionTaskDetail)
+  declare positionTaskDetails: PositionTaskDetail[]
 }
