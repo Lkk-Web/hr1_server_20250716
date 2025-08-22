@@ -169,7 +169,12 @@ export class ProductionReportTwoService {
           await processPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED, actualEndTime: new Date(), actualWorkTime: item.duration }, { transaction })
 
           //序列号绑定多个铁芯序列号
-          if (process.processName == '1') {
+          const result = await IronProductSerial.findOne({
+            where: {
+              serialId: item.serialId,
+            },
+          })
+          if (!result && process.processName.includes('打合')) {
             const ironProductSerial = item.ironSerial.map(v => {
               return {
                 serialId: item.serialId,
