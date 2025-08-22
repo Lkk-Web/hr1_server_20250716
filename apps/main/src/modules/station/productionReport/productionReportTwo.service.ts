@@ -14,6 +14,7 @@ import {
   InspectionFormItem,
   IronProductSerial,
   Position,
+  PositionDetail,
   Process,
   ProcessTaskLog,
   ProductionOrderTask,
@@ -27,6 +28,7 @@ import { KingdeeeService } from '@library/kingdee'
 import moment = require('moment')
 import _ = require('lodash')
 import { ProcessPositionTask } from '@model/production/processPositionTask.model'
+import { PositionTaskDetail } from '@model/production/positionTaskDetail.model'
 
 @Injectable()
 export class ProductionReportTwoService {
@@ -46,22 +48,19 @@ export class ProductionReportTwoService {
         const productionOrderTask = await ProductionOrderTask.findOne({ where: { id: processDto.productionOrderTaskId } })
         await productionOrderTask.update({ actualStartTime: new Date() }, { transaction }) // 工单
         // 工位
-        const position = await Position.findOne({
-          where: { processId: dto.processId },
-          include: {
-            association: 'positionDetails',
-            where: {
-              userId: user.id,
-            },
-          },
+        const position = await Position.findOne({ where: { processId: dto.processId } })
+        const positionDetail = await PositionDetail.findOne({ where: { positionId: position.dataValues.id, userId: user.id } })
+        const positionTaskDetail = await PositionTaskDetail.findOne({
+          where: { positionDetailId: positionDetail.dataValues.id, productionOrderTaskId: processDto.productionOrderTaskId },
         })
+        console.log(12312312, JSON.stringify(position), positionTaskDetail.dataValues.allowWorkNum)
 
-        const allowReportQuantity = position?.positionDetails[0].allowWorkNum - position?.positionDetails[0].workNum || 0
-        if (allowReportQuantity < processDto.positions.length) throw new Error('报工数量大于可报工数量')
+        const allowReportQuantity = positionTaskDetail.dataValues.allowWorkNum - positionTaskDetail.dataValues.workNum || 0
+        if (allowReportQuantity < processDto.positions.length) throw new Error(`开工数量${processDto.positions.length}大于派工数量${allowReportQuantity}`)
 
-        await position?.positionDetails[0].update(
+        await positionTaskDetail.update(
           {
-            workNum: position?.positionDetails[0].workNum + processDto.positions.length,
+            workNum: positionTaskDetail.dataValues.workNum + processDto.positions.length,
           },
           { transaction }
         )
