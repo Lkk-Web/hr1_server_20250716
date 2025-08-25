@@ -200,13 +200,13 @@ export class ProductionReportTwoService {
               await processTask.update({ goodCount: 1, badCount: 0 }, { transaction })
               await productionReport.update({ allGoodCount: productionReport.allGoodCount + 1 }, { transaction })
               await productionOrderTask.update({ goodCount: productionOrderTask.goodCount + 1 }, { transaction })
-              await processPositionTask.update({ goodCount: productionOrderTask.goodCount + 1 }, { transaction })
+              await processPositionTask.update({ goodCount: processPositionTask.goodCount + 1 }, { transaction })
             } else {
               // 不良品 不良原因
               await processTask.update({ goodCount: 0, badCount: 1 }, { transaction })
               await productionReport.update({ allBadCount: productionReport.allBadCount + 1 }, { transaction })
               await productionOrderTask.update({ badCount: productionOrderTask.badCount + 1 }, { transaction })
-              await processPositionTask.update({ badCount: productionOrderTask.badCount + 1, QCReason: item.QCReason }, { transaction })
+              await processPositionTask.update({ badCount: processPositionTask.badCount + 1, QCReason: item.QCReason }, { transaction })
             }
           }
 
