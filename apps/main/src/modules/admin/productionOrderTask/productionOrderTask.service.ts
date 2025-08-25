@@ -85,6 +85,11 @@ export class ProductionOrderTaskService {
               association: 'currentProcessTask',
               include: [{ association: 'process', attributes: ['id', 'processName'] }],
             },
+            {
+              association: 'ironSerial',
+              required: false,
+              attributes: ['id', 'ironSerial', 'serialId'],
+            },
             // {
             //   association: 'processTasks',
             //   include: [

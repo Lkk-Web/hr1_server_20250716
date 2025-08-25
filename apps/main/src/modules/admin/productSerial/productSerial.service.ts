@@ -37,6 +37,11 @@ export class ProductSerialService {
         ],
       },
       {
+        association: 'ironSerial',
+        required: false,
+        attributes: ['id', 'ironSerial', 'serialId'],
+      },
+      {
         association: 'processTasks',
         where: {},
         include: [
