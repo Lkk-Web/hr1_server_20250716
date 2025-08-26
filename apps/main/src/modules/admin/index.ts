@@ -90,3 +90,6 @@ export * from './batchLog/batchLog.module'
 
 export * from './notify/notify.module'
 export * from './manHour/manHour.module'
+
+//仪表盘
+export * from './dashboard/dashboard.module'
