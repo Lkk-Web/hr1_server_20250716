@@ -3,7 +3,7 @@ import { Material } from '@model/base/material.model'
 import { POB } from '@model/production/POB.model'
 import { StrBaseModel } from '@model/shared/strBase.model'
 import { ProductionOrder } from './productionOrder.model'
-
+import { ProductionOrderTask } from './productionOrderTask.model'
 @Table({ tableName: `production_order_detail`, freezeTableName: true, timestamps: true, comment: '生产订单明细表' })
 export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
   @ForeignKey(() => ProductionOrder)
@@ -102,4 +102,7 @@ export class ProductionOrderDetail extends StrBaseModel<ProductionOrderDetail> {
 
   @HasMany(() => POB)
   declare boms: POB[]
+
+  @HasMany(() => ProductionOrderTask)
+  declare productionOrderTasks: ProductionOrderTask[]
 }

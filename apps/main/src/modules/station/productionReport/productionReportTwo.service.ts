@@ -71,7 +71,7 @@ export class ProductionReportTwoService {
           await processTask.update(
             {
               status: taskStatus == TaskStatus.OPEN_TASK ? PROCESS_TASK_STATUS.running : PROCESS_TASK_STATUS.pause,
-              actualStartTime: processTask.actualStartTime && new Date(),
+              actualStartTime: new Date(),
             },
             { transaction }
           )
