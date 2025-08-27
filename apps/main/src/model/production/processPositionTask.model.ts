@@ -39,6 +39,15 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
   })
   declare processTaskId: number
 
+  // 上一道工位
+  @ForeignKey(() => ProcessPositionTask)
+  @Column({
+    comment: '上一道工位',
+    type: DataType.INTEGER,
+    allowNull: true, // 必填项
+  })
+  declare prePositionTaskId: number
+
   //操作工id
   @ForeignKey(() => User)
   @Column({
@@ -174,4 +183,7 @@ export class ProcessPositionTask extends BaseDate<ProcessPositionTask> {
 
   @HasMany(() => ProcessTaskLog)
   declare operateLogs: ProcessTaskLog[]
+
+  @BelongsTo(() => ProcessPositionTask)
+  declare prePositionTask: ProcessPositionTask
 }

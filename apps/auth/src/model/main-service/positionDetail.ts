@@ -2,7 +2,7 @@ import { Table, Column, DataType, ForeignKey, BelongsTo, HasMany } from 'sequeli
 import { BaseDate } from '@model/shared/baseDate'
 import { Position } from './position'
 import { User } from '@model/auth/user'
-@Table({ tableName: `production_position_detail`, freezeTableName: true, timestamps: true, comment: '工位人员明细表' })
+@Table({ tableName: `position_detail`, freezeTableName: true, timestamps: true, comment: '工位人员明细表' })
 export class PositionDetail extends BaseDate<PositionDetail> {
   //工位ID
   @ForeignKey(() => Position)

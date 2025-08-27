@@ -39,6 +39,15 @@ export class ProcessTask extends BaseDate<ProcessTask> {
   })
   declare processId: number
 
+  // 上一道工序任务
+  @ForeignKey(() => ProcessTask)
+  @Column({
+    comment: '上一道工序任务',
+    type: DataType.INTEGER,
+    allowNull: true, // 必填项
+  })
+  declare preProcessTaskId: number
+
   @Column({
     comment: 'sort',
     type: DataType.INTEGER,
@@ -222,4 +231,7 @@ export class ProcessTask extends BaseDate<ProcessTask> {
 
   @HasMany(() => ProcessPositionTask)
   declare processPositionTasks: ProcessPositionTask[]
+
+  @BelongsTo(() => ProcessTask)
+  declare preProcessTask: ProcessTask
 }

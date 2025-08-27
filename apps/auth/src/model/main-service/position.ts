@@ -4,7 +4,7 @@ import { Team } from '@model/auth/team'
 import { Process } from './process'
 import { PositionDetail } from './positionDetail'
 
-@Table({ tableName: `production_position`, freezeTableName: true, timestamps: true, comment: '工位表' })
+@Table({ tableName: `position`, freezeTableName: true, timestamps: true, comment: '工位表' })
 export class Position extends BaseDate<Position> {
   //工位名称
   @Column({

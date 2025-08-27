@@ -3,7 +3,7 @@ import { BaseDate } from '@model/shared/baseDate'
 import { Position } from './position.model'
 import { User } from '@model/auth/user'
 import { PositionTaskDetail } from './positionTaskDetail.model'
-@Table({ tableName: `production_position_detail`, freezeTableName: true, timestamps: true, comment: '工位人员明细表' })
+@Table({ tableName: `position_detail`, freezeTableName: true, timestamps: true, comment: '工位人员明细表' })
 export class PositionDetail extends BaseDate<PositionDetail> {
   //工位ID
   @ForeignKey(() => Position)
@@ -12,9 +12,6 @@ export class PositionDetail extends BaseDate<PositionDetail> {
     type: DataType.INTEGER,
   })
   declare positionId: number
-
-  @BelongsTo(() => Position)
-  declare position: Position
 
   //人员
   @ForeignKey(() => User)
@@ -29,4 +26,11 @@ export class PositionDetail extends BaseDate<PositionDetail> {
 
   @HasMany(() => PositionTaskDetail)
   declare positionTaskDetails: PositionTaskDetail[]
+
+  @BelongsTo(() => Position, {
+    as: 'position',
+    foreignKey: 'positionId',
+    targetKey: 'id',
+  })
+  declare position: Position
 }

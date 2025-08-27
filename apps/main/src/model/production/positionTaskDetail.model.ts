@@ -1,10 +1,8 @@
 import { Table, Column, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
-import { Position } from './position.model'
-import { User } from '@model/auth/user'
 import { PositionDetail } from './positionDetail.model'
 import { ProductionOrderTask } from '..'
-@Table({ tableName: `position_task_detail`, freezeTableName: true, timestamps: true, comment: '工位人员明细表' })
+@Table({ tableName: `position_task_detail`, freezeTableName: true, timestamps: true, comment: '工位与任务明细表' })
 export class PositionTaskDetail extends BaseDate<PositionTaskDetail> {
   //工位ID
   @ForeignKey(() => PositionDetail)
