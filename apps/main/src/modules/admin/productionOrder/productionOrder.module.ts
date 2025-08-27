@@ -11,6 +11,6 @@ import { BomModule } from '../baseData/bom/bom.module'
   imports: [RedisModule, BomModule, SequelizeModule.forFeature([ProductionOrder, POB, POBDetail])],
   controllers: [ProductionOrderController],
   providers: [ProductionOrderService],
-  exports: [],
+  exports: [ProductionOrderService],
 })
 export class ProductionOrderModule {}

@@ -13,14 +13,13 @@ import { ProductionReport } from '@model/production/productionReport.model'
 import { ProcessTask } from '@model/production/processTask.model'
 import { PROCESS_TASK_STATUS } from '@common/enum'
 import { ProcessTaskDept } from '@model/production/processTaskDept.model'
-import { ProductionReportTwoService } from '@modules/station/productionReport/productionReportTwo.service'
 import { User } from '@model/auth/user'
 import { InspectionFormBy } from '@model/quantity/inspectionFormBy.model'
 import dayjs = require('dayjs')
 
 @Injectable()
 export class InspectionFormService {
-  constructor(private readonly productionReportTwoService: ProductionReportTwoService) {}
+  constructor() {}
 
   public async edit(dto: UInspectionFormDto, id: number) {
     const inspectionForm = await InspectionForm.findOne({ where: { id } })

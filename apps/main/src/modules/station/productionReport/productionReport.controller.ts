@@ -14,36 +14,6 @@ import { CurrentPage } from '@core/decorator/request'
 @StationAuth('productionReport')
 export class ProductionReportController {
   constructor(private readonly service: ProductionReportService, private readonly serviceTwo: ProductionReportTwoService, private readonly sequelize: Sequelize) {}
-  //  @ApiOperation({ summary: '创建' })
-  // @HttpCode(HttpStatus.OK)
-  // @Post('/')
-  // async create(@Body() dto: CProductionReportDto, @Req() req) {
-  //   let { factoryCode, loadModel } = req
-  //   const result = await this.service.create(dto, req.user, loadModel)
-  //   return result
-  // }
-
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOperation({ summary: '修改' })
-  // @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
-  // @Put(':id')
-  // async edit(@Body() dto: UProductionReportDto, @Param() params, @Req() req) {
-  //   let { factoryCode, loadModel } = req
-  //   const { id } = params
-  //   const result = await this.service.edit(dto, id, req.user, loadModel)
-  //   return result
-  // }
-
-  // @HttpCode(HttpStatus.OK)
-  // @ApiOperation({ summary: '删除' })
-  // @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
-  // @Delete(':id')
-  // async delete(@Param() params, @Req() req) {
-  //   let { factoryCode, loadModel } = req
-  //   const { id } = params
-  //   const result = await this.service.delete(id, loadModel)
-  //   return result
-  // }
 
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '查看工序对应 Bom / SOP 详情/ parameters工艺参数' })
