@@ -26,4 +26,11 @@ export class DashboardController {
   async OrderFindPagination(@Query() dto: OrderFindPagination) {
     return await this.service.OrderFindPagination(dto)
   }
+
+  @Get('ProductPagination')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '生产质量统计展示' })
+  async ProductPagination(@Query() dto: OrderFindPagination) {
+    return await this.service.ProductPagination(dto)
+  }
 }

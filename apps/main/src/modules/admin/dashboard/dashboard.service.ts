@@ -197,4 +197,77 @@ export class DashboardService {
       scheduleRate: (finishedProductSerialCount / plannedOutputSum) * 100,
     }
   }
+
+  /**
+   * 生产质量统计展示
+   */
+  async ProductPagination(dto: OrderFindPagination) {
+    const options = {
+      where: {},
+      include: [
+        {
+          association: 'productSerials',
+          include: [
+            {
+              association: 'processTasks',
+              required: false,
+              include: [
+                {
+                  association: 'processPositionTasks',
+                  required: false,
+                  where: {
+                    isInspection: true, // 查询质检
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+
+    if (dto) {
+      if (dto.startTime && dto.endTime) {
+        options.where['createdAt'] = { [Op.between]: [dto.startTime, dto.endTime] }
+      }
+    }
+
+    const productionOrderTask = await ProductionOrderTask.findAll(options)
+    const productionOrderTaskCout = productionOrderTask.length
+
+    // 统计不良品数量和质检原因
+    const qualityStats = new Map<string, number>()
+    let totalBadCount = 0
+
+    for (const task of productionOrderTask) {
+      const productSerials = (task as any)?.productSerials || []
+      for (const serial of productSerials) {
+        const processTasks = serial?.processTasks || []
+        for (const processTask of processTasks) {
+          const processPositionTasks = processTask?.processPositionTasks || []
+          for (const positionTask of processPositionTasks) {
+            const badCount = Number(positionTask.badCount || 0)
+            const qcReason = positionTask.QCReason || '未知原因'
+
+            if (badCount > 0) {
+              totalBadCount += badCount
+              qualityStats.set(qcReason, (qualityStats.get(qcReason) || 0) + badCount)
+            }
+          }
+        }
+      }
+    }
+
+    // 转换为echarts饼图数据格式
+    const pieChartData = Array.from(qualityStats.entries()).map(([name, value]) => ({
+      value,
+      name,
+    }))
+
+    return {
+      productionOrderTaskCout: productionOrderTaskCout,
+      totalBadCount: totalBadCount,
+      qualityPieChartData: pieChartData,
+    }
+  }
 }
