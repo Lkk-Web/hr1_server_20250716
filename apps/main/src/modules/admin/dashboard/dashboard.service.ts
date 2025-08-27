@@ -14,6 +14,7 @@ import { UEquipmentTypeDTO } from '../equipmentType/equipmentType.dto'
 import { ProductionOrder, ProductionOrderDetail, ProductionOrderTask } from '@model/index'
 import { ProductSerial } from '@model/production/productSerial.model'
 import { SalesOrder } from '@model/plan/salesOrder.model'
+import { scheduled } from 'rxjs'
 
 @Injectable()
 export class DashboardService {
@@ -169,23 +170,8 @@ export class DashboardService {
       }
     }
 
-    const salesOrder = await SalesOrder.findAll(options)
-    // 统计销售订单明细数量总和
-    let SalesOrderCount = 0
-    // 使用整数运算累计（以分为单位），避免小数误差
-    let salesOrderCountInCents = 0
-    for (const so of salesOrder) {
-      const details = (so as any)?.dataValues.details || []
-      // console.log(details)
-      for (const d of details) {
-        const qtyNumber = Number(d?.quantity ?? 0)
-        const qtyInCents = Number.isNaN(qtyNumber) ? 0 : Math.round(qtyNumber * 100)
-        salesOrderCountInCents += qtyInCents
-      }
-    }
-    SalesOrderCount = salesOrderCountInCents / 100
-
     const productionOrder = await ProductionOrder.findAll(productionOrderOptions)
+    const productionOrderCout = productionOrder.length
 
     let plannedOutputSum = 0
     let finishedProductSerialCount = 0
@@ -204,13 +190,11 @@ export class DashboardService {
       }
     }
 
-    const scheduleOutputSum = SalesOrderCount ? (finishedProductSerialCount / SalesOrderCount) * 100 : 0
-
     return {
-      SalesOrderCount: SalesOrderCount,
+      productionOrderCout: productionOrderCout,
       plannedOutputSum: plannedOutputSum,
       finishedProductSerialCount: finishedProductSerialCount,
-      scheduleOutputSum,
+      scheduleRate: (finishedProductSerialCount / plannedOutputSum) * 100,
     }
   }
 }
