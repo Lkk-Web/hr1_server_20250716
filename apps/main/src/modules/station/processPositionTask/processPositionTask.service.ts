@@ -199,7 +199,7 @@ export class ProcessPositionTaskService {
     // 查询班组关联的生产工单任务
     const result = await ProductionOrderTask.findAll({
       where: productionOrderTaskWhere,
-      attributes: ['id', 'orderCode', 'splitQuantity', 'startTime', 'endTime', 'priority', 'locateStatus'],
+      attributes: ['id', 'orderCode', 'splitQuantity', 'startTime', 'endTime', 'priority', 'locateStatus', 'scrapQuantity'],
       include: [
         {
           association: 'teams',
@@ -297,7 +297,7 @@ export class ProcessPositionTaskService {
 
         const assignCount = processLocateData?.dataValues.processLocateDetails.reduce((prev, cur) => prev + cur.dataValues.assignCount, 0) + detail.assignCount
 
-        if (assignCount > productionOrderTask.splitQuantity) throw new HttpException(`派工数量不能大于序列号数量`, 400)
+        if (assignCount > productionOrderTask.splitQuantity + productionOrderTask.scrapQuantity) throw new HttpException(`派工数量不能大于序列号数量`, 400)
 
         // 创建派工详情
         await ProcessLocateDetail.create(
@@ -333,6 +333,8 @@ export class ProcessPositionTaskService {
         },
         transaction,
       })
+
+      console.log(123213123, assignedPositionTaskCount, totalPositionTaskCount)
 
       // 根据派工的工位任务单数量判断状态
       let locateStatus = LocateStatus.NOT_LOCATED

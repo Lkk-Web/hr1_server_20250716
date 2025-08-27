@@ -80,7 +80,7 @@ export class MiService {
     delete userJson.password // 隐藏密码
 
     return {
-      accessToken: user.dataValues.id == 1 ? existingToken.token : accessToken,
+      accessToken: user.dataValues.id == 1 ? existingToken?.token || accessToken : accessToken,
       refreshToken,
       expiresIn: 48 * 3600, // 48小时
       user: userJson,
