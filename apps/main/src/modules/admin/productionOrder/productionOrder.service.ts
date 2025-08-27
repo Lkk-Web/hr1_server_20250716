@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Injectable } from '@nestjs/common'
 import { ProductionOrder } from '@model/production/productionOrder.model'
 import { actionDto, CProductionOrderDTO, ERPFindPaginationDto, FindPaginationDto, pobDto, POBPaginationDto, priorityDto } from './productionOrder.dto'
-import { FindOptions, Op, or, where, Sequelize } from 'sequelize'
+import { FindOptions, Op, or, where, Sequelize, Transaction } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { Material } from '@model/base/material.model'
 import { ProcessTask } from '@model/production/processTask.model'
@@ -996,105 +996,13 @@ export class ProductionOrderService {
         }
       }
 
-      // 5. 根据group规则生成产品序列号
-      const productSerials = []
-      {
-        let startSequence = 1
-        const group = productionOrderDetail.material.boms[0].group
-
-        // if (group === '0101') {
-        const currentYear = new Date().getFullYear().toString()
-        const yearPrefix = `${currentYear}`
-
-        const existingSerials = await ProductSerial.findAll({
-          where: {
-            serialNumber: {
-              [Op.like]: `${group}-${yearPrefix}%`,
-            },
-          },
-          order: [['serialNumber', 'DESC']],
-          limit: 1,
-          transaction,
-        })
-
-        if (existingSerials.length > 0) {
-          startSequence = parseInt(existingSerials[0].serialNumber.slice(-5)) + 1
-        }
-        // }
-
-        for (let i = 0; i < splitQuantity; i++) {
-          let serialNumber: string
-          // if (group === '0101') {
-          const currentYear = new Date().getFullYear().toString() //2025
-          const sequenceNumber = (startSequence + i).toString().padStart(4, '0') //0001
-          serialNumber = `${group}-${currentYear}2${sequenceNumber}`
-          // }
-
-          const productSerial = await ProductSerial.create(
-            {
-              serialNumber: serialNumber,
-              productionOrderTaskId: productionOrderTask.id,
-              status: ProductSerialStatus.NOT_STARTED,
-              materialId: productionOrderDetail.materialId,
-              quantity: 1,
-              qualityStatus: '待检',
-              createdBy: user?.userName || 'system',
-            },
-            { transaction }
-          )
-          productSerials.push(productSerial)
-        }
-      }
+      // // 5. 根据group规则生成产品序列号
+      const productSerials = await this.productSerials(productionOrderDetail, productionOrderTask, user, splitQuantity, transaction)
 
       // 6. 依据工艺路线生成工序任务单 ProcessTask - 工序 * 序列号 和 工位任务单 ProcessPositionTask
-      const processTaskRecord = [] //工序任务单记录
-      const processPositionTaskRecord = [] //工位任务单记录
-      {
-        for (const productSerial of productSerials) {
-          for (const process of processRoute) {
-            const processTask = await ProcessTask.create(
-              {
-                serialId: productSerial.id,
-                productionOrderTaskId: productionOrderTask.id,
-                processId: process.processId,
-                reportRatio: process.reportRatio,
-                isOutsource: process.isOutsource,
-                isInspection: process.isInspection,
-                receptionCount: process.sort,
-                planCount: 1,
-                status: PROCESS_TASK_STATUS.notStart,
-                startTime: new Date(),
-                endTime: new Date(),
-                priority: '无',
-              },
-              { transaction }
-            )
-            processTaskRecord.push(processTask.toJSON())
-            // 依据工艺路线子工序生成工位任务单 ProcessPositionTask - 序列号 * 工艺路线中的工序中的子工序
-            if (process.process.children) {
-              // 为每个子工序创建工位任务单
-              for (const childProcess of process.process.children) {
-                const processPositionTask = await ProcessPositionTask.create(
-                  {
-                    serialId: productSerial.id,
-                    productionOrderTaskId: productionOrderTask.id,
-                    processTaskId: processTask.id,
-                    reportRatio: childProcess.dataValues.reportRatio || 1,
-                    processId: childProcess.id,
-                    planCount: 1,
-                    status: POSITION_TASK_STATUS.NOT_STARTED,
-                    isOutsource: false, //  委外
-                    // isOutsource: childProcess.dataValues.isOut || false,
-                    isInspection: childProcess.dataValues.isQC || false,
-                  },
-                  { transaction }
-                )
-                processPositionTaskRecord.push(processPositionTask.toJSON())
-              }
-            }
-          }
-        }
-      }
+      // processTaskRecord 工序任务单记录
+      // processPositionTaskRecord 工位任务单记录
+      const { processTaskRecord, processPositionTaskRecord } = await this.splitOrderTask(productSerials, productionOrderTask, processRoute, transaction)
 
       // 7. 更新原生产订单详情的计划产出数量
       await productionOrderDetail.update(
@@ -1137,6 +1045,116 @@ export class ProductionOrderService {
       await transaction.rollback()
       throw error
     }
+  }
+
+  // 根据单号生成序列号
+  public async productSerials(
+    productionOrderDetail: ProductionOrderDetail,
+    productionOrderTask: ProductionOrderTask,
+    user: User,
+    splitQuantity: number, // 序列号数量
+    transaction: Transaction
+  ) {
+    const productSerials = []
+    let startSequence = 1
+    const group = productionOrderDetail.material.boms[0].group
+    // if (group === '0101') {
+    const currentYear = new Date().getFullYear().toString()
+    const yearPrefix = `${currentYear}`
+    const existingSerials = await ProductSerial.findAll({
+      where: {
+        serialNumber: {
+          [Op.like]: `${group}-${yearPrefix}%`,
+        },
+      },
+      order: [['serialNumber', 'DESC']],
+      limit: 1,
+      transaction,
+    })
+    if (existingSerials.length > 0) {
+      startSequence = parseInt(existingSerials[0].serialNumber.slice(-5)) + 1
+    }
+    // }
+    for (let i = 0; i < splitQuantity; i++) {
+      let serialNumber: string
+      // if (group === '0101') {
+      const currentYear = new Date().getFullYear().toString() //2025
+      const sequenceNumber = (startSequence + i).toString().padStart(4, '0') //0001
+      serialNumber = `${group}-${currentYear}2${sequenceNumber}`
+      // }
+      const productSerial = await ProductSerial.create(
+        {
+          serialNumber: serialNumber,
+          productionOrderTaskId: productionOrderTask.id,
+          status: ProductSerialStatus.NOT_STARTED,
+          materialId: productionOrderDetail.materialId,
+          quantity: 1,
+          qualityStatus: '待检',
+          createdBy: user?.userName || 'system',
+        },
+        { transaction }
+      )
+      productSerials.push(productSerial)
+    }
+    return productSerials
+  }
+
+  public async splitOrderTask(productSerials: ProductSerial[], productionOrderTask: ProductionOrderTask, processRoute: any, transaction: Transaction) {
+    const processTaskRecord = [] //工序任务单记录
+    const processPositionTaskRecord = [] //工位任务单记录
+    {
+      for (const productSerial of productSerials) {
+        let previousProcessTaskId = null // 每个序列号重置
+        for (const process of processRoute) {
+          const processTask = await ProcessTask.create(
+            {
+              serialId: productSerial.id,
+              productionOrderTaskId: productionOrderTask.id,
+              processId: process.processId,
+              preProcessTaskId: previousProcessTaskId,
+              reportRatio: process.reportRatio,
+              isOutsource: process.isOutsource,
+              isInspection: process.isInspection,
+              receptionCount: process.sort,
+              planCount: 1,
+              status: PROCESS_TASK_STATUS.notStart,
+              startTime: new Date(),
+              endTime: new Date(),
+              priority: '无',
+            },
+            { transaction }
+          )
+          previousProcessTaskId = processTask.id // 更新上一个工序任务ID
+          processTaskRecord.push(processTask.toJSON())
+          // 依据工艺路线子工序生成工位任务单 ProcessPositionTask - 序列号 * 工艺路线中的工序中的子工序
+          if (process.process.children) {
+            // 为每个子工序创建工位任务单
+            let previousPositionTaskId = null // 每个子工序重置
+            for (const childProcess of process.process.children) {
+              const processPositionTask = await ProcessPositionTask.create(
+                {
+                  serialId: productSerial.id,
+                  productionOrderTaskId: productionOrderTask.id,
+                  processTaskId: processTask.id,
+                  prePositionTaskId: previousPositionTaskId,
+                  reportRatio: childProcess.dataValues.reportRatio || 1,
+                  processId: childProcess.id,
+                  planCount: 1,
+                  status: POSITION_TASK_STATUS.NOT_STARTED,
+                  isOutsource: false, //  委外
+                  // isOutsource: childProcess.dataValues.isOut || false,
+                  isInspection: childProcess.dataValues.isQC || false,
+                },
+                { transaction }
+              )
+              previousPositionTaskId = processPositionTask.id // 更新上一个工位任务ID
+              processPositionTaskRecord.push(processPositionTask.toJSON())
+            }
+          }
+        }
+      }
+    }
+    return { processTaskRecord, processPositionTaskRecord }
   }
 
   async ERPCodeSelect(dto: ERPFindPaginationDto, pagination: Pagination, user) {

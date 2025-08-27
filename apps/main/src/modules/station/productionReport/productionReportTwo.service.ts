@@ -4,8 +4,8 @@ import { ProcessTask } from '@model/production/processTask.model'
 import { InspectionForm } from '@model/quantity/inspectionForm.model'
 import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
-import { OpenTaskDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
-import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductSerialStatus, TaskStatus } from '@common/enum'
+import { OpenTaskDto, PadProcessDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
+import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductSerialStatus, ScrapType, TaskStatus } from '@common/enum'
 import { UserDuration } from '@model/production/userDuration.model'
 import { UserTaskDuration } from '@model/production/userTaskDuration.model'
 import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
@@ -17,6 +17,7 @@ import {
   PositionDetail,
   Process,
   ProcessTaskLog,
+  ProductionOrderDetail,
   ProductionOrderTask,
   ProductionOrderTaskOfReport,
   ProductionReport,
@@ -29,10 +30,11 @@ import moment = require('moment')
 import _ = require('lodash')
 import { ProcessPositionTask } from '@model/production/processPositionTask.model'
 import { PositionTaskDetail } from '@model/production/positionTaskDetail.model'
+import { ProductionOrderService } from '@modules/admin/productionOrder/productionOrder.service'
 
 @Injectable()
 export class ProductionReportTwoService {
-  constructor() {}
+  constructor(private readonly productionOrderService: ProductionOrderService) {}
 
   // 开工、暂停
   public async openTask(dto: OpenTaskDto, user) {
@@ -53,9 +55,9 @@ export class ProductionReportTwoService {
         const positionTaskDetail = await PositionTaskDetail.findOne({
           where: { positionDetailId: positionDetail.dataValues.id, productionOrderTaskId: processDto.productionOrderTaskId },
         })
-        console.log(12312312, JSON.stringify(position), positionTaskDetail.dataValues.allowWorkNum)
+        console.log(12312312, JSON.stringify(position), positionTaskDetail, positionDetail.dataValues.id, processDto.productionOrderTaskId)
 
-        const allowReportQuantity = positionTaskDetail.dataValues.allowWorkNum - positionTaskDetail.dataValues.workNum || 0
+        const allowReportQuantity = positionTaskDetail?.dataValues.allowWorkNum - positionTaskDetail?.dataValues.workNum || 0
         if (allowReportQuantity < processDto.positions.length) throw new Error(`开工数量${processDto.positions.length}大于派工数量${allowReportQuantity}`)
 
         await positionTaskDetail.update(
@@ -207,6 +209,17 @@ export class ProductionReportTwoService {
               await productionReport.update({ allBadCount: productionReport.allBadCount + 1 }, { transaction })
               await productionOrderTask.update({ badCount: productionOrderTask.badCount + 1 }, { transaction })
               await processPositionTask.update({ badCount: processPositionTask.badCount + 1, QCReason: item.QCReason }, { transaction })
+              // 返工 / 报废
+              if (item.scrapType) {
+                if (item.scrapType == ScrapType.SCRAP) {
+                  // 报废
+                  await this.Scrap(item, productionOrderTask, user, processTask.dataValues.id, transaction)
+                } else if (item.scrapType == ScrapType.REWORK) {
+                  // await this.Rework(item, transaction)
+                }
+              } else {
+                throw new Error('不良品必须选择报废或返工')
+              }
             }
           }
 
@@ -291,6 +304,102 @@ export class ProductionReportTwoService {
       throw error
     }
   }
+
+  // 报废
+  private async Scrap(item: PadProcessDto, productionOrderTask: ProductionOrderTask, user, currentProcessTaskId, transaction: Transaction) {
+    const { serialId, QCReason } = item
+
+    // 1. 查询当前序列号 及 校验
+    const serial = await ProductSerial.findByPk(serialId, {
+      include: [{ association: 'productionOrderTask' }],
+      transaction,
+    })
+
+    if (!serial) {
+      throw new Error('序列号不存在')
+    }
+
+    // 2. 删除当前工序任务单之后的所有工序任务单和工位任务单
+    {
+      const subsequentProcessTasks = await ProcessTask.findAll({
+        where: {
+          serialId: serialId,
+          id: { [Op.gte]: currentProcessTaskId },
+        },
+        transaction,
+      })
+
+      for (const processTask of subsequentProcessTasks) {
+        // 删除关联的工位任务单
+        await ProcessPositionTask.destroy({
+          where: { processTaskId: processTask.id, status: POSITION_TASK_STATUS.NOT_STARTED },
+          transaction,
+        })
+      }
+
+      // 删除后续工序任务单
+      await ProcessTask.destroy({
+        where: {
+          id: subsequentProcessTasks.map((item, index) => {
+            if (index != 0) return item.id
+          }),
+        },
+      })
+    }
+
+    // 3. 将当前序列号状态标记为已报废
+    await serial.update({ status: ProductSerialStatus.SCRAPPED, remark: QCReason || '报废' }, { transaction })
+
+    // 4. 创建新序列号并重建工序和工位任务链
+    {
+      const productionOrderDetail = await ProductionOrderDetail.findOne({
+        where: { id: productionOrderTask.productionOrderDetailId },
+        include: [
+          {
+            association: 'material',
+            include: [
+              {
+                association: 'boms',
+                where: { materialId: { [Op.col]: 'ProductionOrderDetail.materialId' } },
+                required: false,
+              },
+              {
+                association: 'processRoute',
+                include: [
+                  {
+                    association: 'processRouteList',
+                    include: [
+                      {
+                        association: 'process',
+                        include: [
+                          {
+                            association: 'children',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        transaction,
+      })
+      const processRoute = productionOrderDetail.material.processRoute?.processRouteList //工艺路线
+      const productSerials = await this.productionOrderService.productSerials(productionOrderDetail, productionOrderTask, user, 1, transaction)
+      // 5. 为新序列号创建工序任务单和工位任务单
+      await this.productionOrderService.splitOrderTask(productSerials, productionOrderTask, processRoute, transaction)
+    }
+
+    // 5. 可派工数增加
+    await productionOrderTask.update({ scrapQuantity: productionOrderTask.scrapQuantity + 1 }, { transaction })
+  }
+
+  // 返工
+  //private async reworkOrScrap(dto: ReworkOrScrapDto, user: User) {
+
+  // }
 
   private async handleInspection(task: ProcessTask, result: ProductionReport, date) {
     const year = date.getFullYear().toString().substring(2)

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsNumber, Min, ValidateNested, IsOptional, isEnum, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsArrayLength } from '@library/utils/custom'
-import { POSITION_TASK_STATUS, TaskStatus } from '@common/enum'
+import { POSITION_TASK_STATUS, ScrapType, TaskStatus } from '@common/enum'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -355,6 +355,15 @@ export class PadProcessDto {
     type: String,
   })
   QCReason?: string
+
+  // 返工/报废
+  @ApiProperty({
+    description: '返工/报废',
+    required: false,
+    type: String,
+    enum: ScrapType,
+  })
+  scrapType?: ScrapType
 }
 
 export class ProductionOrderTaskDto {

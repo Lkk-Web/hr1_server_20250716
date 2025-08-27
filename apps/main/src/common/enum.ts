@@ -106,6 +106,7 @@ export enum ProductSerialStatus {
   IN_PROGRESS = '进行中',
   PAUSED = '已暂停',
   COMPLETED = '已完工',
+  SCRAPPED = '已报废',
 }
 
 export enum ROLE_CODE {
@@ -126,4 +127,9 @@ export enum AuditStatus {
 export enum TaskStatus {
   OPEN_TASK = '开工',
   PAUSE = '暂停',
+}
+
+export enum ScrapType {
+  REWORK = '返工',
+  SCRAP = '报废',
 }
