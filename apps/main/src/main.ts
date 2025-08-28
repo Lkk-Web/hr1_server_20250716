@@ -55,7 +55,7 @@ async function bootstrap() {
     // await PositionTaskDetail.sync({ alter: true, force: false })
     // await ProcessTaskLog.sync({ alter: true, force: false })
     // await ProductSerial.sync({ alter: true, force: false })
-    await ProductionOrderTask.sync({ alter: true, force: false })
+    // await ProductionOrderTask.sync({ alter: true, force: false })
     // await ProductionOrderTaskOfReport.sync({ alter: true, force: false })
     // await ProductionReport.sync({ alter: true, force: false })
     // await ProductionReportDetail.sync({ alter: true, force: false })
