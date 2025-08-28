@@ -411,7 +411,7 @@ export class ProcessPositionTaskService {
         },
         {
           association: 'productionOrderTask',
-          attributes: ['id', 'orderCode', 'startTime', 'endTime', 'splitQuantity'],
+          attributes: ['id', 'orderCode', 'startTime', 'endTime', 'splitQuantity', 'scrapQuantity'],
         },
         {
           association: 'processLocateDetails',
@@ -484,7 +484,7 @@ export class ProcessPositionTaskService {
         },
         {
           association: 'productionOrderTask',
-          attributes: ['id', 'orderCode', 'splitQuantity', 'locateStatus', 'startTime', 'endTime'],
+          attributes: ['id', 'orderCode', 'splitQuantity', 'locateStatus', 'startTime', 'endTime', 'scrapQuantity'],
           include: [
             {
               association: 'material',
