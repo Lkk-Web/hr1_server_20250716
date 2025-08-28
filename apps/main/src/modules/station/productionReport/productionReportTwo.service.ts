@@ -5,7 +5,7 @@ import { InspectionForm } from '@model/quantity/inspectionForm.model'
 import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 import { OpenTaskDto, PadProcessDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
-import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductSerialStatus, ScrapType, TaskStatus } from '@common/enum'
+import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductSerialStatus, ReworkType, ScrapType, TaskStatus } from '@common/enum'
 import { UserDuration } from '@model/production/userDuration.model'
 import { UserTaskDuration } from '@model/production/userTaskDuration.model'
 import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
@@ -55,7 +55,6 @@ export class ProductionReportTwoService {
         const positionTaskDetail = await PositionTaskDetail.findOne({
           where: { positionDetailId: positionDetail.dataValues.id, productionOrderTaskId: processDto.productionOrderTaskId },
         })
-        console.log(12312312, JSON.stringify(position), positionTaskDetail, positionDetail.dataValues.id, processDto.productionOrderTaskId)
 
         const allowReportQuantity = positionTaskDetail?.dataValues.allowWorkNum - positionTaskDetail?.dataValues.workNum || 0
         if (allowReportQuantity < processDto.positions.length) throw new Error(`开工数量${processDto.positions.length}大于派工数量${allowReportQuantity}`)
@@ -86,7 +85,7 @@ export class ProductionReportTwoService {
 
           // 上一道子工序
           const preProcessPositionTask = await ProcessPositionTask.findOne({
-            where: { serialId: processPositionTask.serialId, id: processPositionTask.id - 1 },
+            where: { serialId: processPositionTask.serialId, id: processPositionTask.prePositionTaskId },
             order: [['id', 'ASC']],
             transaction,
           })
@@ -156,7 +155,7 @@ export class ProductionReportTwoService {
       // 2.1 处理工单
       for (const processDto of dto.productionOrderTask) {
         const productionOrderTask = await ProductionOrderTask.findOne({ where: { id: processDto.productionOrderTaskId } })
-        await ProductionOrderTaskOfReport.create({ productionOrderTaskId: productionOrderTask.id, reportId: productionReport.id }, { transaction })
+        await ProductionOrderTaskOfReport.create({ productionOrderTaskId: productionOrderTask.dataValues.id, reportId: productionReport.id }, { transaction })
         const process = await Process.findOne({ where: { id: dto.processId } })
         // 2.2 处理工序（工位）
         for (const item of processDto.positions) {
@@ -168,68 +167,65 @@ export class ProductionReportTwoService {
             include: [{ association: 'operateLogs' }],
           })
 
-          // 上一道子工序
-          const preProcessPositionTask = await ProcessPositionTask.findOne({
-            where: { serialId: processPositionTask.serialId, id: processPositionTask.id - 1 },
-            order: [['id', 'ASC']],
-            transaction,
-          })
           if (processPositionTask.dataValues.status != POSITION_TASK_STATUS.IN_PROGRESS) throw new Error('当前序列号不在进行中，无法报工')
-          if (preProcessPositionTask && preProcessPositionTask.dataValues.status != POSITION_TASK_STATUS.COMPLETED) throw new Error('上一道子工序未完成，无法报工')
-
           await processPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED, actualEndTime: new Date(), actualWorkTime: item.duration }, { transaction })
 
-          //序列号绑定多个铁芯序列号
-          const result = await IronProductSerial.findOne({
-            where: {
-              serialId: item.serialId,
-            },
-          })
-          if (!result && process.processName.includes('打合')) {
-            const ironProductSerial = item.ironSerial.map(v => {
-              return {
-                serialId: item.serialId,
-                ironSerial: v,
+          // 不同工序
+          {
+            //序列号绑定多个铁芯序列号
+            if (process.processName.includes('打合')) {
+              const result = await IronProductSerial.findOne({
+                where: {
+                  serialId: item.serialId,
+                },
+              })
+              if (!result) {
+                const ironProductSerial = item.ironSerial.map(v => {
+                  return {
+                    serialId: item.serialId,
+                    ironSerial: v,
+                  }
+                })
+                await IronProductSerial.bulkCreate(ironProductSerial, { transaction })
               }
-            })
-            await IronProductSerial.bulkCreate(ironProductSerial, { transaction })
-          }
-
-          if (process.isQC) {
-            // 质检工序
-            if (item.QCResult) {
-              // 良品
-              await processTask.update({ goodCount: 1, badCount: 0 }, { transaction })
-              await productionReport.update({ allGoodCount: productionReport.allGoodCount + 1 }, { transaction })
-              await productionOrderTask.update({ goodCount: productionOrderTask.goodCount + 1 }, { transaction })
-              await processPositionTask.update({ goodCount: processPositionTask.goodCount + 1 }, { transaction })
-            } else {
-              // 不良品 不良原因
-              await processTask.update({ goodCount: 0, badCount: 1 }, { transaction })
-              await productionReport.update({ allBadCount: productionReport.allBadCount + 1 }, { transaction })
-              await productionOrderTask.update({ badCount: productionOrderTask.badCount + 1 }, { transaction })
-              await processPositionTask.update({ badCount: processPositionTask.badCount + 1, QCReason: item.QCReason }, { transaction })
-              // 返工 / 报废
-              if (item.scrapType) {
-                if (item.scrapType == ScrapType.SCRAP) {
-                  // 报废
-                  await this.Scrap(item, productionOrderTask, user, processTask.dataValues.id, transaction)
-                } else if (item.scrapType == ScrapType.REWORK) {
-                  // await this.Rework(item, transaction)
-                }
+            }
+            // 质检
+            if (process.isQC) {
+              // 质检工序
+              if (item.QCResult) {
+                // 良品
+                await processTask.update({ goodCount: 1, badCount: 0 }, { transaction })
+                await productionReport.update({ allGoodCount: productionReport.allGoodCount + 1 }, { transaction })
+                await productionOrderTask.update({ goodCount: productionOrderTask.dataValues.goodCount + 1 }, { transaction })
+                await processPositionTask.update({ goodCount: processPositionTask.dataValues.goodCount + 1 }, { transaction })
               } else {
-                throw new Error('不良品必须选择报废或返工')
+                // 不良品 不良原因
+                await processTask.update({ goodCount: 0, badCount: 1 }, { transaction })
+                await productionReport.update({ allBadCount: productionReport.allBadCount + 1 }, { transaction })
+                await productionOrderTask.update({ badCount: productionOrderTask.dataValues.badCount + 1 }, { transaction })
+                await processPositionTask.update({ badCount: processPositionTask.dataValues.badCount + 1, QCReason: item.QCReason }, { transaction })
+                // 返工 / 报废
+                if (item.scrapType) {
+                  if (item.scrapType == ScrapType.SCRAP) {
+                    // 报废
+                    await this.Scrap(item, productionOrderTask, user, processTask.dataValues.id, transaction)
+                  } else if (item.scrapType == ScrapType.REWORK) {
+                    // 返工
+                    await this.rework(item, productionOrderTask, processTask, dto.processId, user, transaction)
+                  }
+                } else {
+                  throw new Error('不良品必须选择报废或返工')
+                }
               }
             }
           }
-
           await ProductionReportDetail.create(
             {
               productionReportId: productionReport.id,
-              processPositionTaskId: processPositionTask.id,
-              productionOrderTaskId: productionOrderTask.id,
+              processPositionTaskId: processPositionTask.dataValues.id,
+              productionOrderTaskId: productionOrderTask.dataValues.id,
               reportQuantity: 1,
-              startTime: processPositionTask.actualStartTime,
+              startTime: processPositionTask.dataValues.actualStartTime,
               endTime: new Date(),
             },
             { transaction }
@@ -239,7 +235,7 @@ export class ProductionReportTwoService {
           // 日志
           const logs = await ProcessTaskLog.create(
             {
-              processTaskID: processTask.id,
+              processTaskID: processTask.dataValues.id,
               processPositionTaskId: processPositionTask.dataValues.id,
               pauseTime: new Date(),
             },
@@ -249,10 +245,7 @@ export class ProductionReportTwoService {
 
           // 处理下一道工位
           const nextProcessPositionTask = await ProcessPositionTask.findOne({
-            where: { serialId: processPositionTask.serialId, id: processPositionTask.id + 1 },
-            order: [['id', 'ASC']],
-            // include: [{ association: 'process', attributes: ['id', 'processName'] }],
-            transaction,
+            where: { serialId: processPositionTask.dataValues.serialId, prePositionTaskId: processPositionTask.dataValues.id },
           })
 
           if (nextProcessPositionTask) {
@@ -276,17 +269,20 @@ export class ProductionReportTwoService {
 
           // 处理下一道工序
           const nextProcessTask = await ProcessTask.findOne({
-            where: { serialId: processTask.serialId, id: processTask.id + 1 },
+            where: { serialId: processTask.serialId, preProcessTaskId: processTask.id },
             order: [['id', 'ASC']],
             transaction,
           })
 
+          console.log(8888888, nextProcessTask)
+
           if (nextProcessTask) {
           } else {
             // 没有下一道工序
-            if (processTask.status == PROCESS_TASK_STATUS.finish)
+            if (processTask.status == PROCESS_TASK_STATUS.finish) {
               // 且当前工序任务已完成
               await ProductSerial.update({ status: ProductSerialStatus.COMPLETED }, { where: { id: item.serialId }, transaction })
+            }
           }
         }
       }
@@ -306,7 +302,7 @@ export class ProductionReportTwoService {
   }
 
   // 报废
-  private async Scrap(item: PadProcessDto, productionOrderTask: ProductionOrderTask, user, currentProcessTaskId, transaction: Transaction) {
+  private async Scrap(item: PadProcessDto, productionOrderTask: ProductionOrderTask, user, currentProcessTaskId: number, transaction: Transaction) {
     const { serialId, QCReason } = item
 
     // 1. 查询当前序列号 及 校验
@@ -479,6 +475,70 @@ export class ProductionReportTwoService {
         await positionTaskDetail.update({ allowWorkNum: positionTaskDetail.dataValues.allowWorkNum + 1 }, { transaction })
       }
 
+      // 多个任务返工：重置当前返工到质检工位 / 链表的节点添加
+      if (reworkType === ReworkType.ALL) {
+        // 找到返工工序在工艺路线中的位置
+        const parentProcess = await Process.findOne({ where: { id: processTask.dataValues.processId } })
+
+        const positonRoute = processRoute.find(route => route.processId === parentProcess.dataValues.id)
+        const reworkProcessIndex = positonRoute.process.children.findIndex(route => route.id === reworkProcessId)
+        const currentProcessIndex = positonRoute.process.children.findIndex(route => route.id === currentProcessId)
+
+        // 从返工工序的下一个工序开始重新创建任务单
+        const remainingProcesses = positonRoute.process.children.slice(reworkProcessIndex, currentProcessIndex)
+        for (const process of remainingProcesses) {
+          let index = 0
+          // 找到被返工的工位任务单
+          const reworkProcessPositionTask = await ProcessPositionTask.findOne({
+            where: {
+              serialId: serialId,
+              processId: process.id,
+            },
+            transaction,
+          })
+          if (!reworkProcessPositionTask) throw new Error('返工工位任务单不存在')
+
+          await reworkProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
+
+          let prePositionTaskId = null
+
+          // 为第一个返工的工序
+          if (!prePositionTaskId) {
+            prePositionTaskId = reworkProcessPositionTask.dataValues.prePositionTaskId
+          }
+
+          const newProcessPositionTask = await ProcessPositionTask.create(
+            {
+              serialId: serialId,
+              productionOrderTaskId: productionOrderTask.id,
+              processTaskId: reworkProcessPositionTask.dataValues.processTaskId,
+              prePositionTaskId: prePositionTaskId,
+              reportRatio: reworkProcessPositionTask.dataValues.reportRatio,
+              processId: reworkProcessPositionTask.dataValues.processId,
+              planCount: reworkProcessPositionTask.dataValues.planCount,
+              status: POSITION_TASK_STATUS.NOT_STARTED,
+              isOutsource: reworkProcessPositionTask.dataValues.isOutsource,
+              isInspection: reworkProcessPositionTask.dataValues.isInspection,
+            },
+            { transaction }
+          )
+
+          prePositionTaskId = newProcessPositionTask.id // 新创建的工位
+          index += 1 // 索引 + 1
+
+          if (index == remainingProcesses.length) {
+            // 将返工的后一个工位指向最后一个工位
+            await ProcessPositionTask.update(
+              { prePositionTaskId: newProcessPositionTask.id },
+              { where: { serialId: serialId, prePositionTask: newProcessPositionTask.id }, transaction }
+            )
+          }
+        }
+      }
+    }
+
+    await productionOrderTask.update({ reworkQuantity: productionOrderTask.reworkQuantity + 1 }, { transaction })
+  }
 
   private async handleInspection(task: ProcessTask, result: ProductionReport, date) {
     const year = date.getFullYear().toString().substring(2)

@@ -73,13 +73,6 @@ export class ProductionReportController {
     return result
   }
 
-  @ApiOperation({ summary: '测试' })
-  @HttpCode(HttpStatus.OK)
-  @Post('test')
-  async test(@Body() dto: PickingOutboundDto) {
-    return this.serviceTwo.produceStore(dto)
-  }
-
   @ApiOperation({ summary: '报工审核' })
   @HttpCode(HttpStatus.OK)
   @ApiPlatformWhitelist(['admin', 'station'])
