@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsNumber, Min, ValidateNested, IsOptional, isEnum, IsEnum } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsArrayLength } from '@library/utils/custom'
-import { POSITION_TASK_STATUS, ScrapType, TaskStatus } from '@common/enum'
+import { POSITION_TASK_STATUS, ReworkType, ScrapType, TaskStatus } from '@common/enum'
 
 export class FindPaginationDto {
   @ApiProperty({ name: 'current', type: String, required: false, description: 'current' })
@@ -97,7 +97,6 @@ export class FindPaginationReportTaskListDto {
     description: '工序状态',
     required: false,
   })
-  @IsEnum(POSITION_TASK_STATUS)
   status: string
 }
 export class ItemsDto {
@@ -364,6 +363,23 @@ export class PadProcessDto {
     enum: ScrapType,
   })
   scrapType?: ScrapType
+
+  // 返工工序Id
+  @ApiProperty({
+    description: '返工工序Id',
+    required: false,
+    type: Number,
+  })
+  reworkProcessId?: number
+
+  // 返工类型
+  @ApiProperty({
+    description: '返工类型',
+    required: false,
+    type: String,
+    enum: ReworkType,
+  })
+  reworkType?: ReworkType
 }
 
 export class ProductionOrderTaskDto {

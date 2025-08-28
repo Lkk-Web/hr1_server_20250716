@@ -397,9 +397,88 @@ export class ProductionReportTwoService {
   }
 
   // 返工
-  //private async reworkOrScrap(dto: ReworkOrScrapDto, user: User) {
+  private async rework(item: PadProcessDto, productionOrderTask: ProductionOrderTask, processTask: ProcessTask, currentProcessId: number, user, transaction: Transaction) {
+    const { serialId, reworkProcessId, reworkType } = item
 
-  // }
+    await ProductSerial.update({ isRework: true }, { where: { id: item.serialId }, transaction })
+
+    if (!reworkProcessId) throw new Error('返工工序ID不能为空')
+
+    if (!reworkType) throw new Error('返工类型不能为空')
+
+    const productionOrderDetail = await ProductionOrderDetail.findOne({
+      where: { id: productionOrderTask.productionOrderDetailId },
+      include: [
+        {
+          association: 'material',
+          include: [
+            {
+              association: 'processRoute',
+              include: [
+                {
+                  association: 'processRouteList',
+                  include: [
+                    {
+                      association: 'process',
+                      include: [
+                        {
+                          association: 'children',
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      transaction,
+    })
+    const processRoute = productionOrderDetail.material.processRoute?.processRouteList // 工艺路线
+
+    if (processRoute && processRoute.length > 0) {
+      // 单个任务返工：只重置当前返工工序任务单 / 链表的节点添加
+      if (reworkType === ReworkType.SINGLE) {
+        const reworkProcessPositionTask = await ProcessPositionTask.findOne({
+          where: { serialId: serialId, processId: reworkProcessId },
+          transaction,
+        })
+
+        if (!reworkProcessPositionTask) throw new Error('返工工位任务单不存在')
+
+        await reworkProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
+
+        const newProcessPositionTask = await ProcessPositionTask.create(
+          {
+            serialId: serialId,
+            productionOrderTaskId: productionOrderTask.id,
+            processTaskId: reworkProcessPositionTask.dataValues.processTaskId,
+            prePositionTaskId: reworkProcessPositionTask.dataValues.prePositionTaskId,
+            reportRatio: reworkProcessPositionTask.dataValues.reportRatio,
+            processId: reworkProcessPositionTask.dataValues.processId,
+            planCount: reworkProcessPositionTask.dataValues.planCount,
+            status: POSITION_TASK_STATUS.NOT_STARTED,
+            isOutsource: reworkProcessPositionTask.dataValues.isOutsource,
+            isInspection: reworkProcessPositionTask.dataValues.isInspection,
+          },
+          { transaction }
+        )
+        // 更新下个节点的prePositionTaskId为新节点
+        await ProcessPositionTask.update(
+          { prePositionTaskId: newProcessPositionTask.id },
+          { where: { serialId: serialId, prePositionTaskId: reworkProcessPositionTask.dataValues.id }, transaction }
+        )
+        // 增加可开工数
+        const position = await Position.findOne({ where: { processId: reworkProcessId } })
+        const positionDetail = await PositionDetail.findOne({ where: { positionId: position.dataValues.id, userId: user.id } })
+        const positionTaskDetail = await PositionTaskDetail.findOne({
+          where: { positionDetailId: positionDetail.dataValues.id, productionOrderTaskId: productionOrderTask.id },
+        })
+
+        await positionTaskDetail.update({ allowWorkNum: positionTaskDetail.dataValues.allowWorkNum + 1 }, { transaction })
+      }
+
 
   private async handleInspection(task: ProcessTask, result: ProductionReport, date) {
     const year = date.getFullYear().toString().substring(2)

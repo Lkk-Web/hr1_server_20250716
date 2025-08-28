@@ -43,6 +43,15 @@ export class ProductSerial extends BaseModel<ProductSerial> {
   })
   declare status: ProductSerialStatus
 
+  // 是否返工
+  @Column({
+    comment: '是否返工',
+    type: DataType.BOOLEAN,
+    allowNull: true,
+    defaultValue: false,
+  })
+  declare isRework: boolean
+
   // 数量（固定为1）
   @Column({
     comment: '数量（固定为1）',

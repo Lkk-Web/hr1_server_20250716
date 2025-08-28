@@ -283,6 +283,10 @@ export class ProductionReportService {
 
     if (dto.status) {
       processPositionTaskWhere['status'] = dto.status
+    } else {
+      processPositionTaskWhere['status'] = {
+        [Op.notIn]: [POSITION_TASK_STATUS.REWORK],
+      }
     }
 
     if (dto.status == POSITION_TASK_STATUS.IN_PROGRESS) {

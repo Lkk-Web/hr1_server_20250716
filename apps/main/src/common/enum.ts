@@ -35,7 +35,7 @@ export enum POSITION_TASK_STATUS {
   IN_PROGRESS = '进行中',
   PAUSED = '已暂停',
   COMPLETED = '已完工',
-  All = '全部',
+  REWORK = '已返工',
 }
 
 export enum NOTIFY_SCENE {
@@ -132,4 +132,9 @@ export enum TaskStatus {
 export enum ScrapType {
   REWORK = '返工',
   SCRAP = '报废',
+}
+
+export enum ReworkType {
+  ALL = '顺序返工',
+  SINGLE = '指定返工',
 }

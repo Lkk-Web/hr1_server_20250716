@@ -54,6 +54,14 @@ export class ProductionOrderTask extends BaseModel<ProductionOrderTask> {
   })
   declare scrapQuantity: number
 
+  // 报废数量
+  @Column({
+    comment: '返工数量',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare reworkQuantity: number
+
   // 排程状态
   @Column({
     comment: '排程状态',
