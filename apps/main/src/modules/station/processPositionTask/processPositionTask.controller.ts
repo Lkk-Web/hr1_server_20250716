@@ -65,13 +65,13 @@ export class ProcessPositionTaskController {
     return { data: result }
   }
 
-  @Get('order/query')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '根据工单和工序查找序列号' })
-  async findByOrder(@Query() dto: FindByOrderDto) {
-    const result = await this.processPositionTaskService.findByOrder(dto)
-    return { data: result }
-  }
+  // @Get('order/query')
+  // @HttpCode(HttpStatus.OK)
+  // @ApiOperation({ summary: '根据工单和工序查找序列号' })
+  // async findByOrder(@Query() dto: FindByOrderDto) {
+  //   const result = await this.processPositionTaskService.findByOrder(dto)
+  //   return { data: result }
+  // }
 
   @Post('locate')
   @HttpCode(HttpStatus.OK)

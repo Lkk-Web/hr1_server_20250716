@@ -284,15 +284,15 @@ export class ProcessRouteService {
                     'id',
                     'processName',
                     'sort',
-                    [
-                      Sequelize.literal(`(
-                      SELECT COUNT(DISTINCT pli.id)
-                      FROM process_locate_item pli
-                      INNER JOIN process_position_task pt ON pli.processPositionTaskId = pt.id
-                      WHERE pt.processId = \`processRouteList->process->children\`.\`id\`
-                    )`),
-                      'totalAssignedCount',
-                    ],
+                    // [
+                    //   Sequelize.literal(`(
+                    //   SELECT COUNT(DISTINCT pli.id)
+                    //   FROM process_locate_item pli
+                    //   INNER JOIN process_position_task pt ON pli.processPositionTaskId = pt.id
+                    //   WHERE pt.processId = \`processRouteList->process->children\`.\`id\`
+                    // )`),
+                    //   'totalAssignedCount',
+                    // ],
                   ],
                 },
               ],

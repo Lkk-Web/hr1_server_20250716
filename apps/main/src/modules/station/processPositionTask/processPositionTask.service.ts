@@ -518,39 +518,39 @@ export class ProcessPositionTaskService {
   /**
    * 根据工单和工序查找可派工的序列号
    */
-  async findByOrder(dto: FindByOrderDto) {
-    const { productionOrderTaskId, processId } = dto
+  // async findByOrder(dto: FindByOrderDto) {
+  //   const { productionOrderTaskId, processId } = dto
 
-    // 查找工单下的所有工位任务单
-    const processPositionTasks = await ProcessPositionTask.findAll({
-      where: {
-        productionOrderTaskId,
-        processId,
-        // 使用子查询排除已派工的记录
-        id: {
-          [Op.notIn]: Sequelize.literal(`(
-            SELECT DISTINCT processPositionTaskId 
-            FROM process_locate_item 
-            WHERE processPositionTaskId IS NOT NULL
-          )`),
-        },
-      },
-      include: [
-        {
-          association: 'serial',
-          attributes: ['id', 'serialNumber'],
-          include: [
-            {
-              association: 'material',
-              attributes: ['id', 'code', 'materialName'],
-            },
-          ],
-        },
-      ],
-    })
+  //   // 查找工单下的所有工位任务单
+  //   const processPositionTasks = await ProcessPositionTask.findAll({
+  //     where: {
+  //       productionOrderTaskId,
+  //       processId,
+  //       // 使用子查询排除已派工的记录
+  //       id: {
+  //         [Op.notIn]: Sequelize.literal(`(
+  //           SELECT DISTINCT processPositionTaskId 
+  //           FROM process_locate_item 
+  //           WHERE processPositionTaskId IS NOT NULL
+  //         )`),
+  //       },
+  //     },
+  //     include: [
+  //       {
+  //         association: 'serial',
+  //         attributes: ['id', 'serialNumber'],
+  //         include: [
+  //           {
+  //             association: 'material',
+  //             attributes: ['id', 'code', 'materialName'],
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //   })
 
-    return processPositionTasks
-  }
+  //   return processPositionTasks
+  // }
 
   /**
    * 批量审核派工单
