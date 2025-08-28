@@ -485,7 +485,7 @@ export class ProductionReportTwoService {
         const currentProcessIndex = positonRoute.process.children.findIndex(route => route.id === currentProcessId)
 
         // 从返工工序的下一个工序开始重新创建任务单
-        const remainingProcesses = positonRoute.process.children.slice(reworkProcessIndex, currentProcessIndex)
+        const remainingProcesses = positonRoute.process.children.slice(reworkProcessIndex, currentProcessIndex + 1)
         for (const process of remainingProcesses) {
           let index = 0
           // 找到被返工的工位任务单
