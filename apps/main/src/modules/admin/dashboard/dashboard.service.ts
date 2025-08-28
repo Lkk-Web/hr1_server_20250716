@@ -118,7 +118,7 @@ export class DashboardService {
 
     if (dto) {
       if (dto.startTime && dto.endTime) {
-        options.where['endTime'] = { [Op.between]: [dto.startTime, dto.endTime] }
+        options.where['actualStartTime'] = { [Op.between]: [dto.startTime, dto.endTime] }
       }
     }
 
@@ -131,14 +131,6 @@ export class DashboardService {
    * 订单数据展示
    */
   async OrderFindPagination(dto: OrderFindPagination) {
-    const options = {
-      where: {},
-      include: [
-        {
-          association: 'details',
-        },
-      ],
-    }
     const productionOrderOptions = {
       where: {},
       include: [
@@ -165,7 +157,6 @@ export class DashboardService {
 
     if (dto) {
       if (dto.startTime && dto.endTime) {
-        options.where['orderDate'] = { [Op.between]: [dto.startTime, dto.endTime] }
         productionOrderOptions.where['orderDate'] = { [Op.between]: [dto.startTime, dto.endTime] }
       }
     }
