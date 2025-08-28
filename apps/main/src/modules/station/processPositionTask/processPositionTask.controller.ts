@@ -11,6 +11,7 @@ import {
   FindByOrderDto,
   FindProcessLocatePaginationDto,
   BatchAuditProcessLocateDto,
+  BatchAuditProcessLocateAntireviewDto,
 } from './processPositionTask.dto'
 import { CurrentPage } from '@core/decorator/request'
 import { ApiPlatformWhitelist } from '@core/decorator/metaData'
@@ -108,5 +109,14 @@ export class ProcessPositionTaskController {
     const auditorId = req.user.id
     const result = await this.processPositionTaskService.auditProcessLocate(dto.ids, dto.audit, auditorId)
     return { data: result, message: '审核成功', code: 200 }
+  }
+
+  @Post('locate/antireview')
+  @HttpCode(HttpStatus.OK)
+  @ApiPlatformWhitelist(['admin', 'station'])
+  @ApiOperation({ summary: '批量反审核派工单' })
+  async auditProcessLocateAntireview(@Body() dto: BatchAuditProcessLocateAntireviewDto, @Req() req: any) {
+    const result = await this.processPositionTaskService.auditProcessLocateAntireview(dto.ids)
+    return { data: result, message: '反审核成功', code: 200 }
   }
 }

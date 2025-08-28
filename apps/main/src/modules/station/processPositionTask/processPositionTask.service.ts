@@ -636,4 +636,20 @@ export class ProcessPositionTaskService {
       throw error
     }
   }
+
+  /**
+   * 批量反审核派工单
+   */
+  async auditProcessLocateAntireview(ids: number[]) {
+    const transaction = await ProcessLocate.sequelize.transaction()
+
+    try {
+      await ProcessLocate.update({ status: AuditStatus.PENDING_REVIEW }, { where: { id: ids }, transaction })
+      await transaction.commit()
+      return '反审核成功'
+    } catch (error) {
+      await transaction.rollback()
+      throw error
+    }
+  }
 }

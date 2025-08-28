@@ -225,3 +225,13 @@ export class BatchAuditProcessLocateDto {
   // @IsNotEmpty({ message: '班组ID不能为空' })
   // teamId: number
 }
+
+export class BatchAuditProcessLocateAntireviewDto {
+  @ApiProperty({ type: [Number], description: '派工单ID数组', required: true })
+  @IsNotEmpty({ message: '派工单ID数组不能为空' })
+  @IsArray({ message: '派工单ID必须是数组' })
+  @IsNumber({}, { each: true, message: '派工单ID必须是数字' })
+  ids: number[]
+}
+
+
