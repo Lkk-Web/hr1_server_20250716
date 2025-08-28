@@ -193,6 +193,7 @@ export class ProcessService {
         {
           association: 'children',
           attributes: ['id', 'processName', 'reportRatio', 'createdAt', 'updatedAt', 'parentId', 'sort', 'isQC'],
+          where: {},
           required: false,
           include: [
             {
@@ -233,6 +234,17 @@ export class ProcessService {
     if (dto.filterId) {
       options.where['id'] = {
         [Op.notIn]: dto.filterId,
+      }
+    }
+
+    if (dto.prePocessId) {
+      const process = await Process.findOne({ where: { id: dto.prePocessId } })
+      if (!process.dataValues.parentId) {
+        throw new HttpException('未找到对应的父工序', 400)
+      }
+      options.where['id'] = process.dataValues.parentId
+      options.include[2].where['id'] = {
+        [Op.lt]: dto.prePocessId,
       }
     }
 

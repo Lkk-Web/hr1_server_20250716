@@ -27,6 +27,13 @@ export class FindPaginationDto {
     type: [Number],
   })
   filterId?: number[]
+
+  @ApiProperty({
+    required: false,
+    description: '返工工序',
+    type: Number,
+  })
+  prePocessId?: number
 }
 
 export class findMaterialDto {

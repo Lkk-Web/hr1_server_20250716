@@ -60,8 +60,8 @@ export class ProcessController {
 
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
+  @ApiPlatformWhitelist(['admin', 'station'])
   @Get('findPagination')
-  @OpenAuthorize()
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     const result = await this.service.findPagination(dto, pagination)
     return result
