@@ -89,6 +89,7 @@ export enum ProductionOrderTaskStatus {
   PAUSED = '已暂停',
   CANCELLED = '已取消',
   COMPLETED = '已完成',
+  SCRAPPED = '已报废',
 }
 
 export enum SchedulingStatus {

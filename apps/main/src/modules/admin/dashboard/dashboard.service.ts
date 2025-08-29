@@ -193,6 +193,48 @@ export class DashboardService {
    * 生产质量统计展示
    */
   async ProductPagination(dto: OrderFindPagination) {
+      const productionOrderOptions = {
+        where: {},
+        include: [
+          {
+            association: 'productionOrderDetail',
+            include: [
+              {
+                association: 'productionOrderTasks',
+                required: false,
+                include: [
+                  {
+                    association: 'productSerials',
+                    required: false,
+                    where: {
+                      status: '已完工',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      }
+
+      if (dto) {
+        if (dto.startTime && dto.endTime) {
+          productionOrderOptions.where['orderDate'] = { [Op.between]: [dto.startTime, dto.endTime] }
+        }
+      }
+
+      const productionOrder = await ProductionOrder.findAll(productionOrderOptions)
+
+      let plannedOutputSum = 0
+
+      for (const po of productionOrder) {
+        const details = (po as any)?.productionOrderDetail || []
+        for (const detail of details) {
+          const planned = Number(detail?.plannedOutput || 0)
+          plannedOutputSum += isNaN(planned) ? 0 : planned
+        }
+      }
+
     const options = {
       where: {},
       include: [
@@ -229,8 +271,12 @@ export class DashboardService {
     // 统计不良品数量和质检原因
     const qualityStats = new Map<string, number>()
     let totalBadCount = 0
+    let totalScrapQuantity = 0
+    let totalReworkQuantity = 0
 
     for (const task of productionOrderTask) {
+      totalScrapQuantity += Number((task as any)?.scrapQuantity || 0)
+      totalReworkQuantity += Number((task as any)?.reworkQuantity || 0)
       const productSerials = (task as any)?.productSerials || []
       for (const serial of productSerials) {
         const processTasks = serial?.processTasks || []
@@ -238,7 +284,7 @@ export class DashboardService {
           const processPositionTasks = processTask?.processPositionTasks || []
           for (const positionTask of processPositionTasks) {
             const badCount = Number(positionTask.badCount || 0)
-            const qcReason = positionTask.QCReason || '未知原因'
+            const qcReason = positionTask.QCReason
 
             if (badCount > 0) {
               totalBadCount += badCount
@@ -259,6 +305,10 @@ export class DashboardService {
       productionOrderTaskCout: productionOrderTaskCout,
       totalBadCount: totalBadCount,
       qualityPieChartData: pieChartData,
+      totalScrapQuantity: totalScrapQuantity,
+      totalScrapQuantityRate: (totalScrapQuantity / plannedOutputSum) * 100,
+      totalReworkQuantity: totalReworkQuantity,
+      totalReworkQuantityRate: (totalReworkQuantity / plannedOutputSum) * 100,
     }
   }
 }
