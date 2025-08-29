@@ -35,6 +35,14 @@ export class ProcessLocateDetail extends BaseDate<ProcessLocateDetail> {
   })
   declare processId: number
 
+  // 待派数量
+  @Column({
+    comment: '待派数量',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare pendingCount: number
+
   // 分配数量
   @Column({
     comment: '分配数量',

@@ -1072,7 +1072,7 @@ export class ProductionOrderService {
       transaction,
     })
     if (existingSerials.length > 0) {
-      startSequence = parseInt(existingSerials[0].serialNumber.slice(-5)) + 1
+      startSequence = parseInt(existingSerials[0].serialNumber.slice(-4)) + 1
     }
     // }
     for (let i = 0; i < splitQuantity; i++) {

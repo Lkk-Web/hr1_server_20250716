@@ -283,7 +283,7 @@ export class ProcessPositionTaskService {
           throw new HttpException(`用户ID ${detail.userId} 不存在`, 400)
         }
 
-        const processLocateData = await ProcessLocate.findOne({
+        const processLocateData = await ProcessLocate.findAll({
           where: { productionOrderTaskId: dto.productionOrderTaskId },
           include: [
             {
@@ -295,9 +295,12 @@ export class ProcessPositionTaskService {
           ],
         })
 
-        const assignCount = processLocateData?.dataValues.processLocateDetails.reduce((prev, cur) => prev + cur.dataValues.assignCount, 0) + detail.assignCount
+        const assignCount =
+          processLocateData.reduce((prev, cur) => prev + cur.processLocateDetails.reduce((prev, cur) => prev + cur.assignCount, 0), 0) + detail.assignCount || detail.assignCount
 
-        if (assignCount > productionOrderTask.splitQuantity + productionOrderTask.scrapQuantity) throw new HttpException(`派工数量不能大于序列号数量`, 400)
+        if (assignCount > productionOrderTask.splitQuantity + productionOrderTask.scrapQuantity) {
+          throw new HttpException(`派工数量${assignCount}不能大于序列号数量${productionOrderTask.splitQuantity + productionOrderTask.scrapQuantity}`, 400)
+        }
 
         // 创建派工详情
         await ProcessLocateDetail.create(
@@ -305,6 +308,7 @@ export class ProcessPositionTaskService {
             processLocateId: processLocate.id,
             userId: detail.userId,
             processId: detail.processId,
+            pendingCount: productionOrderTask.splitQuantity + productionOrderTask.scrapQuantity - assignCount, // 剩余待派数量
             assignCount: detail.assignCount,
             status: AuditStatus.PENDING_REVIEW,
             remark: detail.remark,
@@ -333,8 +337,6 @@ export class ProcessPositionTaskService {
         },
         transaction,
       })
-
-      console.log(123213123, assignedPositionTaskCount, totalPositionTaskCount)
 
       // 根据派工的工位任务单数量判断状态
       let locateStatus = LocateStatus.NOT_LOCATED
