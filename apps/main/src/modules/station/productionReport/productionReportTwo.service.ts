@@ -334,18 +334,18 @@ export class ProductionReportTwoService {
         }
         // 在此之后的工序
         if (processTask.id >= currentProcessTaskId) {
-        // 删除关联的工位任务单
-        await ProcessPositionTask.destroy({
-          where: { processTaskId: processTask.id, status: POSITION_TASK_STATUS.NOT_STARTED },
-          transaction,
-        })
-      // 删除后续工序任务单
+          // 删除关联的工位任务单
+          await ProcessPositionTask.destroy({
+            where: { processTaskId: processTask.id, status: POSITION_TASK_STATUS.NOT_STARTED },
+            transaction,
+          })
+          // 删除后续工序任务单
           if (processTask.id != currentProcessTaskId) {
-      await ProcessTask.destroy({
-        where: {
+            await ProcessTask.destroy({
+              where: {
                 id: processTask.id,
-        },
-      })
+              },
+            })
           }
         }
       }
@@ -396,7 +396,7 @@ export class ProductionReportTwoService {
       await this.productionOrderService.splitOrderTask(productSerials, productionOrderTask, processRoute, transaction)
     }
 
-    // 5. 可派工数增加
+    // 6. 可派工数增加
     await productionOrderTask.update({ scrapQuantity: productionOrderTask.scrapQuantity + 1 }, { transaction })
   }
 
@@ -507,10 +507,18 @@ export class ProductionReportTwoService {
           if (!reworkProcessPositionTask) throw new Error('返工工位任务单不存在')
 
           await reworkProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
+          // 增加可开工数
+          const position = await Position.findOne({ where: { processId: reworkProcessId } })
+          const positionDetail = await PositionDetail.findOne({ where: { positionId: position.dataValues.id, userId: user.id } })
+          const positionTaskDetail = await PositionTaskDetail.findOne({
+            where: { positionDetailId: positionDetail.dataValues.id, productionOrderTaskId: productionOrderTask.id },
+          })
+
+          await positionTaskDetail.update({ allowWorkNum: positionTaskDetail.dataValues.allowWorkNum + 1 }, { transaction })
 
           let prePositionTaskId = null
 
-          // 为第一个返工的工序
+          // 第一个返工的工序指向返工的前一个工序
           if (!prePositionTaskId) {
             prePositionTaskId = reworkProcessPositionTask.dataValues.prePositionTaskId
           }
