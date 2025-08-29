@@ -529,8 +529,8 @@ export class ProcessPositionTaskService {
   //       // 使用子查询排除已派工的记录
   //       id: {
   //         [Op.notIn]: Sequelize.literal(`(
-  //           SELECT DISTINCT processPositionTaskId 
-  //           FROM process_locate_item 
+  //           SELECT DISTINCT processPositionTaskId
+  //           FROM process_locate_item
   //           WHERE processPositionTaskId IS NOT NULL
   //         )`),
   //       },
@@ -631,22 +631,6 @@ export class ProcessPositionTaskService {
       const actionText = dto.status === AuditStatus.APPROVED ? '审核通过' : '审核驳回并清理相关数据'
 
       return `成功${actionText} ${processLocates.length} 个派工单`
-    } catch (error) {
-      await transaction.rollback()
-      throw error
-    }
-  }
-
-  /**
-   * 批量反审核派工单
-   */
-  async auditProcessLocateAntireview(ids: number[]) {
-    const transaction = await ProcessLocate.sequelize.transaction()
-
-    try {
-      await ProcessLocate.update({ status: AuditStatus.PENDING_REVIEW }, { where: { id: ids }, transaction })
-      await transaction.commit()
-      return '反审核成功'
     } catch (error) {
       await transaction.rollback()
       throw error

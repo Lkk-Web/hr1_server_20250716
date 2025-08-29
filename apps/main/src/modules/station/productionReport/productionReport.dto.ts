@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNumber, Min, ValidateNested, IsOptional, isEnum, IsEnum } from 'class-validator'
+import { IsNumber, Min, ValidateNested, IsEnum, IsArray, IsNotEmpty } from 'class-validator'
 import { Type } from 'class-transformer'
 import { IsArrayLength } from '@library/utils/custom'
 import { POSITION_TASK_STATUS, ReworkType, ScrapType, TaskStatus } from '@common/enum'
@@ -72,6 +72,14 @@ export class FindPaginationDto {
     required: false,
   })
   auditStatus: string
+}
+
+export class BatchAuditAntireviewDto {
+  @ApiProperty({ type: [Number], description: '报工单ID数组', required: true })
+  @IsNotEmpty({ message: '报工单ID数组不能为空' })
+  @IsArray({ message: '报工单ID必须是数组' })
+  @IsNumber({}, { each: true, message: '报工单ID必须是数字' })
+  ids: number[]
 }
 
 export class FindPaginationReportTaskListDto {

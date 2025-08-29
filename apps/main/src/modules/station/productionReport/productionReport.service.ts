@@ -200,6 +200,22 @@ export class ProductionReportService {
     return result
   }
 
+  /**
+   * 批量反审核报工单
+   */
+  async auditAntireview(ids: number[]) {
+    const transaction = await ProductionReport.sequelize.transaction()
+
+    try {
+      await ProductionReport.update({ auditStatus: '待审核' }, { where: { id: ids }, transaction })
+      await transaction.commit()
+      return '反审核成功'
+    } catch (error) {
+      await transaction.rollback()
+      throw error
+    }
+  }
+
   public async reportTaskList(dto: FindPaginationReportTaskListDto, pagination: Pagination, user) {
     const processPositionTaskWhere = {}
 

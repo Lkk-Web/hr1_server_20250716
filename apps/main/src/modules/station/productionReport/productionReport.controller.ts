@@ -2,7 +2,7 @@ import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestj
 import { Body, Get, HttpCode, HttpStatus, Param, Post, Query, Req } from '@nestjs/common'
 import { StationAuth } from '@core/decorator/controller'
 import { ProductionReportService } from './productionReport.service'
-import { auditDto, FindPaginationDto, FindPaginationReportTaskListDto, OpenTaskDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
+import { auditDto, BatchAuditAntireviewDto, FindPaginationDto, FindPaginationReportTaskListDto, OpenTaskDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { ProductionReportTwoService } from '@modules/station/productionReport/productionReportTwo.service'
 import { Pagination } from '@common/interface'
@@ -43,6 +43,15 @@ export class ProductionReportController {
   //   const result = await this.service.batch(dto, req.user, loadModel)
   //   return result
   // }
+
+  @Post('antireview')
+  @HttpCode(HttpStatus.OK)
+  @ApiPlatformWhitelist(['admin', 'station'])
+  @ApiOperation({ summary: '批量反审核报工单' })
+  async auditAntireview(@Body() dto: BatchAuditAntireviewDto, @Req() req: any) {
+    const result = await this.service.auditAntireview(dto.ids)
+    return { data: result, message: '反审核成功', code: 200 }
+  }
 
   @ApiOperation({ summary: '开工/暂停', description: '' })
   @HttpCode(HttpStatus.OK)
