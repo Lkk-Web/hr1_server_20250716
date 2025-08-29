@@ -68,7 +68,7 @@ export class ProductionReportTwoService {
         for (const item of processDto.positions) {
           console.log(3)
           // 工序任务
-          const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId, status: PROCESS_TASK_STATUS.running } })
+          const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId, status: PROCESS_TASK_STATUS.notStart } })
           await processTask.update(
             {
               status: taskStatus == TaskStatus.OPEN_TASK ? PROCESS_TASK_STATUS.running : PROCESS_TASK_STATUS.pause,
@@ -79,7 +79,7 @@ export class ProductionReportTwoService {
           console.log(4)
           // 工位任务
           const processPositionTask = await ProcessPositionTask.findOne({
-            where: { serialId: item.serialId, processId: dto.processId, status: POSITION_TASK_STATUS.IN_PROGRESS },
+            where: { serialId: item.serialId, processId: dto.processId, status: POSITION_TASK_STATUS.NOT_STARTED },
             include: [{ association: 'operateLogs' }],
           })
 
