@@ -111,7 +111,7 @@ export class ProductSerialService {
     }
 
     if (status) {
-      includeConditions[1].where['status'] = status
+      includeConditions[2].where['status'] = status
     }
 
     // 如果有订单编码条件，添加到关联查询中

@@ -114,7 +114,7 @@ export class ProductionOrderTaskService {
     }
 
     if (status) {
-      options.where['status'] = status
+      options.include[1].where['status'] = status
     }
 
     if (workShop) {
