@@ -617,8 +617,8 @@ export class ProcessPositionTaskService {
           // 审核驳回：回滚派工记录，恢复工位任务单状态为待派工
           // 1. 派工为驳回
           await ProcessLocateDetail.update({ status: AuditStatus.REJECTED }, { where: { processLocateId: { [Op.in]: ids }, status: AuditStatus.PENDING_REVIEW }, transaction })
-          const productionOrderTaskIds = processLocates.map(item => item.productionOrderTaskId)
           // 2. 工单状态回滚
+          const productionOrderTaskIds = processLocates.map(item => item.productionOrderTaskId)
           await ProductionOrderTask.update({ locateStatus: LocateStatus.NOT_LOCATED }, { where: { id: productionOrderTaskIds }, transaction })
           // 3. 可派数量回滚
           await positionTaskDetail.update({ allowWorkNum: positionTaskDetail.dataValues.allowWorkNum - res.assignCount }, { transaction })

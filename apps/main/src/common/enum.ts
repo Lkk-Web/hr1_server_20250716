@@ -28,6 +28,7 @@ export enum PROCESS_TASK_STATUS {
   running = '进行中',
   pause = '已暂停',
   finish = '已完工',
+  scrapped = '已报废',
 }
 
 export enum POSITION_TASK_STATUS {
@@ -36,6 +37,7 @@ export enum POSITION_TASK_STATUS {
   PAUSED = '已暂停',
   COMPLETED = '已完工',
   REWORK = '已返工',
+  SCRAPPED = '已报废',
 }
 
 export enum NOTIFY_SCENE {

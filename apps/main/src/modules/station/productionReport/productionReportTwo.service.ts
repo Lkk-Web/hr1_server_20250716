@@ -320,30 +320,35 @@ export class ProductionReportTwoService {
       const subsequentProcessTasks = await ProcessTask.findAll({
         where: {
           serialId: serialId,
-          id: { [Op.gte]: currentProcessTaskId },
+          // id: { [Op.gte]: currentProcessTaskId },
         },
         transaction,
       })
 
       for (const processTask of subsequentProcessTasks) {
+        // 在此之前的工序
+        if (processTask.id <= currentProcessTaskId) {
+          // 更新之前的为已报废
+          await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.SCRAPPED }, { where: { processTaskId: processTask.id }, transaction })
+          await ProcessTask.update({ status: PROCESS_TASK_STATUS.scrapped, actualEndTime: new Date() }, { where: { id: processTask.id }, transaction })
+        }
+        // 在此之后的工序
+        if (processTask.id >= currentProcessTaskId) {
         // 删除关联的工位任务单
         await ProcessPositionTask.destroy({
           where: { processTaskId: processTask.id, status: POSITION_TASK_STATUS.NOT_STARTED },
           transaction,
         })
-      }
-
       // 删除后续工序任务单
+          if (processTask.id != currentProcessTaskId) {
       await ProcessTask.destroy({
         where: {
-          id: subsequentProcessTasks.map((item, index) => {
-            if (index != 0) return item.id
-          }),
+                id: processTask.id,
         },
       })
-
-      // 更新当前的为已结束
-      await ProcessTask.update({ status: PROCESS_TASK_STATUS.finish, actualEndTime: new Date() }, { where: { id: currentProcessTaskId }, transaction })
+          }
+        }
+      }
     }
 
     // 3. 将当前序列号状态标记为已报废
