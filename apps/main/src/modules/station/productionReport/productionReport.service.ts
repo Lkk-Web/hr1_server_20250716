@@ -73,7 +73,7 @@ export class ProductionReportService {
       include: [
         {
           association: 'productionOrderTask',
-          attributes: ['id', 'orderCode', 'splitQuantity', 'goodCount', 'badCount'],
+          attributes: ['id', 'orderCode', 'splitQuantity', 'goodCount', 'badCount', 'actualStartTime', 'actualEndTime'],
           required: false,
           through: {},
           where: {},
