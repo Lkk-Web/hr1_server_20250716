@@ -317,21 +317,9 @@ export class ProductionReportTwoService {
 
     // 2. 删除当前工序任务单之后的所有工序任务单和工位任务单
     {
-      const subsequentProcessTasks = await ProcessTask.findAll({
-        where: {
-          serialId: serialId,
-          // id: { [Op.gte]: currentProcessTaskId },
-        },
-        transaction,
-      })
+      const subsequentProcessTasks = await ProcessTask.findAll({ where: { serialId: serialId } })
 
       for (const processTask of subsequentProcessTasks) {
-        // 在此之前的工序
-        if (processTask.id <= currentProcessTaskId) {
-          // 更新之前的为已报废
-          await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.SCRAPPED }, { where: { processTaskId: processTask.id }, transaction })
-          await ProcessTask.update({ status: PROCESS_TASK_STATUS.scrapped, actualEndTime: new Date() }, { where: { id: processTask.id }, transaction })
-        }
         // 在此之后的工序
         if (processTask.id >= currentProcessTaskId) {
           // 删除关联的工位任务单
@@ -347,6 +335,12 @@ export class ProductionReportTwoService {
               },
             })
           }
+        }
+        // 在此之前的工序
+        if (processTask.id <= currentProcessTaskId) {
+          // 更新之前的为已报废
+          await ProcessPositionTask.update({ status: POSITION_TASK_STATUS.SCRAPPED }, { where: { processTaskId: processTask.id }, transaction }) //先删再改状态
+          await ProcessTask.update({ status: PROCESS_TASK_STATUS.scrapped, actualEndTime: new Date() }, { where: { id: processTask.id }, transaction })
         }
       }
     }
