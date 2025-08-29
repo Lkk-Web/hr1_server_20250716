@@ -91,7 +91,7 @@ export class ProductionReportTwoService {
 
           // 上一道子工序
           const preProcessPositionTask = await ProcessPositionTask.findOne({
-            where: { serialId: processPositionTask.serialId, id: processPositionTask.prePositionTaskId },
+            where: { serialId: processPositionTask.serialId, id: processPositionTask.prePositionTaskId, status: POSITION_TASK_STATUS.COMPLETED },
             order: [['id', 'ASC']],
           })
           if (preProcessPositionTask && preProcessPositionTask.dataValues.status != POSITION_TASK_STATUS.COMPLETED) throw new Error('上一道子工序未完成，无法开工')
@@ -507,7 +507,7 @@ export class ProductionReportTwoService {
 
           await reworkProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
           // 增加可开工数
-          const position = await Position.findOne({ where: { processId: reworkProcessId } })
+          const position = await Position.findOne({ where: { processId: process.id } })
           const positionDetail = await PositionDetail.findOne({ where: { positionId: position.dataValues.id, userId: user.id } })
           const positionTaskDetail = await PositionTaskDetail.findOne({
             where: { positionDetailId: positionDetail.dataValues.id, productionOrderTaskId: productionOrderTask.id },
