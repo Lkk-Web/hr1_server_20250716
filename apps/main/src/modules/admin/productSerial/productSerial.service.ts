@@ -89,7 +89,7 @@ export class ProductSerialService {
       include: includeConditions,
       offset: (current - 1) * pageSize,
       limit: pageSize,
-      order: [['createdAt', 'DESC']],
+      order: [['id', 'ASC']],
     }
 
     if (serialNumber) {
