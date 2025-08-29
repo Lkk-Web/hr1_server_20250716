@@ -341,6 +341,9 @@ export class ProductionReportTwoService {
           }),
         },
       })
+
+      // 更新当前的为已结束
+      await ProcessTask.update({ status: PROCESS_TASK_STATUS.finish, actualEndTime: new Date() }, { where: { id: currentProcessTaskId }, transaction })
     }
 
     // 3. 将当前序列号状态标记为已报废
