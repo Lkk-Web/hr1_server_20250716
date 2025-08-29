@@ -2,31 +2,18 @@ import { Redis } from 'ioredis'
 import { Pagination } from '@common/interface'
 import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
-import { HttpException, Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { ProductionReport } from '@model/production/productionReport.model'
-import { FindOptions, Op, or } from 'sequelize'
+import { Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
-import { ProductionOrder } from '@model/production/productionOrder.model'
-import { ProcessTask } from '@model/production/processTask.model'
-import { PRI } from '@model/production/PRI.model'
 
-import { Performance } from '@model/performance/performance.model'
-import { User } from '@model/auth/user'
-import { PerformanceConfig } from '@model/performance/performanceConfig.model'
-import { PerformanceDetailed } from '@model/performance/performanceDetailed.model'
 import { ResultVO } from '@common/resultVO'
-import { deleteIdsDto } from '@common/dto'
 import moment = require('moment')
 import { Paging } from '@library/utils/paging'
-import { InspectionForm } from '@model/quantity/inspectionForm.model'
-import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
-import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.model'
-import { InspectionFormItem } from '@model/quantity/InspectionFormItem.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
-import { WorkShop } from '@model/base/workShop.model'
-import { Material, Position, PositionDetail, Process, ProductionOrderTask, SOP, SOParameter, TrendsTemplate } from '@model/index'
+import { Material, ProductionOrderTask, SOP } from '@model/index'
 import { BatchLogService } from '@modules/admin/batchLog/batchLog.service'
-import { CProductionReportDto, UProductionReportDto, FindPaginationDto, batchDto, auditDto, FindPaginationReportTaskListDto } from './productionReport.dto'
+import { FindPaginationDto, auditDto, FindPaginationReportTaskListDto } from './productionReport.dto'
 import { POSITION_TASK_STATUS } from '@common/enum'
 import { ProductionReportTwoService } from './productionReportTwo.service'
 
@@ -88,25 +75,8 @@ export class ProductionReportService {
           association: 'productionOrderTask',
           attributes: ['id', 'orderCode', 'splitQuantity', 'goodCount', 'badCount'],
           required: false,
-          through: { attributes: [] },
+          through: {},
           where: {},
-          include: [
-            {
-              association: 'productionReportDetails',
-              required: false,
-              include: [
-                {
-                  association: 'processPositionTask',
-                  include: [{ association: 'serial' }],
-                },
-              ],
-            },
-            {
-              association: 'material',
-              where: {},
-              required: false,
-            },
-          ],
         },
         {
           association: 'process',
@@ -141,11 +111,6 @@ export class ProductionReportService {
       ],
     }
 
-    if (dto.materialName) {
-      options.include[0].include[0].include[0].where['name'] = {
-        [Op.like]: `%${dto.materialName}%`,
-      }
-    }
     if (dto.processName) {
       options.include[1].where['processName'] = {
         [Op.like]: `%${dto.processName}%`,
@@ -214,6 +179,79 @@ export class ProductionReportService {
       await transaction.rollback()
       throw error
     }
+  }
+
+  /**
+   * 根据ID查询报工单详情
+   */
+  public async findById(id: number, loadModel) {
+    const options = {
+      where: { id },
+      include: [
+        {
+          association: 'productionOrderTask',
+          attributes: ['id', 'orderCode', 'splitQuantity', 'goodCount', 'badCount'],
+          required: false,
+          through: { attributes: [] },
+          where: {},
+          include: [
+            {
+              association: 'productionReportDetails',
+              where: { productionReportId: id },
+              required: false,
+              include: [
+                {
+                  association: 'processPositionTask',
+                  include: [{ association: 'serial' }],
+                },
+              ],
+            },
+            {
+              association: 'material',
+              where: {},
+              required: false,
+            },
+          ],
+        },
+        {
+          association: 'process',
+          attributes: ['id', 'processName'],
+          where: {},
+        },
+        {
+          association: 'team',
+          attributes: ['id', 'name'],
+          where: {},
+        },
+        {
+          association: 'productUser',
+          attributes: ['id', 'userCode', 'userName'],
+        },
+        {
+          association: 'auditor',
+          attributes: ['id', 'userCode', 'userName'],
+        },
+        {
+          association: 'updatedUser',
+          attributes: ['id', 'userName'],
+        },
+        {
+          association: 'pri',
+          include: [
+            {
+              association: 'defectiveItem',
+            },
+          ],
+        },
+      ],
+    }
+
+    const result = await ProductionReport.findOne(options)
+    if (!result) {
+      throw new Error('报工单不存在')
+    }
+
+    return result
   }
 
   public async reportTaskList(dto: FindPaginationReportTaskListDto, pagination: Pagination, user) {

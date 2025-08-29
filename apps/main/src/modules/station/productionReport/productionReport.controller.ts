@@ -82,6 +82,17 @@ export class ProductionReportController {
     return result
   }
 
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '报工单详情' })
+  @ApiParam({ name: 'id', required: true, description: '报工单ID', type: Number })
+  @ApiPlatformWhitelist(['admin', 'station'])
+  @Get('detail/:id')
+  async findById(@Param('id') id: number, @Req() req) {
+    let { factoryCode, loadModel } = req
+    const result = await this.service.findById(id, loadModel)
+    return result
+  }
+
   @ApiOperation({ summary: '报工审核' })
   @HttpCode(HttpStatus.OK)
   @ApiPlatformWhitelist(['admin', 'station'])
