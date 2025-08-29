@@ -160,10 +160,10 @@ export class ProductionReportTwoService {
         // 2.2 处理工序（工位）
         for (const item of processDto.positions) {
           // 工序任务
-          const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
+          const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId, status: PROCESS_TASK_STATUS.running } })
           // 工位任务
           const processPositionTask = await ProcessPositionTask.findOne({
-            where: { serialId: item.serialId, processId: dto.processId },
+            where: { serialId: item.serialId, processId: dto.processId, status: POSITION_TASK_STATUS.IN_PROGRESS },
             include: [{ association: 'operateLogs' }],
           })
 
