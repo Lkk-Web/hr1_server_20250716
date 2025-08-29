@@ -57,7 +57,8 @@ export class ProductionReportTwoService {
         })
 
         const allowReportQuantity = positionTaskDetail?.dataValues.allowWorkNum - positionTaskDetail?.dataValues.workNum || 0
-        if (allowReportQuantity < processDto.positions.length) throw new Error(`开工数量${processDto.positions.length}大于派工数量${allowReportQuantity}`)
+        if (allowReportQuantity < processDto.positions.length && taskStatus == TaskStatus.OPEN_TASK)
+          throw new Error(`开工数量${processDto.positions.length}大于派工数量${allowReportQuantity}`)
 
         await positionTaskDetail.update(
           {
@@ -68,7 +69,8 @@ export class ProductionReportTwoService {
         for (const item of processDto.positions) {
           console.log(3)
           // 工序任务
-          const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId, status: PROCESS_TASK_STATUS.notStart } })
+          const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
+
           await processTask.update(
             {
               status: taskStatus == TaskStatus.OPEN_TASK ? PROCESS_TASK_STATUS.running : PROCESS_TASK_STATUS.pause,
@@ -79,7 +81,11 @@ export class ProductionReportTwoService {
           console.log(4)
           // 工位任务
           const processPositionTask = await ProcessPositionTask.findOne({
-            where: { serialId: item.serialId, processId: dto.processId, status: POSITION_TASK_STATUS.NOT_STARTED },
+            where: {
+              serialId: item.serialId,
+              processId: dto.processId,
+              status: { [Op.in]: [POSITION_TASK_STATUS.NOT_STARTED, POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.PAUSED] },
+            },
             include: [{ association: 'operateLogs' }],
           })
 
@@ -87,7 +93,6 @@ export class ProductionReportTwoService {
           const preProcessPositionTask = await ProcessPositionTask.findOne({
             where: { serialId: processPositionTask.serialId, id: processPositionTask.prePositionTaskId },
             order: [['id', 'ASC']],
-            transaction,
           })
           if (preProcessPositionTask && preProcessPositionTask.dataValues.status != POSITION_TASK_STATUS.COMPLETED) throw new Error('上一道子工序未完成，无法开工')
 
