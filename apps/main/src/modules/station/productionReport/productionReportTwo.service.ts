@@ -448,18 +448,34 @@ export class ProductionReportTwoService {
     const processRoute = productionOrderDetail.material.processRoute?.processRouteList // 工艺路线
 
     if (processRoute && processRoute.length > 0) {
-      // 指定返工：只重置当前返工工序任务单 / 链表的节点添加
+      // 指定返工：只重置当前返工工位任务单和质检 / 链表的节点添加
       if (reworkType === ReworkType.SINGLE) {
-        const reworkProcessPositionTask = await ProcessPositionTask.findOne({
-          where: { serialId: serialId, processId: reworkProcessId },
-          transaction,
-        })
+        const [currentProcessPositionTask, reworkProcessPositionTask] = await Promise.all([
+          ProcessPositionTask.findOne({ where: { serialId: serialId, processId: currentProcessId } }),
+          ProcessPositionTask.findOne({ where: { serialId: serialId, processId: reworkProcessId } }),
+        ])
 
-        if (!reworkProcessPositionTask) throw new Error('返工工位任务单不存在')
+        if (!reworkProcessPositionTask || !currentProcessPositionTask) throw new Error('返工工位任务单不存在')
 
+        await currentProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
         await reworkProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
 
-        const newProcessPositionTask = await ProcessPositionTask.create(
+        const newCurrentProcessPositionTask = await ProcessPositionTask.create(
+          {
+            serialId: serialId,
+            productionOrderTaskId: productionOrderTask.id,
+            processTaskId: currentProcessPositionTask.dataValues.processTaskId,
+            prePositionTaskId: currentProcessPositionTask.dataValues.prePositionTaskId,
+            reportRatio: currentProcessPositionTask.dataValues.reportRatio,
+            processId: currentProcessPositionTask.dataValues.processId,
+            planCount: currentProcessPositionTask.dataValues.planCount,
+            status: POSITION_TASK_STATUS.NOT_STARTED,
+            isOutsource: currentProcessPositionTask.dataValues.isOutsource,
+            isInspection: currentProcessPositionTask.dataValues.isInspection,
+          },
+          { transaction }
+        )
+        const newReworkProcessPositionTask = await ProcessPositionTask.create(
           {
             serialId: serialId,
             productionOrderTaskId: productionOrderTask.id,
@@ -476,17 +492,26 @@ export class ProductionReportTwoService {
         )
         // 更新下个节点的prePositionTaskId为新节点
         await ProcessPositionTask.update(
-          { prePositionTaskId: newProcessPositionTask.id },
+          { prePositionTaskId: newCurrentProcessPositionTask.id },
+          { where: { serialId: serialId, prePositionTaskId: currentProcessPositionTask.dataValues.id }, transaction }
+        )
+        await ProcessPositionTask.update(
+          { prePositionTaskId: newReworkProcessPositionTask.id },
           { where: { serialId: serialId, prePositionTaskId: reworkProcessPositionTask.dataValues.id }, transaction }
         )
+
         // 增加可开工数
-        const position = await Position.findOne({ where: { processId: reworkProcessId } })
-        const positionDetail = await PositionDetail.findOne({ where: { positionId: position.dataValues.id, userId: user.id } })
-        const positionTaskDetail = await PositionTaskDetail.findOne({
-          where: { positionDetailId: positionDetail.dataValues.id, productionOrderTaskId: productionOrderTask.id },
+        const position = await Position.findAll({ where: { processId: [currentProcessId, reworkProcessId] } })
+        const positionDetail = await PositionDetail.findAll({ where: { positionId: position.map(item => item.dataValues.id), userId: user.id } })
+        const positionTaskDetail = await PositionTaskDetail.findAll({
+          where: { positionDetailId: positionDetail.map(item => item.dataValues.id), productionOrderTaskId: productionOrderTask.id },
         })
 
-        await positionTaskDetail.update({ allowWorkNum: positionTaskDetail.dataValues.allowWorkNum + 1 }, { transaction })
+        await Promise.all(
+          positionTaskDetail.map(async item => {
+            await item.update({ allowWorkNum: item.dataValues.allowWorkNum + 1 }, { transaction })
+          })
+        )
       }
 
       // 顺序返工：重置当前返工到质检工位 / 链表的节点添加
