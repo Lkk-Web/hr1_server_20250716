@@ -5,7 +5,7 @@ import { InspectionForm } from '@model/quantity/inspectionForm.model'
 import { InspectionTemplateMat } from '@model/quantity/inspectionTemplateMat.model'
 // import { InspectionTemplateItem } from '@model/quantity/inspectionTemplateItem.model'
 import { OpenTaskDto, PadProcessDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
-import { POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductSerialStatus, ReworkType, ScrapType, TaskStatus } from '@common/enum'
+import { LocateStatus, POSITION_TASK_STATUS, PROCESS_TASK_STATUS, ProductSerialStatus, ReworkType, ScrapType, TaskStatus } from '@common/enum'
 import { UserDuration } from '@model/production/userDuration.model'
 import { UserTaskDuration } from '@model/production/userTaskDuration.model'
 import { InspectionTemplate } from '@model/quantity/inspectionTemplate.model'
@@ -398,12 +398,12 @@ export class ProductionReportTwoService {
       })
       const processRoute = productionOrderDetail.material.processRoute?.processRouteList //工艺路线
       const productSerials = await this.productionOrderService.productSerials(productionOrderDetail, productionOrderTask, user, 1, transaction)
-      // 5. 为新序列号创建工序任务单和工位任务单
+      // 4.1. 为新序列号创建工序任务单和工位任务单
       await this.productionOrderService.splitOrderTask(productSerials, productionOrderTask, processRoute, transaction)
     }
 
-    // 6. 可派工数增加
-    await productionOrderTask.update({ scrapQuantity: productionOrderTask.scrapQuantity + 1 }, { transaction })
+    // 5. 可派工数增加
+    await productionOrderTask.update({ scrapQuantity: productionOrderTask.scrapQuantity + 1, locateStatus: LocateStatus.PART_LOCATED }, { transaction })
   }
 
   // 返工
