@@ -529,11 +529,12 @@ export class ProductionReportTwoService {
         let prePositionTaskId = null
 
         for (const process of remainingProcesses) {
-          // 找到返工到的工位任务单
+          // 找到返工到已完工的工位任务单
           const reworkProcessPositionTask = await ProcessPositionTask.findOne({
             where: {
               serialId: serialId,
               processId: process.id,
+              status: POSITION_TASK_STATUS.COMPLETED,
             },
             transaction,
           })
