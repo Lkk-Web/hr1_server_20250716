@@ -451,8 +451,20 @@ export class ProductionReportTwoService {
       // 指定返工：只重置当前返工工位任务单和质检 / 链表的节点添加
       if (reworkType === ReworkType.SINGLE) {
         const [currentProcessPositionTask, reworkProcessPositionTask] = await Promise.all([
-          ProcessPositionTask.findOne({ where: { serialId: serialId, processId: currentProcessId } }),
-          ProcessPositionTask.findOne({ where: { serialId: serialId, processId: reworkProcessId } }),
+          ProcessPositionTask.findOne({
+            where: {
+              serialId: serialId,
+              processId: currentProcessId,
+              status: POSITION_TASK_STATUS.COMPLETED,
+            },
+          }),
+          ProcessPositionTask.findOne({
+            where: {
+              serialId: serialId,
+              processId: reworkProcessId,
+              status: POSITION_TASK_STATUS.COMPLETED,
+            },
+          }),
         ])
 
         if (!reworkProcessPositionTask || !currentProcessPositionTask) throw new Error('返工工位任务单不存在')
