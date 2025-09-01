@@ -22,7 +22,7 @@ import { InboundOrder } from '@model/warehouse/inboundOrder.model'
 import { deleteIdsDto } from '@common/dto'
 import { ResultVO } from '@common/resultVO'
 import { BatchLogService } from '../batchLog/batchLog.service'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @Injectable()
 export class MaterialRequisitionService {

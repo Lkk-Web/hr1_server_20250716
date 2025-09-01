@@ -11,7 +11,7 @@ import { FindPaginationOptions } from '@model/shared/interface'
 import { SalesOrderDetail } from '@model/plan/salesOrderDetail.model'
 import { deleteIdsDto } from '@common/dto'
 import { Paging } from '@library/utils/paging'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 import dayjs = require('dayjs')
 
 @Injectable()

@@ -11,7 +11,7 @@ import { FindOptions, Op } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { EquipmentLedger } from '@model/equipment/equipmentLedger.model'
 import { Paging } from '@library/utils/paging'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @Injectable()
 export class ScrapOrderService {

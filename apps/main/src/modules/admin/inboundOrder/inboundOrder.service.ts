@@ -22,7 +22,7 @@ import { Aide } from '@library/utils/aide'
 import { OutboundOrderDetail } from '@model/warehouse/outboundOrderDetail.model'
 import { Paging } from '@library/utils/paging'
 import { BatchLogService } from '../batchLog/batchLog.service'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @Injectable()
 export class InboundOrderService {

@@ -4,7 +4,6 @@ import { DtoPipe } from '@core/pipe'
 import { LoggerModule } from '@library/logger'
 import { MysqlModule } from '@library/mysql'
 import { TasksModule } from '@library/tasks'
-import { PlatformClientModule } from '@modules/client/client.module'
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common'
 import { ScheduleModule } from '@nestjs/schedule'
 import { AppController } from './app.controller'
@@ -33,7 +32,6 @@ import { StationModule } from '@modules/station/station.module'
     SequelizeModule.forFeature(Object.values(ModelList)),
 
     // TODO.添加业务板块
-    PlatformClientModule,
     AdminModule,
     StationModule,
   ],

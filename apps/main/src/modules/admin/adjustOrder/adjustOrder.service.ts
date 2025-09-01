@@ -21,7 +21,7 @@ import moment = require('moment')
 import { ResultVO } from '@common/resultVO'
 import { Aide } from '@library/utils/aide'
 import { Paging } from '@library/utils/paging'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @Injectable()
 export class AdjustOrderService {

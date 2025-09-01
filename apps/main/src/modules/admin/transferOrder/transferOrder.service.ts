@@ -26,7 +26,7 @@ import { WorkShop } from '@model/base/workShop.model'
 import { Supplier } from '@model/base/supplier.model'
 import { CheckStandard } from '@model/equipment/checkStandard.model'
 import { Paging } from '@library/utils/paging'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @Injectable()
 export class TransferOrderService {

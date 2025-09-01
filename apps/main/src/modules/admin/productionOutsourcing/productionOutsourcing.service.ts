@@ -14,7 +14,7 @@ import { Paging } from '@library/utils/paging'
 import dayjs = require('dayjs')
 import { ProcessTask } from '@model/production/processTask.model'
 import { ProductionOrder } from '@model/production/productionOrder.model'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @Injectable()
 export class ProductionOutsourcingService {

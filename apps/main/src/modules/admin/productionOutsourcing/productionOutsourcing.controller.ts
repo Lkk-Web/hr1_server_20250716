@@ -6,7 +6,7 @@ import { ProductionOutsourcingService } from './productionOutsourcing.service'
 import { CProductionOutsourcingDto, FindPaginationDto, UProductionOutsourcingDto } from './productionOutsourcing.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @ApiTags('工序委外')
 @ApiBearerAuth()

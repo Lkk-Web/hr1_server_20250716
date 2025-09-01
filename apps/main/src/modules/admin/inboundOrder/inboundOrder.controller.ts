@@ -8,7 +8,7 @@ import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
 import { OpenAuthorize } from '@core/decorator/metaData'
 import { deleteIdsDto } from '@common/dto'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @ApiTags('入库单')
 @ApiBearerAuth()

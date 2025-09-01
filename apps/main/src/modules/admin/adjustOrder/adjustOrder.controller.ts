@@ -7,7 +7,7 @@ import { CAdjustOrderDto, FindPaginationDto, UAdjustOrderDto } from './adjustOrd
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
 import { deleteIdsDto } from '@common/dto'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @ApiTags('盘点单')
 @ApiBearerAuth()

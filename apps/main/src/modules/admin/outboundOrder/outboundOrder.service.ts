@@ -22,7 +22,7 @@ import { AdjustOrder } from '@model/warehouse/adjustOrder.model'
 import { SalesOrder } from '@model/plan/salesOrder.model'
 import { Paging } from '@library/utils/paging'
 import { BatchLogService } from '../batchLog/batchLog.service'
-import { auditDto } from '../productionReport/productionReport.dto'
+import { auditDto } from '@modules/station/productionReport/productionReport.dto'
 
 @Injectable()
 export class OutboundOrderService {

@@ -44,9 +44,6 @@ export * from './productSerial/productSerial.module'
 export * from './productionOutsourcing/productionOutsourcing.module'
 export * from './productPosition/productPosition.module'
 
-//生产报工
-export * from './productionReport/productionReport.module'
-
 //绩效管理
 export * from './performanceConfig/performanceConfig.module'
 export * from './performance/performance.module'
