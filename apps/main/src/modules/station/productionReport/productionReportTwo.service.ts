@@ -493,9 +493,11 @@ export class ProductionReportTwoService {
 
         // 从返工工序的下一个工序开始重新创建任务单
         const remainingProcesses = positonRoute.process.children.slice(reworkProcessIndex, currentProcessIndex + 1)
+        let prePositionTaskId = null
+
         for (const process of remainingProcesses) {
           let index = 0
-          // 找到被返工的工位任务单
+          // 找到返工到的工位任务单
           const reworkProcessPositionTask = await ProcessPositionTask.findOne({
             where: {
               serialId: serialId,
@@ -514,8 +516,6 @@ export class ProductionReportTwoService {
           })
 
           await positionTaskDetail.update({ allowWorkNum: positionTaskDetail.dataValues.allowWorkNum + 1 }, { transaction })
-
-          let prePositionTaskId = null
 
           // 第一个返工的工序指向返工的前一个工序
           if (!prePositionTaskId) {
@@ -545,7 +545,7 @@ export class ProductionReportTwoService {
             // 将返工的后一个工位指向最后一个工位
             await ProcessPositionTask.update(
               { prePositionTaskId: newProcessPositionTask.id },
-              { where: { serialId: serialId, prePositionTask: newProcessPositionTask.id }, transaction }
+              { where: { serialId: serialId, processId: process.id + 1, status: POSITION_TASK_STATUS.NOT_STARTED }, transaction }
             )
           }
         }
