@@ -448,7 +448,7 @@ export class ProductionReportTwoService {
     const processRoute = productionOrderDetail.material.processRoute?.processRouteList // 工艺路线
 
     if (processRoute && processRoute.length > 0) {
-      // 单个任务返工：只重置当前返工工序任务单 / 链表的节点添加
+      // 指定返工：只重置当前返工工序任务单 / 链表的节点添加
       if (reworkType === ReworkType.SINGLE) {
         const reworkProcessPositionTask = await ProcessPositionTask.findOne({
           where: { serialId: serialId, processId: reworkProcessId },
@@ -489,7 +489,7 @@ export class ProductionReportTwoService {
         await positionTaskDetail.update({ allowWorkNum: positionTaskDetail.dataValues.allowWorkNum + 1 }, { transaction })
       }
 
-      // 多个任务返工：重置当前返工到质检工位 / 链表的节点添加
+      // 顺序返工：重置当前返工到质检工位 / 链表的节点添加
       if (reworkType === ReworkType.ALL) {
         // 找到返工工序在工艺路线中的位置
         const parentProcess = await Process.findOne({ where: { id: processTask.dataValues.processId } })
@@ -500,10 +500,10 @@ export class ProductionReportTwoService {
 
         // 从返工工序的下一个工序开始重新创建任务单
         const remainingProcesses = positonRoute.process.children.slice(reworkProcessIndex, currentProcessIndex + 1)
+        let index = 0
         let prePositionTaskId = null
 
         for (const process of remainingProcesses) {
-          let index = 0
           // 找到返工到的工位任务单
           const reworkProcessPositionTask = await ProcessPositionTask.findOne({
             where: {
