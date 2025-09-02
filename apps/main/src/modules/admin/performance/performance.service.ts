@@ -1,202 +1,274 @@
-import { Injectable } from '@nestjs/common'
-import { PerformanceDetailDto, PerformanceListDto, PerformanceListRes } from './performance.dto'
-import { ProductionOrder, ProductionReport, UserTaskDuration, Team, TeamUser } from '@model/index'
-import { Op, Sequelize } from 'sequelize'
+import { HttpException, Injectable } from '@nestjs/common'
+import { PerformancePrice, PerformancePriceDetail, Material, Process, PerformancePriceTotal } from '@model/index'
+import { Op, Transaction, where } from 'sequelize'
 import { Includeable } from 'sequelize/types/model'
 import { Aide, getTime } from '@library/utils/aide'
 import { Pagination } from '@common/interface'
 import { FindPaginationOptions, PaginationResult } from '@model/shared/interface'
-import _ = require('lodash')
-import Excel = require('exceljs')
-import dayjs = require('dayjs')
+import { findProductSpecDto, performanceCreateDto, performanceUpdateDto, FindPaginationDto, FindPaginationTotalDto } from './performance.dto'
+import { Sequelize } from 'sequelize-typescript'
+import { Paging } from '@library/utils/paging'
 
 @Injectable()
 export class PerformanceService {
-  // 编写按照工时统计的接口
-  public async getManHourStatistic(dto: PerformanceListDto) {
-    const where: any = {}
-    const include: Includeable[] = []
-    if (dto.teamName) {
-      where.name = {
-        [Op.like]: `%${dto.teamName}%`,
-      }
-    }
+  constructor(private readonly sequelize: Sequelize) {}
 
-    if (dto.userName) {
-      include.push({
-        association: 'users',
-        attributes: [],
-        where: {
-          userName: {
-            [Op.like]: `%${dto.userName}%`,
-          },
+  // 创建绩效工价
+  public async create(dto: performanceCreateDto) {
+    const transaction = await this.sequelize.transaction()
+
+    try {
+      // 检查工序是否存在
+      const process = await Process.findByPk(dto.processId)
+      if (!process) {
+        throw new HttpException('工序不存在！', 400)
+      }
+
+      // 创建绩效工价记录
+      const performancePrice = await PerformancePrice.create(
+        {
+          processId: dto.processId,
+          productSpec: dto.productSpec,
+          price: dto.price,
         },
-        through: { attributes: [] },
-      })
-    }
-    const teams = await Team.findAll({
-      where,
-      attributes: ['id', 'name', 'type'],
-      include,
-    })
-    if (!teams.length) return []
-    const teamIds = teams.map(item => item.id)
-    const prWhere: any = { teamId: teamIds }
-    if (dto.startTime || dto.startTime) {
-      const { startTime, endTime } = getTime(dto, 'day')
-      prWhere.createdAt = {
-        [Op.lte]: endTime.valueOf(),
-        [Op.gte]: startTime.valueOf(),
+        { transaction }
+      )
+
+      // 创建物料关联记录
+      if (dto.materialId && dto.materialId.length > 0) {
+        const detailRecords = dto.materialId.map(materialId => ({
+          materialId,
+          performancePriceId: performancePrice.id,
+        }))
+
+        await PerformancePriceDetail.bulkCreate(detailRecords, { transaction })
       }
+
+      await transaction.commit()
+      return { message: '创建成功', data: performancePrice }
+    } catch (error) {
+      await transaction.rollback()
+      throw error
     }
-    const prList = await ProductionReport.findAll({
-      where: prWhere,
-      attributes: ['reportQuantity', 'goodCount', 'teamId'],
-      include: [{ association: 'reportUsers', attributes: ['duration'] }],
-    })
-
-    // const result: PerformanceListRes[] = teamIds.map(v => {
-    //   const team = teams.find(item => item.id == v)
-    //   if (!team) return
-    //   const pr = prList.filter(item => item.teamId == v)
-    //   // const goodCount = pr.reduce((a, b) => a + b.goodCount, 0)
-    //   const duration = pr.reduce((a, b) => a + b.reportUsers.reduce((c, d) => c + d.duration, 0), 0)
-    //   const planCount = pr.reduce((a, b) => a + b.reportQuantity, 0)
-    //   // const goodPr = (goodCount / planCount) * 100
-    //   return {
-    //     teamId: v,
-    //     name: team.name,
-    //     // goodCount,
-    //     duration,
-    //     // goodPr,
-    //   }
-    // })
-
-    // return result
   }
 
-  //绩效明细
-  public async getPerformanceDetail(dto: PerformanceDetailDto, pagination: Pagination, isAll = false) {
-    const options: FindPaginationOptions = {
-      where: {},
-      pagination,
+  // 修改绩效工价
+  public async edit(dto: performanceUpdateDto, id: number) {
+    const transaction = await this.sequelize.transaction()
+
+    try {
+      const performancePrice = await PerformancePrice.findByPk(id)
+      if (!performancePrice) {
+        throw new HttpException('绩效工价记录不存在！', 400)
+      }
+
+      await performancePrice.update(
+        {
+          productSpec: dto.productSpec,
+          processId: dto.processId,
+          price: dto.price,
+          status: dto.status,
+        },
+        { transaction }
+      )
+
+      if (dto.materialId) {
+        await PerformancePriceDetail.destroy({
+          where: { performancePriceId: id },
+          transaction,
+        })
+
+        if (dto.materialId.length > 0) {
+          const detailRecords = dto.materialId.map(materialId => ({
+            materialId,
+            performancePriceId: id,
+          }))
+
+          await PerformancePriceDetail.bulkCreate(detailRecords, { transaction })
+        }
+      }
+
+      await transaction.commit()
+      return { message: '修改成功', data: performancePrice }
+    } catch (error) {
+      await transaction.rollback()
+      throw error
+    }
+  }
+
+  // 删除绩效工价
+  public async delete(id: number) {
+    const transaction = await this.sequelize.transaction()
+
+    try {
+      const performancePrice = await PerformancePrice.findByPk(id)
+      if (!performancePrice) {
+        throw new HttpException('绩效工价记录不存在！', 400)
+      }
+
+      // 删除物料关联记录
+      await PerformancePriceDetail.destroy({
+        where: { performancePriceId: id },
+        transaction,
+      })
+
+      // 删除绩效工价记录
+      await performancePrice.destroy({ transaction })
+
+      await transaction.commit()
+      return { message: '删除成功' }
+    } catch (error) {
+      await transaction.rollback()
+      throw error
+    }
+  }
+
+  // 查询详情
+  public async find(id: number) {
+    const performancePrice = await PerformancePrice.findByPk(id, {
       include: [
         {
-          association: 'userDuration',
-          attributes: ['userId'],
-          where: {
-            w1: Sequelize.literal(
-              `(select stu.id from sm_team_user as stu where stu.teamId ${
-                Array.isArray(dto.teamId) ? `in(${dto.teamId.join(',')})` : `=${dto.teamId}`
-              } and stu.userId=userDuration.userId) is not null`
-            ),
-          },
-          include: [{ association: 'user', attributes: ['userName'] }],
+          association: 'process',
+          attributes: ['id', 'processName'],
         },
         {
-          association: 'productionReport',
-          attributes: ['id', 'startTime', 'endTime', 'productionOrderId', 'createdAt', 'reportQuantity', 'goodCount'],
-          include: [{ association: 'process', attributes: ['processName'] }],
+          association: 'performancePriceDetails',
+          include: [
+            {
+              association: 'material',
+              attributes: ['id', 'materialName'],
+            },
+          ],
         },
       ],
+    })
+
+    if (!performancePrice) {
+      throw new HttpException('绩效工价记录不存在！', 400)
     }
-    if (dto.userName) {
-      options.include[0].required = true
-      options.include[0].include[0].where = {
-        userName: {
-          [Op.like]: `%${dto.userName}%`,
+
+    return performancePrice
+  }
+
+  // 分页查询
+  public async findPagination(dto: FindPaginationDto, pagination: Pagination) {
+    const options: FindPaginationOptions = {
+      where: {},
+      include: [
+        {
+          association: 'process',
+          attributes: ['id', 'processName'],
         },
-      }
-    }
-
-    if (dto.startTime || dto.startTime) {
-      const { startTime, endTime } = getTime(dto, 'day')
-      options.include[1].where = {
-        createdAt: {
-          [Op.lte]: endTime.valueOf(),
-          [Op.gte]: startTime.valueOf(),
+        {
+          association: 'performanceDetailed',
+          include: [
+            {
+              association: 'material',
+              attributes: ['id', 'materialName'],
+            },
+          ],
         },
+      ],
+      order: [['id', 'DESC']],
+    }
+    if (dto.productSpec) {
+      options.where['productSpec'] = {
+        [Op.eq]: dto.productSpec,
       }
     }
-    let result: PaginationResult<UserTaskDuration>
-    if (isAll) {
-      const list = await UserTaskDuration.findAll(options)
-      result = {
-        total: list.length,
-        data: list,
-        current: list.length,
-        pageCount: 1,
-        pageSize: list.length,
+    if (dto.status) {
+      options.where['status'] = {
+        [Op.eq]: dto.status,
       }
-    } else {
-      result = await UserTaskDuration.findPagination<UserTaskDuration>(options)
     }
 
-    if (result.data.length) {
-      // let prList = result.data.filter(v => v.productionReport).map(v => v.productionReport)
-      // const orders = await ProductionOrder.findAll({
-      //   where: { id: _.uniq(prList.map(v => v.productSerialId)) },
-      //   attributes: ['id', 'kingdeeCode'],
-      //   include: [{ association: 'bom', attributes: ['spec', 'attr'], include: [{ association: 'parentMaterial', attributes: ['code', 'name'] }] }],
-      // })
-
-      result.data = result.data.map(v => {
-        v = v.toJSON()
-        // if (v.productionReport) {
-        //   // v.productionReport.order = orders.find(item => item.id == v.productionReport.productionOrderId)
-        // }
-        return v
-      })
+    if (dto.price) {
+      options.where['price'] = {
+        [Op.eq]: dto.price,
+      }
     }
+
+    const result = await Paging.diyPaging(PerformancePrice, pagination, options)
     return result
   }
 
-  //导出
-  public async export(dto: PerformanceListDto) {
-    const statistic: PerformanceListRes[] = await this.getManHourStatistic(dto)
-    if (!statistic.length) Aide.throwException(400029)
-    // @ts-ignore
-    const { data: detail } = await this.getPerformanceDetail({ teamId: statistic.map(v => v.teamId) }, {} as Pagination, true)
-
-    const workbook = new Excel.Workbook()
-    workbook.creator = 'nestjs'
-    workbook.lastModifiedBy = 'nestjs'
-    workbook.created = new Date()
-    workbook.modified = new Date()
-    const data1 = statistic.map((v, i) => ({
-      序号: i + 1,
-      部门名称: v.name,
-      良品数: v.goodCount,
-      '核算工时（小时）': (v.duration ? v.duration / 3600 : 0).toFixed(2),
-      '良品率%': v.goodPr || 0,
-    }))
-    const data2: any[] = []
-
-    const [teamUsers] = await Promise.all([
-      TeamUser.findAll({ where: { teamId: _.uniq(statistic.map(v => v.teamId)) } }),
-      Aide.exportExcelModBox(data1, await workbook.addWorksheet('汇总表'), [], 15),
-    ])
-    detail.forEach((v, i) => {
-      data2.push({
-        序号: i + 1,
-        // 部门名称: statistic.find(temp => teamUsers.find(vv => vv.teamId == temp.teamId && vv.userId == v.userDuration.userId))?.name || '-',
-        // 员工姓名: v.userDuration.user.userName,
-        // 工单编号: v.productionReport?.order?.kingdeeCode || '',
-        // 产品编号: v.productionReport?.order?.bom.parentMaterial.code || '',
-        // 产品名称: v.productionReport?.order?.bom.parentMaterial.materialName || '',
-        // 工序: v.productionReport?.process.processName || '',
-        // 报工开始时间: dayjs(v.productionReport?.startTime || Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-        // 报工结束时间: dayjs(v.productionReport?.endTime || Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-        '核算工时（小时）': v.duration ? v.duration / 3600 : 0,
-      })
+  // 根据物料名称查询产品规格
+  public async findProductSpec(dto: findProductSpecDto) {
+    const materialName = await Material.findOne({
+      where: {
+        materialName: dto.materialName,
+      },
     })
-    await Aide.exportExcelModBox(data2, await workbook.addWorksheet('明细表'), [], 20)
 
-    let buffer: any = await workbook.xlsx.writeBuffer()
-    buffer = Buffer.from(buffer, 'binary')
-    const { startTime, endTime } = getTime(dto)
-    return {
-      md5: Aide.addBuffer(buffer, `rtzk.工时统计明细表${startTime.format('YYYY_MM_DD')}到${endTime.format('YYYY_MM_DD')}.xlsx`),
+    if (!materialName) {
+      throw new HttpException('物料名称不存在！', 400)
     }
+
+    const spec = await Material.findAll({
+      where: {
+        materialName: dto.materialName,
+      },
+      attributes: ['id', 'spec', 'materialName'],
+    })
+    return spec
+  }
+
+  // 计件统计分页查询
+  // 计件统计分页查询
+  public async FindPaginationTotal(dto: FindPaginationTotalDto, pagination: Pagination) {
+    const options: FindPaginationOptions = {
+      where: {},
+      include: [
+        {
+          association: 'team',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'updatedUser',
+          attributes: ['id', 'userName', 'userCode'],
+        },
+        {
+          association: 'position',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'material',
+          attributes: ['id', 'materialName', 'spec', 'unit'],
+        },
+        {
+          association: 'performancePrice',
+          attributes: ['id', 'price'],
+          include: [
+            {
+              association: 'process',
+              attributes: ['id', 'processName'],
+            },
+          ],
+        },
+      ],
+      order: [['id', 'DESC']],
+    }
+
+    if (dto.teamId) {
+      options.where['teamId'] = { [Op.eq]: dto.teamId }
+    }
+    if (dto.updatedUserId) {
+      options.where['updatedUserId'] = { [Op.eq]: dto.updatedUserId }
+    }
+    if (dto.positionId) {
+      options.where['positionId'] = { [Op.eq]: dto.positionId }
+    }
+    if (dto.materialId) {
+      options.where['materialId'] = { [Op.eq]: dto.materialId }
+    }
+    if (dto.productSpec) {
+      options.where['productSpec'] = { [Op.eq]: dto.productSpec }
+    }
+    if (dto.startTime && dto.endTime) {
+      options.where['createdAt'] = { [Op.between]: [dto.startTime, dto.endTime] }
+    }
+
+    const result = await Paging.diyPaging(PerformancePriceTotal, pagination, options)
+    return result
   }
 }

@@ -104,6 +104,9 @@ export * from './performance/performanceConfig.model'
 export * from './performance/performanceDetailed.model'
 export * from './performance/manHour.model'
 export * from './performance/manHourProcess.model'
+export * from './performance/performancePrice.model'
+export * from './performance/performancePriceDetail.model'
+export * from './performance/performanceTotal.model'
 
 //排班管理 schedule
 export * from './schedule/shift.model'

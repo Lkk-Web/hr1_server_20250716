@@ -3,55 +3,83 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Dayjs } from 'dayjs'
 import { IsNotEmpty } from 'class-validator'
 
-export class PerformanceListDto{
+export class performanceCreateDto {
+  @ApiProperty({ required: true, description: '物料id', type: [Number] })
+  @IsNotEmpty({ message: '物料id不能为空' })
+  materialId: number[]
 
-	@ApiProperty({ required: false, description: '班组名称', type: String })
-	teamName: string
+  @ApiProperty({ required: true, description: '产品规格', type: String })
+  productSpec: string
 
-	@ApiProperty({ required: false, description: '员工名称', type: String })
-	userName: string
+  @ApiProperty({ required: true, description: '工序id', type: Number })
+  processId: number
 
-	@ApiProperty({ type: Number, required: false, description: '是否为外包',enum:[0,1] })
-	isOut?: number
-
-	@ApiProperty({ type: Date, required: false, description: '开始时间', })
-	startTime?: string | number | Date | Dayjs;
-
-	@ApiProperty({ type: Date, required: false, description: '结束时间', })
-	endTime?: string | number | Date | Dayjs;
-
+  @ApiProperty({ required: true, description: '工价', type: Number })
+  price: number
 }
 
-export class PerformanceDetailDto extends PaginationDto{
+export class performanceUpdateDto {
+  @ApiProperty({ required: false, description: '物料id', type: [Number] })
+  @IsNotEmpty({ message: '物料id不能为空' })
+  materialId?: number[]
 
-	@ApiProperty({ required: true, description: '班组id', type: Number })
-	@IsNotEmpty({ message: '班组id不能为空' })
-	teamId: number|number[]
+  @ApiProperty({ required: false, description: '产品规格', type: String })
+  productSpec?: string
 
-	@ApiProperty({ required: false, description: '员工名称', type: String })
-	userName?: string
+  @ApiProperty({ required: false, description: '工序id', type: Number })
+  processId?: number
 
-	@ApiProperty({ type: Date, required: false, description: '开始时间', })
-	startTime?: string | number | Date | Dayjs;
+  @ApiProperty({ required: false, description: '状态', type: Number })
+  status?: number
 
-	@ApiProperty({ type: Date, required: false, description: '结束时间', })
-	endTime?: string | number | Date | Dayjs;
-
+  @ApiProperty({ required: false, description: '工价', type: Number })
+  price?: number
 }
 
-export class PerformanceListRes{
-	@ApiProperty({ required: true, description: '班组id', type: Number })
-	teamId: number
+export class FindPaginationDto {
+  @ApiProperty({ required: false, description: '产品规格', type: String })
+  productSpec?: string
 
-	@ApiProperty({ required: true, description: '班组名称', type: String })
-	name: string
+  @ApiProperty({ required: false, description: '状态', type: Number })
+  status?: number
 
-	@ApiProperty({ required: true, description: '良品数', type: Number })
-	goodCount: number
+  @ApiProperty({ required: false, description: '工价', type: Number })
+  price?: number
+}
 
-	@ApiProperty({ required: true, description: '良品率', type: Number })
-	goodPr: number
+export class findProductSpecDto {
+  @ApiProperty({ required: true, description: '物料名称', type: String })
+  @IsNotEmpty({ message: '物料名称不能为空' })
+  materialName: string
+}
 
-	@ApiProperty({ required: true, description: '工时 单位/s', type: Number })
-	duration: number
+export class FindPaginationTotalDto {
+  @ApiProperty({ required: false, description: '班组ID', type: Number })
+  teamId?: number
+
+  @ApiProperty({ required: false, description: '员工ID', type: Number })
+  updatedUserId?: number
+
+  @ApiProperty({ required: false, description: '工位ID', type: Number })
+  positionId?: number
+
+  @ApiProperty({ required: false, description: '物料Id', type: Number })
+  materialId?: number
+
+  @ApiProperty({ required: false, description: '产品规格', type: String })
+  productSpec?: string
+
+  @ApiProperty({
+    description: '开始时间',
+    type: Date,
+    required: false,
+  })
+  startTime?: Date
+
+  @ApiProperty({
+    description: '结束时间',
+    type: Date,
+    required: false,
+  })
+  endTime?: Date
 }
