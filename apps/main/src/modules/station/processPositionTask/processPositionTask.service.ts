@@ -273,8 +273,42 @@ export class ProcessPositionTaskService {
         { transaction }
       )
 
-      const productionOrderTask = await ProductionOrderTask.findOne({ where: { id: dto.productionOrderTaskId } })
+      const productionOrderTask = await ProductionOrderTask.findOne({
+        where: { id: dto.productionOrderTaskId },
+        include: [
+          {
+            association: 'material',
+            include: [
+              {
+                association: 'processRoute',
+                include: [
+                  {
+                    association: 'processRouteList',
+                    attributes: ['processId'],
+                    include: [
+                      {
+                        association: 'process',
+                        attributes: ['id', 'processName'],
+                        order: ['sort', 'DESC'],
+                        where: { id: dto.parentProcessId },
+                        required: true,
+                        include: [
+                          {
+                            association: 'children',
+                            required: true,
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      })
 
+      let locateStatus = LocateStatus.NOT_LOCATED
       // 验证并创建派工详情
       for (const detail of dto.details) {
         // 验证用户是否存在
@@ -284,12 +318,18 @@ export class ProcessPositionTaskService {
         }
 
         const processLocateData = await ProcessLocate.findAll({
-          where: { productionOrderTaskId: dto.productionOrderTaskId },
+          where: {
+            productionOrderTaskId: dto.productionOrderTaskId,
+            parentProcessId: dto.parentProcessId,
+          },
           include: [
             {
               association: 'processLocateDetails',
               where: {
                 processId: detail.processId,
+                status: {
+                  [Op.ne]: AuditStatus.REJECTED,
+                },
               },
             },
           ],
@@ -317,33 +357,40 @@ export class ProcessPositionTaskService {
         )
       }
 
-      const processLocateDetails = await ProcessLocateDetail.findAll({
-        where: {
-          processLocateId: processLocate.id,
-          status: {
-            [Op.ne]: AuditStatus.REJECTED,
+      // 派单状态
+      {
+        const assignProcessLocate = await ProcessLocate.findAll({
+          where: {
+            productionOrderTaskId: dto.productionOrderTaskId,
+            parentProcessId: dto.parentProcessId,
           },
-        },
-        transaction,
-      })
+          include: [
+            {
+              association: 'processLocateDetails',
+              where: {
+                status: {
+                  [Op.ne]: AuditStatus.REJECTED,
+                },
+              },
+            },
+          ],
+          transaction,
+        })
+        // 已派数量
+        const assignedPositionTaskCount = assignProcessLocate.reduce((sum, detail) => sum + detail.processLocateDetails.reduce((prev, cur) => prev + cur.assignCount, 0), 0)
 
-      // 工位任务单数量
-      const assignedPositionTaskCount = processLocateDetails.reduce((sum, detail) => sum + detail.assignCount, 0)
+        // 计算该生产工单任务下工位任务单的总数量
+        const totalTaskCount =
+          (productionOrderTask.splitQuantity + productionOrderTask.scrapQuantity) * productionOrderTask.dataValues.material.processRoute.processRouteList[0].process.children.length
 
-      // 计算该生产工单任务下工位任务单的总数量
-      const totalPositionTaskCount = await ProcessPositionTask.count({
-        where: {
-          productionOrderTaskId: dto.productionOrderTaskId,
-        },
-        transaction,
-      })
+        console.log('派工数量', assignedPositionTaskCount, totalTaskCount)
 
-      // 根据派工的工位任务单数量判断状态
-      let locateStatus = LocateStatus.NOT_LOCATED
-      if (assignedPositionTaskCount == totalPositionTaskCount) {
-        locateStatus = LocateStatus.LOCATED // 已派工
-      } else if (assignedPositionTaskCount > 0) {
-        locateStatus = LocateStatus.PART_LOCATED // 部分派工
+        // 根据派工的工位任务单数量判断状态
+        if (assignedPositionTaskCount == totalTaskCount) {
+          locateStatus = LocateStatus.LOCATED // 已派工
+        } else if (assignedPositionTaskCount > 0) {
+          locateStatus = LocateStatus.PART_LOCATED // 部分派工
+        }
       }
 
       // 更新生产工单任务状态
@@ -352,19 +399,7 @@ export class ProcessPositionTaskService {
       await transaction.commit()
 
       // 返回创建的派工单详情
-      return await ProcessLocate.findByPk(processLocate.id, {
-        include: [
-          {
-            association: 'processLocateDetails',
-            include: [
-              {
-                association: 'process',
-                attributes: ['id', 'processName'],
-              },
-            ],
-          },
-        ],
-      })
+      return await '派工成功'
     } catch (error) {
       await transaction.rollback()
       throw error
