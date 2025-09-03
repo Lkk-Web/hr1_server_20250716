@@ -457,6 +457,7 @@ export class ProductionReportTwoService {
               processId: currentProcessId,
               status: POSITION_TASK_STATUS.COMPLETED,
             },
+            transaction,
           }),
           ProcessPositionTask.findOne({
             where: {
@@ -464,7 +465,6 @@ export class ProductionReportTwoService {
               processId: reworkProcessId,
               status: POSITION_TASK_STATUS.COMPLETED,
             },
-            transaction,
           }),
         ])
 
