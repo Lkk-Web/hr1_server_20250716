@@ -462,12 +462,12 @@ export class ProductionReportTwoService {
             where: {
               serialId: serialId,
               processId: reworkProcessId,
-              status: POSITION_TASK_STATUS.COMPLETED,
+              status: POSITION_TASK_STATUS.IN_PROGRESS,
             },
           }),
         ])
 
-        if (!reworkProcessPositionTask) throw new Error('返工工位任务单不存在')
+        if (!reworkProcessPositionTask || !currentProcessPositionTask) throw new Error('返工工位任务单不存在')
 
         await currentProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
         await reworkProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
