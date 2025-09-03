@@ -59,6 +59,15 @@ export class PerformanceController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '计件统计详情' })
+  @ApiParam({ name: 'id', required: true, description: 'id', type: Number })
+  @Get('/findTotal/:id')
+  async findTotal(@Param() Param) {
+    const result = await this.service.findTotal(Param.id)
+    return result
+  }
+
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '列表' })
   @Get('/findPagination')
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination) {

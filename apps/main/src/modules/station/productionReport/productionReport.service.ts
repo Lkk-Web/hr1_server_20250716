@@ -675,7 +675,7 @@ export class ProductionReportService {
           }
         }
 
-        // 批量查询工价：按 materialId IN (...) 且 performancePrice.processId IN (...) 且 status=1 且 productSpec IN 物料规格
+        // 批量查询工价：为每个物料单独查询对应的工价
         let priceMap = new Map<string, PerformancePrice>()
         if (allMaterialIds.size > 0 && allProcessIds.size > 0) {
           const materials = await Material.findAll({
@@ -683,40 +683,39 @@ export class ProductionReportService {
             attributes: ['id', 'spec'],
             transaction,
           })
-          // 组装规格行（去重，按 materials 顺序）
-          const seenSpecs = new Set<string>()
-          const specLines: string[] = []
-          for (const m of materials) {
-            if (m?.spec && !seenSpecs.has(m.spec)) {
-              seenSpecs.add(m.spec)
-              specLines.push(m.spec)
-            }
-          }
-          // 先用真实换行拼接，再转义为字面量 \n / \r\n 以匹配数据库的“单行带转义符”存储
-          const joined = specLines.join('\n')
-          const productSpecStr = joined.replace(/\r\n/g, '\\r\\n').replace(/\n/g, '\\n').replace(/\r/g, '\\r')
 
-          const perfDetails = await PerformancePriceDetail.findAll({
-            where: { materialId: Array.from(allMaterialIds) },
-            include: [
-              {
-                association: 'performancePrice',
-                where: { processId: Array.from(allProcessIds), status: 1, productSpec: productSpecStr },
-                attributes: ['id', 'processId', 'price', 'productSpec', 'status'],
-              },
-            ],
-            order: [['id', 'DESC']],
-            transaction,
-          })
+          // 为每个物料单独查询工价
+          for (const material of materials) {
+            if (!material.spec) continue
 
-          // 只取每个 (processId, materialId) 的最新一条（由于按 id DESC）
-          for (const pd of perfDetails) {
-            const procId = pd.performancePrice?.processId
-            const matId = pd.materialId
-            if (!procId || !matId) continue
-            const k = keyFrom(procId, matId)
-            if (!priceMap.has(k)) {
-              priceMap.set(k, pd.performancePrice)
+            // 转义规格字符串以匹配数据库存储
+            const productSpecStr = material.spec.replace(/\r\n/g, '\\r\\n').replace(/\n/g, '\\n').replace(/\r/g, '\\r')
+
+            const perfDetails = await PerformancePriceDetail.findAll({
+              where: { materialId: material.id },
+              include: [
+                {
+                  association: 'performancePrice',
+                  where: {
+                    processId: Array.from(allProcessIds),
+                    status: 1,
+                    productSpec: productSpecStr,
+                  },
+                  attributes: ['id', 'processId', 'price', 'productSpec', 'status'],
+                },
+              ],
+              order: [['id', 'DESC']],
+              transaction,
+            })
+
+            // 为每个 (processId, materialId) 组合设置工价
+            for (const pd of perfDetails) {
+              const procId = pd.performancePrice?.processId
+              if (!procId) continue
+              const k = keyFrom(procId, material.id)
+              if (!priceMap.has(k)) {
+                priceMap.set(k, pd.performancePrice)
+              }
             }
           }
         }
@@ -731,6 +730,7 @@ export class ProductionReportService {
             const matId = d?.productionOrderTask.dataValues?.materialId
             const k = keyFrom(report.processId, matId)
             const perfPrice = priceMap.get(k)
+            console.log(perfPrice)
             if (!perfPrice || !perfPrice.id) {
               throw new Error(`未绑定产品工价`)
             }

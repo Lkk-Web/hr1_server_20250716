@@ -150,6 +150,46 @@ export class PerformanceService {
     return performancePrice
   }
 
+  public async findTotal(id: number) {
+    const performancePriceTotal = await PerformancePriceTotal.findByPk(id, {
+      include: [
+        {
+          association: 'team',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'updatedUser',
+          attributes: ['id', 'userName', 'userCode'],
+        },
+        {
+          association: 'position',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'material',
+          attributes: ['id', 'materialName', 'spec', 'unit'],
+        },
+        {
+          association: 'performancePrice',
+          attributes: ['id', 'price'],
+          include: [
+            {
+              association: 'process',
+              attributes: ['id', 'processName'],
+            },
+          ],
+        },
+      ],
+      order: [['id', 'DESC']],
+    })
+
+    if (!performancePriceTotal) {
+      throw new HttpException('计件统计记录不存在！', 400)
+    }
+
+    return performancePriceTotal
+  }
+
   // 分页查询
   public async findPagination(dto: FindPaginationDto, pagination: Pagination) {
     const options: FindPaginationOptions = {
@@ -213,7 +253,6 @@ export class PerformanceService {
     return spec
   }
 
-  // 计件统计分页查询
   // 计件统计分页查询
   public async FindPaginationTotal(dto: FindPaginationTotalDto, pagination: Pagination) {
     const options: FindPaginationOptions = {
