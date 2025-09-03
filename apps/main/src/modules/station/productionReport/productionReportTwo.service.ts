@@ -467,7 +467,7 @@ export class ProductionReportTwoService {
           }),
         ])
 
-        if (!reworkProcessPositionTask || !currentProcessPositionTask) throw new Error('返工工位任务单不存在')
+        if (!reworkProcessPositionTask) throw new Error('返工工位任务单不存在')
 
         await currentProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
         await reworkProcessPositionTask.update({ status: POSITION_TASK_STATUS.REWORK }, { transaction })
