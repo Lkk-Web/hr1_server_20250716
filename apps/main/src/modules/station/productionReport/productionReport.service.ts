@@ -174,6 +174,7 @@ export class ProductionReportService {
 
     try {
       await ProductionReport.update({ auditStatus: '待审核' }, { where: { id: ids }, transaction })
+      await PerformancePriceTotal.destroy({ where: { productionReportId: ids }, transaction })
       await transaction.commit()
       return '反审核成功'
     } catch (error) {
@@ -742,6 +743,7 @@ export class ProductionReportService {
               teamId: report.teamId,
               updatedUserId: report.productUserId,
               positionId,
+              productionReportId: report.id,
               materialId: matId,
               performancePriceId: perfPrice.id,
               productSpec: perfPrice.productSpec,

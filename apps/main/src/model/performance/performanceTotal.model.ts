@@ -1,6 +1,6 @@
 import { BaseDate } from '@model/shared/baseDate'
 import { BelongsTo, Column, DataType, ForeignKey, HasMany, Table } from 'sequelize-typescript'
-import { Material, Process, ProductionOrder, Organize, User, PerformancePriceDetail, Team, Position, PerformancePrice } from '..'
+import { Material, Process, ProductionOrder, Organize, User, PerformancePriceDetail, Team, Position, PerformancePrice, ProductionReport } from '..'
 
 @Table({ tableName: `performance_price_total`, freezeTableName: true, timestamps: true, comment: '绩效计件统计表' })
 export class PerformancePriceTotal extends BaseDate<PerformancePriceTotal> {
@@ -24,6 +24,13 @@ export class PerformancePriceTotal extends BaseDate<PerformancePriceTotal> {
     type: DataType.INTEGER,
   })
   declare positionId: number
+
+  @ForeignKey(() => ProductionReport)
+  @Column({
+    comment: '报工单ID',
+    type: DataType.INTEGER,
+  })
+  declare productionReportId: number
 
   @ForeignKey(() => Material)
   @Column({
@@ -71,6 +78,9 @@ export class PerformancePriceTotal extends BaseDate<PerformancePriceTotal> {
 
   @BelongsTo(() => Material)
   declare material: Material
+
+  @BelongsTo(() => ProductionReport)
+  declare productionReport: ProductionReport
 
   @BelongsTo(() => PerformancePrice)
   declare performancePrice: PerformancePrice
