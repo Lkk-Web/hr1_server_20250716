@@ -462,8 +462,9 @@ export class ProductionReportTwoService {
             where: {
               serialId: serialId,
               processId: reworkProcessId,
-              status: POSITION_TASK_STATUS.IN_PROGRESS,
+              status: POSITION_TASK_STATUS.COMPLETED,
             },
+            transaction,
           }),
         ])
 
