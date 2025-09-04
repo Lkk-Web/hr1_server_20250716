@@ -2,6 +2,7 @@ import { PaginationDto } from '@common/dto'
 import { ApiProperty } from '@nestjs/swagger'
 import { Dayjs } from 'dayjs'
 import { IsNotEmpty } from 'class-validator'
+import { DECIMAL } from 'sequelize'
 
 export class performanceCreateDto {
   @ApiProperty({ required: true, description: '物料id', type: [Number] })
@@ -14,7 +15,7 @@ export class performanceCreateDto {
   @ApiProperty({ required: true, description: '工序id', type: Number })
   processId: number
 
-  @ApiProperty({ required: true, description: '工价', type: Number })
+  @ApiProperty({ required: true, description: '工价', type: DECIMAL })
   price: number
 }
 
@@ -32,7 +33,7 @@ export class performanceUpdateDto {
   @ApiProperty({ required: false, description: '状态', type: Number })
   status?: number
 
-  @ApiProperty({ required: false, description: '工价', type: Number })
+  @ApiProperty({ required: false, description: '工价', type: DECIMAL })
   price?: number
 }
 
@@ -43,7 +44,7 @@ export class FindPaginationDto {
   @ApiProperty({ required: false, description: '状态', type: Number })
   status?: number
 
-  @ApiProperty({ required: false, description: '工价', type: Number })
+  @ApiProperty({ required: false, description: '工价', type: DECIMAL })
   price?: number
 }
 

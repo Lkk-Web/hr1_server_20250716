@@ -88,7 +88,7 @@ export enum ProductionOrderTaskStatus {
   IN_PROGRESS = '执行中',
   PAUSED = '已暂停',
   CANCELLED = '已取消',
-  COMPLETED = '已完成',
+  COMPLETED = '已完工',
   SCRAPPED = '已报废',
 }
 

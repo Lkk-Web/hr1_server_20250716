@@ -20,7 +20,7 @@ export class PerformancePrice extends BaseDate<PerformancePrice> {
 
   @Column({
     comment: '工价',
-    type: DataType.DECIMAL,
+    type: DataType.DECIMAL(10, 2),
   })
   declare price: number
 
