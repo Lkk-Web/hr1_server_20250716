@@ -175,7 +175,7 @@ export class ProductionReportTwoService {
           const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId, status: PROCESS_TASK_STATUS.running } })
           // 工位任务
           const processPositionTask = await ProcessPositionTask.findOne({
-            where: { serialId: item.serialId, processId: dto.processId, status: POSITION_TASK_STATUS.IN_PROGRESS },
+            where: { serialId: item.serialId, processId: dto.processId, status: [POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.PAUSED] },
             include: [{ association: 'operateLogs' }],
           })
 
