@@ -136,7 +136,7 @@ export class PerformanceService {
           include: [
             {
               association: 'material',
-              attributes: ['id', 'materialName'],
+              attributes: ['id', 'materialName', 'code'],
             },
           ],
         },
@@ -167,7 +167,7 @@ export class PerformanceService {
         },
         {
           association: 'material',
-          attributes: ['id', 'materialName', 'spec', 'unit'],
+          attributes: ['id', 'materialName', 'spec', 'unit', 'code'],
         },
         {
           association: 'performancePrice',
@@ -204,7 +204,7 @@ export class PerformanceService {
           include: [
             {
               association: 'material',
-              attributes: ['id', 'materialName'],
+              attributes: ['id', 'materialName', 'code'],
             },
           ],
         },
@@ -272,7 +272,7 @@ export class PerformanceService {
         },
         {
           association: 'material',
-          attributes: ['id', 'materialName', 'spec', 'unit'],
+          attributes: ['id', 'materialName', 'spec', 'unit', 'code'],
         },
         {
           association: 'performancePrice',
