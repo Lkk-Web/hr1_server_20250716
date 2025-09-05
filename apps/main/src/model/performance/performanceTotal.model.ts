@@ -63,7 +63,7 @@ export class PerformancePriceTotal extends BaseDate<PerformancePriceTotal> {
   //总金额
   @Column({
     comment: '总金额',
-    type: DataType.DECIMAL,
+    type: DataType.DECIMAL(10, 2),
   })
   declare totalPrice: number
 
