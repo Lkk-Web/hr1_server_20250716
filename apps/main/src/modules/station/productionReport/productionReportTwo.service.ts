@@ -360,50 +360,50 @@ export class ProductionReportTwoService {
     // 3. 将当前序列号状态标记为已报废
     await serial.update({ status: ProductSerialStatus.SCRAPPED, remark: QCReason || '报废' }, { transaction })
 
-    // 4. 创建新序列号并重建工序和工位任务链
-    {
-      const productionOrderDetail = await ProductionOrderDetail.findOne({
-        where: { id: productionOrderTask.productionOrderDetailId },
-        include: [
-          {
-            association: 'material',
-            include: [
-              {
-                association: 'boms',
-                where: { materialId: { [Op.col]: 'ProductionOrderDetail.materialId' } },
-                required: false,
-              },
-              {
-                association: 'processRoute',
-                include: [
-                  {
-                    association: 'processRouteList',
-                    include: [
-                      {
-                        association: 'process',
-                        include: [
-                          {
-                            association: 'children',
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-        transaction,
-      })
-      const processRoute = productionOrderDetail.material.processRoute?.processRouteList //工艺路线
-      const productSerials = await this.productionOrderService.productSerials(productionOrderDetail, productionOrderTask, user, 1, transaction)
-      // 4.1. 为新序列号创建工序任务单和工位任务单
-      await this.productionOrderService.splitOrderTask(productSerials, productionOrderTask, processRoute, transaction)
-    }
+    // // 4. 创建新序列号并重建工序和工位任务链
+    // {
+    //   const productionOrderDetail = await ProductionOrderDetail.findOne({
+    //     where: { id: productionOrderTask.productionOrderDetailId },
+    //     include: [
+    //       {
+    //         association: 'material',
+    //         include: [
+    //           {
+    //             association: 'boms',
+    //             where: { materialId: { [Op.col]: 'ProductionOrderDetail.materialId' } },
+    //             required: false,
+    //           },
+    //           {
+    //             association: 'processRoute',
+    //             include: [
+    //               {
+    //                 association: 'processRouteList',
+    //                 include: [
+    //                   {
+    //                     association: 'process',
+    //                     include: [
+    //                       {
+    //                         association: 'children',
+    //                       },
+    //                     ],
+    //                   },
+    //                 ],
+    //               },
+    //             ],
+    //           },
+    //         ],
+    //       },
+    //     ],
+    //     transaction,
+    //   })
+    //   const processRoute = productionOrderDetail.material.processRoute?.processRouteList //工艺路线
+    //   const productSerials = await this.productionOrderService.productSerials(productionOrderDetail, productionOrderTask, user, 1, transaction)
+    //   // 4.1. 为新序列号创建工序任务单和工位任务单
+    //   await this.productionOrderService.splitOrderTask(productSerials, productionOrderTask, processRoute, transaction)
+    // }
 
-    // 5. 可派工数增加
-    await productionOrderTask.update({ scrapQuantity: productionOrderTask.scrapQuantity + 1, locateStatus: LocateStatus.PART_LOCATED }, { transaction })
+    // // 5. 可派工数增加
+    // await productionOrderTask.update({ scrapQuantity: productionOrderTask.scrapQuantity + 1, locateStatus: LocateStatus.PART_LOCATED }, { transaction })
   }
 
   // 返工
