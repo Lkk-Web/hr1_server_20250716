@@ -52,7 +52,7 @@ export class MiService {
 
     if (existingToken) {
       await existingToken.update({
-        ...(user.dataValues.id == 1 ? {} : { token: accessToken }), // user == 1 => 开发
+        token: accessToken,
         refreshToken: refreshToken,
         expiresAt: expiresAt,
         refreshExpiresAt: refreshExpiresAt,
@@ -80,7 +80,7 @@ export class MiService {
     delete userJson.password // 隐藏密码
 
     return {
-      accessToken: user.dataValues.id == 1 ? existingToken?.token || accessToken : accessToken,
+      accessToken,
       refreshToken,
       expiresIn: 48 * 3600, // 48小时
       user: userJson,
