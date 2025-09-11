@@ -41,11 +41,9 @@ export class ProductionReportTwoService {
     const transaction = await ProcessTask.sequelize.transaction()
     const { status: taskStatus } = dto
     let taskList: ProcessPositionTask[] = []
-    console.log(1)
     try {
       const process = await Process.findOne({ where: { id: dto.processId } })
       for (const processDto of dto.productionOrderTask) {
-        console.log(2)
         // 工单任务
         const productionOrderTask = await ProductionOrderTask.findOne({ where: { id: processDto.productionOrderTaskId } })
         await productionOrderTask.update({ actualStartTime: new Date() }, { transaction }) // 工单
@@ -62,12 +60,14 @@ export class ProductionReportTwoService {
 
         await positionTaskDetail.update(
           {
-            workNum: positionTaskDetail.dataValues.workNum + processDto.positions.length,
+            workNum:
+              taskStatus == TaskStatus.OPEN_TASK
+                ? positionTaskDetail.dataValues.workNum + processDto.positions.length
+                : positionTaskDetail.dataValues.workNum - processDto.positions.length,
           },
           { transaction }
         )
         for (const item of processDto.positions) {
-          console.log(3)
           // 工序任务
           const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
 
@@ -78,7 +78,6 @@ export class ProductionReportTwoService {
             },
             { transaction }
           )
-          console.log(4)
           // 工位任务
           const processPositionTask = await ProcessPositionTask.findOne({
             where: {
@@ -105,7 +104,7 @@ export class ProductionReportTwoService {
 
           if (processPositionTask.status == POSITION_TASK_STATUS.IN_PROGRESS && taskStatus == TaskStatus.OPEN_TASK) throw new Error('当前任务正在进行中，不能重新开工')
           if (processPositionTask.status == POSITION_TASK_STATUS.PAUSED && taskStatus == TaskStatus.PAUSE) throw new Error('当前任务已暂停，不能暂停')
-          console.log(5)
+
           await processPositionTask.update(
             {
               actualStartTime: processPositionTask.dataValues.actualStartTime ?? new Date(),
@@ -115,7 +114,6 @@ export class ProductionReportTwoService {
           )
           taskList.push(processPositionTask)
           // 序列号
-          console.log(6)
           await ProductSerial.update(
             { status: taskStatus == TaskStatus.OPEN_TASK ? ProductSerialStatus.IN_PROGRESS : ProductSerialStatus.PAUSED, currentProcessTaskId: processTask.dataValues.id },
             { where: { id: item.serialId }, transaction }
@@ -133,9 +131,7 @@ export class ProductionReportTwoService {
         }
       }
       // 创建用户时长和任务单用户关系
-      console.log(7)
       const taskTime = await this.createReportUserDuration(user, taskList, undefined, transaction)
-      console.log(8)
       await transaction.commit()
 
       return taskTime
