@@ -20,6 +20,8 @@ export * from './base/bomDetail.model'
 export * from './base/supplier.model'
 export * from './base/workShop.model'
 export * from './base/customer.model'
+export * from './base/pallet.model'
+export * from './base/palletDetail.model'
 export * from './production/POPSchedule'
 // 动态表单
 export * from './base/trendsTemplate.model'

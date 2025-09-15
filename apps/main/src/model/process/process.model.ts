@@ -51,6 +51,14 @@ export class Process extends BaseDate<Process> {
   })
   declare isQC: boolean
 
+  @Column({
+    comment: '是否绑定托盘',
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  declare isTP: boolean
+
   // 排序字段
   @Column({
     comment: '排序字段',

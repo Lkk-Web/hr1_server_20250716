@@ -19,5 +19,4 @@ export * from './main-service/position'
 export * from './main-service/positionDetail'
 
 // 日志
-// 日志
 export * from './system/operationLog'

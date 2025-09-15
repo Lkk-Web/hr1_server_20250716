@@ -7,6 +7,7 @@ export * from './supplier/supplier.module'
 export * from './workShop/workShop.module'
 export * from './warehouse/warehouse.module'
 export * from './customer/customer.module'
+export * from './pallet/pallet.module'
 
 //质量管理
 export * from './defectiveItem/defectiveItem.module'
