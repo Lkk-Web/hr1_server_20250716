@@ -12,9 +12,9 @@ export class PalletTaskOrder extends BaseDate<PalletTaskOrder> {
   })
   declare palletId: number
 
-  @BelongsTo(() => Pallet)
+  @BelongsTo(() => Pallet, 'palletId')
   declare pallet: Pallet
 
-  @HasMany(() => PalletSerial)
+  @HasMany(() => PalletSerial, 'palletTaskOrderId')
   declare palletSerials: PalletSerial[]
 }

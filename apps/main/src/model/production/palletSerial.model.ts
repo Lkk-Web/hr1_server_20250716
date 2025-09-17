@@ -12,17 +12,17 @@ export class PalletSerial extends BaseDate<PalletSerial> {
   })
   declare palletId: number
 
-  @BelongsTo(() => Pallet)
+  @BelongsTo(() => Pallet, 'palletId')
   declare pallet: Pallet
 
   @ForeignKey(() => PalletTaskOrder)
   @Column({
-    comment: '托盘序列号ID',
+    comment: '托盘任务单ID',
     type: DataType.INTEGER,
   })
   declare palletTaskOrderId: number
 
-  @BelongsTo(() => PalletTaskOrder)
+  @BelongsTo(() => PalletTaskOrder, 'palletTaskOrderId')
   declare palletTaskOrder: PalletTaskOrder
 
   @ForeignKey(() => ProductSerial)
@@ -32,12 +32,6 @@ export class PalletSerial extends BaseDate<PalletSerial> {
   })
   declare productSerialId: number
 
-  @Column({
-    type: DataType.BOOLEAN,
-    comment: '状态',
-  })
-  declare isActive: boolean
-
-  @BelongsTo(() => ProductSerial)
+  @BelongsTo(() => ProductSerial, 'productSerialId')
   declare productSerial: ProductSerial
 }

@@ -5,6 +5,8 @@ import { BaseModel } from '@model/shared/base.model'
 import { ProductSerialStatus } from '@common/enum'
 import { Material } from '@model/base/material.model'
 import { IronProductSerial } from './ironProductSerial.model'
+import { Pallet } from '@model/base/pallet.model'
+import { ProcessPositionTask } from './processPositionTask.model'
 
 /** 产品序列号表 */
 @Table({ tableName: `product_serial`, freezeTableName: true, timestamps: true, comment: '产品序列号表' })
@@ -70,6 +72,14 @@ export class ProductSerial extends BaseModel<ProductSerial> {
   })
   declare currentProcessTaskId: number
 
+  //托盘ID
+  @ForeignKey(() => Pallet)
+  @Column({
+    comment: '托盘ID',
+    type: DataType.INTEGER,
+  })
+  declare palletId: number
+
   // 质量状态
   @Column({
     comment: '质量状态（合格、不合格、待检）',
@@ -105,9 +115,15 @@ export class ProductSerial extends BaseModel<ProductSerial> {
   @HasMany(() => ProcessTask)
   declare processTasks: ProcessTask[]
 
+  @HasMany(() => ProcessPositionTask, 'serialId')
+  declare processPositionTasks: ProcessPositionTask[]
+
   @HasMany(() => IronProductSerial)
   declare ironSerial: IronProductSerial[]
 
   @BelongsTo(() => Material, 'materialId')
   declare material: Material
+
+  @BelongsTo(() => Pallet, 'palletId')
+  declare pallet: Pallet
 }
