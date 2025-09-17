@@ -107,6 +107,21 @@ export class FindPaginationReportTaskListDto {
   })
   status: string
 }
+
+export class FindPaginationPalletReportTaskListDto {
+  @ApiProperty({
+    description: '工位工序id',
+    required: false,
+  })
+  positioProcessId: number
+
+  @ApiProperty({
+    description: '工序状态',
+    required: false,
+  })
+  status: string
+}
+
 export class ItemsDto {
   @ApiProperty({ type: Number, required: false, description: '不良品项ID' })
   defectiveItemId: number
@@ -420,6 +435,111 @@ export class PadRegisterDto {
     required: true,
   })
   teamId: number
+
+  @ApiProperty({
+    description: '托盘id',
+    required: true,
+  })
+  palletId: number
+}
+
+export class PalletProcessDto {
+  @ApiProperty({ description: '序列号id', type: Number, required: true })
+  @IsNumber({}, { message: '序列号id必须为数字' })
+  serialId: number
+
+  @ApiProperty({ description: '报工数量，数量应都为1', type: Number })
+  @IsNumber({}, { message: '报工数量必须为数字' })
+  @Min(1, { message: '报工数量必须大于0' })
+  reportQuantity: number
+
+  @ApiProperty({ description: '所用时长 单位/s', type: Number, required: false })
+  duration: number
+
+  @ApiProperty({
+    description: '铁芯序列号数组',
+    required: false,
+    type: [String],
+  })
+  ironSerial?: string[]
+
+  @ApiProperty({
+    description: '质检结果',
+    required: false,
+    type: Boolean,
+  })
+  QCResult?: boolean
+
+  @ApiProperty({
+    description: '质检原因',
+    required: false,
+    type: String,
+  })
+  QCReason?: string
+
+  // 返工/报废
+  @ApiProperty({
+    description: '返工/报废',
+    required: false,
+    type: String,
+    enum: ScrapType,
+  })
+  scrapType?: ScrapType
+
+  // 返工工序Id
+  @ApiProperty({
+    description: '返工工序Id',
+    required: false,
+    type: Number,
+  })
+  reworkProcessId?: number
+
+  // 返工类型
+  @ApiProperty({
+    description: '返工类型',
+    required: false,
+    type: String,
+    enum: ReworkType,
+  })
+  reworkType?: ReworkType
+}
+
+export class PalletTaskOrderDto {
+  @ApiProperty({ description: '托盘任务单表id', type: Number, required: true })
+  @IsNumber({}, { message: '托盘任务单id必须为数字' })
+  palletTaskOrderId: number
+
+  @ApiProperty({ description: '托盘任务单配置', type: [PalletProcessDto] })
+  @Type(() => PalletProcessDto)
+  @ValidateNested({ each: true })
+  @IsArrayLength({ min: 1 }, { message: '托盘任务单配置必须是数组且长度大于0' })
+  positions: PalletProcessDto[]
+}
+
+export class PalletRegisterDto {
+  @ApiProperty({ description: '托盘任务单表配置', type: [PalletTaskOrderDto] })
+  @Type(() => PalletTaskOrderDto)
+  @ValidateNested({ each: true })
+  @IsArrayLength({ min: 1 }, { message: '托盘任务单表配置必须是数组且长度大于0' })
+  palletTaskOrder: PalletTaskOrderDto[]
+
+  @ApiProperty({
+    description: '工序id',
+    required: true,
+  })
+  processId: number
+
+  @ApiProperty({
+    description: '班组id',
+    required: true,
+  })
+  teamId: number
+
+  @ApiProperty({
+    description: '托盘id',
+    required: true,
+  })
+  palletId: number
 }
 
 export class OpenTaskDto {
@@ -440,10 +560,28 @@ export class OpenTaskDto {
   status: string
 }
 
+export class PalletOpenTaskDto {
+  @ApiProperty({ description: '托盘任务单表配置', type: [PalletTaskOrderDto] })
+  @Type(() => PalletTaskOrderDto)
+  @ValidateNested({ each: true })
+  @IsArrayLength({ min: 1 }, { message: '托盘任务单表配置必须是数组且长度大于0' })
+  palletTaskOrder: PalletTaskOrderDto[]
+
+  @ApiProperty({
+    description: '工序id',
+    required: true,
+  })
+  processId: number
+
+  @ApiProperty({ description: '状态: 开工/暂停', required: true, enum: TaskStatus })
+  @IsEnum(TaskStatus)
+  status: string
+}
+
 export class PickingOutboundDto {
   @ApiProperty({
     type: String,
-    description: '生产工单id',
+    description: '序列号id',
     required: false,
   })
   serialId?: number

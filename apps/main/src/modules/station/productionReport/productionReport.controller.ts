@@ -2,7 +2,18 @@ import { ApiBearerAuth, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestj
 import { Body, Get, HttpCode, HttpStatus, Param, Post, Query, Req } from '@nestjs/common'
 import { StationAuth } from '@core/decorator/controller'
 import { ProductionReportService } from './productionReport.service'
-import { auditDto, BatchAuditAntireviewDto, FindPaginationDto, FindPaginationReportTaskListDto, OpenTaskDto, PadRegisterDto, PickingOutboundDto } from './productionReport.dto'
+import {
+  auditDto,
+  BatchAuditAntireviewDto,
+  FindPaginationDto,
+  FindPaginationPalletReportTaskListDto,
+  FindPaginationReportTaskListDto,
+  OpenTaskDto,
+  PadRegisterDto,
+  PalletOpenTaskDto,
+  PalletRegisterDto,
+  PickingOutboundDto,
+} from './productionReport.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { ProductionReportTwoService } from '@modules/station/productionReport/productionReportTwo.service'
 import { Pagination } from '@common/interface'
@@ -64,11 +75,30 @@ export class ProductionReportController {
     }
   }
 
+  @ApiOperation({ summary: '托盘开工/暂停', description: '' })
+  @HttpCode(HttpStatus.OK)
+  @Post('palletOpenTask')
+  async palletOpenTask(@Body() dto: PalletOpenTaskDto, @Req() req) {
+    const result = await this.serviceTwo.palletOpenTask(dto, req.user)
+    return {
+      message: `托盘${dto.status}成功`,
+      data: result,
+    }
+  }
+
   @ApiOperation({ summary: '报工', description: '' })
   @HttpCode(HttpStatus.OK)
   @Post('reportTask')
   async batch(@Body() dto: PadRegisterDto, @Req() req) {
     const result = await this.serviceTwo.reportTask(dto, req.user)
+    return result
+  }
+
+  @ApiOperation({ summary: '托盘报工', description: '' })
+  @HttpCode(HttpStatus.OK)
+  @Post('palletReportTask')
+  async palletReportTask(@Body() dto: PalletRegisterDto, @Req() req) {
+    const result = await this.serviceTwo.palletReportTask(dto, req.user)
     return result
   }
 
@@ -79,6 +109,16 @@ export class ProductionReportController {
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.findPagination(dto, pagination, loadModel)
+    return result
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '托盘报工单列表' })
+  @ApiPlatformWhitelist(['admin', 'station'])
+  @Get('palletfindPagination')
+  async palletfindPagination(@Query() dto: FindPaginationPalletReportTaskListDto, @CurrentPage() pagination: Pagination, @Req() req) {
+    let { user } = req
+    const result = await this.serviceTwo.palletfindPagination(dto, pagination, user)
     return result
   }
 
