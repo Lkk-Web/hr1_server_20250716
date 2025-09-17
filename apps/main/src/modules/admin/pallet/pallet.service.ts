@@ -5,12 +5,13 @@ import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { Pallet } from '@model/base/pallet.model'
 import { PalletDetail } from '@model/base/palletDetail.model'
-import { CPalletDto, FindPaginationDto, UPalletDto } from './pallet.dto'
+import { CPalletDto, FindPaginationDto, PalletTaskOrderListDto, UPalletDto } from './pallet.dto'
 import { FindOptions, Op, Sequelize } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { deleteIdsDto } from '@common/dto'
 import { Paging } from '@library/utils/paging'
 import { Team } from '@model/auth/team'
+import { PalletTaskOrder } from '@model/production/palletTaskOrder.model'
 
 @Injectable()
 export class PalletService {
@@ -295,5 +296,76 @@ export class PalletService {
       }
       return { success, failed, errors }
     })
+  }
+
+  public async palletTaskOrderList(dto: PalletTaskOrderListDto, pagination: Pagination) {
+    const options: FindPaginationOptions = {
+      where: {},
+      pagination,
+      subQuery: false,
+      include: [
+        { association: 'pallet', where: {} },
+        {
+          association: 'palletSerials',
+          where: {},
+          include: [
+            {
+              association: 'productSerial',
+              where: {
+                palletId: {
+                  [Op.ne]: null,
+                },
+              },
+              include: [
+                { association: 'material', where: {} },
+                {
+                  association: 'processPositionTasks',
+                  where: {},
+                  attributes: ['id', 'processId', 'status', 'actualStartTime', 'actualEndTime'],
+                  include: [
+                    {
+                      association: 'process',
+                      where: {},
+                      attributes: ['id', 'processName', 'parentId'],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }
+    // // easy references for nested includes
+    // const incPallet: any = options.include[0]
+    // const incPalletSerials: any = options.include[1]
+    // const incProductSerial: any = incPalletSerials.include[0]
+    // const incMaterial: any = incProductSerial.include[0]
+    // const incPPT: any = incProductSerial.include[1]
+    // const incProcess: any = incPPT.include[0]
+    // if (dto.pallet_code) {
+    //   incPallet.where['pallet_code'] = { [Op.like]: `%${dto.pallet_code}%` }
+    // }
+    // if (dto.pallet_spec) {
+    //   incPallet.where['pallet_spec'] = { [Op.like]: `%${dto.pallet_spec}%` }
+    // }
+    // if (dto.code) {
+    //   incMaterial.where['code'] = { [Op.like]: `%${dto.code}%` }
+    // }
+    // if (dto.materialName) {
+    //   incMaterial.where['materialName'] = { [Op.like]: `%${dto.materialName}%` }
+    // }
+    // if (dto.serialNumber) {
+    //   incProductSerial.where['serialNumber'] = { [Op.like]: `%${dto.serialNumber}%` }
+    // }
+    // if (dto.processName) {
+    //   incProcess.where['processName'] = { [Op.like]: `%${dto.processName}%` }
+    // }
+    // if (dto.status) {
+    //   incPPT.where['status'] = { [Op.like]: `%${dto.status}%` }
+    // }
+
+    const result = await Paging.diyPaging(PalletTaskOrder, pagination, options)
+    return result
   }
 }

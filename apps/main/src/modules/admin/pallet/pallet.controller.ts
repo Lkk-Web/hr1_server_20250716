@@ -3,7 +3,7 @@ import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Query, Req } from '@nestjs/common'
 import { AdminAuth } from '@core/decorator/controller'
 import { PalletService } from './pallet.service'
-import { CPalletDto, FindPaginationDto, UPalletDto } from './pallet.dto'
+import { CPalletDto, FindPaginationDto, PalletTaskOrderListDto, UPalletDto } from './pallet.dto'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
 import { ApiPlatformWhitelist, OpenAuthorize } from '@core/decorator/metaData'
@@ -72,6 +72,14 @@ export class PalletController {
   async batDelete(@Body() dto: deleteIdsDto, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.batDelete(dto, loadModel)
+    return result
+  }
+
+  @ApiOperation({ summary: '托盘任务单列表' })
+  @HttpCode(HttpStatus.OK)
+  @Post('palletTaskOrderList')
+  async palletTaskOrderList(@Body() dto: PalletTaskOrderListDto, @CurrentPage() pagination: Pagination) {
+    const result = await this.service.palletTaskOrderList(dto, pagination)
     return result
   }
 }

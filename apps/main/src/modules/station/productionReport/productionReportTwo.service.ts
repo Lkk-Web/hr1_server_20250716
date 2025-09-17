@@ -797,34 +797,6 @@ export class ProductionReportTwoService {
               required: true,
               attributes: ['id', 'serialNumber', 'status', 'materialId'],
               include: [
-                // {
-                //   association: 'productionOrderTask',
-                //   required: false,
-                //   attributes: ['orderCode', 'splitQuantity', 'goodCount', 'badCount', 'actualStartTime', 'actualEndTime'],
-                //   include: [
-                //     {
-                //       association: 'positionTaskDetails',
-                //       required: false,
-                //       include: [
-                //         {
-                //           association: 'positionDetail',
-                //           required: false,
-                //           attributes: ['id', 'positionId', 'userId'],
-                //           where: {
-                //             userId: user.id,
-                //           },
-                //           include: [
-                //             {
-                //               association: 'position',
-                //               required: false,
-                //               where: dto.positioProcessId ? { processId: dto.positioProcessId } : {},
-                //             },
-                //           ],
-                //         },
-                //       ],
-                //     },
-                //   ],
-                // },
                 {
                   association: 'processPositionTasks',
                   required: true,

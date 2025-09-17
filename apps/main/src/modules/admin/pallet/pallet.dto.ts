@@ -87,3 +87,61 @@ export class UPalletDto {
   })
   status?: boolean
 }
+
+export class PalletTaskOrderListDto {
+  @ApiProperty({
+    name: 'pallet_code',
+    required: false,
+    description: '托盘编号',
+    type: String,
+  })
+  pallet_code?: string
+
+  @ApiProperty({
+    name: 'pallet_spec',
+    required: false,
+    description: '托盘规格',
+    type: String,
+  })
+  pallet_spec?: string
+
+  @ApiProperty({
+    name: 'code',
+    required: false,
+    description: '产品编码',
+    type: String,
+  })
+  code?: string
+
+  @ApiProperty({
+    name: 'materialName',
+    required: false,
+    description: '产品名称',
+    type: String,
+  })
+  materialName?: string
+
+  @ApiProperty({
+    name: 'serialNumber',
+    required: false,
+    description: '产品序列号',
+    type: String,
+  })
+  serialNumber?: string
+
+  @ApiProperty({
+    name: 'processName',
+    required: false,
+    description: '工序名称',
+    type: String,
+  })
+  processName?: string
+
+  @ApiProperty({
+    name: 'status',
+    required: false,
+    description: '工序状态',
+    type: String,
+  })
+  status?: string
+}
