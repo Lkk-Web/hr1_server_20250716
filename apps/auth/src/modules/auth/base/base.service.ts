@@ -148,6 +148,9 @@ export class MiService {
             association: 'positions',
             include: [
               {
+                association: 'process',
+              },
+              {
                 association: 'positionDetails',
                 where: {
                   userId: payload.id,
@@ -159,19 +162,7 @@ export class MiService {
                   },
                 ],
               },
-              {
-                association: 'process',
-                // order: [
-                //   ['sort', 'ASC'],
-                //   ['id', 'ASC'],
-                // ],
-                // separate: true,
-              },
             ],
-            // order: [
-            //   // ['positions', 'process', 'sort', 'DESC'],
-            //   ['positions', 'process', 'id', 'ASC'],
-            // ],
           },
         ],
       })
