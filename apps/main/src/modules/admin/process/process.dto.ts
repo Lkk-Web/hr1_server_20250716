@@ -173,3 +173,12 @@ export class UProcessDto {
   })
   isQC?: boolean
 }
+
+export class FindNextProcessPalletDto {
+  @ApiProperty({
+    required: true,
+    description: '班组ID',
+    type: Number,
+  })
+  teamId: number
+}

@@ -95,6 +95,8 @@ export * from './production/ironProductSerial.model'
 export * from './production/position.model'
 export * from './production/positionDetail.model'
 export * from './production/positionTaskDetail.model'
+export * from './production/palletSerial.model'
+export * from './production/palletTaskOrder.model'
 
 // 派工
 export * from './production/processLocate.model'

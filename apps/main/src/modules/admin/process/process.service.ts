@@ -4,7 +4,7 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { Process } from '@model/process/process.model'
-import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto, FindProcessDto } from './process.dto'
+import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto, FindProcessDto, FindNextProcessPalletDto } from './process.dto'
 import { FindOptions, Op, Sequelize } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { ProcessItems } from '@model/process/processItems.model'
@@ -22,6 +22,10 @@ import { ProcessRouteList } from '@model/process/processRouteList.model'
 import { ProductionReport } from '@model/production/productionReport.model'
 import { Paging } from '@library/utils/paging'
 import { POPSchedule } from '@model/index'
+import { Pallet } from '@model/base/pallet.model'
+import { PalletDetail } from '@model/base/palletDetail.model'
+import { Team } from '@model/auth/team'
+import { TeamProcess } from '@model/auth/teamProcess.model'
 
 @Injectable()
 export class ProcessService {
@@ -409,5 +413,120 @@ export class ProcessService {
     }
     const material = await Material.findAll(options)
     return new ResultVO({ material })
+  }
+
+  /**
+   * 根据工序ID获取下一个工序的托盘列表
+   */
+  public async findNextProcessPalletList(processId: number, pagination: Pagination) {
+    // 1. 获取当前工序信息
+    const currentProcess = await Process.findByPk(processId)
+    if (!currentProcess) {
+      throw new HttpException('当前工序不存在', 400)
+    }
+
+    // 2. 确定下一个工序
+    let nextProcess: Process = null
+
+    if (currentProcess.isChild === 1) {
+      // 当前是子工序，查找下一个子工序或父工序
+      const siblingProcesses = await Process.findAll({
+        where: {
+          parentId: currentProcess.parentId,
+          sort: { [Op.gt]: currentProcess.sort },
+        },
+        order: [['sort', 'ASC']],
+        limit: 1,
+      })
+
+      if (siblingProcesses.length > 0) {
+        // 找到下一个子工序
+        nextProcess = siblingProcesses[0]
+      } else {
+        // 没有下一个子工序，回到父工序
+        const parentProcess = await Process.findByPk(currentProcess.parentId)
+        if (parentProcess) {
+          // 查找父工序的下一个工序
+          const nextParentProcesses = await Process.findAll({
+            where: {
+              parentId: parentProcess.parentId || null,
+              sort: { [Op.gt]: parentProcess.sort },
+              isChild: 0,
+            },
+            order: [['sort', 'ASC']],
+            limit: 1,
+          })
+          nextProcess = nextParentProcesses.length > 0 ? nextParentProcesses[0] : null
+        }
+      }
+    } else {
+      // 当前是父工序，查找下一个父工序
+      const nextParentProcesses = await Process.findAll({
+        where: {
+          parentId: currentProcess.parentId || null,
+          sort: { [Op.gt]: currentProcess.sort },
+          isChild: 0,
+        },
+        order: [['sort', 'ASC']],
+        limit: 1,
+      })
+      nextProcess = nextParentProcesses.length > 0 ? nextParentProcesses[0] : null
+    }
+
+    if (!nextProcess) {
+      // 没有下一个工序，返回空列表
+      return {
+        list: [],
+        total: 0,
+        currentProcess: {
+          id: currentProcess.id,
+          processName: currentProcess.processName,
+          isChild: currentProcess.isChild,
+        },
+        nextProcess: null,
+        message: '当前工序已是最后一道工序',
+      }
+    }
+
+    const teamProcess = await TeamProcess.findOne({
+      where: {
+        processId: nextProcess.id,
+      },
+    })
+
+    console.log(teamProcess.teamId)
+
+    const palletOptions: FindPaginationOptions = {
+      where: { teamId: teamProcess.teamId },
+      pagination,
+      include: [
+        {
+          association: 'pallet',
+        },
+      ],
+      order: [
+        ['createdAt', 'DESC'],
+        ['id', 'DESC'],
+      ],
+    }
+
+    // 7. 查询托盘列表
+    const palletResult = await Paging.diyPaging(PalletDetail, pagination, palletOptions)
+
+    return {
+      ...palletResult,
+      currentProcess: {
+        id: currentProcess.id,
+        processName: currentProcess.processName,
+        isChild: currentProcess.isChild,
+        sort: currentProcess.sort,
+      },
+      nextProcess: {
+        id: nextProcess.id,
+        processName: nextProcess.processName,
+        isChild: nextProcess.isChild,
+        sort: nextProcess.sort,
+      },
+    }
   }
 }
