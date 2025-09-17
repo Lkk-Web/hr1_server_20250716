@@ -351,7 +351,7 @@ export class ProductionReportTwoService {
           if (processPositionTask.dataValues.status != POSITION_TASK_STATUS.IN_PROGRESS) throw new Error('当前序列号不在进行中，无法报工')
           await processPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED, actualEndTime: new Date(), actualWorkTime: item.duration }, { transaction })
 
-          if (process.isPallet) {
+          if (process.processName.includes('焊嵌件')) {
             if (!dto.palletId) throw new Error('托盘ID不能为空')
             await ProductSerial.update({ palletId: dto.palletId }, { where: { id: item.serialId }, transaction })
           }
@@ -781,49 +781,59 @@ export class ProductionReportTwoService {
 
     const options: FindPaginationOptions = {
       where: {},
+      subQuery: false,
       include: [
         {
           association: 'pallet',
+          required: false,
         },
         {
           association: 'palletSerials',
+          required: true,
+          // separate: true,
           include: [
             {
               association: 'productSerial',
+              required: true,
               attributes: ['id', 'serialNumber', 'status', 'materialId'],
               include: [
-                {
-                  association: 'productionOrderTask',
-                  attributes: ['orderCode', 'splitQuantity', 'goodCount', 'badCount', 'actualStartTime', 'actualEndTime'],
-                  include: [
-                    {
-                      association: 'positionTaskDetails',
-                      include: [
-                        {
-                          association: 'positionDetail',
-                          attributes: ['id', 'positionId', 'userId'],
-                          where: {
-                            userId: user.id,
-                          },
-                          include: [
-                            {
-                              association: 'position',
-                              required: false,
-                              where: dto.positioProcessId ? { processId: dto.positioProcessId } : {},
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
+                // {
+                //   association: 'productionOrderTask',
+                //   required: false,
+                //   attributes: ['orderCode', 'splitQuantity', 'goodCount', 'badCount', 'actualStartTime', 'actualEndTime'],
+                //   include: [
+                //     {
+                //       association: 'positionTaskDetails',
+                //       required: false,
+                //       include: [
+                //         {
+                //           association: 'positionDetail',
+                //           required: false,
+                //           attributes: ['id', 'positionId', 'userId'],
+                //           where: {
+                //             userId: user.id,
+                //           },
+                //           include: [
+                //             {
+                //               association: 'position',
+                //               required: false,
+                //               where: dto.positioProcessId ? { processId: dto.positioProcessId } : {},
+                //             },
+                //           ],
+                //         },
+                //       ],
+                //     },
+                //   ],
+                // },
                 {
                   association: 'processPositionTasks',
+                  required: true,
                   attributes: ['id', 'processId', 'status', 'actualStartTime', 'actualEndTime'],
                   where: processPositionTaskWhere,
                   include: [
                     {
                       association: 'process',
+                      required: false,
                       attributes: ['id', 'processName', 'parentId'],
                     },
                   ],
@@ -838,50 +848,50 @@ export class ProductionReportTwoService {
 
     const result = await Paging.diyPaging(PalletTaskOrder, pagination, options)
 
-    // 过滤数据，移除不符合条件的记录
-    result.data = result.data
-      .map(palletOrder => {
-        const plainOrder = palletOrder.get({ plain: true })
-        return {
-          ...plainOrder,
-          palletSerials: plainOrder.palletSerials.filter(serial => {
-            // 过滤掉没有有效工位任务详情的序列号
-            return (
-              serial.productSerial &&
-              serial.productSerial.productionOrderTask &&
-              serial.productSerial.productionOrderTask.positionTaskDetails &&
-              serial.productSerial.productionOrderTask.positionTaskDetails.some(d => d.positionDetail && d.positionDetail.position !== null)
-            )
-          }),
-        }
-      })
-      .filter(order => order.palletSerials.length > 0) // 移除没有有效托盘序列号的订单
+    // // 过滤数据，移除不符合条件的记录
+    // result.data = result.data
+    //   .map(palletOrder => {
+    //     const plainOrder = palletOrder.get({ plain: true })
+    //     return {
+    //       ...plainOrder,
+    //       palletSerials: plainOrder.palletSerials.filter(serial => {
+    //         // 过滤掉没有有效工位任务详情的序列号
+    //         return (
+    //           serial.productSerial &&
+    //           serial.productSerial.productionOrderTask &&
+    //           serial.productSerial.productionOrderTask.positionTaskDetails &&
+    //           serial.productSerial.productionOrderTask.positionTaskDetails.some(d => d.positionDetail && d.positionDetail.position !== null)
+    //         )
+    //       }),
+    //     }
+    //   })
+    //   .filter(order => order.palletSerials.length > 0) // 移除没有有效托盘序列号的订单
 
-    // 计算任务时长（如果状态是进行中）
-    let taskTime = null
-    if (dto.status == POSITION_TASK_STATUS.IN_PROGRESS && result.data.length > 0) {
-      // 收集所有进行中的工位任务
-      const inProgressTasks = []
-      result.data.forEach(order => {
-        order.palletSerials.forEach(serial => {
-          if (serial.productSerial && serial.productSerial.processPositionTasks) {
-            serial.productSerial.processPositionTasks.forEach(task => {
-              if (task.status === POSITION_TASK_STATUS.IN_PROGRESS) {
-                inProgressTasks.push(task)
-              }
-            })
-          }
-        })
-      })
+    // // 计算任务时长（如果状态是进行中）
+    // let taskTime = null
+    // if (dto.status == POSITION_TASK_STATUS.IN_PROGRESS && result.data.length > 0) {
+    //   // 收集所有进行中的工位任务
+    //   const inProgressTasks = []
+    //   result.data.forEach(order => {
+    //     order.palletSerials.forEach(serial => {
+    //       if (serial.productSerial && serial.productSerial.processPositionTasks) {
+    //         serial.productSerial.processPositionTasks.forEach(task => {
+    //           if (task.status === POSITION_TASK_STATUS.IN_PROGRESS) {
+    //             inProgressTasks.push(task)
+    //           }
+    //         })
+    //       }
+    //     })
+    //   })
 
-      if (inProgressTasks.length > 0) {
-        taskTime = await this.getReportUserDuration(user, inProgressTasks)
-      }
-    }
+    //   if (inProgressTasks.length > 0) {
+    //     taskTime = await this.getReportUserDuration(user, inProgressTasks)
+    //   }
+    // }
 
     return {
       ...result,
-      taskTime,
+      // taskTime,
     }
   }
   // 报废

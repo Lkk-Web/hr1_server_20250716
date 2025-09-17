@@ -488,6 +488,8 @@ export class ProcessService {
       }
     }
 
+    console.log(nextProcess.id)
+
     const teamProcess = await TeamProcess.findOne({
       where: {
         processId: nextProcess.id,
