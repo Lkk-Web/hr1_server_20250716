@@ -319,6 +319,22 @@ export class PalletService {
               include: [
                 { association: 'material', where: {} },
                 {
+                  association: 'productionOrderTask',
+                  attributes: ['orderCode'],
+                  include: [
+                    {
+                      association: 'productionOrderDetail',
+                      attributes: ['productionOrderId'],
+                      include: [
+                        {
+                          association: 'productionOrder',
+                          attributes: ['kingdeeCode'],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
                   association: 'processPositionTasks',
                   where: {},
                   attributes: ['id', 'processId', 'status', 'actualStartTime', 'actualEndTime'],

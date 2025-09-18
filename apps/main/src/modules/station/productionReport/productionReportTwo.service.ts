@@ -336,7 +336,11 @@ export class ProductionReportTwoService {
       // 2.1 处理工单
       for (const processDto of dto.productionOrderTask) {
         const productionOrderTask = await ProductionOrderTask.findOne({ where: { id: processDto.productionOrderTaskId } })
-        await ProductionOrderTaskOfReport.create({ productionOrderTaskId: productionOrderTask.dataValues.id, reportId: productionReport.id }, { transaction })
+        await ProductionOrderTaskOfReport.findOrCreate({
+          where: { productionOrderTaskId: productionOrderTask.dataValues.id, reportId: productionReport.id },
+          defaults: { productionOrderTaskId: productionOrderTask.dataValues.id, reportId: productionReport.id },
+          transaction,
+        })
         const process = await Process.findOne({ where: { id: dto.processId } })
         // 2.2 处理工序（工位）
         for (const item of processDto.positions) {
@@ -511,8 +515,10 @@ export class ProductionReportTwoService {
 
     try {
       // 1. 验证托盘是否存在
-      const pallet = await Pallet.findOne({ where: { id: dto.palletId } })
-      if (!pallet) throw new Error('托盘不存在')
+      if (dto.palletId) {
+        const pallet = await Pallet.findOne({ where: { id: dto.palletId } })
+        if (!pallet) throw new Error('托盘不存在')
+      }
 
       // 2. 创建报工单
       const productionReport = await ProductionReport.create(
@@ -592,7 +598,9 @@ export class ProductionReportTwoService {
           )
 
           // 绑定托盘
-          await ProductSerial.update({ palletId: dto.palletId }, { where: { id: item.serialId }, transaction })
+          if (dto.palletId) {
+            await ProductSerial.update({ palletId: dto.palletId }, { where: { id: item.serialId }, transaction })
+          }
 
           // 处理不同工序的特殊逻辑
           if (process.processName.includes('打合')) {
@@ -653,14 +661,18 @@ export class ProductionReportTwoService {
             throw new Error(`序列号${item.serialId}对应的工单任务不存在`)
           }
 
-          // 创建报工单与工单任务关联
-          await ProductionOrderTaskOfReport.create(
-            {
+          // 创建报工单与工单任务关联（避免重复）
+          await ProductionOrderTaskOfReport.findOrCreate({
+            where: {
               productionOrderTaskId: productionOrderTask.id,
               reportId: productionReport.id,
             },
-            { transaction }
-          )
+            defaults: {
+              productionOrderTaskId: productionOrderTask.id,
+              reportId: productionReport.id,
+            },
+            transaction,
+          })
 
           // 创建报工详情
           await ProductionReportDetail.create(
@@ -678,14 +690,16 @@ export class ProductionReportTwoService {
           taskList.push(processPositionTask)
 
           // 创建托盘序列号关联
-          await PalletSerial.create(
-            {
-              palletId: dto.palletId,
-              productSerialId: item.serialId,
-              palletTaskOrderId: palletTaskOrder.id,
-            },
-            { transaction }
-          )
+          if (dto.palletId) {
+            await PalletSerial.create(
+              {
+                palletId: dto.palletId,
+                productSerialId: item.serialId,
+                palletTaskOrderId: palletTaskOrder.id,
+              },
+              { transaction }
+            )
+          }
 
           // 日志
           const logs = await ProcessTaskLog.create(
@@ -809,6 +823,10 @@ export class ProductionReportTwoService {
                       attributes: ['id', 'processName', 'parentId'],
                     },
                   ],
+                },
+                {
+                  association: 'material',
+                  attributes: ['id', 'materialName', 'code'],
                 },
               ],
             },

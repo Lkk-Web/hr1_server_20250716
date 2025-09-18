@@ -537,7 +537,7 @@ export class PalletRegisterDto {
 
   @ApiProperty({
     description: '托盘id',
-    required: true,
+    required: false,
   })
   palletId: number
 }

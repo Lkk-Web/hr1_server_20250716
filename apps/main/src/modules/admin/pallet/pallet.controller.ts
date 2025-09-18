@@ -19,7 +19,7 @@ export class PalletController {
   @HttpCode(HttpStatus.OK)
   @Post('/')
   async create(@Body() dto: CPalletDto, @Req() req) {
-    let { factoryCode, loadModel } = req
+    let { loadModel } = req
     const result = await this.service.create(dto, loadModel)
     return result
   }
@@ -77,8 +77,8 @@ export class PalletController {
 
   @ApiOperation({ summary: '托盘任务单列表' })
   @HttpCode(HttpStatus.OK)
-  @Post('palletTaskOrderList')
-  async palletTaskOrderList(@Body() dto: PalletTaskOrderListDto, @CurrentPage() pagination: Pagination) {
+  @Get('palletTaskOrderList')
+  async palletTaskOrderList(@Query() dto: PalletTaskOrderListDto, @CurrentPage() pagination: Pagination) {
     const result = await this.service.palletTaskOrderList(dto, pagination)
     return result
   }
