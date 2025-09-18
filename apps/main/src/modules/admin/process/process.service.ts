@@ -495,8 +495,9 @@ export class ProcessService {
         processId: nextProcess.id,
       },
     })
-
-    console.log(teamProcess.teamId)
+    if (!teamProcess) {
+      throw new HttpException('班组请绑定托盘流程工序', 400)
+    }
 
     const palletOptions: FindPaginationOptions = {
       where: { teamId: teamProcess.teamId },
