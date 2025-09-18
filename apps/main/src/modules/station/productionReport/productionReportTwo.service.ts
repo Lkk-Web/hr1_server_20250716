@@ -512,6 +512,7 @@ export class ProductionReportTwoService {
   public async palletReportTask(dto: PalletRegisterDto, user) {
     const transaction = await ProcessTask.sequelize.transaction()
     let taskList: ProcessPositionTask[] = []
+    let palletTaskOrder: PalletTaskOrder = null
 
     try {
       // 1. 验证托盘是否存在
@@ -533,7 +534,9 @@ export class ProductionReportTwoService {
       )
 
       // 3. 创建托盘任务单
-      const palletTaskOrder = await PalletTaskOrder.create({ palletId: dto.palletId }, { transaction })
+      if (dto.palletId) {
+        palletTaskOrder = await PalletTaskOrder.create({ palletId: dto.palletId }, { transaction })
+      }
 
       // 4. 处理托盘任务单配置
       for (const palletTaskOrderDto of dto.palletTaskOrder) {
@@ -690,7 +693,7 @@ export class ProductionReportTwoService {
           taskList.push(processPositionTask)
 
           // 创建托盘序列号关联
-          if (dto.palletId) {
+          if (dto.palletId && palletTaskOrder) {
             await PalletSerial.create(
               {
                 palletId: dto.palletId,
@@ -837,6 +840,63 @@ export class ProductionReportTwoService {
     }
 
     const result = await Paging.diyPaging(PalletTaskOrder, pagination, options)
+
+    // 对同一托盘下的序列号按 productSerial.serialNumber 排序相邻（结构不变）
+    if (result && Array.isArray(result.data)) {
+      result.data = result.data.map(order => {
+        const plainOrder = typeof order.get === 'function' ? order.get({ plain: true }) : order
+        const serials = Array.isArray(plainOrder.palletSerials) ? [...plainOrder.palletSerials] : []
+        serials.sort((a, b) => {
+          const aSN = a?.productSerial?.serialNumber ?? ''
+          const bSN = b?.productSerial?.serialNumber ?? ''
+          return String(aSN).localeCompare(String(bSN), undefined, { numeric: true, sensitivity: 'base' })
+        })
+        return {
+          ...plainOrder,
+          palletSerials: serials,
+        }
+      })
+
+      // 合并同一托盘（palletId）下的所有 palletSerials 到同一项
+      const groupedMap = new Map<number, any>()
+      for (const order of result.data) {
+        const palletId = order.palletId || order?.pallet?.id
+        if (!palletId) continue
+        if (!groupedMap.has(palletId)) {
+          groupedMap.set(palletId, {
+            ...order,
+            // 追踪被合并的任务单ID，便于前端定位（可选）
+            palletTaskOrderIds: [order.id],
+            palletSerials: [...(order.palletSerials || [])],
+          })
+        } else {
+          const agg = groupedMap.get(palletId)
+          agg.palletTaskOrderIds.push(order.id)
+          agg.palletSerials = [...agg.palletSerials, ...(order.palletSerials || [])]
+        }
+      }
+
+      // 对合并后的 palletSerials 进行去重与排序
+      const groupedList = Array.from(groupedMap.values()).map(item => {
+        const seen = new Set<number>()
+        const dedup = []
+        for (const it of item.palletSerials || []) {
+          const sid = it?.productSerialId ?? it?.productSerial?.id
+          if (sid && !seen.has(sid)) {
+            seen.add(sid)
+            dedup.push(it)
+          }
+        }
+        dedup.sort((a, b) => {
+          const aSN = a?.productSerial?.serialNumber ?? ''
+          const bSN = b?.productSerial?.serialNumber ?? ''
+          return String(aSN).localeCompare(String(bSN), undefined, { numeric: true, sensitivity: 'base' })
+        })
+        return { ...item, palletSerials: dedup }
+      })
+
+      result.data = groupedList
+    }
 
     // // 过滤数据，移除不符合条件的记录
     // result.data = result.data
