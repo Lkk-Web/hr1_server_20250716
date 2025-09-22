@@ -61,6 +61,7 @@ export class ProductSerialService {
           },
           {
             association: 'processPositionTasks',
+            required: false,
             where: {},
             include: [
               {
