@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType, Default, ForeignKey, BelongsTo } from 'sequelize-typescript'
+import { Table, Column, Model, DataType, Default, ForeignKey, BelongsTo, AllowNull } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { Pallet, ProductSerial, Team } from '..'
 import { PalletTaskOrder } from './palletTaskOrder.model'
@@ -19,6 +19,7 @@ export class PalletSerial extends BaseDate<PalletSerial> {
   @Column({
     comment: '托盘任务单ID',
     type: DataType.INTEGER,
+    allowNull: true,
   })
   declare palletTaskOrderId: number
 

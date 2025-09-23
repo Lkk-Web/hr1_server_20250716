@@ -102,7 +102,7 @@ export class FindPaginationReportTaskListDto {
   positioProcessId: number
 
   @ApiProperty({
-    description: '工序状态',
+    description: '工位任务单状态',
     required: false,
   })
   status: string
@@ -116,7 +116,7 @@ export class FindPaginationPalletReportTaskListDto {
   positioProcessId: number
 
   @ApiProperty({
-    description: '工序状态',
+    description: '工序任务单状态',
     required: false,
   })
   status: string

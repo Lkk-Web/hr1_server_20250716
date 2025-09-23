@@ -1,6 +1,7 @@
 import { Table, Column, Model, DataType, Default, HasMany, HasOne } from 'sequelize-typescript'
 import { BaseDate } from '@model/shared/baseDate'
 import { PalletDetail } from './palletDetail.model'
+import { ProductSerial } from '..'
 
 @Table({ tableName: `base_pallet`, freezeTableName: true, timestamps: true, comment: '托盘表' })
 export class Pallet extends BaseDate<Pallet> {
@@ -25,4 +26,7 @@ export class Pallet extends BaseDate<Pallet> {
 
   @HasOne(() => PalletDetail)
   declare palletDetail: PalletDetail
+
+  @HasMany(() => ProductSerial)
+  declare productSerials: ProductSerial[]
 }
