@@ -219,42 +219,6 @@ export class ProcessTaskService {
     return result
   }
 
-  public async startWork(dto: StartWorkDto) {
-    const task = await ProcessTask.findByPk(dto.id, { attributes: ['id', 'receptionCount'] })
-    if (!task) {
-      throw new HttpException('任务不存在', 400)
-    }
-    if (task.receptionCount <= 0) {
-      Aide.throwException(400011, '任务未接收，无法开始工作')
-    }
-    task.actualStartTime = new Date()
-    task.status = PROCESS_TASK_STATUS.running
-    await task.save()
-    return task
-  }
-
-  public async batchStartWork(dto: BatchStartWorkDto) {
-    const tasksCount = await ProcessTask.count({
-      where: { id: dto.ids, status: PROCESS_TASK_STATUS.notStart },
-    })
-    if (tasksCount != dto.ids.length) Aide.throwException(400011)
-    let tasks = await ProcessTask.update(
-      {
-        actualStartTime: new Date(),
-        status: PROCESS_TASK_STATUS.running,
-      },
-      {
-        where: {
-          id: dto.ids,
-          receptionCount: {
-            [Op.gt]: 0,
-          },
-        },
-      }
-    )
-    return tasks
-  }
-
   //工序暂停
   public async batchBatchPauseWork(dto: BatchStartWorkDto) {
     const tasksCount = await ProcessTask.count({

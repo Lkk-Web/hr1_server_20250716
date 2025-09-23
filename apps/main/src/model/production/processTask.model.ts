@@ -193,14 +193,6 @@ export class ProcessTask extends BaseDate<ProcessTask> {
 
   @Default(0)
   @Column({
-    comment: '接收数',
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  declare receptionCount: number
-
-  @Default(0)
-  @Column({
     comment: '报工数',
     type: DataType.INTEGER,
     allowNull: false,

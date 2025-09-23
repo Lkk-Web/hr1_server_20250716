@@ -29,22 +29,6 @@ export class ProcessTaskController {
     return { data: result, code: 200 }
   }
 
-  @ApiOperation({ summary: '批量开工' })
-  @HttpCode(HttpStatus.OK)
-  @Post('batchStartWork')
-  async batchStartWork(@Body() dto: BatchStartWorkDto, @Req() req) {
-    const result = await this.service.batchStartWork(dto)
-    return { data: result, code: 200 }
-  }
-
-  @ApiOperation({ summary: '开工' })
-  @HttpCode(HttpStatus.OK)
-  @Post('startWork')
-  async startWork(@Body() dto: StartWorkDto, @Req() req) {
-    const result = await this.service.startWork(dto)
-    return { data: result, code: 200 }
-  }
-
   @ApiOperation({ summary: '暂停工序' })
   @HttpCode(HttpStatus.OK)
   @Post('pause')
