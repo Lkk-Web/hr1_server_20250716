@@ -802,31 +802,13 @@ export class ProductionReportTwoService {
       include: [
         {
           association: 'pallet',
-          required: false,
-        },
-        {
-          association: 'palletSerials',
           required: true,
-          // separate: true,
           include: [
             {
-              association: 'productSerial',
+              association: 'productSerials',
               required: true,
               attributes: ['id', 'serialNumber', 'status', 'materialId'],
               include: [
-                {
-                  association: 'processPositionTasks',
-                  required: true,
-                  attributes: ['id', 'processId', 'status', 'actualStartTime', 'actualEndTime'],
-                  where: processPositionTaskWhere,
-                  include: [
-                    {
-                      association: 'process',
-                      required: false,
-                      attributes: ['id', 'processName', 'parentId'],
-                    },
-                  ],
-                },
                 {
                   association: 'material',
                   attributes: ['id', 'materialName', 'code'],
@@ -835,87 +817,22 @@ export class ProductionReportTwoService {
             },
           ],
         },
+        {
+          association: 'team',
+          attributes: [],
+          where: {},
+        },
+      ],
+      order: [
+        // 主表排序
+        ['id', 'ASC'],
+        // productSerials 排序
+        [{ model: Pallet, as: 'pallet' }, { model: ProductSerial, as: 'productSerials' }, 'serialNumber', 'ASC'],
       ],
       pagination,
     }
 
-    const result = await Paging.diyPaging(PalletTaskOrder, pagination, options)
-
-    // 对同一托盘下的序列号按 productSerial.serialNumber 排序相邻（结构不变）
-    if (result && Array.isArray(result.data)) {
-      result.data = result.data.map(order => {
-        const plainOrder = typeof order.get === 'function' ? order.get({ plain: true }) : order
-        const serials = Array.isArray(plainOrder.palletSerials) ? [...plainOrder.palletSerials] : []
-        serials.sort((a, b) => {
-          const aSN = a?.productSerial?.serialNumber ?? ''
-          const bSN = b?.productSerial?.serialNumber ?? ''
-          return String(aSN).localeCompare(String(bSN), undefined, { numeric: true, sensitivity: 'base' })
-        })
-        return {
-          ...plainOrder,
-          palletSerials: serials,
-        }
-      })
-
-      // 合并同一托盘（palletId）下的所有 palletSerials 到同一项
-      const groupedMap = new Map<number, any>()
-      for (const order of result.data) {
-        const palletId = order.palletId || order?.pallet?.id
-        if (!palletId) continue
-        if (!groupedMap.has(palletId)) {
-          groupedMap.set(palletId, {
-            ...order,
-            // 追踪被合并的任务单ID，便于前端定位（可选）
-            palletTaskOrderIds: [order.id],
-            palletSerials: [...(order.palletSerials || [])],
-          })
-        } else {
-          const agg = groupedMap.get(palletId)
-          agg.palletTaskOrderIds.push(order.id)
-          agg.palletSerials = [...agg.palletSerials, ...(order.palletSerials || [])]
-        }
-      }
-
-      // 对合并后的 palletSerials 进行去重与排序
-      const groupedList = Array.from(groupedMap.values()).map(item => {
-        const seen = new Set<number>()
-        const dedup = []
-        for (const it of item.palletSerials || []) {
-          const sid = it?.productSerialId ?? it?.productSerial?.id
-          if (sid && !seen.has(sid)) {
-            seen.add(sid)
-            dedup.push(it)
-          }
-        }
-        dedup.sort((a, b) => {
-          const aSN = a?.productSerial?.serialNumber ?? ''
-          const bSN = b?.productSerial?.serialNumber ?? ''
-          return String(aSN).localeCompare(String(bSN), undefined, { numeric: true, sensitivity: 'base' })
-        })
-        return { ...item, palletSerials: dedup }
-      })
-
-      result.data = groupedList
-    }
-
-    // // 过滤数据，移除不符合条件的记录
-    // result.data = result.data
-    //   .map(palletOrder => {
-    //     const plainOrder = palletOrder.get({ plain: true })
-    //     return {
-    //       ...plainOrder,
-    //       palletSerials: plainOrder.palletSerials.filter(serial => {
-    //         // 过滤掉没有有效工位任务详情的序列号
-    //         return (
-    //           serial.productSerial &&
-    //           serial.productSerial.productionOrderTask &&
-    //           serial.productSerial.productionOrderTask.positionTaskDetails &&
-    //           serial.productSerial.productionOrderTask.positionTaskDetails.some(d => d.positionDetail && d.positionDetail.position !== null)
-    //         )
-    //       }),
-    //     }
-    //   })
-    //   .filter(order => order.palletSerials.length > 0) // 移除没有有效托盘序列号的订单
+    const result = await Paging.diyPaging(PalletDetail, pagination, options)
 
     // // 计算任务时长（如果状态是进行中）
     // let taskTime = null
