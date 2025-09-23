@@ -1115,7 +1115,7 @@ export class ProductionOrderService {
               reportRatio: process.reportRatio,
               isOutsource: process.isOutsource,
               isInspection: process.isInspection,
-              receptionCount: process.sort,
+              sort: process.sort,
               planCount: 1,
               status: PROCESS_TASK_STATUS.notStart,
               startTime: new Date(),

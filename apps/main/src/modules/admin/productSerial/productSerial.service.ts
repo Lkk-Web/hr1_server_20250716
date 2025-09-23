@@ -44,6 +44,8 @@ export class ProductSerialService {
       {
         association: 'processTasks',
         where: {},
+        separate: true,
+        order: [['sort', 'ASC']],
         include: [
           {
             association: 'process',
