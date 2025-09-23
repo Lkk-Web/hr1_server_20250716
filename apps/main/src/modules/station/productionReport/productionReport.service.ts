@@ -129,11 +129,11 @@ export class ProductionReportService {
     }
 
     if (dto.orderCode) {
-      options.include[0].where['code'] = {
+      options.include[0].where['orderCode'] = {
         [Op.like]: `%${dto.orderCode}%`,
       }
     }
-    const result = await Paging.diyPaging(ProductionReport, pagination, options)
+    const result = await Paging.diyPaging(ProductionReport, options)
     // for (const datum of result.data) {
     //   const temp = await PerformanceConfig.findOne({
     //     where: {

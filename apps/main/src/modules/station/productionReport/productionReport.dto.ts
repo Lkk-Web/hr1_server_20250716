@@ -12,10 +12,10 @@ export class FindPaginationDto {
 
   @ApiProperty({
     description: '工单编号',
-    type: Number,
+    type: String,
     required: false,
   })
-  orderCode: number
+  orderCode: string
 
   @ApiProperty({
     description: '产品编号',
