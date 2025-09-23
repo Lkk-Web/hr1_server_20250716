@@ -24,6 +24,7 @@ import {
   InspectionFormItem,
   IronProductSerial,
   Pallet,
+  PalletDetail,
   PalletSerial,
   PalletTaskOrder,
   Position,
@@ -798,7 +799,6 @@ export class ProductionReportTwoService {
 
     const options: FindPaginationOptions = {
       where: {},
-      subQuery: false,
       include: [
         {
           association: 'pallet',
