@@ -114,6 +114,16 @@ export class CProcessDto {
   defectiveItems?: number[]
 }
 
+export class findNextProcessDto {
+  @ApiProperty({
+    name: 'materialId',
+    required: true,
+    description: '物料ID',
+    type: Number,
+  })
+  materialId: number
+}
+
 export class UProcessDto {
   @ApiProperty({
     name: 'processName',

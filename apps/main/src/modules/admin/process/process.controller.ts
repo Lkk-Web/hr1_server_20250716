@@ -3,7 +3,7 @@ import { Pagination } from '@common/interface'
 import { Body, Delete, Get, HttpCode, HttpException, HttpStatus, Param, Post, Put, Query, Req, UploadedFile, UseInterceptors } from '@nestjs/common'
 import { AdminAuth } from '@core/decorator/controller'
 import { ProcessService } from './process.service'
-import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto, FindProcessDto, FindNextProcessPalletDto } from './process.dto'
+import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto, FindProcessDto, FindNextProcessPalletDto, findNextProcessDto } from './process.dto'
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Sequelize } from 'sequelize-typescript'
 import { CurrentPage } from '@core/decorator/request'
@@ -114,8 +114,8 @@ export class ProcessController {
   @ApiParam({ name: 'id', required: true, description: '当前工序ID', type: Number })
   @ApiPlatformWhitelist(['admin', 'station'])
   @Get('nextProcessPallets/:id')
-  async findNextProcessPalletList(@CurrentPage() pagination: Pagination, @Param() Param) {
-    const result = await this.service.findNextProcessPalletList(Param.id, pagination)
+  async findNextProcessPalletList(@Query() dto: findNextProcessDto, @CurrentPage() pagination: Pagination, @Param() Param) {
+    const result = await this.service.findNextProcessPalletList(dto,Param.id, pagination)
     return result
   }
 }
