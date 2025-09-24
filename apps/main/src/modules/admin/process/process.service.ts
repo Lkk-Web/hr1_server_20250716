@@ -419,117 +419,26 @@ export class ProcessService {
    * 根据工序ID获取下一个工序的托盘列表
    */
   public async findNextProcessPalletList(processId: number, pagination: Pagination) {
-    // 1. 获取当前工序信息
-    const currentProcess = await Process.findByPk(processId)
-    if (!currentProcess) {
-      throw new HttpException('当前工序不存在', 400)
-    }
-
-    // 2. 确定下一个工序
-    let nextProcess: Process = null
-
-    if (currentProcess.isChild === 1) {
-      // 当前是子工序，查找下一个子工序或父工序
-      const siblingProcesses = await Process.findAll({
-        where: {
-          parentId: currentProcess.parentId,
-          sort: { [Op.gt]: currentProcess.sort },
-        },
-        order: [['sort', 'ASC']],
-        limit: 1,
-      })
-
-      if (siblingProcesses.length > 0) {
-        // 找到下一个子工序
-        nextProcess = siblingProcesses[0]
-      } else {
-        // 没有下一个子工序，回到父工序
-        const parentProcess = await Process.findByPk(currentProcess.parentId)
-        if (parentProcess) {
-          // 查找父工序的下一个工序
-          const nextParentProcesses = await Process.findAll({
-            where: {
-              parentId: parentProcess.parentId || null,
-              sort: { [Op.gt]: parentProcess.sort },
-              isChild: 0,
-            },
-            order: [['sort', 'ASC']],
-            limit: 1,
-          })
-          nextProcess = nextParentProcesses.length > 0 ? nextParentProcesses[0] : null
-        }
-      }
-    } else {
-      // 当前是父工序，查找下一个父工序
-      const nextParentProcesses = await Process.findAll({
-        where: {
-          parentId: currentProcess.parentId || null,
-          sort: { [Op.gt]: currentProcess.sort },
-          isChild: 0,
-        },
-        order: [['sort', 'ASC']],
-        limit: 1,
-      })
-      nextProcess = nextParentProcesses.length > 0 ? nextParentProcesses[0] : null
-    }
-
-    if (!nextProcess) {
-      // 没有下一个工序，返回空列表
-      return {
-        list: [],
-        total: 0,
-        currentProcess: {
-          id: currentProcess.id,
-          processName: currentProcess.processName,
-          isChild: currentProcess.isChild,
-        },
-        nextProcess: null,
-        message: '当前工序已是最后一道工序',
-      }
-    }
-
-    console.log(nextProcess.id)
-
-    const teamProcess = await TeamProcess.findOne({
+    //工艺路线
+    const processRoute = await ProcessRouteList.findOne({ where: { processId } })
+    //下一个工序ID
+    const nextProcess = await ProcessRouteList.findOne({
       where: {
-        processId: nextProcess.id,
+        processRouteId: processRoute.processRouteId,
+        sort: processRoute.sort + 1,
       },
     })
-    if (!teamProcess) {
-      throw new HttpException('班组请绑定托盘流程工序', 400)
-    }
 
-    const palletOptions: FindPaginationOptions = {
-      where: { teamId: teamProcess.teamId },
-      pagination,
+    const team = await TeamProcess.findOne({ where: { processId: nextProcess.processId } })
+    const palletResult = await PalletDetail.findAll({
+      where: { teamId: team.teamId },
       include: [
         {
           association: 'pallet',
         },
       ],
-      order: [
-        ['createdAt', 'DESC'],
-        ['id', 'DESC'],
-      ],
-    }
+    })
 
-    // 7. 查询托盘列表
-    const palletResult = await Paging.diyPaging(PalletDetail, pagination, palletOptions)
-
-    return {
-      ...palletResult,
-      currentProcess: {
-        id: currentProcess.id,
-        processName: currentProcess.processName,
-        isChild: currentProcess.isChild,
-        sort: currentProcess.sort,
-      },
-      nextProcess: {
-        id: nextProcess.id,
-        processName: nextProcess.processName,
-        isChild: nextProcess.isChild,
-        sort: nextProcess.sort,
-      },
-    }
+    return palletResult
   }
 }

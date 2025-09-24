@@ -776,27 +776,6 @@ export class ProductionReportTwoService {
   }
 
   public async palletfindPagination(dto: FindPaginationPalletReportTaskListDto, pagination: Pagination, user) {
-    const processPositionTaskWhere = {}
-
-    // 构建工位任务筛选条件
-    if (dto.positioProcessId) {
-      processPositionTaskWhere['processId'] = dto.positioProcessId
-    }
-
-    if (dto.status) {
-      processPositionTaskWhere['status'] = dto.status
-    } else {
-      processPositionTaskWhere['status'] = {
-        [Op.notIn]: [POSITION_TASK_STATUS.REWORK],
-      }
-    }
-
-    if (dto.status == POSITION_TASK_STATUS.IN_PROGRESS) {
-      processPositionTaskWhere['status'] = {
-        [Op.in]: [POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.PAUSED],
-      }
-    }
-
     const options: FindPaginationOptions = {
       where: {},
       include: [
