@@ -110,10 +110,10 @@ export class FindPaginationReportTaskListDto {
 
 export class FindPaginationPalletReportTaskListDto {
   @ApiProperty({
-    description: '工位工序id',
+    description: '工序id',
     required: false,
   })
-  positioProcessId: number
+  processId: number
 
   @ApiProperty({
     description: '工序任务单状态',

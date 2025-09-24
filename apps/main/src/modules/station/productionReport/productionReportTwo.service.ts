@@ -776,6 +776,10 @@ export class ProductionReportTwoService {
   }
 
   public async palletfindPagination(dto: FindPaginationPalletReportTaskListDto, pagination: Pagination, user) {
+    let processTaskParams = {
+      processId: dto.processId,
+    }
+
     const options: FindPaginationOptions = {
       where: {},
       include: [
@@ -792,14 +796,27 @@ export class ProductionReportTwoService {
                   association: 'material',
                   attributes: ['id', 'materialName', 'code'],
                 },
+                {
+                  association: 'processTasks',
+                  attributes: [],
+                  required: true,
+                  where: processTaskParams,
+                },
               ],
             },
           ],
         },
         {
           association: 'team',
-          attributes: [],
-          where: {},
+          include: [
+            {
+              association: 'teamProcessList',
+              where: {
+                processId: dto.processId,
+              },
+              attributes: [],
+            },
+          ],
         },
       ],
       order: [
@@ -809,6 +826,16 @@ export class ProductionReportTwoService {
         [{ model: Pallet, as: 'pallet' }, { model: ProductSerial, as: 'productSerials' }, 'serialNumber', 'ASC'],
       ],
       pagination,
+    }
+
+    if (dto.status) {
+      processTaskParams['status'] = dto.status
+    }
+
+    if (dto.status == PROCESS_TASK_STATUS.running) {
+      processTaskParams['status'] = {
+        [Op.in]: [PROCESS_TASK_STATUS.running, PROCESS_TASK_STATUS.pause],
+      }
     }
 
     const result = await Paging.diyPaging(PalletDetail, pagination, options)

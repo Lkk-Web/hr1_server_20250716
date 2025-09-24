@@ -46,6 +46,16 @@ export class ProductionReportController {
     return result
   }
 
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '托盘可报工列表' })
+  @ApiPlatformWhitelist(['admin', 'station'])
+  @Get('palletfindPagination')
+  async palletfindPagination(@Query() dto: FindPaginationPalletReportTaskListDto, @CurrentPage() pagination: Pagination, @Req() req) {
+    let { user } = req
+    const result = await this.serviceTwo.palletfindPagination(dto, pagination, user)
+    return result
+  }
+
   //   @ApiOperation({ summary: '批量报工' })
   // @HttpCode(HttpStatus.OK)
   // @Post('batch')
@@ -109,16 +119,6 @@ export class ProductionReportController {
   async findPagination(@Query() dto: FindPaginationDto, @CurrentPage() pagination: Pagination, @Req() req) {
     let { factoryCode, loadModel } = req
     const result = await this.service.findPagination(dto, pagination, loadModel)
-    return result
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '托盘报工单列表' })
-  @ApiPlatformWhitelist(['admin', 'station'])
-  @Get('palletfindPagination')
-  async palletfindPagination(@Query() dto: FindPaginationPalletReportTaskListDto, @CurrentPage() pagination: Pagination, @Req() req) {
-    let { user } = req
-    const result = await this.serviceTwo.palletfindPagination(dto, pagination, user)
     return result
   }
 
