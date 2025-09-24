@@ -5,6 +5,7 @@ import { PerformanceConfig } from '@model/performance/performanceConfig.model'
 import { ProcessPositionTask } from './processPositionTask.model'
 import { ProductionReport } from './productionReport.model'
 import { ProductionOrderTask } from './productionOrderTask.model'
+import { ProcessTask, ProductSerial } from '..'
 
 @Table({ tableName: `production_report_detail`, timestamps: true, comment: '生产报工表 - 工位任务单' })
 export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
@@ -24,11 +25,19 @@ export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
   })
   declare productionOrderTaskId: number
 
+  @ForeignKey(() => ProcessTask)
+  @Column({
+    comment: '工序任务单ID',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare processTaskId: number
+
   @ForeignKey(() => ProcessPositionTask)
   @Column({
     comment: '工位任务单ID',
     type: DataType.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
   declare processPositionTaskId: number
 
@@ -37,6 +46,15 @@ export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
     type: DataType.STRING(255),
   })
   declare ironSerial: string
+
+  //产品序列号id
+  @ForeignKey(() => ProductSerial)
+  @Column({
+    comment: '产品序列号id',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare serialId: number
 
   @Column({
     comment: '开始时间',
@@ -183,6 +201,9 @@ export class ProductionReportDetail extends BaseDate<ProductionReportDetail> {
     constraints: false,
   })
   processPositionTask: ProcessPositionTask
+
+  @BelongsTo(() => ProductSerial)
+  declare serial: ProductSerial
 
   declare performanceConfig: PerformanceConfig
   declare durationUsers: { duration: number; user: User }[]
