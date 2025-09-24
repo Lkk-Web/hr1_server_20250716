@@ -429,12 +429,21 @@ export class ProcessService {
       },
     })
 
-    const team = await TeamProcess.findOne({ where: { processId: nextProcess.processId } })
     const palletResult = await PalletDetail.findAll({
-      where: { teamId: team.teamId },
       include: [
         {
           association: 'pallet',
+        },
+        {
+          association: 'team',
+          include: [
+            {
+              association: 'teamProcessList',
+              where: {
+                processId: nextProcess.processId,
+              },
+            },
+          ],
         },
       ],
     })
