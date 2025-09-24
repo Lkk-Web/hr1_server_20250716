@@ -419,28 +419,35 @@ export class ProcessService {
    * 根据工序ID获取下一个工序的托盘列表
    */
   public async findNextProcessPalletList(dto: findNextProcessDto, processId: number, pagination: Pagination) {
-    let initProcessId = processId
-    const proCess = await Process.findOne({ where: { id: initProcessId } })
-    if (proCess.processName.includes('焊嵌件')) {
-      initProcessId = proCess.parentId
-    }
+    const currentProcess = await Process.findOne({ where: { id: processId } })
+
     //工艺路线
     const processRoute = await Material.findOne({ where: { id: dto.materialId } })
 
     const process = await ProcessRouteList.findOne({
       where: {
         processRouteId: processRoute.processRouteId,
-        processId: initProcessId,
+        processId: processId,
       },
     })
 
     //下一个工序ID
-    const nextProcess = await ProcessRouteList.findOne({
+    let nextProcess = await ProcessRouteList.findOne({
       where: {
         processRouteId: processRoute.processRouteId,
         sort: process.sort + 1,
       },
     })
+
+    // 焊嵌件
+    if (currentProcess.isChild && currentProcess.processName.includes('焊嵌件') && !nextProcess) {
+      nextProcess = await ProcessRouteList.findOne({
+        where: {
+          processRouteId: processRoute.processRouteId,
+          processId: currentProcess.parentId + 1,
+        },
+      })
+    }
 
     const palletResult = await PalletDetail.findAll({
       include: [
