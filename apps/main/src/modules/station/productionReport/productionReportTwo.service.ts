@@ -148,7 +148,7 @@ export class ProductionReportTwoService {
         }
       }
       // 创建用户时长和任务单用户关系
-      const taskTime = await this.createReportUserDuration(user, taskList, undefined, transaction)
+      const taskTime = await this.createReportUserDuration(user, taskList, undefined, false, transaction)
       await transaction.commit()
 
       return taskTime
@@ -163,71 +163,22 @@ export class ProductionReportTwoService {
   // 托盘开工、暂停
   public async palletOpenTask(dto: PalletOpenTaskDto, user) {
     const transaction = await ProcessTask.sequelize.transaction()
+
     const { status: taskStatus } = dto
-    let taskList: ProcessPositionTask[] = []
+    let taskList: ProcessTask[] = []
     try {
       const process = await Process.findOne({ where: { id: dto.processId } })
 
       for (const palletTaskOrderDto of dto.palletTaskOrder) {
-        // 验证托盘任务单是否存在（如果提供了ID）
-        if (palletTaskOrderDto.palletTaskOrderId) {
-          const existingPalletTaskOrder = await PalletTaskOrder.findOne({
-            where: { id: palletTaskOrderDto.palletTaskOrderId },
-          })
-          if (!existingPalletTaskOrder) {
-            throw new Error(`托盘任务单${palletTaskOrderDto.palletTaskOrderId}不存在`)
-          }
-        }
-
-        // 处理托盘任务单中的每个位置
         for (const item of palletTaskOrderDto.positions) {
-          // 获取序列号对应的工单任务
-          const productSerial = await ProductSerial.findOne({
-            where: { id: item.serialId },
-            include: [{ association: 'productionOrderTask' }],
-          })
-          if (!productSerial) {
-            throw new Error(`序列号${item.serialId}不存在`)
-          }
-
-          const productionOrderTask = productSerial.productionOrderTask
-          if (!productionOrderTask) {
-            throw new Error(`序列号${item.serialId}没有关联的工单任务`)
-          }
-
-          // 更新工单任务开始时间
-          await productionOrderTask.update({ actualStartTime: new Date() }, { transaction })
-
-          // 获取工位信息
-          const position = await Position.findOne({ where: { processId: dto.processId } })
-          const positionDetail = await PositionDetail.findOne({ where: { positionId: position.dataValues.id, userId: user.id } })
-          const positionTaskDetail = await PositionTaskDetail.findOne({
-            where: { positionDetailId: positionDetail.dataValues.id, productionOrderTaskId: productionOrderTask.id },
-          })
-
-          if (!positionTaskDetail) {
-            throw new Error(`找不到对应的工位任务详情`)
-          }
-
-          // 检查派工数量
-          const allowReportQuantity = positionTaskDetail.dataValues.allowWorkNum - positionTaskDetail.dataValues.workNum || 0
-          if (allowReportQuantity < 1 && taskStatus == TaskStatus.OPEN_TASK) {
-            throw new Error(`开工数量大于派工数量${allowReportQuantity}`)
-          }
-
-          // 更新工位任务详情的工作数量
-          await positionTaskDetail.update(
-            {
-              workNum: taskStatus == TaskStatus.OPEN_TASK ? positionTaskDetail.dataValues.workNum + 1 : positionTaskDetail.dataValues.workNum - 1,
-            },
-            { transaction }
-          )
-
           // 工序任务
-          const processTask = await ProcessTask.findOne({ where: { serialId: item.serialId, processId: process.parentId } })
-          if (!processTask) {
-            throw new Error(`序列号${item.serialId}没有对应的工序任务`)
-          }
+          const processTask = await ProcessTask.findOne({
+            where: { serialId: item.serialId, processId: process.id },
+            include: [{ association: 'operateLogs' }],
+          })
+
+          if (processTask.status == PROCESS_TASK_STATUS.running && taskStatus == TaskStatus.OPEN_TASK) throw new Error('当前任务正在进行中，不能重新开工')
+          if (processTask.status == PROCESS_TASK_STATUS.pause && taskStatus == TaskStatus.PAUSE) throw new Error('当前任务已暂停，不能暂停')
 
           await processTask.update(
             {
@@ -237,23 +188,9 @@ export class ProductionReportTwoService {
             { transaction }
           )
 
-          // 工位任务
-          const processPositionTask = await ProcessPositionTask.findOne({
-            where: {
-              serialId: item.serialId,
-              processId: dto.processId,
-              status: { [Op.in]: [POSITION_TASK_STATUS.NOT_STARTED, POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.PAUSED] },
-            },
-            include: [{ association: 'operateLogs' }],
-          })
-
-          if (!processPositionTask) {
-            throw new Error(`序列号${item.serialId}没有对应的工位任务`)
-          }
-
-          // 上一道子工序检查
-          const preProcessPositionTask = await ProcessPositionTask.findOne({
-            where: { serialId: processPositionTask.serialId, id: processPositionTask.prePositionTaskId },
+          // 上一道工序
+          const preProcessTask = await ProcessTask.findOne({
+            where: { serialId: item.serialId, id: processTask.preProcessTaskId },
             order: [['id', 'ASC']],
             include: [
               {
@@ -261,49 +198,35 @@ export class ProductionReportTwoService {
               },
             ],
           })
-          if (preProcessPositionTask && preProcessPositionTask.dataValues.status != POSITION_TASK_STATUS.COMPLETED) {
-            throw new Error(`${preProcessPositionTask.serial.dataValues.serialNumber}上一道子工序未完成，无法开工`)
+          if (preProcessTask && preProcessTask.dataValues.status != PROCESS_TASK_STATUS.finish) {
+            throw new Error(`${preProcessTask.serial.dataValues.serialNumber}上一道工序未完成，无法开工`)
           }
 
-          // 状态验证
-          if (processPositionTask.status == POSITION_TASK_STATUS.IN_PROGRESS && taskStatus == TaskStatus.OPEN_TASK) {
-            throw new Error('当前任务正在进行中，不能重新开工')
-          }
-          if (processPositionTask.status == POSITION_TASK_STATUS.PAUSED && taskStatus == TaskStatus.PAUSE) {
-            throw new Error('当前任务已暂停，不能暂停')
-          }
+          taskList.push(processTask)
 
-          // 更新工位任务状态
-          await processPositionTask.update(
-            {
-              actualStartTime: processPositionTask.dataValues.actualStartTime ?? new Date(),
-              status: taskStatus == TaskStatus.OPEN_TASK ? POSITION_TASK_STATUS.IN_PROGRESS : POSITION_TASK_STATUS.PAUSED,
-            },
-            { transaction }
-          )
-          taskList.push(processPositionTask)
-
-          // 更新序列号状态
+          // 序列号
           await ProductSerial.update(
             { status: taskStatus == TaskStatus.OPEN_TASK ? ProductSerialStatus.IN_PROGRESS : ProductSerialStatus.PAUSED, currentProcessTaskId: processTask.dataValues.id },
             { where: { id: item.serialId }, transaction }
           )
 
-          // 创建日志
+          // 日志
           const logs = await ProcessTaskLog.create(
             {
               processTaskID: processTask.id,
-              processPositionTaskId: processPositionTask.dataValues.id,
               ...(taskStatus == TaskStatus.OPEN_TASK ? { resumeTime: new Date() } : { pauseTime: new Date() }),
             },
             { transaction }
           )
+
+          console.log(81283, JSON.stringify(logs))
+
           taskList[taskList.length - 1]['operateLogs'].push(logs)
         }
       }
 
       // 创建用户时长和任务单用户关系
-      const taskTime = await this.createReportUserDuration(user, taskList, undefined, transaction)
+      const taskTime = await this.createReportUserDuration(user, taskList, undefined, true, transaction)
       await transaction.commit()
 
       return taskTime
@@ -356,13 +279,14 @@ export class ProductionReportTwoService {
           if (processPositionTask.dataValues.status != POSITION_TASK_STATUS.IN_PROGRESS) throw new Error('当前序列号不在进行中，无法报工')
           await processPositionTask.update({ status: POSITION_TASK_STATUS.COMPLETED, actualEndTime: new Date(), actualWorkTime: item.duration }, { transaction })
 
-          if (process.processName.includes('焊嵌件')) {
-            if (!dto.palletId) throw new Error('托盘ID不能为空')
-            await ProductSerial.update({ palletId: dto.palletId }, { where: { id: item.serialId }, transaction })
-          }
-
           // 不同工序
           {
+            // 焊嵌件
+            if (process.processName.includes('焊嵌件')) {
+              if (!dto.palletId) throw new Error('托盘ID不能为空')
+              await ProductSerial.update({ palletId: dto.palletId }, { where: { id: item.serialId }, transaction })
+            }
+
             //序列号绑定多个铁芯序列号
             if (process.processName.includes('打合')) {
               const result = await IronProductSerial.findOne({
@@ -440,9 +364,6 @@ export class ProductionReportTwoService {
           })
 
           if (nextProcessPositionTask) {
-            // if (nextProcessPositionTask.status == PROCESS_TASK_STATUS.notStart) {
-            //   await nextProcessPositionTask.update({ status: PROCESS_TASK_STATUS.running }, { transaction })
-            // }
           } else {
             // 没有下一道工位
             await processTask.update({ status: PROCESS_TASK_STATUS.finish, actualEndTime: new Date() }, { transaction })
@@ -465,8 +386,6 @@ export class ProductionReportTwoService {
             transaction,
           })
 
-          console.log(8888888, nextProcessTask)
-
           if (nextProcessTask) {
           } else {
             // 没有下一道工序
@@ -479,18 +398,16 @@ export class ProductionReportTwoService {
       }
 
       // 3. 创建用户时长和报工关系、工时
-      const taskTime = await this.createReportUserDuration(user, taskList, productionReport.id, transaction)
+      const taskTime = await this.createReportUserDuration(user, taskList, productionReport.id, false, transaction)
 
-      // 4. 创建托盘任务单
+      // 4. 当前节点绑定托盘
       if (dto.palletId) {
-        const palletTaskOrder = await PalletTaskOrder.create({ palletId: dto.palletId }, { transaction })
         const palletSerialData = []
         for (const orderTask of dto.productionOrderTask) {
           for (const position of orderTask.positions) {
             palletSerialData.push({
               palletId: dto.palletId,
               productSerialId: position.serialId,
-              palletTaskOrderId: palletTaskOrder.id,
             })
           }
         }
@@ -512,6 +429,7 @@ export class ProductionReportTwoService {
   // 托盘报工
   public async palletReportTask(dto: PalletRegisterDto, user) {
     const transaction = await ProcessTask.sequelize.transaction()
+
     let taskList: ProcessPositionTask[] = []
     let palletTaskOrder: PalletTaskOrder = null
 
@@ -539,233 +457,233 @@ export class ProductionReportTwoService {
         palletTaskOrder = await PalletTaskOrder.create({ palletId: dto.palletId }, { transaction })
       }
 
-      // 4. 处理托盘任务单配置
-      for (const palletTaskOrderDto of dto.palletTaskOrder) {
-        // 验证托盘任务单是否存在（如果提供了ID）
-        if (palletTaskOrderDto.palletTaskOrderId) {
-          const existingPalletTaskOrder = await PalletTaskOrder.findOne({
-            where: { id: palletTaskOrderDto.palletTaskOrderId },
-          })
-          if (!existingPalletTaskOrder) {
-            throw new Error(`托盘任务单${palletTaskOrderDto.palletTaskOrderId}不存在`)
-          }
-        }
+      // // 4. 处理托盘任务单配置
+      // for (const palletTaskOrderDto of dto.palletTaskOrder) {
+      //   // 验证托盘任务单是否存在（如果提供了ID）
+      //   if (palletTaskOrderDto.palletTaskOrderId) {
+      //     const existingPalletTaskOrder = await PalletTaskOrder.findOne({
+      //       where: { id: palletTaskOrderDto.palletTaskOrderId },
+      //     })
+      //     if (!existingPalletTaskOrder) {
+      //       throw new Error(`托盘任务单${palletTaskOrderDto.palletTaskOrderId}不存在`)
+      //     }
+      //   }
 
-        // 处理托盘位置配置
-        for (const item of palletTaskOrderDto.positions) {
-          const process = await Process.findOne({ where: { id: dto.processId } })
+      //   // 处理托盘位置配置
+      //   for (const item of palletTaskOrderDto.positions) {
+      //     const process = await Process.findOne({ where: { id: dto.processId } })
 
-          // 获取序列号信息
-          const productSerial = await ProductSerial.findOne({ where: { id: item.serialId } })
-          if (!productSerial) {
-            throw new Error(`序列号${item.serialId}不存在`)
-          }
+      //     // 获取序列号信息
+      //     const productSerial = await ProductSerial.findOne({ where: { id: item.serialId } })
+      //     if (!productSerial) {
+      //       throw new Error(`序列号${item.serialId}不存在`)
+      //     }
 
-          // 工序任务
-          const processTask = await ProcessTask.findOne({
-            where: {
-              serialId: item.serialId,
-              processId: process.parentId,
-              status: PROCESS_TASK_STATUS.running,
-            },
-          })
-          if (!processTask) {
-            throw new Error(`序列号${item.serialId}没有进行中的工序任务`)
-          }
+      //     // 工序任务
+      //     const processTask = await ProcessTask.findOne({
+      //       where: {
+      //         serialId: item.serialId,
+      //         processId: process.parentId,
+      //         status: PROCESS_TASK_STATUS.running,
+      //       },
+      //     })
+      //     if (!processTask) {
+      //       throw new Error(`序列号${item.serialId}没有进行中的工序任务`)
+      //     }
 
-          // 工位任务
-          const processPositionTask = await ProcessPositionTask.findOne({
-            where: {
-              serialId: item.serialId,
-              processId: dto.processId,
-              status: [POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.PAUSED],
-            },
-            include: [{ association: 'operateLogs' }],
-          })
+      //     // 工位任务
+      //     const processPositionTask = await ProcessPositionTask.findOne({
+      //       where: {
+      //         serialId: item.serialId,
+      //         processId: dto.processId,
+      //         status: [POSITION_TASK_STATUS.IN_PROGRESS, POSITION_TASK_STATUS.PAUSED],
+      //       },
+      //       include: [{ association: 'operateLogs' }],
+      //     })
 
-          if (!processPositionTask) {
-            throw new Error(`序列号${item.serialId}没有进行中的工位任务`)
-          }
+      //     if (!processPositionTask) {
+      //       throw new Error(`序列号${item.serialId}没有进行中的工位任务`)
+      //     }
 
-          if (processPositionTask.dataValues.status != POSITION_TASK_STATUS.IN_PROGRESS) {
-            throw new Error(`序列号${item.serialId}当前不在进行中，无法报工`)
-          }
+      //     if (processPositionTask.dataValues.status != POSITION_TASK_STATUS.IN_PROGRESS) {
+      //       throw new Error(`序列号${item.serialId}当前不在进行中，无法报工`)
+      //     }
 
-          // 更新工位任务状态为完成
-          await processPositionTask.update(
-            {
-              status: POSITION_TASK_STATUS.COMPLETED,
-              actualEndTime: new Date(),
-              actualWorkTime: item.duration,
-            },
-            { transaction }
-          )
+      //     // 更新工位任务状态为完成
+      //     await processPositionTask.update(
+      //       {
+      //         status: POSITION_TASK_STATUS.COMPLETED,
+      //         actualEndTime: new Date(),
+      //         actualWorkTime: item.duration,
+      //       },
+      //       { transaction }
+      //     )
 
-          // 绑定托盘
-          if (dto.palletId) {
-            await ProductSerial.update({ palletId: dto.palletId }, { where: { id: item.serialId }, transaction })
-          }
+      //     // 绑定托盘
+      //     if (dto.palletId) {
+      //       await ProductSerial.update({ palletId: dto.palletId }, { where: { id: item.serialId }, transaction })
+      //     }
 
-          // 处理不同工序的特殊逻辑
-          if (process.processName.includes('打合')) {
-            // 序列号绑定多个铁芯序列号
-            if (item.ironSerial && item.ironSerial.length > 0) {
-              const result = await IronProductSerial.findOne({
-                where: { serialId: item.serialId },
-              })
-              if (!result) {
-                const ironProductSerial = item.ironSerial.map(v => ({
-                  serialId: item.serialId,
-                  ironSerial: v,
-                }))
-                await IronProductSerial.bulkCreate(ironProductSerial, { transaction })
-              }
-            }
-          }
+      //     // 处理不同工序的特殊逻辑
+      //     if (process.processName.includes('打合')) {
+      //       // 序列号绑定多个铁芯序列号
+      //       if (item.ironSerial && item.ironSerial.length > 0) {
+      //         const result = await IronProductSerial.findOne({
+      //           where: { serialId: item.serialId },
+      //         })
+      //         if (!result) {
+      //           const ironProductSerial = item.ironSerial.map(v => ({
+      //             serialId: item.serialId,
+      //             ironSerial: v,
+      //           }))
+      //           await IronProductSerial.bulkCreate(ironProductSerial, { transaction })
+      //         }
+      //       }
+      //     }
 
-          // 质检工序处理
-          if (process.isQC) {
-            if (item.QCResult) {
-              // 良品
-              await processTask.update({ goodCount: 1, badCount: 0 }, { transaction })
-              await productionReport.update({ allGoodCount: productionReport.allGoodCount + 1 }, { transaction })
-              await processPositionTask.update({ goodCount: processPositionTask.dataValues.goodCount + 1 }, { transaction })
-            } else {
-              // 不良品
-              await processTask.update({ goodCount: 0, badCount: 1 }, { transaction })
-              await productionReport.update({ allBadCount: productionReport.allBadCount + 1 }, { transaction })
-              await processPositionTask.update(
-                {
-                  badCount: processPositionTask.dataValues.badCount + 1,
-                  QCReason: item.QCReason,
-                },
-                { transaction }
-              )
+      //     // 质检工序处理
+      //     if (process.isQC) {
+      //       if (item.QCResult) {
+      //         // 良品
+      //         await processTask.update({ goodCount: 1, badCount: 0 }, { transaction })
+      //         await productionReport.update({ allGoodCount: productionReport.allGoodCount + 1 }, { transaction })
+      //         await processPositionTask.update({ goodCount: processPositionTask.dataValues.goodCount + 1 }, { transaction })
+      //       } else {
+      //         // 不良品
+      //         await processTask.update({ goodCount: 0, badCount: 1 }, { transaction })
+      //         await productionReport.update({ allBadCount: productionReport.allBadCount + 1 }, { transaction })
+      //         await processPositionTask.update(
+      //           {
+      //             badCount: processPositionTask.dataValues.badCount + 1,
+      //             QCReason: item.QCReason,
+      //           },
+      //           { transaction }
+      //         )
 
-              // 返工/报废处理
-              if (item.scrapType) {
-                if (item.scrapType == ScrapType.SCRAP) {
-                  // 报废
-                  await this.Scrap(item, null, user, processTask.dataValues.id, transaction)
-                } else if (item.scrapType == ScrapType.REWORK) {
-                  // 返工
-                  await this.rework(item, null, processTask, dto.processId, user, transaction)
-                }
-              } else {
-                throw new Error('不良品必须选择报废或返工')
-              }
-            }
-          }
+      //         // 返工/报废处理
+      //         if (item.scrapType) {
+      //           if (item.scrapType == ScrapType.SCRAP) {
+      //             // 报废
+      //             await this.Scrap(item, null, user, processTask.dataValues.id, transaction)
+      //           } else if (item.scrapType == ScrapType.REWORK) {
+      //             // 返工
+      //             await this.rework(item, null, processTask, dto.processId, user, transaction)
+      //           }
+      //         } else {
+      //           throw new Error('不良品必须选择报废或返工')
+      //         }
+      //       }
+      //     }
 
-          // 获取工单任务并创建关联
-          const productionOrderTask = await ProductionOrderTask.findOne({
-            where: { id: productSerial.productionOrderTaskId },
-          })
-          if (!productionOrderTask) {
-            throw new Error(`序列号${item.serialId}对应的工单任务不存在`)
-          }
+      //     // 获取工单任务并创建关联
+      //     const productionOrderTask = await ProductionOrderTask.findOne({
+      //       where: { id: productSerial.productionOrderTaskId },
+      //     })
+      //     if (!productionOrderTask) {
+      //       throw new Error(`序列号${item.serialId}对应的工单任务不存在`)
+      //     }
 
-          // 创建报工单与工单任务关联（避免重复）
-          await ProductionOrderTaskOfReport.findOrCreate({
-            where: {
-              productionOrderTaskId: productionOrderTask.id,
-              reportId: productionReport.id,
-            },
-            defaults: {
-              productionOrderTaskId: productionOrderTask.id,
-              reportId: productionReport.id,
-            },
-            transaction,
-          })
+      //     // 创建报工单与工单任务关联（避免重复）
+      //     await ProductionOrderTaskOfReport.findOrCreate({
+      //       where: {
+      //         productionOrderTaskId: productionOrderTask.id,
+      //         reportId: productionReport.id,
+      //       },
+      //       defaults: {
+      //         productionOrderTaskId: productionOrderTask.id,
+      //         reportId: productionReport.id,
+      //       },
+      //       transaction,
+      //     })
 
-          // 创建报工详情
-          await ProductionReportDetail.create(
-            {
-              productionReportId: productionReport.id,
-              processPositionTaskId: processPositionTask.dataValues.id,
-              productionOrderTaskId: productionOrderTask.id,
-              reportQuantity: item.reportQuantity,
-              startTime: processPositionTask.dataValues.actualStartTime,
-              endTime: new Date(),
-            },
-            { transaction }
-          )
+      //     // 创建报工详情
+      //     await ProductionReportDetail.create(
+      //       {
+      //         productionReportId: productionReport.id,
+      //         processPositionTaskId: processPositionTask.dataValues.id,
+      //         productionOrderTaskId: productionOrderTask.id,
+      //         reportQuantity: item.reportQuantity,
+      //         startTime: processPositionTask.dataValues.actualStartTime,
+      //         endTime: new Date(),
+      //       },
+      //       { transaction }
+      //     )
 
-          taskList.push(processPositionTask)
+      //     taskList.push(processPositionTask)
 
-          // 创建托盘序列号关联
-          if (dto.palletId && palletTaskOrder) {
-            await PalletSerial.create(
-              {
-                palletId: dto.palletId,
-                productSerialId: item.serialId,
-                palletTaskOrderId: palletTaskOrder.id,
-              },
-              { transaction }
-            )
-          }
+      //     // 创建托盘序列号关联
+      //     if (dto.palletId && palletTaskOrder) {
+      //       await PalletSerial.create(
+      //         {
+      //           palletId: dto.palletId,
+      //           productSerialId: item.serialId,
+      //           palletTaskOrderId: palletTaskOrder.id,
+      //         },
+      //         { transaction }
+      //       )
+      //     }
 
-          // 日志
-          const logs = await ProcessTaskLog.create(
-            {
-              processTaskID: processTask.dataValues.id,
-              processPositionTaskId: processPositionTask.dataValues.id,
-              pauseTime: new Date(),
-            },
-            { transaction }
-          )
-          taskList[taskList.length - 1]['operateLogs'].push(logs)
+      //     // 日志
+      //     const logs = await ProcessTaskLog.create(
+      //       {
+      //         processTaskID: processTask.dataValues.id,
+      //         processPositionTaskId: processPositionTask.dataValues.id,
+      //         pauseTime: new Date(),
+      //       },
+      //       { transaction }
+      //     )
+      //     taskList[taskList.length - 1]['operateLogs'].push(logs)
 
-          // 处理下一道工位
-          const nextProcessPositionTask = await ProcessPositionTask.findOne({
-            where: {
-              serialId: processPositionTask.dataValues.serialId,
-              prePositionTaskId: processPositionTask.dataValues.id,
-            },
-          })
+      //     // 处理下一道工位
+      //     const nextProcessPositionTask = await ProcessPositionTask.findOne({
+      //       where: {
+      //         serialId: processPositionTask.dataValues.serialId,
+      //         prePositionTaskId: processPositionTask.dataValues.id,
+      //       },
+      //     })
 
-          if (!nextProcessPositionTask) {
-            // 没有下一道工位，完成工序任务
-            await processTask.update(
-              {
-                status: PROCESS_TASK_STATUS.finish,
-                actualEndTime: new Date(),
-              },
-              { transaction }
-            )
-          }
+      //     if (!nextProcessPositionTask) {
+      //       // 没有下一道工位，完成工序任务
+      //       await processTask.update(
+      //         {
+      //           status: PROCESS_TASK_STATUS.finish,
+      //           actualEndTime: new Date(),
+      //         },
+      //         { transaction }
+      //       )
+      //     }
 
-          // 处理下一道工序
-          const nextProcessTask = await ProcessTask.findOne({
-            where: {
-              serialId: processTask.serialId,
-              preProcessTaskId: processTask.id,
-            },
-            order: [['id', 'ASC']],
-            transaction,
-          })
+      //     // 处理下一道工序
+      //     const nextProcessTask = await ProcessTask.findOne({
+      //       where: {
+      //         serialId: processTask.serialId,
+      //         preProcessTaskId: processTask.id,
+      //       },
+      //       order: [['id', 'ASC']],
+      //       transaction,
+      //     })
 
-          if (!nextProcessTask) {
-            // 没有下一道工序，完成序列号
-            if (processTask.status == PROCESS_TASK_STATUS.finish) {
-              await ProductSerial.update(
-                {
-                  status: ProductSerialStatus.COMPLETED,
-                },
-                { where: { id: item.serialId }, transaction }
-              )
-            }
-          }
-        }
-      }
+      //     if (!nextProcessTask) {
+      //       // 没有下一道工序，完成序列号
+      //       if (processTask.status == PROCESS_TASK_STATUS.finish) {
+      //         await ProductSerial.update(
+      //           {
+      //             status: ProductSerialStatus.COMPLETED,
+      //           },
+      //           { where: { id: item.serialId }, transaction }
+      //         )
+      //       }
+      //     }
+      //   }
+      // }
 
-      // 5. 创建用户时长和报工关系
-      const taskTime = await this.createReportUserDuration(user, taskList, productionReport.id, transaction)
+      // // 5. 创建用户时长和报工关系
+      const taskTime = await this.createReportUserDuration(user, taskList, productionReport.id, true, transaction)
 
       await transaction.commit()
 
       return {
-        taskTime,
+        // taskTime,
         productionReport,
         palletTaskOrder,
       }
@@ -1259,7 +1177,7 @@ export class ProductionReportTwoService {
   }
 
   // 创建用户时长和报告用户关系
-  private async createReportUserDuration(user, tasks: ProcessPositionTask[], productionReportId?: number, transaction?: Transaction) {
+  private async createReportUserDuration(user, tasks: ProcessPositionTask[] | ProcessTask[], productionReportId?: number, isProcess?: boolean, transaction?: Transaction) {
     //实际总时长
     // const actualTotalDuration = userDurations.reduce((total, userDuration) => total + userDuration.duration, 0);
     let taskTime = []
@@ -1305,9 +1223,9 @@ export class ProductionReportTwoService {
         // 准备创建操作
         createData.push({
           userId: user.id,
-          processPositionTaskId: task.id,
           duration: taskDuration,
           ...(productionReportId && { productionReportId }),
+          ...(isProcess ? { processTaskId: task?.id } : { processPositionTaskId: task?.id }),
         })
       }
     }
@@ -1583,7 +1501,7 @@ export class ProductionReportTwoService {
   }
 
   // 计算任务总时长（扣除暂停时间） TODO 待优化
-  public calculateTotalDuration(task: ProcessPositionTask) {
+  public calculateTotalDuration(task: ProcessPositionTask | ProcessTask) {
     if (!task.operateLogs || task.operateLogs.length === 0) {
       throw '数据错误：缺少操作日志'
     }

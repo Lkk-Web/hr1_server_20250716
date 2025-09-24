@@ -505,10 +505,6 @@ export class PalletProcessDto {
 }
 
 export class PalletTaskOrderDto {
-  @ApiProperty({ description: '托盘任务单表id', type: Number, required: true })
-  @IsNumber({}, { message: '托盘任务单id必须为数字' })
-  palletTaskOrderId: number
-
   @ApiProperty({ description: '托盘任务单配置', type: [PalletProcessDto] })
   @Type(() => PalletProcessDto)
   @ValidateNested({ each: true })

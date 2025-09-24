@@ -1,6 +1,6 @@
 import { BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript'
 import { BaseModel } from '@model/shared/base.model'
-import { ProcessPositionTask, ProductionReport, User } from '..'
+import { ProcessPositionTask, ProcessTask, ProductionReport, User } from '..'
 
 @Table({ tableName: `production_user_task_duration`, timestamps: false, comment: '生产任务与员工时长' })
 export class UserTaskDuration extends BaseModel<UserTaskDuration> {
@@ -24,9 +24,17 @@ export class UserTaskDuration extends BaseModel<UserTaskDuration> {
   @Column({
     comment: '工位任务id',
     type: DataType.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
   declare processPositionTaskId: number
+
+  @ForeignKey(() => ProcessTask)
+  @Column({
+    comment: '工序任务id',
+    type: DataType.INTEGER,
+    allowNull: true,
+  })
+  declare processTaskId: number
 
   @Column({
     comment: '所用时长 单位/s',
@@ -39,4 +47,7 @@ export class UserTaskDuration extends BaseModel<UserTaskDuration> {
 
   @BelongsTo(() => ProcessPositionTask)
   declare processPositionTask: ProcessPositionTask
+
+  @BelongsTo(() => ProcessTask)
+  declare processTask: ProcessTask
 }
