@@ -4,7 +4,7 @@ import { RedisProvider } from '@library/redis'
 import { InjectModel } from '@nestjs/sequelize'
 import { HttpException, Inject, Injectable } from '@nestjs/common'
 import { Process } from '@model/process/process.model'
-import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto, FindProcessDto, FindNextProcessPalletDto } from './process.dto'
+import { CProcessDto, findMaterialDto, FindPaginationDto, UProcessDto, FindProcessDto, FindNextProcessPalletDto, findNextProcessDto } from './process.dto'
 import { FindOptions, Op, Sequelize } from 'sequelize'
 import { FindPaginationOptions } from '@model/shared/interface'
 import { ProcessItems } from '@model/process/processItems.model'
@@ -418,14 +418,27 @@ export class ProcessService {
   /**
    * 根据工序ID获取下一个工序的托盘列表
    */
-  public async findNextProcessPalletList(processId: number, pagination: Pagination) {
+  public async findNextProcessPalletList(dto: findNextProcessDto, processId: number, pagination: Pagination) {
+    let initProcessId = processId
+    const proCess = await Process.findOne({ where: { id: initProcessId } })
+    if (proCess.processName.includes('焊嵌件')) {
+      initProcessId = proCess.parentId
+    }
     //工艺路线
-    const processRoute = await ProcessRouteList.findOne({ where: { processId } })
+    const processRoute = await Material.findOne({ where: { id: dto.materialId } })
+
+    const process = await ProcessRouteList.findOne({
+      where: {
+        processRouteId: processRoute.processRouteId,
+        processId: initProcessId,
+      },
+    })
+
     //下一个工序ID
     const nextProcess = await ProcessRouteList.findOne({
       where: {
         processRouteId: processRoute.processRouteId,
-        sort: processRoute.sort + 1,
+        sort: process.sort + 1,
       },
     })
 
