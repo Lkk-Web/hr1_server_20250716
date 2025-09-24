@@ -435,16 +435,23 @@ export class ProcessService {
     let nextProcess = await ProcessRouteList.findOne({
       where: {
         processRouteId: processRoute.processRouteId,
-        sort: process.sort + 1,
+        sort: process?.sort ? process.sort + 1 : 0,
       },
     })
 
     // 焊嵌件
     if (currentProcess.isChild && currentProcess.processName.includes('焊嵌件') && !nextProcess) {
+      const parentProcess = await ProcessRouteList.findOne({
+        where: {
+          processRouteId: processRoute.processRouteId,
+          processId: currentProcess.parentId,
+        },
+      })
+
       nextProcess = await ProcessRouteList.findOne({
         where: {
           processRouteId: processRoute.processRouteId,
-          processId: currentProcess.parentId + 1,
+          sort: parentProcess.dataValues.sort + 1,
         },
       })
     }
@@ -456,9 +463,11 @@ export class ProcessService {
         },
         {
           association: 'team',
+          required: true,
           include: [
             {
               association: 'teamProcessList',
+              required: true,
               where: {
                 processId: nextProcess.processId,
               },
