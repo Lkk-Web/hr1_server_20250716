@@ -203,8 +203,8 @@ export class ProductionReportService {
               required: false,
               include: [
                 {
-                  association: 'processPositionTask',
-                  include: [{ association: 'serial' }],
+                  association: 'serial',
+                  require: true,
                 },
               ],
             },

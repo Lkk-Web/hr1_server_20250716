@@ -504,7 +504,13 @@ export class PalletProcessDto {
   reworkType?: ReworkType
 }
 
-export class PalletTaskOrderDto {
+export class PalletDto {
+  @ApiProperty({
+    description: '托盘id',
+    required: false,
+  })
+  palletId: number
+
   @ApiProperty({ description: '托盘任务单配置', type: [PalletProcessDto] })
   @Type(() => PalletProcessDto)
   @ValidateNested({ each: true })
@@ -513,11 +519,11 @@ export class PalletTaskOrderDto {
 }
 
 export class PalletRegisterDto {
-  @ApiProperty({ description: '托盘任务单表配置', type: [PalletTaskOrderDto] })
-  @Type(() => PalletTaskOrderDto)
+  @ApiProperty({ description: '托盘任务单表配置', type: [PalletDto] })
+  @Type(() => PalletDto)
   @ValidateNested({ each: true })
   @IsArrayLength({ min: 1 }, { message: '托盘任务单表配置必须是数组且长度大于0' })
-  palletTaskOrder: PalletTaskOrderDto[]
+  pallet: PalletDto[]
 
   @ApiProperty({
     description: '工序id',
@@ -532,10 +538,10 @@ export class PalletRegisterDto {
   teamId: number
 
   @ApiProperty({
-    description: '托盘id',
+    description: '流转托盘id',
     required: false,
   })
-  palletId: number
+  transformPalletId: number
 }
 
 export class OpenTaskDto {
@@ -557,11 +563,11 @@ export class OpenTaskDto {
 }
 
 export class PalletOpenTaskDto {
-  @ApiProperty({ description: '托盘任务单表配置', type: [PalletTaskOrderDto] })
-  @Type(() => PalletTaskOrderDto)
+  @ApiProperty({ description: '托盘任务单表配置', type: [PalletDto] })
+  @Type(() => PalletDto)
   @ValidateNested({ each: true })
   @IsArrayLength({ min: 1 }, { message: '托盘任务单表配置必须是数组且长度大于0' })
-  palletTaskOrder: PalletTaskOrderDto[]
+  palletTaskOrder: PalletDto[]
 
   @ApiProperty({
     description: '工序id',
